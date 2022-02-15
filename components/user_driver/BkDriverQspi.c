@@ -1,0 +1,85 @@
+/**
+ ******************************************************************************
+ * @file    BkDriverQspi.h
+ * @brief   This file provides all the headers of PWM operation functions.
+ ******************************************************************************
+ *
+ *  The MIT License
+ *  Copyright (c) 2017 BEKEN Inc.
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is furnished
+ *  to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in
+ *  all copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ *  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ *  IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ ******************************************************************************
+ */
+#include "include.h"
+#include "bk_api_rtos.h"
+#include "BkDriverQspi.h"
+#include "bk_drv_model.h"
+#include "bk_kernel_err.h"
+#include "bk_qspi.h"
+
+#if CONFIG_QSPI
+bk_err_t bk_qspi_dcache_initialize(qspi_dcache_drv_desc *qspi_config)
+{
+	UINT32 param, ret;
+
+	ret = sddev_control(DD_DEV_TYPE_QSPI, QSPI_CMD_DCACHE_CONFIG, qspi_config);
+	BK_ASSERT(QSPI_SUCCESS == ret);
+
+	param = qspi_config->voltage_level;
+	ret = sddev_control(DD_DEV_TYPE_QSPI, QSPI_CMD_SET_VOLTAGE, &param);
+	BK_ASSERT(QSPI_SUCCESS == ret);
+
+	param = qspi_config->clk_set;
+	ret = sddev_control(DD_DEV_TYPE_QSPI, QSPI_CMD_DIV_CLK_SET,  &param);
+	BK_ASSERT(QSPI_SUCCESS == ret);
+
+	param &= 0x30;						//set psram clk source
+	if (param == 0x00) {
+		ret = sddev_control(DD_DEV_TYPE_QSPI, QSPI_CMD_CLK_SET_DCO, NULL);
+		BK_ASSERT(QSPI_SUCCESS == ret);
+	} else if (param == 0x10) {
+		ret = sddev_control(DD_DEV_TYPE_QSPI, QSPI_CMD_CLK_SET_26M, NULL);
+		BK_ASSERT(QSPI_SUCCESS == ret);
+	} else {
+		ret = sddev_control(DD_DEV_TYPE_QSPI, QSPI_CMD_CLK_SET_120M, NULL);
+		BK_ASSERT(QSPI_SUCCESS == ret);
+	}
+
+	if (qspi_config->mode == 0)
+		param = 1;
+	else if (qspi_config->mode == 3)
+		param = 4;
+	ret = sddev_control(DD_DEV_TYPE_QSPI, QSPI_CMD_GPIO_CONFIG,  &param);
+	BK_ASSERT(QSPI_SUCCESS == ret);
+
+
+	return kNoErr;
+}
+
+bk_err_t bk_qspi_start(void)
+{
+	return sddev_control(DD_DEV_TYPE_QSPI, QSPI_DCACHE_CMD_OPEN,  NULL);
+}
+
+bk_err_t bk_qspi_stop(void)
+{
+	return sddev_control(DD_DEV_TYPE_QSPI, QSPI_DCACHE_CMD_CLOSE,  NULL);
+}
+#endif
+// eof
+

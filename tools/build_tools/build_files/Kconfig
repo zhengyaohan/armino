@@ -1,0 +1,121 @@
+#TODO add full BDK Kconfig
+
+mainmenu "Beken Development Configuration"
+
+	choice SOC
+		prompt "BDK SoC"
+		default SOC_BK7231N if "$BDK_SOC" = "bk7231n"
+		default SOC_BK7231U if "$BDK_SOC" = "bk7231u"
+		default SOC_BK7251 if "$BDK_SOC" = "bk7251"
+		default SOC_BK7271 if "$BDK_SOC" = "bk7271"
+		default SOC_BK7236 if "$BDK_SOC" = "bk7236"
+		default SOC_BK7256 if "$BDK_SOC" = "bk7256"
+		default SOC_BK7256_CP1 if "$BDK_SOC" = "bk7256_cp1"
+
+		config SOC_BK7231N
+			bool "BK7231N"
+		config SOC_BK7231U
+			bool "BK7231U"
+		config SOC_BK7251
+			bool "BK7251"
+		config SOC_BK7271
+			bool "BK7271"
+		config SOC_BK7236
+			bool "BK7236"
+		config SOC_BK7256
+			bool "BK7256"
+		config SOC_BK7256_CP1
+			bool "BK7256_CP1"
+	endchoice
+
+	config SOC_STR
+		string "SoC string"
+		default "bk7231n" if SOC_BK7231N
+		default "bk7231u" if SOC_BK7231U
+		default "bk7251"  if SOC_BK7251
+		default "bk7271"  if SOC_BK7271
+		default "bk7236"  if SOC_BK7236
+		default "bk7256"  if SOC_BK7256
+		default "bk7256_cp1"  if SOC_BK7256_CP1
+		default "$BDK_SOC"
+
+	menu "BDK Configuration"
+		menu "Common Configuration"
+			menu "Compile/Build"
+			endmenu
+
+			menu "Debug"
+				config DEBUG_FIRMWARE
+				bool "Enable building debug firmware"
+				default y
+
+				#TODO optimize assert option and make it global
+				choice ASSERT
+					prompt "Assert options"
+					default ASSERT_IGNORE
+
+					config ASSERT_IGNORE
+						bool "Ignore Assert"
+					config ASSERT_HALT
+						bool "Assert halts the system"
+					config ASSERT_REBOOT
+						bool "Assert reboots the system"
+				endchoice
+
+				config JTAG
+					bool "Enable JTAG"
+					default n
+			endmenu
+		endmenu
+
+		# Configure global or cross-components features
+		# Place configurations here if:
+		#  - Global features which is NOT suitable to configure in any specific component
+		#  - Mutual exclusive components, such as ble, ble_5_x_rw etc
+		menu "Features Configuration"
+
+			config LWIP
+				bool "Enable LWIP"
+				default y
+
+			choice LWIP
+				depends on LWIP
+				prompt "LWIP Version"
+				default LWIP_V2_0
+
+				config LWIP_V2_0
+					depends on LWIP
+					bool "LWIP 2.0.2"
+				config LWIP_V2_1
+					depends on LWIP
+					bool "LWIP 2.1.2"
+			endchoice
+
+			choice HOST
+				prompt "Hosted Mode"
+				default NO_HOSTED
+
+				config NO_HOSTED
+					bool "Disable Hosted"
+				config SEMI_HOSTED
+					bool "Semi Hosted"
+				config FULLY_HOSTED
+					bool "Fully Hosted"
+			endchoice
+
+			config WIFI_SENSOR
+				bool "Enable WiFi sensor"
+				default n
+		endmenu
+
+		menu "Components Configuration"
+			source "$COMPONENT_KCONFIGS_SOURCE_FILE"
+		endmenu
+	endmenu
+
+	#TODO add OS Kconfig
+	#menu "OS Configuration"
+		#source "$OSK_PATH/Kconfig"
+	#endmenu
+	
+	source "$COMPONENT_KCONFIGS_PROJBUILD_SOURCE_FILE"

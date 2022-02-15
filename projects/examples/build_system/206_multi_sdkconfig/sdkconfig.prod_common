@@ -1,0 +1,7 @@
+# Common settings for production builds.
+# For product-specific settings, see sdkconfig.prod1 and sdkconfig.prod2.
+
+# This selects 'func_prod.c' file to be compiled and linked, see CMakeLists.txt.
+CONFIG_MULTI_CONFIG_RELEASE=y
+
+# Other BDK options

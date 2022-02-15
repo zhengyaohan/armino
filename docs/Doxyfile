@@ -1,0 +1,119 @@
+# This is Doxygen configuration file
+#
+# Doxygen provides over 260 configuration statements
+# To make this file easier to follow,
+# it contains only statements that are non-default
+#
+# NOTE:
+# It is recommended not to change defaults unless specifically required
+# Test any changes how they affect generated documentation
+# Make sure that correct warnings are generated to flag issues with documented code
+#
+# For the complete list of configuration statements see:
+# https://www.stack.nl/~dimitri/doxygen/manual/config.html
+
+
+PROJECT_NAME = "Beken Armino Development Framework"
+
+## The 'INPUT' statement below is used as input by script 'gen-df-input.py'
+## to automatically generate API reference list files heder_file.inc
+## These files are placed in '_inc' directory
+## and used to include in API reference documentation
+
+INPUT = \
+    ## BLE
+    ../../components/bk_ble/ble_v5_2/include/bk_api_ble.h \
+    ## Wi-Fi
+    ../../components/bk_wifi/include/bk_api_wifi_types.h \
+    ../../components/bk_wifi/include/bk_api_wifi.h \
+    ## System
+    ../../components/bk_event/include/bk_api_event.h \
+    ## Network
+    ../../components/bk_netif/include/bk_api_netif.h \
+    ../../components/bk_netif/include/bk_api_netif_types.h \
+    ## Peripheral
+    ../../middleware/driver/include/bk_api_pwm_types.h \
+    ../../middleware/driver/include/bk_api_pwm.h \
+    ../../middleware/driver/include/bk_api_timer.h \
+    ../../middleware/driver/include/bk_api_timer_types.h \
+    ../../middleware/arch/common/hal/include/timer_types.h \
+    ../../middleware/driver/include/bk_api_gpio.h \
+    ../../middleware/driver/include/bk_api_gpio_types.h \
+    ../../middleware/arch/common/hal/include/gpio_types.h \
+    ../../middleware/driver/include/bk_api_dma.h \
+    ../../middleware/driver/include/bk_api_dma_types.h \
+    ../../middleware/arch/common/hal/include/dma_types.h \
+    ../../middleware/driver/include/bk_api_uart.h \
+    ../../middleware/driver/include/bk_api_uart_types.h \
+    ../../middleware/arch/common/hal/include/uart_types.h \
+    ../../middleware/driver/include/bk_api_int.h \
+    ../../middleware/driver/include/bk_api_int_types.h \
+    ../../middleware/driver/include/bk_api_wdt.h \
+    ../../middleware/driver/include/bk_api_wdt_types.h \
+    ../../middleware/arch/common/hal/include/wdt_types.h \
+    ../../middleware/driver/include/bk_api_trng.h \
+    ../../middleware/driver/include/bk_api_trng_types.h \
+    ../../middleware/arch/common/hal/include/trng_types.h \
+    ../../middleware/driver/include/bk_api_efuse.h \
+    ../../middleware/driver/include/bk_api_efuse_types.h \
+    ../../middleware/arch/common/hal/include/efuse_types.h \
+    ../../middleware/driver/include/bk_api_adc.h \
+    ../../middleware/driver/include/bk_api_adc_types.h \
+    ../../middleware/arch/common/hal/include/adc_types.h \
+    ../../middleware/driver/include/bk_api_spi.h \
+    ../../middleware/driver/include/bk_api_spi_types.h \
+    ../../middleware/arch/common/hal/include/spi_types.h \
+    ../../middleware/driver/include/bk_api_qspi.h \
+    ../../middleware/arch/common/hal/include/qspi_types.h \
+    ../../middleware/driver/include/bk_api_qspi_psram.h \
+    ../../middleware/driver/include/bk_api_mailbox.h \
+    ../../middleware/arch/common/hal/include/mailbox_types.h \
+    ## Multi-Media
+    ../../middleware/driver/include/bk_api_aud.h \
+    ../../middleware/driver/include/bk_api_aud_types.h \
+    ../../middleware/driver/include/bk_api_jpeg.h \
+    ../../middleware/driver/include/bk_api_jpeg_types.h \
+    ../../middleware/driver/include/bk_api_lcd.h \
+
+## Get warnings for functions that have no documentation for their parameters or return value
+##
+WARN_NO_PARAMDOC = YES
+
+## Enable preprocessing and remove __attribute__(...) expressions from the INPUT files
+##
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = YES
+PREDEFINED             = \
+    __attribute__(x)= \
+    IRAM_ATTR= \
+    configSUPPORT_DYNAMIC_ALLOCATION=1 \
+    configSUPPORT_STATIC_ALLOCATION=1 \
+    configQUEUE_REGISTRY_SIZE=1 \
+    configUSE_RECURSIVE_MUTEXES=1 \
+    configTHREAD_LOCAL_STORAGE_DELETE_CALLBACKS=1 \
+    configNUM_THREAD_LOCAL_STORAGE_POINTERS=1 \
+    configUSE_APPLICATION_TASK_TAG=1 \
+
+
+## Do not complain about not having dot
+##
+HAVE_DOT = NO
+
+## Generate XML that is required for Breathe
+##
+GENERATE_XML    = YES
+XML_OUTPUT      = xml
+
+GENERATE_HTML   = NO
+HAVE_DOT        = NO
+GENERATE_LATEX  = NO
+GENERATE_MAN    = YES
+GENERATE_RTF    = NO
+
+## Skip distracting progress messages
+##
+QUIET = YES
+## Log warnings in a file for further review
+##
+WARN_LOGFILE = "doxygen-warning-log.txt"

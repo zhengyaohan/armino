@@ -1,0 +1,205 @@
+#!/usr/bin/env python
+
+#TODO - optimize it, should finally remove this packer
+
+import os
+import sys
+import json
+import shutil
+import argparse
+
+# osk_path=os.getenv("OSK_PATH")
+armino_path=os.getenv("ARMINO_PATH")
+build_path=os.path.realpath('.')
+pack_tool_path="{}/tools/env_tools/beken_packager".format(armino_path)
+
+out_json = {
+    "magic": "RT-Thread",
+    "version": "0.1",
+    "count": 2,
+    "section": [
+        {
+            "firmware": "bootloader_bk7231n_uart2_v1.0.9.bin",
+            "version": "2M.1220",
+            "partition": "bootloader",
+            "start_addr": "0x00000000",
+            "size": "65280"
+        },
+        {
+            "firmware": "hello-world.bin",
+            "version": "2M.1220",
+            "partition": "app",
+            "start_addr": "0x00011000",
+            "size": "1156K"
+        }
+    ]
+}
+
+bk7256_json = {
+    "magic": "RT-Thread",
+    "version": "0.1",
+    "count": 3,
+    "section": [
+        {
+            "firmware": "l_bootloader.bin",
+            "version": "2M.1220",
+            "partition": "bootloader",
+            "start_addr": "0x00000000",
+            "size": "65280"
+        },
+        {
+            "firmware": "cpu0_app.bin",
+            "version": "2M.1220",
+            "partition": "app",             #cpu0 bin
+            "start_addr": "0x00000000",
+            "size": "2632K"
+        },
+        {
+            "firmware": "bk7256_cpu1.bin",
+            "version": "2M.1220",
+            "partition": "cpu1",             #cpu1 bin
+            "start_addr": "0x00030E000",
+            "size": "952K"
+        }
+    ]
+}
+
+dsp_json = {
+    "magic": "RT-Thread",
+    "version": "0.1",
+    "count": 2,
+    "section": [
+        {
+            "firmware": "bootloader_bk7231n_uart2_v1.0.6.bin",
+            "version": "2M.1220",
+            "partition": "bootloader",
+            "start_addr": "0x00000000",
+            "size": "68K"
+        },
+        {
+            "firmware": "hello-world.bin",
+            "version": "2M.1220",
+            "partition": "app",
+            "start_addr": "0x00011000",
+            "size": "1224K"
+        },
+        {
+            "firmware": "dsp_code_data.bin",
+            "version": "2M.1220",
+            "partition": "dsp",
+            "start_addr": "0x00143000",
+            "size": "1428K"
+        },
+        {
+            "firmware": "BK7271_BT.bin",
+            "version": "2M.1220",
+            "partition": "bt",
+            "start_addr": "0x002A8000",
+            "size": "300K"
+        }
+
+    ]
+}
+
+chip_index = {
+    1: 'bk7231',
+    2: 'bk7231u',
+    3: 'bk7251',
+    4: 'bk7271',
+    5: 'bk7231n',
+    6: 'bk7236',
+    7: 'bk7256',
+    8: 'bk7256_cp1'
+}
+
+default_info = {
+    'bk7231n': {'boot': 'bootloader_bk7231n_uart2_v1.0.10.bin', 'firmware': 'bk7231n.bin'},
+    'bk7231u': {'boot': 'bootloader_bk7231u_uart2_v1.0.10.bin', 'firmware': 'bk7231u.bin'},
+    'bk7231':  {'boot': 'bootloader_bk7231_uart2_v1.0.10.bin', 'firmware': 'bk7231.bin'},
+    'bk7251':  {'boot': 'bootloader_bk7251_uart2_v1.0.10.bin', 'firmware': 'bk7251.bin'},
+    'bk7271':  {'boot': 'bootloader_bk7271_uart2_v1.0.9.bin', 'firmware': 'beken7231_bsp.bin', 'dsp': 'dsp_code_data.bin', 'bt': 'BK7271_BT.bin'},
+    'bk7236':  {'boot': 'bootloader_bk7236_uart2_v1.0.10.bin', 'firmware': 'bk7236.bin'},
+    'bk7256': {'boot': 'l_bootloader.bin', 'firmware': 'bk7256.bin', 'cpu1': 'bk7256_cpu1.bin'},
+    'bk7256_cp1': {'boot': 'bootloader_bk7231n_uart2_v1.0.10.bin', 'firmware': 'bk7256_cp1.bin'},
+}
+
+# parse commandline arguments
+def parse_args():
+    description = '''Beken HID Downloader.'''
+    parser = argparse.ArgumentParser(description=description)
+    parser.add_argument('-c', '--chip',
+                        default='bk7231n',
+                        choices=default_info.keys(),
+                        help="chip type, defaults to bk7231n")
+    parser.add_argument('-i', '--index', type=int,
+                        default=0,
+                        choices=chip_index.keys(),
+                        help="chip index: 1: bk7231, 2: bk7231u, 3: bk7251, 4: bk7271, 5: bk7231n 6:bk7236, 7:bk7256, 8:bk7256_cp1")
+    parser.add_argument('-b', '--boot',
+                        help='specify boot file')
+    parser.add_argument('-f', '--firmware',
+                        help='specify firmware file')
+    parser.add_argument('-d', '--dsp',
+                        help='specify dsp file')
+    parser.add_argument('-t', '--bt',
+                        help='specify bt file')
+    parser.add_argument('-n', '--image_name',
+                        help='generated image name')
+    parser.add_argument('-u', '--cpu1',
+                        help='specify cup1 file')
+    args = parser.parse_args()
+
+    return args
+
+args = parse_args()
+chip = args.chip
+bootloader_str = args.boot if args.boot else default_info[chip]['boot']
+firmware_str = args.firmware if args.firmware else default_info[chip]['firmware']
+image_name = args.image_name
+
+#print("===========chip={} firmware={} bootloader={}".format(chip, firmware_str, bootloader_str))
+if chip == 'bk7271':
+    dsp_str = args.dsp if args.dsp else default_info[chip]['dsp']
+    bt_str = args.bt if args.bt else default_info[chip]['bt']
+
+if chip == 'bk7256':
+    cpu1 = args.cpu1 if args.cpu1 else default_info[chip]['cpu1']
+
+out_path = "tmp.json"
+
+if chip == 'bk7271':
+    dsp_json["section"][0]["firmware"] = "{}/{}".format(pack_tool_path, bootloader_str)
+    dsp_json["section"][1]["firmware"] = "{}/{}".format(build_path, firmware_str)
+    dsp_json["section"][2]["firmware"] = "{}/{}".format(pack_tool_path, dsp_str)
+    dsp_json["section"][3]["firmware"] = "{}/{}".format(pack_tool_path, bt_str)
+    dsp_json = json.dumps(dsp_json, sort_keys=True, indent=4)
+elif chip == 'bk7256':
+    bk7256_json["section"][0]["firmware"] = "{}/{}".format(pack_tool_path, bootloader_str)
+    bk7256_json["section"][1]["firmware"] = "{}/{}".format(build_path, firmware_str)
+    bk7256_json["section"][2]["firmware"] = "{}/{}".format(pack_tool_path, cpu1)
+    bk7256_json = json.dumps(bk7256_json, sort_keys=True, indent=4)
+else:
+    out_json["section"][0]["firmware"] = "{}/{}".format(pack_tool_path, bootloader_str)
+    out_json["section"][1]["firmware"] = "{}/{}".format(build_path, firmware_str)
+    out_json = json.dumps(out_json, sort_keys=True, indent=4)
+
+#print(out_json)
+
+with open(str(out_path), "w") as f:
+    if chip == 'bk7271':
+        f.write(dsp_json)
+    elif chip == 'bk7256':
+        f.write(bk7256_json)
+    else:
+        f.write(out_json)
+
+if sys.platform == 'win32':
+    os.system("beken_packager {}".format(out_path))
+elif sys.platform == 'darwin':
+    os.system("{}/tools/env_tools/beken_packager/beken_packager.darwin {}".format(armino_path, out_path))
+else:
+    os.system("{}/tools/env_tools/beken_packager/beken_packager {}".format(armino_path, out_path))
+shutil.move("all_2M.1220.bin", "{}".format(image_name))
+#shutil.move("{}/{}".format(pack_tool_path, "beken7231_bsp_uart_2M.1220.bin"), "beken7231_bsp_uart_2M.1220.bin")
+#shutil.copy("{}/{}".format(pack_tool_path, bootloader_str), bootloader_str)
+os.remove(out_path)

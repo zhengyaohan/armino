@@ -1,0 +1,1 @@
+encrypt.exe bk_bootloader_low.bin 00000000
