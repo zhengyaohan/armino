@@ -828,6 +828,16 @@ static inline void icu_ll_set_gpio_perial_mode(icu_hw_t *hw, uint32 index, uint3
 		REG_MCHAN_SET_FIELD(index-GPIO_16, &hw->gpio_peri_mode_cfg[1], ICU_GPIO_F_PERIAL_MODE, mode);
 	else
 		REG_MCHAN_SET_FIELD(index-GPIO_32, &hw->gpio_peri_mode_cfg[2], ICU_GPIO_F_PERIAL_MODE, mode);
+
+	/* set gpio fifth function */
+	if (mode == 4) {
+		if (index >= GPIO_16) {
+			REG_CLR_BIT(&hw->gpio_peri_mode_cfg4, BIT(index - GPIO_16));
+		}
+		if (index >= GPIO_24) {
+			REG_SET_BIT(&hw->gpio_peri_mode_cfg5, BIT(index - GPIO_24));
+		}
+	}
 }
 
 static inline uint32 icu_ll_get_gpio_perial_mode(icu_hw_t *hw, uint32 index)

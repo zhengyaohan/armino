@@ -43,6 +43,7 @@ uint32_t aon_pmu_hal_get_touch_int_status(void);
 void aon_pmu_hal_clear_touch_int(uint32_t value);
 void aon_pmu_hal_reg_set(pmu_reg_e reg, uint32_t value);
 uint32_t aon_pmu_hal_reg_get(pmu_reg_e reg);
+void aon_pmu_hal_wdt_rst_dev_enable(void);
 
 #ifdef __cplusplus 
 }                  

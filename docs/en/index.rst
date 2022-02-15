@@ -10,6 +10,7 @@ This is the documentation for Beken Armino Development Framework.
 
     Introduction <introduction/index>
     Getting Started Guide <get-started/index>
+    Getting Started Guide 2 <get-started2/index>
     HW Reference <hw-reference/index>
     API Reference <api-reference/index>
     User and Developer Guides <developer-guide/index>

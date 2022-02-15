@@ -13,12 +13,11 @@
 // limitations under the License.
 
 #include "include.h"
-
 #if CONFIG_CAMERA
-
 #include "bk_api_dma.h"
 #include "bk_api_i2c.h"
 #include "bk_api_jpeg.h"
+#include "bk_api_psram.h"
 #include "bk_api_mem.h"
 #include "bk_api_timer.h"
 #include "bk_arm_arch.h"
@@ -42,32 +41,24 @@ static void camera_intf_delay_timer_hdl(timer_id_t timer_id)
 #if CONFIG_GENERAL_DMA
 	uint16_t already_len = ejpeg_cfg.rx_read_len;
 	GLOBAL_INT_DECLARATION();
-
 	uint32_t left_len = bk_dma_get_remain_len(ejpeg_cfg.dma_channel);
 	uint32_t rec_len = ejpeg_cfg.node_len - left_len;
 	uint32_t frame_len = bk_jpeg_get_frame_byte_number();
-
 	if ((ejpeg_cfg.node_full_handler != NULL) && (rec_len > 0))
 		ejpeg_cfg.node_full_handler(ejpeg_cfg.rxbuf + already_len, rec_len, 1, frame_len);
-
 	already_len += rec_len;
 	if (already_len >= ejpeg_cfg.rxbuf_len)
 		already_len -= ejpeg_cfg.rxbuf_len;
-
 	GLOBAL_INT_DISABLE();
 	ejpeg_cfg.rx_read_len = already_len;
 	GLOBAL_INT_RESTORE();
-
 	// turn off dma, so dma can start from first configure. for easy handler
 	bk_dma_stop(ejpeg_cfg.dma_channel);
-
 	ejpeg_cfg.rx_read_len = 0;
 	bk_dma_start(ejpeg_cfg.dma_channel);
 #endif
-
 	if ((ejpeg_cfg.data_end_handler))
 		ejpeg_cfg.data_end_handler();
-
 	bk_timer_disable(EJPEG_DELAY_HTIMER_CHANNEL);
 }
 
@@ -76,20 +67,21 @@ static void camera_intf_start_delay_timer(void)
 	bk_timer_start(EJPEG_DELAY_HTIMER_CHANNEL, EJPEG_DELAY_HTIMER_VAL, camera_intf_delay_timer_hdl);
 }
 
+static void camera_inft_ejpeg_end_yuv_handler(jpeg_unit_t id, void *param)
+{
+	//os_printf("%s, %d, eoy_isr\n", __func__, __LINE__);
+}
+
 static void camera_intf_ejpeg_rx_handler(dma_id_t dma_id)
 {
 	uint16_t already_len = ejpeg_cfg.rx_read_len;
 	uint16_t copy_len = ejpeg_cfg.node_len;
 	GLOBAL_INT_DECLARATION();
-
 	if (ejpeg_cfg.node_full_handler != NULL)
 		ejpeg_cfg.node_full_handler(ejpeg_cfg.rxbuf + already_len, copy_len, 0, 0);
-
 	already_len += copy_len;
-
 	if (already_len >= ejpeg_cfg.rxbuf_len)
 		already_len = 0;
-
 	GLOBAL_INT_DISABLE();
 	ejpeg_cfg.rx_read_len = already_len;
 	GLOBAL_INT_RESTORE();
@@ -107,22 +99,18 @@ static void camera_intf_init_ejpeg_pixel(uint32_t ppi_type)
 		ejpeg_cfg.x_pixel = X_PIXEL_320;
 		ejpeg_cfg.y_pixel = Y_PIXEL_240;
 		break;
-
 	case VGA_640_480:
 		ejpeg_cfg.x_pixel = X_PIXEL_640;
 		ejpeg_cfg.y_pixel = Y_PIXEL_480;
 		break;
-
 	case VGA_800_600:
 		ejpeg_cfg.x_pixel = X_PIXEL_800;
 		ejpeg_cfg.y_pixel = Y_PIXEL_600;
 		break;
-
 	case VGA_1280_720:
 		ejpeg_cfg.x_pixel = X_PIXEL_1280;
 		ejpeg_cfg.y_pixel = Y_PIXEL_720;
 		break;
-
 	default:
 		CAMERA_LOGW("cm PPI unknown, use QVGA\r\n");
 		ejpeg_cfg.x_pixel = X_PIXEL_640;
@@ -135,11 +123,10 @@ static void camera_intf_config_ejpeg(void *data)
 {
 	os_memset(&ejpeg_cfg, 0, sizeof(DJPEG_DESC_ST));
 	os_memcpy(&ejpeg_cfg, data, sizeof(TVIDEO_DESC_ST));
-
 	camera_intf_init_ejpeg_pixel(CMPARAM_GET_PPI(ejpeg_cfg.sener_cfg));
-
 	ejpeg_cfg.start_frame_handler = NULL;
 	ejpeg_cfg.end_frame_handler = camera_intf_ejpeg_end_handler;
+	ejpeg_cfg.end_yuv_handler = camera_inft_ejpeg_end_yuv_handler;
 
 #if CONFIG_GENERAL_DMA
 	ejpeg_cfg.dma_rx_handler = camera_intf_ejpeg_rx_handler;
@@ -201,7 +188,6 @@ static void camera_inf_write_cfg(const uint8_t (*cfg_table)[2], uint32_t size)
 {
 	uint8_t addr = 0;
 	uint8_t data = 0;
-
 	for (uint32_t i = 0; i < size; i++) {
 		addr = cfg_table[i][0];
 		data = cfg_table[i][1];
@@ -214,13 +200,10 @@ static void camera_inf_write_init_table(const uint8_t (*cfg_table)[2], uint32_t 
 {
 	uint8_t addr = 0;
 	uint8_t data = 0;
-
 	for (uint32_t i = 0; i < size; i++) {
-#if (CONFIG_SOC_BK7256)
 		if (i == (size - 1)) {
 			bk_jpeg_gpio_enable_func2();
 		}
-#endif
 		addr = cfg_table[i][0];
 		data = cfg_table[i][1];
 		camera_intf_sccb_write(addr, data);
@@ -232,18 +215,19 @@ static void camera_inf_write_init_table(const uint8_t (*cfg_table)[2], uint32_t 
 static void camera_inf_cfg_gc0328c_ppi(uint32_t ppi_type)
 {
 	uint32_t size;
-
 	switch (ppi_type) {
+	case VGA_480_272:
+		size = sizeof(gc0328c_VGA_480_272_talbe) / 2;
+		camera_inf_write_cfg(gc0328c_VGA_480_272_talbe, size);
+		break;
 	case QVGA_320_240:
 		size = sizeof(gc0328c_QVGA_320_240_talbe) / 2;
 		camera_inf_write_cfg(gc0328c_QVGA_320_240_talbe, size);
 		break;
-
 	case VGA_640_480:
 		size = sizeof(gc0328c_VGA_640_480_talbe) / 2;
 		camera_inf_write_cfg(gc0328c_VGA_640_480_talbe, size);
 		break;
-
 	default:
 		CAMERA_LOGW("set PPI unknown\r\n");
 		break;
@@ -253,23 +237,19 @@ static void camera_inf_cfg_gc0328c_ppi(uint32_t ppi_type)
 static void camera_inf_cfg_gc0328c_fps(uint32_t fps_type)
 {
 	uint32_t size;
-
 	switch (fps_type) {
 	case TYPE_5FPS:
 		size = sizeof(gc0328c_5pfs_talbe) / 2;
 		camera_inf_write_cfg(gc0328c_5pfs_talbe, size);
 		break;
-
 	case TYPE_10FPS:
 		size = sizeof(gc0328c_10pfs_talbe) / 2;
 		camera_inf_write_cfg(gc0328c_10pfs_talbe, size);
 		break;
-
 	case TYPE_20FPS:
 		size = sizeof(gc0328c_20pfs_talbe) / 2;
 		camera_inf_write_cfg(gc0328c_20pfs_talbe, size);
 		break;
-
 	default:
 		CAMERA_LOGW("set FPS unknown\r\n");
 		break;
@@ -277,25 +257,20 @@ static void camera_inf_cfg_gc0328c_fps(uint32_t fps_type)
 }
 #endif
 
-static void camera_intf_config_senser(void)
+void camera_intf_config_senser(void)
 {
 	uint32_t size;
-
 #if (USE_CAMERA == PAS6329_DEV)
 	s_camera_dev_id = PAS6329_DEV_ID;
-
 	size = sizeof(pas6329_page0) / 2;
 	PAS6329_SET_PAGE0;
 	camera_inf_write_cfg(pas6329_page0, size);
-
 	size = sizeof(pas6329_page1) / 2;
 	PAS6329_SET_PAGE1;
 	camera_inf_write_cfg(pas6329_page1, size);
-
 	size = sizeof(pas6329_page2) / 2;
 	PAS6329_SET_PAGE2;
 	camera_inf_write_cfg(pas6329_page2, size);
-
 	PAS6329_SET_PAGE0;
 	CAMERA_LOGI("PAS6329 init finish\r\n");
 #elif (USE_CAMERA == OV_7670_DEV)
@@ -343,7 +318,6 @@ static void camera_intf_config_senser(void)
 void camera_flip(uint8_t n)
 {
 	uint8_t addr, data, dt0, dt1;
-
 	if (s_camera_dev_id == GC0328C_DEV_ID) {
 		addr = 0x17;
 		dt0 = 0x14;
@@ -353,13 +327,11 @@ void camera_flip(uint8_t n)
 		dt0 = 0x14;
 		dt1 = 0x17;
 	}
-
 	if (n) {
 		data = dt1;     //flip 180
 	} else {
 		data = dt0;     //normal
 	}
-
 	camera_intf_sccb_write(addr, data);
 }
 
@@ -369,17 +341,19 @@ void camera_intfer_init(void *data)
 	jpeg_config_t jpeg_config = {0};
 
 	camera_intf_config_ejpeg(data);
+	//bk_psram_init(0x00054043);
 
 	jpeg_config.rx_buf = ejpeg_cfg.rxbuf;
 	jpeg_config.rx_buf_len = ejpeg_cfg.rxbuf_len;
 	jpeg_config.node_len = ejpeg_cfg.node_len;
 	jpeg_config.x_pixel = ejpeg_cfg.x_pixel;
 	jpeg_config.y_pixel = ejpeg_cfg.y_pixel;
+	//jpeg_config.yuv_mode = 1;
 	jpeg_config.dma_rx_finish_handler = ejpeg_cfg.dma_rx_handler;
 
 	bk_jpeg_init(&jpeg_config);
 	bk_jpeg_register_frame_end_isr(ejpeg_cfg.end_frame_handler, NULL);
-
+	bk_jpeg_register_end_yuv_isr(ejpeg_cfg.end_yuv_handler, NULL);
 #if USE_JTAG_FOR_DEBUG
 	//set i2c2 mode master/slave
 	uint32_t i2c2_trans_mode = (0 & (~I2C2_MSG_WORK_MODE_MS_BIT)// master
@@ -387,7 +361,6 @@ void camera_intfer_init(void *data)
 							 | (I2C2_MSG_WORK_MODE_IA_BIT); // with inner address
 	i2c_hdl = ddev_open(DD_DEV_TYPE_I2C2, &status, i2c2_trans_mode);
 	bk_printf("open I2C2\r\n");
-
 	{
 		extern void uart_hw_uninit(uint8_t uport);
 		// disable uart temporarily
@@ -398,7 +371,6 @@ void camera_intfer_init(void *data)
 	i2c_config.addr_mode = I2C_ADDR_MODE_7BIT;
 	bk_i2c_init(CONFIG_CAMERA_I2C_ID, &i2c_config);
 #endif
-
 	camera_intf_config_senser();
 }
 
@@ -407,6 +379,7 @@ void camera_intfer_deinit(void)
 	bk_jpeg_deinit();
 	bk_i2c_deinit(CONFIG_CAMERA_I2C_ID);
 	os_memset(&ejpeg_cfg, 0, sizeof(DJPEG_DESC_ST));
+	CAMERA_LOGI("camera deinit finish\r\n");
 }
 
 uint32_t camera_intfer_set_video_param(uint32_t ppi_type, uint32_t pfs_type)
@@ -418,9 +391,26 @@ uint32_t camera_intfer_set_video_param(uint32_t ppi_type, uint32_t pfs_type)
 		bk_jpeg_set_y_pixel(ejpeg_cfg.y_pixel);
 		camera_inf_cfg_gc0328c_ppi(ppi_type);
 	}
-
 	if (pfs_type < FPS_MAX)
 		camera_inf_cfg_gc0328c_fps(pfs_type);
+#endif
+	return 0;
+}
+
+int camera_set_ppi_fps(uint32_t ppi_type, uint32_t fps_type)
+{
+#if (USE_CAMERA == GC0328C_DEV)
+	if (ppi_type < PPI_MAX) {
+		CMPARAM_SET_PPI(ejpeg_cfg.sener_cfg, ppi_type);
+	} else {
+		return -1;
+	}
+
+	if (fps_type < FPS_MAX) {
+		CMPARAM_SET_FPS(ejpeg_cfg.sener_cfg, fps_type);
+	} else {
+		return -1;
+	}
 #endif
 	return 0;
 }
@@ -430,6 +420,4 @@ int camera_intfer_set_yuv_mode(uint8_t mode)
 	//
 	return 0;
 }
-
 #endif // CONFIG_CAMERA
-

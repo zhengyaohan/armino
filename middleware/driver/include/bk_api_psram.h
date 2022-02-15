@@ -22,7 +22,7 @@ extern "C" {
 
 bk_err_t bk_psram_driver_init(void);
 bk_err_t bk_psram_driver_deinit(void);
-bk_err_t bk_psram_init(uint8_t mode);
+bk_err_t bk_psram_init(uint32_t mode);
 bk_err_t bk_psram_deinit(void);
 
 #ifdef __cplusplus

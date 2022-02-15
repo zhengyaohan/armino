@@ -1,11 +1,12 @@
-#ifndef __VIDEO_TRANS_H__
-#define __VIDEO_TRANS_H__
+//#ifndef __VIDEO_TRANS_H__
+//#define __VIDEO_TRANS_H__
 
 typedef enum {
 	QVGA_320_240    = 0,
 	VGA_640_480,
 	VGA_800_600,
 	VGA_1280_720,
+	VGA_480_272,
 	PPI_MAX
 } PPI_TYPE; // Pixel per inch
 
@@ -88,4 +89,4 @@ int video_buffer_close(void);
 UINT32 video_buffer_read_frame(UINT8 *buf, UINT32 buf_len);
 #endif
 
-#endif // __VIDEO_TRANS_H__
+//#endif // __VIDEO_TRANS_H__

@@ -90,6 +90,13 @@ void aon_pmu_hal_touch_int_en(uint32_t value)
 {
 	return aon_pmu_ll_get_reg7d_adc_cal();
 }
+
+
+void aon_pmu_hal_wdt_rst_dev_enable(void)
+{
+	aon_pmu_ll_set_reg2_value(AON_PMU_REG2_WDT_RST_MASK);
+}
+
 #else
 void aon_pmu_hal_set_sleep_parameters(uint32_t value)
 {
@@ -140,6 +147,7 @@ void aon_pmu_hal_touch_int_en(uint32_t value)
 {
 	return aon_pmu_ll_get_reg7d_adc_cal(s_aon_pmu_hal.hw);
 }
+
 #endif
 
 

@@ -12,4 +12,4 @@ if (CONFIG_AT_CMD)
 		)
 endif()
 
-armino_component_register(SRCS "${srcs}" INCLUDE_DIRS "${incs}" REQUIRES bk_ble bk_common bk_log)
+armino_component_register(SRCS "${srcs}" INCLUDE_DIRS "${incs}" REQUIRES bk_ble bk_common bk_log camera_intf)

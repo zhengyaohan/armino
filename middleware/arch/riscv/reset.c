@@ -4,6 +4,8 @@
  *
  */
 #include"core_v5.h"
+#include "bk_api_rtos.h"
+#include "bk_private/reset_reason.h"
 
 extern void c_startup(void);
 extern void system_init(void);
@@ -33,6 +35,11 @@ void reset_handler(void)
 	 * Relocation for any sections that need to be copied from LMA to VMA.
 	 */
 	c_startup();
+
+#if (CONFIG_SOC_BK7256) || (CONFIG_SOC_BK7256_CP1)
+	//clear mannully reboot flag
+	set_reboot_tag(0);
+#endif
 
 	/* Call platform specific hardware initialization */
 	system_init();

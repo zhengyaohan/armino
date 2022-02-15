@@ -67,21 +67,22 @@ static inline void power_ll_pwr_down_timer(icu_hw_t *hw, uint32_t timer_id)
 	REG_MCHAN_SET_FIELD(timer_id, ICU_R_TIMER_CHAN_PWR, ICU_F_TIMER_CHAN_PWR, ICU_V_TIMER_CHAN_PWR_DOWN);
 }
 
-
 static inline void power_ll_pwr_up_qspi(icu_hw_t *hw)
 {
-	hw->func_clk_pwr_down.qspi= 0;
 }
+
 static inline void power_ll_pwr_down_qspi(icu_hw_t *hw)
 {
-	hw->func_clk_pwr_down.qspi= 1;
 }
 
 static inline void power_ll_pwr_up_jpeg(icu_hw_t *hw)
 {
+	hw->func_clk_pwr_down.jpeg= 0;
 }
+
 static inline void power_ll_pwr_down_jpeg(icu_hw_t *hw)
 {
+	hw->func_clk_pwr_down.jpeg= 1;
 }
 
 static inline void power_ll_pwr_up_fft(icu_hw_t *hw)
@@ -90,7 +91,6 @@ static inline void power_ll_pwr_up_fft(icu_hw_t *hw)
 static inline void power_ll_pwr_down_fft(icu_hw_t *hw)
 {
 }
-
 
 static inline void power_ll_pwr_up_sdio(icu_hw_t *hw)
 {

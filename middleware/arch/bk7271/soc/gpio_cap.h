@@ -18,10 +18,8 @@
 extern "C" {
 #endif
 
-#define SOC_GPIO_0_31_NUM			32
-#define SOC_GPIO_32_39_NUM			8
-#define SOC_GPIO_NUM				40
-#define GPIO_PERI_FUNC_NUM			4
+#define SOC_GPIO_NUM                40
+#define GPIO_PERI_FUNC_NUM          5
 
 #ifdef __cplusplus
 }

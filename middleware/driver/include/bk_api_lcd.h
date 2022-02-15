@@ -174,13 +174,15 @@ bk_err_t bk_lcd_isr_register(int_isr_t lcd_isr);
 #define bk_lcd_8080_eof_int_clear()  lcd_hal_eof_int_status_clear()
 #define bk_lcd_8080_sof_int_clear()  lcd_hal_sof_int_status_clear()
 
+#define bk_lcd_rgb_eof_int_clear()  lcd_hal_rgb_eof_int_status_clear()
+#define bk_lcd_rgb_sof_int_clear()  lcd_hal_rgb_sof_int_status_clear()
 
 /**
  * @brief  bk_lcd_clk_div， usedin rgb interface
  * @param  clk_div rang is 0~0xf
  * @return BK_OK:succeed; others: other errors.
  */
-#define bk_lcd_rgb_clk_div(clk_div)  lcd_hal_get_rgb_clk_div(clk_div)
+#define bk_lcd_rgb_clk_div(clk_div)  lcd_hal_set_rgb_clk_div(clk_div)
 
 /**
  * @brief  config rgb data receive edge
@@ -206,8 +208,16 @@ bk_err_t bk_lcd_isr_register(int_isr_t lcd_isr);
  * @return BK_OK:succeed; others: other errors.
  */
 #define bk_lcd_rgb_data_format(data_format)  lcd_hal_rgb_yuv_sel(data_format) 
+#define bk_lcd_rgb_display_sel() lcd_hal_rgb_display_sel()
+
+#define bk_lcd_rgb_fifo_thrd_set(wr_threshold_val, rd_threshold_val) lcd_hal_rgb_set_thrd(wr_threshold_val, rd_threshold_val)
+#define bk_lcd_rgb_display_en(en) lcd_hal_rgb_display_en(en)
+
+#define bk_lcd_rgb_int_enable(is_sof_en, is_eof_en) lcd_hal_rgb_int_enable(is_sof_en, is_eof_en)
 
 
+#define bk_lcd_fifo_clr()   lcd_hal_mem_clr()
+#define bk_lcd_rgb_disp_sel()    lcd_hal_rgb_display_sel()
 
 void bk_lcd_debug(void);
 

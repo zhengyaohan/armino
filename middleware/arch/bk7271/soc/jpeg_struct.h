@@ -33,18 +33,21 @@ typedef volatile struct {
 	/* REG_0x1 */
 	union {
 		struct {
-			uint32_t reserved0:          1; /**< bit[0] */
+			uint32_t vck_edge:           1; /**< bit[0] */
 			uint32_t video_byte_reverse: 1; /**< bit[1] */
 			uint32_t yuv_fmt_sel:        2; /**< bit[2:3] */
 			uint32_t jpeg_enc_en:        1; /**< bit[4] */
-			uint32_t reserved1:          3; /**< bit[5:7] */
+			uint32_t reserved0:          1; /**< bit[5] */
+			uint32_t only_y:             1; /**< bit[6] */
+			uint32_t yuvbuf_mode:        1; /**< bit[7] */
 			uint32_t x_pixel:            8; /**< bit[8:15] */
 			uint32_t jpeg_enc_size:      1; /**< bit[16] */
 			uint32_t bitrate_ctrl:       1; /**< bit[17] */
-			uint32_t bitrate_step:       3; /**< bit[18:20] */
+			uint32_t bitrate_step:       2; /**< bit[18:19] */
+			uint32_t auto_step:          1; /**< bit[20] */
 			uint32_t hsync_rev:          1; /**< bit[21] */
 			uint32_t vsync_rev:          1; /**< bit[22] */
-			uint32_t reserved2:          1; /**< bit[23] */
+			uint32_t bitrate_mode:       1; /**< bit[23] */
 			uint32_t y_pixel:            8; /**< bit[24:31] */
 		};
 		uint32_t v;
@@ -65,8 +68,9 @@ typedef volatile struct {
 	/* REG_0x6 */
 	union {
 		struct {
-			uint32_t int_status: 2;  /**< bit[0:1] */
-			uint32_t reserved:   30; /**< bit[2:31] */
+			uint32_t int_status:     2;  /**< bit[0:1] */
+			uint32_t fifo_rd_finish: 1;  /**< bit[2] */
+			uint32_t reserved:       29; /**< bit[3:31] */
 		};
 		uint32_t v;
 	} int_status;

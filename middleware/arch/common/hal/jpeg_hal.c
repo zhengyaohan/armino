@@ -27,9 +27,6 @@
 
 #define JPEG_BITRATE_MAX_SIZE             JPEG_BITRATE_MAX_SIZE_640_480
 #define JPEG_BITRATE_MIN_SIZE             JPEG_BITRATE_MIN_SIZE_640_480
-#define PSRAM_BASEADDR                    0x46080000
-#define JPEG_SHARE_MEM                    0x30060000
-
 
 bk_err_t jpeg_hal_init(jpeg_hal_t *hal)
 {
@@ -51,22 +48,34 @@ bk_err_t jpeg_hal_configure(jpeg_hal_t *hal, const jpeg_config_t *config)
 {
 	jpeg_ll_disable(hal->hw);
 	jpeg_ll_init_quant_table(hal->hw);
+	jpeg_ll_enable_start_frame_int(hal->hw);
+	jpeg_ll_enable_end_frame_int(hal->hw);
+	jpeg_ll_set_target_high_byte(hal->hw, JPEG_BITRATE_MAX_SIZE);
+	jpeg_ll_set_target_low_byte(hal->hw, JPEG_BITRATE_MIN_SIZE);
 #if (CONFIG_SOC_BK7256)
 	jpeg_ll_set_x_pixel_value(hal->hw, config->x_pixel);
 	jpeg_ll_set_y_pixel_value(hal->hw, config->y_pixel);
-	jpeg_ll_set_em_base_addr(hal->hw, JPEG_SHARE_MEM);
+	if (config->yuv_mode == 0) {
+		jpeg_ll_set_default_bitrate_step(hal->hw);
+		jpeg_ll_enable_video_byte_reverse(hal->hw);
+		jpeg_ll_enable_enc_size(hal->hw);
+		jpeg_ll_set_em_base_addr(hal->hw, JPEG_SHARE_MEM);
+		jpeg_ll_enable(hal->hw);
+	} else {
+		jpeg_ll_enable_end_yuv_int(hal->hw);
+		jpeg_ll_set_bitrate_mode(hal->hw, 1);
+		jpeg_ll_enable_bitrate_ctrl(hal->hw, 1);
+		jpeg_ll_set_yuv_mode(hal->hw, 1);
+		jpeg_ll_set_em_base_addr(hal->hw, PSRAM_BASEADDR);//PSRAM_BASEADDR
+	}
 #else
-    jpeg_ll_set_x_pixel(hal->hw, config->x_pixel);
-	jpeg_ll_set_y_pixel(hal->hw, config->y_pixel);
-#endif
-	jpeg_ll_enable_start_frame_int(hal->hw);
-	jpeg_ll_enable_end_frame_int(hal->hw);
-	jpeg_ll_enable_enc_size(hal->hw);
-	jpeg_ll_enable_video_byte_reverse(hal->hw);
-	jpeg_ll_set_target_high_byte(hal->hw, JPEG_BITRATE_MAX_SIZE);
-	jpeg_ll_set_target_low_byte(hal->hw, JPEG_BITRATE_MIN_SIZE);
 	jpeg_ll_set_default_bitrate_step(hal->hw);
+	jpeg_ll_enable_video_byte_reverse(hal->hw);
+	jpeg_ll_set_x_pixel(hal->hw, config->x_pixel);
+	jpeg_ll_set_y_pixel(hal->hw, config->y_pixel);
 	jpeg_ll_enable(hal->hw);
+#endif
+
 	return BK_OK;
 }
 
@@ -78,6 +87,9 @@ bk_err_t jpeg_hal_start_common(jpeg_hal_t *hal)
 
 bk_err_t jpeg_hal_stop_common(jpeg_hal_t *hal)
 {
+#if (CONFIG_SOC_BK7256)
+	jpeg_ll_set_yuv_mode(hal->hw, 0);
+#endif
 	jpeg_ll_disable(hal->hw);
 	return BK_OK;
 }

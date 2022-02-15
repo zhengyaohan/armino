@@ -119,19 +119,42 @@ static void mac_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 #endif //#if (CONFIG_WIFI_ENABLE)
 
 #if (CONFIG_MASTER_CORE) 
-extern void reset_slave_core(uint32 offset, uint32_t reset_value);
-
+//extern void reset_slave_core(uint32 offset, uint32_t reset_value);
+extern void start_slave_core(void);
+extern void stop_slave_core(void);
 static void boot_slave_core(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 #if (CONFIG_SLAVE_CORE_OFFSET && CONFIG_SLAVE_CORE_RESET_VALUE) 
-	uint32 offset = CONFIG_SLAVE_CORE_OFFSET;
+	//uint32 offset = CONFIG_SLAVE_CORE_OFFSET;
 	uint32_t reset_value = CONFIG_SLAVE_CORE_RESET_VALUE;
 
 	if (argc == 2) {
 		reset_value = os_strtoul(argv[1], NULL, 10);
 	}
 	
-	reset_slave_core(offset, reset_value);
+	//reset_slave_core(offset, reset_value);
+	if(reset_value == 1)
+		start_slave_core();
+	else if(reset_value == 0)
+		stop_slave_core();
+	else	//test start/stop many times.
+	{
+		uint32_t i = 0;
+
+		//start first:odd will be at start status, even will be at stop status
+		while(1)
+		{
+			start_slave_core();
+			i++;
+			if(i == reset_value)
+				break;
+			stop_slave_core();
+			i++;
+			if(i == reset_value)
+				break;
+		}
+		os_printf("boot on/off %d times.\r\n", reset_value);
+	}
 
 #endif
 	os_printf("boot_slave_core end.\r\n");
@@ -183,7 +206,7 @@ static const struct cli_command s_misc_commands[] = {
 #endif //#if (CONFIG_EFUSE)
 #endif
 #if (CONFIG_MASTER_CORE) 
-	{"bootcore1", "boot slave cpu core", boot_slave_core},
+	{"bootcore1", "boot slave core,0:start,1:stop,others:start and stop many times", boot_slave_core},
 #endif
 	{"jtagmode", "get jtag mode", get_jtag_mode},
 	{"setjtagmode", "reboot system", set_jtag_mode},

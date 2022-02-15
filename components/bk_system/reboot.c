@@ -21,6 +21,7 @@
 #include "bk_private/reset_reason.h"
 #include "drv_model_pub.h"
 #include "param_config.h"
+#include "aon_pmu_driver.h"
 
 #define TAG "sys"
 
@@ -30,6 +31,12 @@ void bk_reboot(void)
 
 	BK_LOGI(TAG, "bk_reboot\r\n");
 
+#if (CONFIG_SOC_BK7256) || (CONFIG_SOC_BK7256_CP1)
+	set_reboot_tag(REBOOT_TAG_REQ);
+#endif
+#if (CONFIG_SYSTEM_CTRL)
+	aon_pmu_drv_wdt_rst_dev_enable();
+#endif
 	bk_misc_update_set_type(RESET_SOURCE_REBOOT);
 
 	GLOBAL_INT_DECLARATION();

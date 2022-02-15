@@ -98,11 +98,11 @@ typedef volatile struct {
 			uint32_t arm_watchdog: 1;       /**< bit[0] */
 			uint32_t usb1:         1;       /**< bit[1] */
 			uint32_t usb2:         1;       /**< bit[2] */
-			uint32_t reserved_1:   1;       /**< bit[3] */
-			uint32_t qspi:         1;       /**< bit[4] */
+			uint32_t jpeg:         1;       /**< bit[3] */
+			uint32_t reserved_1:   1;       /**< bit[4] */
 			uint32_t security:     1;       /**< bit[5] */
 			uint32_t sdio_dma:     1;       /**< bit[6] */
-			uint32_t reserved_2:   25;      /**< bit[8:31] */
+			uint32_t reserved_2:   25;      /**< bit[7:31] */
 		};
 		uint32_t v;
 	} func_clk_pwr_down;
@@ -376,14 +376,15 @@ typedef volatile struct {
 	//Reg 0x18
 	union {
 		struct {
-			uint32_t pll_unlock: 1; /**< bit[0] */
-			uint32_t usb_plug: 1; /**< bit[1] */
-			uint32_t bt_wdt: 1; /**< bit[2] */
-			uint32_t dsp_wdt: 1; /**< bit[3] */
-			uint32_t rtc: 1; /**< bit[4] */
-			uint32_t touch: 1; /**< bit[5] */
-			uint32_t cec: 1; /**< bit[6] */
-			uint32_t reserved: 25; /**< bit[7:31] */
+			uint32_t pll_unlock: 1;  /**< bit[0] */
+			uint32_t usb_plug:   1;  /**< bit[1] */
+			uint32_t bt_wdt:     1;  /**< bit[2] */
+			uint32_t dsp_wdt:    1;  /**< bit[3] */
+			uint32_t rtc:        1;  /**< bit[4] */
+			uint32_t touch:      1;  /**< bit[5] */
+			uint32_t cec:        1;  /**< bit[6] */
+			uint32_t jpeg:       1;  /**< bit[7] */
+			uint32_t reserved:   24; /**< bit[8:31] */
 		};
 		uint32_t v;
 	} arm_wakeup_en2;
@@ -435,6 +436,23 @@ typedef volatile struct {
 		uint32_t v;
 	} touch_ctrl;
 
+	/* REG_0x29 */
+	union {
+		struct {
+			uint32_t gpio_pcfg4: 24; /**< bit[0:23] */
+			uint32_t reserved:   8;  /**< bit[24:31] */
+		};
+		uint32_t v;
+	} gpio_peri_mode_cfg4;
+
+	/* REG_0x2A */
+	union {
+		struct {
+			uint32_t gpio_pcfg5: 16; /**< bit[0:15] */
+			uint32_t reserved:   16; /**< bit[16:31] */
+		};
+		uint32_t v;
+	} gpio_peri_mode_cfg5;
 } icu_hw_t;
 
 #ifdef __cplusplus

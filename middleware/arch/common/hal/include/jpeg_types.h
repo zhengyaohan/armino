@@ -27,6 +27,7 @@ typedef uint8_t jpeg_unit_t; /**< jpeg uint id */
 
 typedef struct {
 	uint8_t *rx_buf;
+	uint8_t  yuv_mode;
 	uint32_t rx_buf_len;
 	uint32_t node_len;
 	uint32_t x_pixel;

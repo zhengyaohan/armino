@@ -45,7 +45,7 @@ typedef struct {
 
 /* 0~0x7ff */
 #define lcd_hal_rgb_clk_div(clk_div) lcd_disp_ll_set_status_rgb_clk_div(clk_div)
-#define lcd_hal_get_rgb_clk_div() lcd_disp_ll_get_status_rgb_clk_div()
+#define lcd_hal_set_rgb_clk_div(clk_div) lcd_disp_ll_set_status_rgb_clk_div(clk_div)
 #define lcd_hal_set_rgb_clk_rev_edge(edge)  lcd_disp_ll_set_status_dclk_rev(edge)
 
 #define lcd_hal_get_hsync_back_porch()   lcd_disp_ll_get_hsync_vsync_cfg_hsync_back_porch()
@@ -69,7 +69,7 @@ typedef struct {
 /* 1: rgb output, 0 no rgb output  */
 #define lcd_hal_rgb_io_enable(en)              lcd_disp_ll_set_status_rgb_on(en)
 
-void lcd_hal_8080_set_thrd(uint16_t wr_threshold_val, uint16_t rd_threshold_val);
+void lcd_hal_8080_set_fifo_data_thrd(uint16_t wr_threshold_val, uint16_t rd_threshold_val);
 void lcd_hal_pixel_config(uint16_t x_pixel, uint16_t y_pixel);
 void lcd_hal_8080_int_enable(bool is_sof_en, bool is_eof_en);
 
@@ -85,7 +85,10 @@ void lcd_hal_reg_deinit(void);
 void lcd_hal_int_status_clear(uint32_t int_type);
 void lcd_hal_eof_int_status_clear(void);
 void lcd_hal_sof_int_status_clear(void);
-
+void lcd_hal_rgb_eof_int_status_clear(void);
+void lcd_hal_rgb_sof_int_status_clear(void);
+void lcd_hal_mem_clr(void);
+void lcd_hal_rgb_display_sel(void);
 
 #define hal_lcd_8080_get_reset_value()   lcd_disp_ll_get_i8080_config_reset_sleep_in()
 

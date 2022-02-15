@@ -183,3 +183,28 @@ void user_except_handler (unsigned long mcause, SAVED_CONTEXT *context) {
 	os_printf("************************************user except handler end************************************\n");
 	os_printf("***********************************************************************************************\n");
 }
+
+void set_reboot_tag(uint32_t tag) {
+	uint32_t p_tag = REBOOT_TAG_ADDR;
+	*((uint32_t *)p_tag) = tag;
+}
+
+uint32_t get_reboot_tag(void) {
+	uint32_t p_tag = REBOOT_TAG_ADDR;
+	return *((uint32_t *)p_tag);
+}
+
+extern void trap_entry(void);
+
+void user_nmi_handler(unsigned long mcause) {
+	uint32_t tag = 0;
+	if(mcause == MCAUSE_CAUSE_WATCHDOG) {
+		tag = get_reboot_tag();
+		if( REBOOT_TAG_REQ == tag ) {
+			os_printf("Wait reboot.\n");
+			while(1);
+		}
+	}
+	//TODO: close wdt
+	trap_entry();
+}

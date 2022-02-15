@@ -21,7 +21,9 @@ extern "C" {
 void camera_flip(uint8_t n);
 void camera_intfer_init(void *data);
 void camera_intfer_deinit(void);
+void camera_intf_config_senser(void);
 uint32_t camera_intfer_set_video_param(uint32_t ppi_type, uint32_t pfs_type);
+int camera_set_ppi_fps(uint32_t ppi_type, uint32_t fps_type);
 int camera_intfer_set_yuv_mode(uint8_t mode);
 #ifdef __cplusplus
 }

@@ -341,7 +341,7 @@ void sys_drv_set_cpu1_reset(uint32_t reset_value)
 {
 	uint32_t int_level = rtos_disable_int();
 
-	/*1:reset ; 0:not reset*/
+	/* 1:reset release, means cpu1 start to run; 0:reset means cpu1 at reset status */
 	sys_hal_set_cpu1_reset(reset_value);
 
 	rtos_enable_int(int_level);

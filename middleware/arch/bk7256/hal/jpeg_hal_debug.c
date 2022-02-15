@@ -25,7 +25,6 @@ void jpeg_struct_dump(void)
 	SOC_LOGI("base=%x\r\n", (uint32_t)hw);
 
 	SOC_LOGI("  int_en=0x%x value=0x%x\n", &hw->int_en, hw->int_en.v);
-	SOC_LOGI("    reserved0:  %x\n", hw->int_en.reserved0);
 	SOC_LOGI("    int_en:  %x\n", hw->int_en.int_en);
 	SOC_LOGI("    mclk_div:     %x\n", hw->int_en.mclk_div);
 	SOC_LOGI("    reserved1: %x\n", hw->int_en.reserved1);

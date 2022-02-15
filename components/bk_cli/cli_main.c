@@ -1113,6 +1113,11 @@ int bk_cli_init(void)
 #if (CONFIG_TOUCH)
 	cli_touch_init();
 #endif
+#if (CLI_CFG_LCD == 1)
+	cli_lcd_init();
+#endif
+
+
 
 #if (CONFIG_AT_CMD)
     cli_at_init();

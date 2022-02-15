@@ -77,6 +77,7 @@ CONFIG_ATE=y
 #
 CONFIG_BLE=y
 CONFIG_BLE_5_X=y
+CONFIG_BLE_HOST_RW=y
 # CONFIG_BLE_4_2 is not set
 # end of BLE
 

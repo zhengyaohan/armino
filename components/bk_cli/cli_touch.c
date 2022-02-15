@@ -22,7 +22,7 @@
 #include "aon_pmu_driver.h"
 
 
-extern void delay(int num);
+extern void delay_ms(UINT32 ms_count);
 
 static void cli_touch_help(void)
 {
@@ -51,8 +51,8 @@ static void cli_touch_single_channel_calib_mode_test_cmd(char *pcWriteBuffer, in
 	touch_id = os_strtoul(argv[1], NULL, 10) & 0xFF;
 	if(touch_id >= 0 && touch_id < 16) {
 		bk_touch_gpio_init(touch_id);
-		bk_touch_enable(touch_id);
 		bk_touch_register_touch_isr(touch_id, cli_touch_isr, NULL);
+		bk_touch_enable(touch_id);
 
 		touch_config.sensitivity_level = TOUCH_SENSITIVITY_LEVLE_3;
 		touch_config.detect_threshold = TOUCH_DETECT_THRESHOLD_6;
@@ -61,9 +61,9 @@ static void cli_touch_single_channel_calib_mode_test_cmd(char *pcWriteBuffer, in
 
 		bk_touch_scan_mode_enable(0);
 		bk_touch_calib_enable(0);
-		delay(100);
+		delay_ms(5);
 		bk_touch_calib_enable(1);
-		delay(100);
+		delay_ms(5);
 		bk_touch_int_enable(touch_id, 1);
 	} else {
 		CLI_LOGI("unsupported touch channel selection command!\r\n");
@@ -102,7 +102,7 @@ static void cli_touch_single_channel_manul_mode_test_cmd(char *pcWriteBuffer, in
 		calib_value = os_strtoul(argv[2], NULL, 16) & 0xFFF;
 		CLI_LOGI("calib_value = %x\r\n", calib_value);
 		bk_touch_manul_mode_enable(calib_value);
-		delay(100);
+		delay_ms(3);
 		bk_touch_int_enable(touch_id, 1);
 		cap_out = bk_touch_get_calib_value();
 		CLI_LOGI("cap_out = %x\r\n", cap_out);
@@ -113,9 +113,7 @@ static void cli_touch_single_channel_manul_mode_test_cmd(char *pcWriteBuffer, in
 		}
 	} else {
 		CLI_LOGI("unsupported touch channel selection command!\r\n");
-	}
-	
-
+	}	
 }
 
 static void cli_touch_multi_channel_scan_mode_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)

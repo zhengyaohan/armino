@@ -85,8 +85,8 @@ void icu_struct_dump(void)
 	SOC_LOGI("  arm_watchdog=%x\n", hw->func_clk_pwr_down.arm_watchdog);
 	SOC_LOGI("  usb1=%x\n", hw->func_clk_pwr_down.usb1);
 	SOC_LOGI("  usb2=%x\n", hw->func_clk_pwr_down.usb2);
+	SOC_LOGI("  jpeg=%x\n", hw->func_clk_pwr_down.jpeg);
 	SOC_LOGI("  reserved_1=%x\n", hw->func_clk_pwr_down.reserved_1);
-	SOC_LOGI("  qspi=%x\n", hw->func_clk_pwr_down.qspi);
 	SOC_LOGI("  security=%x\n", hw->func_clk_pwr_down.security);
 	SOC_LOGI("  sdio_dma=%x\n", hw->func_clk_pwr_down.sdio_dma);
 	SOC_LOGI("  reserved_2=%x\n", hw->func_clk_pwr_down.reserved_2);
@@ -214,6 +214,7 @@ void icu_struct_dump(void)
 	SOC_LOGI("  rtc=%x\n", hw->arm_wakeup_en2.rtc);
 	SOC_LOGI("  touch=%x\n", hw->arm_wakeup_en2.touch);
 	SOC_LOGI("  cec=%x\n", hw->arm_wakeup_en2.cec);
+	SOC_LOGI("  jpeg=%x\n", hw->arm_wakeup_en2.jpeg);
 
 	for (int i = 0; i < SOC_PWM_CHAN_NUM_PER_GROUP; i++)
 		SOC_LOGI("gpio_peri_mode_cfg(%x)=%x\n", &hw->gpio_peri_mode_cfg[i], hw->gpio_peri_mode_cfg[i]);
@@ -234,6 +235,16 @@ void icu_struct_dump(void)
 	SOC_LOGI("touch_ctrl(%x)=%x\n", &hw->touch_ctrl, hw->touch_ctrl.v);
 	SOC_LOGI("  en=%x\n", hw->touch_ctrl.en);
 	SOC_LOGI("  st=%x\n", hw->touch_ctrl.st);
+	SOC_LOGI("\r\n");
+
+	SOC_LOGI("gpio_peri_mode_cfg4(%x)=%x\n", &hw->gpio_peri_mode_cfg4, hw->gpio_peri_mode_cfg4.v);
+	SOC_LOGI("  gpio_pcfg4: %x\n", hw->gpio_peri_mode_cfg4.gpio_pcfg4);
+	SOC_LOGI("  reserved:   %x\n", hw->gpio_peri_mode_cfg4.reserved);
+	SOC_LOGI("\r\n");
+
+	SOC_LOGI("gpio_peri_mode_cfg5(%x)=%x\n", &hw->gpio_peri_mode_cfg5, hw->gpio_peri_mode_cfg5.v);
+	SOC_LOGI("  gpio_pcfg5: %x\n", hw->gpio_peri_mode_cfg5.gpio_pcfg5);
+	SOC_LOGI("  reserved:   %x\n", hw->gpio_peri_mode_cfg5.reserved);
 }
 
 #endif

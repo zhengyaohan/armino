@@ -47,6 +47,7 @@ if (CONFIG_FATFS)
 	list(APPEND srcs "cli_fatfs.c")
 endif()
 
+
 if (CONFIG_EFUSE)
 	list(APPEND srcs
 		cli_efuse.c
@@ -83,6 +84,13 @@ endif()
 if (CONFIG_SOC_BK7256)
 	list(APPEND srcs "cli_vault.c")
 	list(APPEND srcs "cli_usb.c")
+	if (CONFIG_LCD)
+	list(APPEND incs "include/bk_private/lcd"
+		)
+	list(APPEND srcs
+		"cli_lcd.c"
+	)
+endif() #CONFIG_LCD
 endif()
 
 if (CONFIG_QSPI)

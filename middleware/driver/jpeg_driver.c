@@ -34,6 +34,7 @@ typedef struct {
 	jpeg_hal_t hal;
 	jpeg_isr_handler_t frame_start_handler;
 	jpeg_isr_handler_t frame_end_handler;
+	jpeg_isr_handler_t end_yuv_handler;
 } jpeg_driver_t;
 
 #define JPEG_RETURN_ON_NOT_INIT() do {\
@@ -50,13 +51,11 @@ typedef struct {
 #define clrf_SYSTEM_Reg0xe_jpeg_disckg                         addSYSTEM_Reg0xe &= ~0x40000000
 #define setf_SYSTEM_Reg0xe_jpeg_dec_disckg                     addSYSTEM_Reg0xe |= 0x80000000
 #define clrf_SYSTEM_Reg0xe_jpeg_dec_disckg                     addSYSTEM_Reg0xe &= ~0x80000000
+static bool s_jpeg_deinit = false;
 #endif
 
 static jpeg_driver_t s_jpeg = {0};
 static bool s_jpeg_driver_is_init = false;
-#if (CONFIG_SYSTEM_CTRL)
-static bool s_jpeg_deinit = false;
-#endif
 
 static void jpeg_isr(void);
 
@@ -74,6 +73,7 @@ static void jpeg_init_gpio(void)
 {
 	jpeg_gpio_map_t jpeg_gpio_map_table[] = JPEG_GPIO_MAP;
 #if (CONFIG_SYSTEM_CTRL)
+
 	for (uint32_t i = 0; i < 2; i++) {
 		gpio_dev_unmap(jpeg_gpio_map_table[i].gpio_id);
 		gpio_dev_map(jpeg_gpio_map_table[i].gpio_id, jpeg_gpio_map_table[i].dev);
@@ -99,22 +99,41 @@ static void jpeg_dma_rx_init(const jpeg_config_t *config)
 {
 	dma_config_t dma_config = {0};
 
-	dma_config.mode = DMA_WORK_MODE_REPEAT;
-	dma_config.chan_prio = 0;
-	dma_config.src.dev = DMA_DEV_JPEG;
-	dma_config.src.width = DMA_DATA_WIDTH_32BITS;
-	dma_config.src.start_addr = JPEG_R_RX_FIFO;
-	dma_config.dst.dev = DMA_DEV_DTCM;
-	dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
-	dma_config.dst.start_addr = (uint32_t)config->rx_buf;
-	dma_config.dst.end_addr = (uint32_t)(config->rx_buf + config->rx_buf_len);
+	if (config->yuv_mode == 0) {
+		dma_config.mode = DMA_WORK_MODE_REPEAT;
+		dma_config.chan_prio = 0;
+		dma_config.src.dev = DMA_DEV_JPEG;
+		dma_config.src.width = DMA_DATA_WIDTH_32BITS;
+		dma_config.src.start_addr = JPEG_R_RX_FIFO;
+		dma_config.dst.dev = DMA_DEV_DTCM;
+		dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
+		dma_config.dst.start_addr = (uint32_t)config->rx_buf;
+		dma_config.dst.end_addr = (uint32_t)(config->rx_buf + config->rx_buf_len);
 
-	BK_LOG_ON_ERR(bk_dma_init(JPEG_RX_DMA_CHANNEL, &dma_config));
-	BK_LOG_ON_ERR(bk_dma_set_transfer_len(JPEG_RX_DMA_CHANNEL, config->node_len));
-	BK_LOG_ON_ERR(bk_dma_register_isr(JPEG_RX_DMA_CHANNEL, NULL, config->dma_rx_finish_handler));
-	BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(JPEG_RX_DMA_CHANNEL));
-	BK_LOG_ON_ERR(bk_dma_enable_half_finish_interrupt(JPEG_RX_DMA_CHANNEL));
-	BK_LOG_ON_ERR(bk_dma_start(JPEG_RX_DMA_CHANNEL));
+		BK_LOG_ON_ERR(bk_dma_init(JPEG_RX_DMA_CHANNEL, &dma_config));
+		BK_LOG_ON_ERR(bk_dma_set_transfer_len(JPEG_RX_DMA_CHANNEL, config->node_len));
+		BK_LOG_ON_ERR(bk_dma_register_isr(JPEG_RX_DMA_CHANNEL, NULL, config->dma_rx_finish_handler));
+		BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(JPEG_RX_DMA_CHANNEL));
+		BK_LOG_ON_ERR(bk_dma_enable_half_finish_interrupt(JPEG_RX_DMA_CHANNEL));
+		BK_LOG_ON_ERR(bk_dma_start(JPEG_RX_DMA_CHANNEL));
+	} else {
+		dma_config.mode = DMA_WORK_MODE_REPEAT;
+		dma_config.chan_prio = 0;
+		dma_config.src.dev = DMA_DEV_JPEG;
+		dma_config.src.width = DMA_DATA_WIDTH_32BITS;
+		dma_config.src.start_addr = PSRAM_BASEADDR;//PSRAM_BASEADDR
+		dma_config.dst.dev = DMA_DEV_DTCM;
+		dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
+		dma_config.dst.start_addr = (uint32_t)config->rx_buf;
+		dma_config.dst.end_addr = (uint32_t)(config->rx_buf + config->rx_buf_len);
+
+		BK_LOG_ON_ERR(bk_dma_init(JPEG_RX_DMA_CHANNEL, &dma_config));
+		BK_LOG_ON_ERR(bk_dma_set_transfer_len(JPEG_RX_DMA_CHANNEL, config->node_len));
+		BK_LOG_ON_ERR(bk_dma_register_isr(JPEG_RX_DMA_CHANNEL, NULL, config->dma_rx_finish_handler));
+		BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(JPEG_RX_DMA_CHANNEL));
+		BK_LOG_ON_ERR(bk_dma_enable_half_finish_interrupt(JPEG_RX_DMA_CHANNEL));
+		BK_LOG_ON_ERR(bk_dma_start(JPEG_RX_DMA_CHANNEL));
+	}
 }
 
 static void jpeg_dma_rx_deinit(void)
@@ -217,35 +236,21 @@ bk_err_t bk_jpeg_set_y_pixel(uint32_t y_pixel)
 	return BK_OK;
 }
 
+bk_err_t bk_jpeg_set_yuv_mode(uint32_t mode)
+{
+	JPEG_RETURN_ON_NOT_INIT();
+#if (CONFIG_SYSTEM_CTRL)
+	jpeg_hal_set_yuv_mode(&s_jpeg.hal, mode);
+#endif
+	return BK_OK;
+
+}
+
 uint32_t bk_jpeg_get_frame_byte_number(void)
 {
 	JPEG_RETURN_ON_NOT_INIT();
 
 	return jpeg_hal_get_frame_byte_number(&s_jpeg.hal);
-}
-
-bk_err_t bk_jpeg_enable_start_frame_int(void)
-{
-	jpeg_hal_enable_start_frame_int(&s_jpeg.hal);
-	return BK_OK;
-}
-
-bk_err_t bk_jpeg_disable_start_frame_int(void)
-{
-	jpeg_hal_disable_start_frame_int(&s_jpeg.hal);
-	return BK_OK;
-}
-
-bk_err_t bk_jpeg_enable_end_frame_int(void)
-{
-	jpeg_hal_enable_end_frame_int(&s_jpeg.hal);
-	return BK_OK;
-}
-
-bk_err_t bk_jpeg_disable_end_frame_int(void)
-{
-	jpeg_hal_disable_end_frame_int(&s_jpeg.hal);
-	return BK_OK;
 }
 
 bk_err_t bk_jpeg_register_frame_start_isr(jpeg_isr_t isr, void *param)
@@ -263,6 +268,17 @@ bk_err_t bk_jpeg_register_frame_end_isr(jpeg_isr_t isr, void *param)
 	uint32_t int_level = rtos_disable_int();
 	s_jpeg.frame_end_handler.isr_handler = isr;
 	s_jpeg.frame_end_handler.param = param;
+
+	rtos_enable_int(int_level);
+	return BK_OK;
+}
+
+bk_err_t bk_jpeg_register_end_yuv_isr(jpeg_isr_t isr, void *param)
+{
+	uint32_t int_level = rtos_disable_int();
+	s_jpeg.end_yuv_handler.isr_handler = isr;
+	s_jpeg.end_yuv_handler.param = param;
+
 	rtos_enable_int(int_level);
 	return BK_OK;
 }
@@ -294,13 +310,19 @@ static void jpeg_isr(void)
 		if (s_jpeg.frame_end_handler.isr_handler) {
 			s_jpeg.frame_end_handler.isr_handler(0, s_jpeg.frame_end_handler.param);
 		}
+	}
 
 #if (CONFIG_SYSTEM_CTRL)
-		if (s_jpeg_deinit) {
-			jpeg_deinit_common();
-			s_jpeg_deinit = false;
+	if (jpeg_hal_is_yuv_end_int_triggered(hal, int_status)) {
+		if (s_jpeg.end_yuv_handler.isr_handler) {
+			s_jpeg.end_yuv_handler.isr_handler(0, s_jpeg.end_yuv_handler.param);
 		}
-#endif
 	}
+
+	if (s_jpeg_deinit) {
+		jpeg_deinit_common();
+		s_jpeg_deinit = false;
+	}
+#endif
 }
 

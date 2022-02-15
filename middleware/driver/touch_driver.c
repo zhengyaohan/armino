@@ -285,14 +285,15 @@ void touch_isr(void)
 	uint32_t int_status = 0;
 	touch_channel_t id = 0;
 	s_int_count++;
-	TOUCH_LOGI("enter to touch isr, int_count = %d\r\n", s_int_count);
+//	TOUCH_LOGI("enter to touch isr, int_count = %d\r\n", s_int_count);
 
 	int_status = bk_touch_get_int_status();
-	TOUCH_LOGI("interrupt status = %x\r\n", int_status);
+//	TOUCH_LOGI("interrupt status = %x\r\n", int_status);
 
 	for (id = 0; id < SOC_TOUCH_ID_NUM; id++)
 	{
 		if (int_status & (1 << id)) {
+			TOUCH_LOGI("TOUCH[%d] has been selected!\r\n", id);
 			bk_touch_clear_int(id);
 			if (s_touch_isr[id].callback) {
 				s_touch_isr[id].callback(s_touch_isr[id].param);

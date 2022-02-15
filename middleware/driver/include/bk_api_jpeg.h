@@ -53,17 +53,15 @@ bk_err_t bk_jpeg_set_x_pixel(uint32_t x_pixel);
 
 bk_err_t bk_jpeg_set_y_pixel(uint32_t y_pixel);
 
+bk_err_t bk_jpeg_set_yuv_mode(uint32_t mode);
+
 uint32_t bk_jpeg_get_frame_byte_number(void);
-
-bk_err_t bk_jpeg_enable_start_frame_int(void);
-bk_err_t bk_jpeg_disable_start_frame_int(void);
-
-bk_err_t bk_jpeg_enable_end_frame_int(void);
-bk_err_t bk_jpeg_disable_end_frame_int(void);
 
 bk_err_t bk_jpeg_register_frame_start_isr(jpeg_isr_t isr, void *param);
 
 bk_err_t bk_jpeg_register_frame_end_isr(jpeg_isr_t isr, void *param);
+
+bk_err_t bk_jpeg_register_end_yuv_isr(jpeg_isr_t isr, void *param);
 
 bk_err_t bk_jpeg_gpio_enable_func2(void);
 

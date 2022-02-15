@@ -92,6 +92,7 @@ int cli_aud_init(void);
 int cli_fft_init(void);
 int cli_touch_init(void);
 int cli_jpeg_init(void);
+int cli_lcd_init(void);
 
 extern int hexstr2bin(const char *hex, u8 *buf, size_t len);
 

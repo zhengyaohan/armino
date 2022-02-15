@@ -25,6 +25,7 @@ void lcd_hal_8080_set_fifo_data_thrd(uint16_t wr_threshold_val, uint16_t rd_thre
 	lcd_disp_ll_set_i8080thrd_dat_rd_thrd(rd_threshold_val);
 }
 
+
 /* wr_threshold_val: 0-0x3ff rd_threshold_val：0-0xfff */
 void lcd_hal_rgb_set_thrd(uint16_t wr_threshold_val, uint16_t rd_threshold_val)
 {
@@ -47,8 +48,8 @@ void lcd_hal_rgb_int_enable(bool         is_sof_en, bool is_eof_en)
 
 void lcd_hal_pixel_config(uint16_t x_pixel, uint16_t y_pixel)
 {
-	uint32_t pixel = (x_pixel + (y_pixel << 12));
-	lcd_disp_ll_set_status_value(pixel);
+	lcd_disp_ll_set_status_x_pixel(x_pixel);
+	lcd_disp_ll_set_status_y_pixel(y_pixel);
 }
 
 void lcd_hal_rgb_hsync(uint16_t rgb_hsync_back_porch, uint16_t rgb_hsync_front_porch)
@@ -102,6 +103,15 @@ void lcd_hal_sof_int_status_clear(void)
 	lcd_disp_ll_set_display_int_i8080_sof(1);
 }
 
+void lcd_hal_rgb_eof_int_status_clear(void)
+{
+	lcd_disp_ll_set_display_int_rgb_eof(1);
+}
+
+void lcd_hal_rgb_sof_int_status_clear(void)
+{
+	lcd_disp_ll_set_display_int_rgb_sof(1);
+}
 
 void lcd_hal_reg_deinit(void)
 {
@@ -112,5 +122,16 @@ void lcd_hal_reg_deinit(void)
 	lcd_disp_ll_set_display_int_value(0);
 }
 
+void lcd_hal_mem_clr(void)
+{
+	lcd_disp_ll_set_i8080_config_i8080_fifo_clr(1);
+	lcd_disp_ll_set_i8080_config_i8080_cmdfifo_clr(1);
+	lcd_disp_ll_set_status_str_fifo_clr(1);
+}
 
+void lcd_hal_rgb_display_sel(void)
+{
+	lcd_disp_ll_set_status_rgb_on(1);
+	lcd_disp_ll_set_status_lcd_display_on(1);
+}
 

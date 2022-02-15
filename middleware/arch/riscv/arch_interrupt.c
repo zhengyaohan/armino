@@ -85,6 +85,12 @@ void mext_interrupt(void)
 		#endif
                 
 		g_enter_interrupt_nest--;
+	} else {
+		//print irq status
+		os_printf("ERROR: func %s, irq_source = %u.\r\n", __func__, irq_source);
+		if (irq_source < INT_NUMBER_MAX) {
+			os_printf("ERROR: func %s, p_intn_func_handle = %p.\r\n", __func__, p_intn_func_handle[irq_source]);
+		}
 	}
 
 #if (CONFIG_NEST_INT_SUPPORT)

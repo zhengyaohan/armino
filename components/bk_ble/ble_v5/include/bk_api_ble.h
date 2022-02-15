@@ -497,6 +497,11 @@ ble_err_t bk_ble_create_init(uint8_t con_idx, le_conn_param_t *conn_param, ble_c
 ble_err_t bk_ble_init_start_conn(uint8_t con_idx, ble_cmd_cb_t callback);
 ble_err_t bk_ble_init_stop_conn(uint8_t con_idx,ble_cmd_cb_t callback);
 ble_err_t bk_ble_init_set_connect_dev_addr(uint8_t connidx, bd_addr_t *bdaddr, uint8_t addr_type);
+#else
+extern ble_err_t bk_ble_create_init(uint8_t con_idx, le_conn_param_t *conn_param, ble_cmd_cb_t callback);
+extern ble_err_t bk_ble_init_start_conn(uint8_t con_idx, ble_cmd_cb_t callback);
+extern ble_err_t bk_ble_init_stop_conn(uint8_t con_idx,ble_cmd_cb_t callback);
+extern ble_err_t bk_ble_init_set_connect_dev_addr(uint8_t connidx, bd_addr_t *bdaddr, uint8_t addr_type);
 #endif
 uint8_t bk_ble_get_idle_actv_idx_handle(void);
 uint8_t bk_ble_get_max_actv_handle(void);

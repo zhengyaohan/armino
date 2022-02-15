@@ -47,3 +47,4 @@ enum video_buff_state {
 };
 
 #endif
+

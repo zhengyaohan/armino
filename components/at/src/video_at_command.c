@@ -3,6 +3,11 @@
 // this moudule only support camera in chip, with sccb interface.
 #if (CONFIG_CAMERA && CONFIG_APP_DEMO_VIDEO_TRANSFER)// && (APP_DEMO_CFG_USE_VIDEO_BUFFER))
 #include "video_transfer.h"
+#include "camera_intf_pub.h"
+#include "jpeg_encoder_pub.h"
+#include "bk_api_jpeg.h"
+#include "bk_api_i2c.h"
+#include "bk_api_dma.h"
 #if (/*CONFIG_SDCARD_HOST || */ CONFIG_USB_HOST)
 #include "ff.h"
 #endif
@@ -18,8 +23,12 @@
 
 #include "at_video_common.h"
 
+#define EJPEG_DMA_CHANNEL              DMA_ID_4
+
 static video_buff_t *g_video_buff = NULL;
 static UINT32 g_pkt_seq = 0;
+volatile uint32_t *disp_fifo_addr = (void *)0x48060008;
+static beken_semaphore_t video_at_cmd_sema = NULL;
 
 int video_set_camera_enable_handler(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
 
@@ -31,6 +40,10 @@ int video_read_psram_handler(char *pcWriteBuffer, int xWriteBufferLen, int argc,
 int video_disable_psram_handler(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
 #endif
 
+int video_set_yuv_psram_handler(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
+
+int video_close_yuv_psram_handler(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
+
 const at_command_t video_at_cmd_table[] = {
 	{0, "ENABLE", 0, "open/close camera(1/0)", video_set_camera_enable_handler},
 	{1, "TAKE_PHOTO", 1, "take a picture", video_take_photo_handler},
@@ -38,7 +51,8 @@ const at_command_t video_at_cmd_table[] = {
 	{2, "READPSRAM", 0, "psram", video_read_psram_handler},
 	{3, "DEINITPSRAM", 0, "deinit psram", video_disable_psram_handler},
 #endif
-
+	{4, "SETYUV", 0, "set yuv mode and to psram", video_set_yuv_psram_handler},
+	{5, "CLOSEYUV", 0, "set yuv mode and to psram", video_close_yuv_psram_handler},
 };
 
 int video_at_cmd_cnt(void)
@@ -467,6 +481,199 @@ error:
 }
 #endif // CONFIG_PSRAM
 
+void camera_yuv_data_dma_eof(dma_id_t dma_id)
+{
+	//bk_dma_stop(EJPEG_DMA_CHANNEL);
+}
+
+void end_of_jpeg_frame(jpeg_unit_t id, void *param)
+{
+	os_printf("%s, %d\n", __func__, __LINE__);
+}
+
+void end_of_yuv_frame(jpeg_unit_t id, void *param)
+{
+	//bk_jpeg_set_yuv_mode(0);
+	os_printf("%s, %d\n", __func__, __LINE__);
+	if (video_at_cmd_sema != NULL)
+		rtos_set_semaphore(&video_at_cmd_sema);
+}
+
+int video_set_yuv_psram_handler(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	char *msg = NULL;
+	int err = kNoErr;
+	uint8_t yuv_mode = 0;
+	uint16_t display_pixel = 0;
+	jpeg_config_t jpeg_config = {0};
+	i2c_config_t i2c_config = {0};
+	uint32_t ppi, fps;
+	uint32_t psram_mode = 0x00054043;
+
+	if (argc != 3) {
+		os_printf("input param error\n");
+		err = kParamErr;
+		goto error;
+	}
+
+	yuv_mode = os_strtoul(argv[0], NULL, 16) & 0xFF;
+	if (yuv_mode > 1) {
+		os_printf("input param error\n");
+		err = kParamErr;
+		goto error;
+	}
+	err = bk_psram_init(psram_mode);
+	if (err != kNoErr) {
+		os_printf("psram init error\n");
+		err = kParamErr;
+		goto error;
+	}
+
+	display_pixel = os_strtoul(argv[1], NULL, 10) & 0xFFFF;
+	switch (display_pixel) {
+		case 240:
+			jpeg_config.x_pixel = X_PIXEL_320;
+			jpeg_config.y_pixel = Y_PIXEL_240;
+			ppi = QVGA_320_240;
+			break;
+		case 480:
+			jpeg_config.x_pixel = X_PIXEL_640;
+			jpeg_config.y_pixel = Y_PIXEL_480;
+			ppi = VGA_640_480;
+			break;
+		case 600:
+			jpeg_config.x_pixel = X_PIXEL_800;
+			jpeg_config.y_pixel = Y_PIXEL_600;
+			ppi = VGA_800_600;
+			break;
+		case 720:
+			jpeg_config.x_pixel = X_PIXEL_1280;
+			jpeg_config.y_pixel = Y_PIXEL_720;
+			ppi = VGA_1280_720;
+			break;
+		default:
+			os_printf("input pixel param error\n");
+			err = kParamErr;
+			goto error;
+	}
+
+	fps = os_strtoul(argv[2], NULL, 10) & 0xFF;
+	switch (fps) {
+		case 5:
+			fps = TYPE_5FPS;
+			break;
+		case 10:
+			fps = TYPE_10FPS;
+			break;
+		case 20:
+			fps = TYPE_20FPS;
+			break;
+		default:
+			os_printf("input fps param error\n");
+			err = kParamErr;
+			goto error;
+	}
+
+	jpeg_config.node_len = 4;
+	jpeg_config.rx_buf = (uint8_t *)disp_fifo_addr;
+	jpeg_config.rx_buf_len = 4;
+	jpeg_config.dma_rx_finish_handler = camera_yuv_data_dma_eof;
+	jpeg_config.yuv_mode = yuv_mode;
+	err = bk_jpeg_init(&jpeg_config);
+	if (err != kNoErr) {
+		os_printf("jpeg init error\n");
+		err = kParamErr;
+		goto error;
+	}
+
+	bk_jpeg_register_frame_end_isr(end_of_jpeg_frame, NULL);
+	bk_jpeg_register_end_yuv_isr(end_of_yuv_frame, NULL);
+
+	i2c_config.baud_rate = 400000;// 400k
+	i2c_config.addr_mode = 0;
+	err = bk_i2c_init(CONFIG_CAMERA_I2C_ID, &i2c_config);
+	if (err != kNoErr) {
+		os_printf("i2c init error\n");
+		err = kParamErr;
+		goto error;
+	}
+
+	if (video_at_cmd_table[4].is_sync_cmd)
+    {
+        err = rtos_init_semaphore(&video_at_cmd_sema, 1);
+        if(err != kNoErr){
+            goto error;
+        }
+    }
+
+	//camera_config_senser_init();
+	err = camera_set_ppi_fps(ppi, fps);
+	if (err != kNoErr) {
+		os_printf("set camera ppi and fps error\n");
+		err = kParamErr;
+		goto error;
+	}
+
+	camera_intf_config_senser();
+	os_printf("camera init ok\n");
+
+	err = rtos_get_semaphore(&video_at_cmd_sema, AT_SYNC_CMD_TIMEOUT_MS * 2);
+    if(err != kNoErr) {
+        goto error;
+    }
+
+	msg = AT_CMD_RSP_SUCCEED;
+	os_memcpy(pcWriteBuffer, msg, os_strlen(msg));
+	if (video_at_cmd_sema != NULL)
+        rtos_deinit_semaphore(&video_at_cmd_sema);
+	return kNoErr;
+
+error:
+	msg = AT_CMD_RSP_ERROR;
+	os_memcpy(pcWriteBuffer, msg, os_strlen(msg));
+	if (video_at_cmd_sema != NULL)
+        rtos_deinit_semaphore(&video_at_cmd_sema);
+	return err;
+}
+
+int video_close_yuv_psram_handler(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	char *msg = NULL;
+	int err = kNoErr;
+
+	err = bk_jpeg_deinit();
+	if (err != kNoErr) {
+		os_printf("jpeg deinit error\n");
+		err = kParamErr;
+		goto error;
+	}
+	os_printf("jpeg deinit ok!\n");
+
+	err = bk_i2c_deinit(CONFIG_CAMERA_I2C_ID);
+	if (err != kNoErr) {
+		os_printf("i2c deinit error\n");
+		err = kParamErr;
+		goto error;
+	}
+	os_printf("I2c deinit ok!\n");
+
+	/*err = bk_psram_deinit();
+	if (err != kNoErr) {
+		os_printf("psram deinit error\n");
+		err = kParamErr;
+		goto error;
+	}
+	os_printf("psram deinit ok!\n");*/
+
+	msg = AT_CMD_RSP_SUCCEED;
+	os_memcpy(pcWriteBuffer, msg, os_strlen(msg));
+	return kNoErr;
+
+error:
+	msg = AT_CMD_RSP_ERROR;
+	os_memcpy(pcWriteBuffer, msg, os_strlen(msg));
+	return err;
+}
 
 #endif
 

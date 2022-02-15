@@ -6,6 +6,7 @@ typedef enum {
 	VGA_640_480,
 	VGA_800_600,
 	VGA_1280_720,
+	VGA_480_272,
 	PPI_MAX
 } PPI_TYPE; // Pixel per inch
 

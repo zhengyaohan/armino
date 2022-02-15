@@ -138,14 +138,18 @@ extern "C" {
 #if (CONFIG_SOC_BK7256 || CONFIG_SOC_BK7256_CP1)
 #if (CONFIG_AUDIO)
 #define CLI_CFG_AUD         1
+
 #endif
 #define CLI_CFG_FFT         0
 #endif
 
 #if (CONFIG_SOC_BK7256)
 #define CLI_CFG_VAULT		1
+#define CLI_CFG_LCD		1
 #else
 #define CLI_CFG_vault		0
+#define CLI_CFG_LCD		0
+
 #endif
 #ifdef __cplusplus
 }

@@ -77,9 +77,9 @@ void psram_hal_cmd_write(uint32_t addr, uint32_t value);
 uint32_t psram_hal_cmd_read(uint32_t addr);
 
 #if CFG_HAL_DEBUG_PSRAM
-void aud_struct_dump(void);
+void psram_struct_dump(void);
 #else
-#define aud_struct_dump(void)
+#define psram_struct_dump(void)
 #endif
 
 

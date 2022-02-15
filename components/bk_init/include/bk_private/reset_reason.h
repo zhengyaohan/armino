@@ -55,6 +55,15 @@ void show_reset_reason(void);
 RESET_SOURCE_STATUS reset_reason_init(void);
 void bk_misc_update_set_type(uint32_t type);
 
+
+#if (CONFIG_SOC_BK7256) || (CONFIG_SOC_BK7256_CP1)
+#define MCAUSE_CAUSE_WATCHDOG (0x1)
+#define REBOOT_TAG_ADDR     (0x20007FF8)   //DTCM last 8 byte
+#define REBOOT_TAG_REQ      (0xAA55AA55)   //4 byte
+#endif
+void set_reboot_tag(uint32_t tag);
+uint32_t get_reboot_tag(void);
+
 #ifdef __cplusplus
 }
 #endif

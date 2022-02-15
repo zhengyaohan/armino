@@ -51,7 +51,7 @@ static aud_callback_t s_aud_isr[SOC_AUD_ISR_NUM] = {NULL};
 
 static void aud_isr(void);
 
-extern void delay(int num);//TODO fix me
+extern void delay_ms(UINT32 ms_count);
 
 
 bk_err_t bk_aud_adc_init(aud_adc_work_mode_t adc_work_mode, const aud_adc_config_t *adc_config, const aud_dtmf_config_t *dtmf_config)
@@ -75,7 +75,7 @@ bk_err_t bk_aud_adc_init(aud_adc_work_mode_t adc_work_mode, const aud_adc_config
 
 			//reset mic after configuring parameters
 			sys_drv_aud_mic_rst_set(1);
-			delay(10);
+			delay_ms(1);
 			sys_drv_aud_mic_rst_set(0);
 
 			AUD_LOGI("configure mic and adc\r\n");
@@ -207,7 +207,6 @@ bk_err_t bk_aud_driver_deinit(void)
 	aud_hal_dac_int_disable();
 	//disable audio interrupt
 	sys_drv_aud_int_en(0);
-	delay(10);
 	//ungister isr
 	aud_int_config_t int_config_table = {INT_SRC_AUDIO, aud_isr};
 	bk_int_isr_unregister(int_config_table.int_src);
@@ -484,9 +483,9 @@ bk_err_t bk_aud_dac_init(const aud_dac_config_t *dac_config)
 
 	//enable dacl and dacr
 	sys_drv_aud_dacr_en(1);
-	delay(100);
+	delay_ms(3);
 	sys_drv_aud_dacl_en(1);
-	delay(100);
+	delay_ms(3);
 
 	aud_hal_dac_config(dac_config);
 

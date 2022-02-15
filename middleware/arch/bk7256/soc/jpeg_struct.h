@@ -22,8 +22,7 @@ typedef volatile struct {
 	/* REG_0x0 */
 	union {
 		struct {
-			uint32_t reserved0: 2;  /**< bit[0:1] */
-			uint32_t int_en:    2;  /**< bit[2:3] */
+			uint32_t int_en:    4;  /**< bit[0:3] */
 			uint32_t mclk_div:  2;  /**< bit[4:5] */
 			uint32_t reserved1: 26; /**< bit[6:31] */
 		};
@@ -73,9 +72,9 @@ typedef volatile struct {
 	/* REG_0x6 */
 	union {
 		struct {
-			uint32_t int_status:        2;  /**< bit[0:1] */
-			uint32_t fifo_rd_fifnish:   1; /**<bit[2]*/
-			uint32_t reserved:          29; /**< bit[3:31] */
+			uint32_t int_status:        4;  /**< bit[0:3] */
+			uint32_t fifo_rd_fifnish:   1;  /**<bit[4]*/
+			uint32_t reserved:          27; /**< bit[5:31] */
 		};
 		uint32_t v;
 	} int_status;

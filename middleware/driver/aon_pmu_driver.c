@@ -90,3 +90,11 @@ uint32_t aon_pmu_drv_reg_get(pmu_reg_e reg)
 {
 	return aon_pmu_hal_reg_get(reg);
 }
+
+#if (CONFIG_SYSTEM_CTRL)
+void aon_pmu_drv_wdt_rst_dev_enable(void)
+{
+	aon_pmu_hal_wdt_rst_dev_enable();
+}
+#endif
+

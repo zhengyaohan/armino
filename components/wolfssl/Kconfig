@@ -1,8 +1,0 @@
-menu "WOLFSSL"
-
-	config WOLFSSL_BEKEN
-		bool "Enable WOLFSSL_BEKEN"
-		default n if !WPA3
-		default y if WPA3
-
-endmenu

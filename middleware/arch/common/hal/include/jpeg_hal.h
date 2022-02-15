@@ -23,6 +23,9 @@
 extern "C" {
 #endif
 
+#define PSRAM_BASEADDR                    0x60000000
+#define JPEG_SHARE_MEM                    0x30060000
+
 typedef struct {
 	jpeg_hw_t *hw;
 	jpeg_unit_t id;
@@ -40,6 +43,7 @@ typedef struct {
 #define jpeg_hal_reset_config_to_default(hal) jpeg_ll_reset_config_to_default((hal)->hw)
 #define jpeg_hal_set_x_pixel(hal, x_pixel) jpeg_ll_set_x_pixel((hal)->hw, x_pixel)
 #define jpeg_hal_set_y_pixel(hal, x_pixel) jpeg_ll_set_y_pixel((hal)->hw, x_pixel)
+#define jpeg_hal_set_yuv_mode(hal, mode) jpeg_ll_set_yuv_mode((hal)->hw, mode)
 
 #define jpeg_hal_get_frame_byte_number(hal) jpeg_ll_get_frame_byte_number((hal)->hw)
 
@@ -47,6 +51,7 @@ typedef struct {
 #define jpeg_hal_clear_interrupt_status(hal, int_status) jpeg_ll_clear_interrupt_status((hal)->hw, int_status)
 #define jpeg_hal_is_frame_start_int_triggered(hal, int_status) jpeg_ll_is_frame_start_int_triggered((hal)->hw, int_status)
 #define jpeg_hal_is_frame_end_int_triggered(hal, int_status) jpeg_ll_is_frame_end_int_triggered((hal)->hw, int_status)
+#define jpeg_hal_is_yuv_end_int_triggered(hal, int_status) jpeg_ll_is_yuv_end_int_triggered((hal)->hw, int_status)
 
 bk_err_t jpeg_hal_init(jpeg_hal_t *hal);
 bk_err_t jpeg_hal_configure(jpeg_hal_t *hal, const jpeg_config_t *config);

@@ -122,5 +122,16 @@ menu "DUAL_CORE"
 		int "Slave core reset value"
 		range 0 1
 		default 1
+	config EFUSE
+		bool "Enable Efuse"
+		default y
 
+	config ICU
+		bool "Enable ICU"
+		default y
+		
+	config LCD
+		depends on CLI
+		bool "Enable Shell and Async log optimize"
+		default y
 endmenu

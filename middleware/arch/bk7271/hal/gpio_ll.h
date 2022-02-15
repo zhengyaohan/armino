@@ -122,7 +122,6 @@ static inline void gpio_ll_pull_enable(gpio_hw_t *hw, uint32 index, uint32_t ena
 
 static inline void gpio_ll_second_function_enable(gpio_hw_t *hw, uint32 index, uint32_t enable)
 {
-
 	hw->gpio_num[index].cfg.gpio_2_func_en = enable;
 }
 
@@ -252,14 +251,14 @@ static inline void gpio_ll_reg_save(uint32_t*  gpio_cfg)
     int  i = 0;
     if(gpio_cfg == NULL)
 		return;
-	
+
     for(i = 0; i < GPIO_NUM_MAX; i ++)
-    {       
+    {
         if(GPIO_EXIST & BIT(i))
         {
             gpio_cfg[i] = REG_READ(GPIO_LL_REG_BASE+i*4);
         }
-    } 
+    }
 }
 
 /* gpio restore */
@@ -269,12 +268,12 @@ static inline void gpio_ll_reg_restore(uint32_t*  gpio_cfg)
     if(gpio_cfg == NULL)
         return;
     for(i = 0; i < GPIO_NUM_MAX; i ++)
-    {       
+    {
         if(GPIO_EXIST & BIT(i))
         {
             REG_WRITE(GPIO_LL_REG_BASE+i*4, gpio_cfg[i]);
         }
-    }   
+    }
 }
 
 /* config gpio wakeup type and enable. @type_l: low/high or pos/nege. @type_h: level or edge */
@@ -285,22 +284,22 @@ static inline void gpio_ll_wakeup_enable(uint64_t index, uint64_t type_l, uint64
     uint64_t   index_ini = index;
 
     /* clear all int enable */
-    REG_WRITE(GPIO_LL_REG_BASE+0x43*4, 0x0); 
+    REG_WRITE(GPIO_LL_REG_BASE+0x43*4, 0x0);
     REG_WRITE(GPIO_LL_REG_BASE+0x44*4, 0x0);
 
 	rdata = REG_READ(GPIO_LL_REG_BASE+0x40*4);
-    for(i = 0; i < 16; i ++)                                   
+    for(i = 0; i < 16; i ++)
     {
-        if(index & BIT(i)) 
+        if(index & BIT(i))
         {
-            REG_WRITE(GPIO_LL_REG_BASE+i*4, 0x0c);                                                     
-            rdata &= ~(0x3 << i*2);                           
+            REG_WRITE(GPIO_LL_REG_BASE+i*4, 0x0c);
+            rdata &= ~(0x3 << i*2);
             if(type_l & BIT(i))  rdata |= BIT(2*i);
-            if(type_h & BIT(i))  rdata |= BIT(2*i+1);                               
+            if(type_h & BIT(i))  rdata |= BIT(2*i+1);
         }
         else
 		{
-			REG_WRITE(GPIO_LL_REG_BASE+i*4, 0x08);           	   
+			REG_WRITE(GPIO_LL_REG_BASE+i*4, 0x08);
 		}
     }
 	REG_WRITE(GPIO_LL_REG_BASE+0x40*4, rdata);
@@ -312,18 +311,18 @@ static inline void gpio_ll_wakeup_enable(uint64_t index, uint64_t type_l, uint64
     type_h = type_h >> 16;
 
 	rdata = REG_READ(GPIO_LL_REG_BASE+0x41*4);
-    for(i = 0; i < 16; i ++)                                    
+    for(i = 0; i < 16; i ++)
     {
-        if(index & BIT(i)) 
+        if(index & BIT(i))
         {
-            REG_WRITE(GPIO_LL_REG_BASE+0x40+i*4, 0x0c);                                               
-            rdata &= ~(0x3 << i*2);                             
+            REG_WRITE(GPIO_LL_REG_BASE+0x40+i*4, 0x0c);
+            rdata &= ~(0x3 << i*2);
             if(type_l & BIT(i))  rdata |= BIT(2*i);
-            if(type_h & BIT(i))  rdata |= BIT(2*i+1);               
+            if(type_h & BIT(i))  rdata |= BIT(2*i+1);
         }
         else
 		{
-			REG_WRITE(GPIO_LL_REG_BASE+0x40+i*4, 0x08);            
+			REG_WRITE(GPIO_LL_REG_BASE+0x40+i*4, 0x08);
 		}
     }
 
@@ -336,25 +335,25 @@ static inline void gpio_ll_wakeup_enable(uint64_t index, uint64_t type_l, uint64
     type_h = type_h >> 16;
 
 	rdata = REG_READ(GPIO_LL_REG_BASE+0x42*4);
-    for(i = 0; i < 16; i ++)                                     
+    for(i = 0; i < 16; i ++)
     {
-        if(index & BIT(i)) 
+        if(index & BIT(i))
         {
-            REG_WRITE(GPIO_LL_REG_BASE+0x80+i*4, 0x0c);                               
-            rdata &= ~(0x3 << i*2);                               
+            REG_WRITE(GPIO_LL_REG_BASE+0x80+i*4, 0x0c);
+            rdata &= ~(0x3 << i*2);
             if(type_l & BIT(i))  rdata |= BIT(2*i);
-            if(type_h & BIT(i))  rdata |= BIT(2*i+1);               
+            if(type_h & BIT(i))  rdata |= BIT(2*i+1);
         }
         else
 		{
-			REG_WRITE(GPIO_LL_REG_BASE+0x80+i*4, 0x08);    
+			REG_WRITE(GPIO_LL_REG_BASE+0x80+i*4, 0x08);
 		}
     }
-	
+
 	REG_WRITE(GPIO_LL_REG_BASE+0x42*4, rdata);
 
-	REG_WRITE(GPIO_LL_REG_BASE+0x47*4, 0xffffffff);        
-	REG_WRITE(GPIO_LL_REG_BASE+0x48*4, 0xff); 
+	REG_WRITE(GPIO_LL_REG_BASE+0x47*4, 0xffffffff);
+	REG_WRITE(GPIO_LL_REG_BASE+0x48*4, 0xff);
 
 
     index = index_ini;
@@ -363,24 +362,24 @@ static inline void gpio_ll_wakeup_enable(uint64_t index, uint64_t type_l, uint64
     {
         if(index & BIT(i))
         {
-             rdata |= BIT(i);                       
+             rdata |= BIT(i);
         }
     }
 
-	REG_WRITE(GPIO_LL_REG_BASE+0x43*4, rdata); 
+	REG_WRITE(GPIO_LL_REG_BASE+0x43*4, rdata);
 
 
     index = index >> 32;
     rdata = 0;
-    for(i = 0; i < 16; i ++)                                    
+    for(i = 0; i < 16; i ++)
     {
         if(index & BIT(i))
         {
-             rdata |= BIT(i);                       
+             rdata |= BIT(i);
         }
     }
 
-	REG_WRITE(GPIO_LL_REG_BASE+0x44*4, rdata); 
+	REG_WRITE(GPIO_LL_REG_BASE+0x44*4, rdata);
 
 }
 static inline void gpio_ll_wakeup_interrupt_clear()
@@ -389,12 +388,12 @@ static inline void gpio_ll_wakeup_interrupt_clear()
 	uint32_t    int_state1 = 0;
 	uint32_t    int_en_state = 0;
 	uint32_t    int_en_state1 = 0;
-	
+
     uint32_t    i = 0;
 
 	int_state = REG_READ(GPIO_LL_REG_BASE+0x46*4);
 	int_state1 = REG_READ(GPIO_LL_REG_BASE+0x45*4);
-	
+
 	int_en_state = REG_READ(GPIO_LL_REG_BASE+0x43*4);
 	int_en_state1 = REG_READ(GPIO_LL_REG_BASE+0x44*4);
 
@@ -411,16 +410,16 @@ static inline void gpio_ll_wakeup_interrupt_clear()
     {
 
 		int_en_state1 &=  ~(BIT(i));
-		REG_WRITE(GPIO_LL_REG_BASE+0x44*4, int_en_state1); 
+		REG_WRITE(GPIO_LL_REG_BASE+0x44*4, int_en_state1);
     }
 	else
 	{
 		int_en_state &=  ~(BIT(i));
-		REG_WRITE(GPIO_LL_REG_BASE+0x43*4, int_en_state); 
+		REG_WRITE(GPIO_LL_REG_BASE+0x43*4, int_en_state);
 	}
-	
-	REG_WRITE(GPIO_LL_REG_BASE+0x47*4, (REG_READ(GPIO_LL_REG_BASE+0x47*4))|int_state); 
-	REG_WRITE(GPIO_LL_REG_BASE+0x48*4, (REG_READ(GPIO_LL_REG_BASE+0x48*4))|(int_state >> 32)); 
+
+	REG_WRITE(GPIO_LL_REG_BASE+0x47*4, (REG_READ(GPIO_LL_REG_BASE+0x47*4))|int_state);
+	REG_WRITE(GPIO_LL_REG_BASE+0x48*4, (REG_READ(GPIO_LL_REG_BASE+0x48*4))|(int_state >> 32));
 
 }
 #define gpio_ll_set_gpio_perial_mode(hw, index, mode)	gpio_ll_set_perial_mode(hw, index, mode)

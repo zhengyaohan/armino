@@ -13,9 +13,8 @@
 
 reset_vector:
 	/* Decide whether this is an NMI or cold reset */
-//Remove the two line below to fix reboot issue. TO BE IMPROVED.
-#	csrr t0, mcause
-#	bnez t0, nmi_handler
+	csrr t0, mcause
+	bnez t0, nmi_handler
 	.global _start
 	.type _start,@function
 
@@ -100,7 +99,9 @@ nmi_handler:
 	csrr t0, mcause						/* For viewing in the debugger only. */
 	csrr t1, mepc						/* For viewing in the debugger only */
 	csrr t2, mstatus
-	j trap_entry						/* Handled by trap_entry. */
+	csrr a0, mcause
+	call user_nmi_handler
+	ret
 
 .org  0x100
 .word 0x32374B42

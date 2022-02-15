@@ -41,6 +41,7 @@ typedef struct ejpeg_desc {
 //	void (*end_frame_handler)(void);
 	void (*start_frame_handler)(jpeg_unit_t id, void *param);
 	void (*end_frame_handler)(jpeg_unit_t id, void *param);
+	void (*end_yuv_handler)(jpeg_unit_t id, void *param);
 
 #if CONFIG_GENERAL_DMA
 	void (*dma_rx_handler)(dma_id_t);
@@ -67,6 +68,8 @@ enum {
 	EJPEG_CMD_GET_FRAME_LEN,
 };
 
+#define Y_PIXEL_272                                  (34)  // Y * 8
+#define X_PIXEL_480                                  (60)  // X * 8
 #define Y_PIXEL_480                                  (60)  // Y * 8
 #define X_PIXEL_640                                  (80)  // X * 8
 #define Y_PIXEL_240                                  (30)  // Y * 8

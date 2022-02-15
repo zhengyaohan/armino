@@ -144,7 +144,6 @@ bk_err_t gpio_hal_func_map(gpio_hal_t *hal, gpio_id_t gpio_id, gpio_dev_t dev)
 	const gpio_map_t *gpio_map = &gpio_map_table[gpio_id];
 
 	if(gpio_hal_map_check(hal, gpio_id)) {
-
 		return BK_ERR_GPIO_INTERNAL_USED;
 	}
 

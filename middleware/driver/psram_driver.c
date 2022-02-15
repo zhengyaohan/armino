@@ -81,7 +81,7 @@ bk_err_t bk_psram_driver_deinit(void)
 	return BK_OK;
 }
 
-bk_err_t bk_psram_init(uint8_t mode)
+bk_err_t bk_psram_init(uint32_t mode)
 {
 	uint32_t val = 0;
 

@@ -3,7 +3,7 @@
 SUPPORTED_SOCS="bk7231n bk7231u bk7251 bk7271 bk7236 bk7256 bk7256_cp1"
 GENERATED_LIBS="bk_cal bk_coex bk_hostapd bk_wifi_impl ble ble_5_x_rw ble_wifi_exchange bt ip \
 		ip_ax mac_tx_cache net_param_intf power_save rf_test rwnx_intf uart_debug wpa_supplicant-2.9\
-		arch ble_cli ble_pub controller hci host modules platform bk_airkiss sensor usb wfa_ca bk_rtos\
+		arch ble_cli ble_pub controller hci host modules platform bk_airkiss sensor usb wfa_ca\
 		bk_adapter pcm_resampler vad bk_system btdm_5_2_rw wolfssl mesh"
 
 validate_soc()

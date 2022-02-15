@@ -10,6 +10,7 @@
 
     简介 <introduction/index>
     快速入门 <get-started/index>
+    BK7256快速入门 <get-started2/index>
     H/W 参考手册 <hw-reference/index>
     API 参考手册 <api-reference/index>
     开发者指南 <developer-guide/index>

@@ -27,10 +27,10 @@ extern "C" {
 #define JPEG_GPIO_PIN_NUMBER    12
 #define JPEG_GPIO_MAP \
 {\
-	{GPIO_27, GPIO_DEV_JPEG_MCLK},\
-	{GPIO_29, GPIO_DEV_JPEG_PCLK},\
-	{GPIO_30, GPIO_DEV_JPEG_HSYNC},\
-	{GPIO_31, GPIO_DEV_JPEG_VSYNC},\
+	{GPIO_22, GPIO_DEV_JPEG_MCLK},\
+	{GPIO_23, GPIO_DEV_JPEG_PCLK},\
+	{GPIO_24, GPIO_DEV_JPEG_HSYNC},\
+	{GPIO_25, GPIO_DEV_JPEG_VSYNC},\
 	{GPIO_32, GPIO_DEV_JPEG_PXDATA0},\
 	{GPIO_33, GPIO_DEV_JPEG_PXDATA1},\
 	{GPIO_34, GPIO_DEV_JPEG_PXDATA2},\
@@ -144,7 +144,7 @@ static inline void jpeg_ll_set_bitrate_step(jpeg_hw_t *hw, uint32_t step)
 
 static inline void jpeg_ll_set_default_bitrate_step(jpeg_hw_t *hw)
 {
-	hw->cfg.bitrate_step = 7;
+	hw->cfg.bitrate_step = 3;
 }
 
 static inline uint32_t jpeg_ll_get_frame_byte_number(jpeg_hw_t *hw)
