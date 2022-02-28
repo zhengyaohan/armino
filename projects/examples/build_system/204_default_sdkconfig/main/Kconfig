@@ -1,0 +1,5 @@
+menu "main config"
+	config FOO
+		bool "Test config foo"
+		default y
+endmenu

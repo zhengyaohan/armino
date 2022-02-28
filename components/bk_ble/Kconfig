@@ -1,0 +1,32 @@
+menu "BLE"
+	config BLE
+		bool "Enable BLE"
+		default y
+
+	choice BLE_STACK
+		prompt "BLE Version"
+		depends on BLE
+		default BLE_5_X
+
+		config BLE_5_X
+			bool "BLE 5.X"
+		config BLE_4_2
+			bool "BLE 4.2"
+		config BTDM_5_2
+			bool "BTDM 5.2"
+	endchoice
+
+	choice BLE_HOST
+	prompt "BLE Host Type"
+	default BLE_HOST_RW
+
+	config BLE_HOST_NONE
+		bool "BLE Host None"
+
+	config BLE_HOST_RW
+		bool "BLE Host RW"
+
+	config BLE_HOST_ZEPHYR
+		bool "BLE Host Zephyr"
+	endchoice
+endmenu

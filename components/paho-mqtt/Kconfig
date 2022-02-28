@@ -1,0 +1,5 @@
+menu "PAHO_MQTT_CONFIG"
+	config PAHO_MQTT
+		bool "Enable paho-mqtt"
+		default y
+endmenu
