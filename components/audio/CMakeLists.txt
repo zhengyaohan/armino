@@ -1,5 +1,0 @@
-if ((CONFIG_AUDIO) AND (NOT CONFIG_SOC_BK7256) AND (NOT CONFIG_SOC_BK7256_CP1))
-	armino_component_register(SRCS "audio_intf.c" PRIV_REQUIRES bk_common)
-else()
-	armino_component_register(PRIV_REQUIRES bk_common)
-endif()

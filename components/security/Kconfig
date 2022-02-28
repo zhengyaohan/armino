@@ -1,3 +1,0 @@
-config SECURITY
-	bool "Enable Security"
-	default n

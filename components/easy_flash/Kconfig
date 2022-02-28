@@ -1,3 +1,0 @@
-config EASY_FLASH
-	bool "Enable Easy Flash"
-	default n

@@ -1,4 +1,0 @@
-CONFIG_EXAMPLE_PRODUCT_NAME="Multiple sdkconfig example default"
-
-# This selects 'func_dev.c' file to be compiled and linked, see CMakeLists.txt.
-CONFIG_MULTI_CONFIG_DEBUG=y
