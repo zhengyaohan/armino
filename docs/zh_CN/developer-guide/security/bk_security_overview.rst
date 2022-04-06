@@ -1,4 +1,0 @@
-安全概述 (TBC)
-========================
-
-:link_to_translation:`en:[English]`

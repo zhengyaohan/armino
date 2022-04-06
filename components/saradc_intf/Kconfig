@@ -1,3 +1,0 @@
-config SARADC_CALI
-	bool "Enable SAR ADC Calibration"
-	default n

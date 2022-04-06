@@ -1,3 +1,0 @@
-config SPIDMA
-	bool "Enable SPI DMA"
-	default n

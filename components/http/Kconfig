@@ -1,5 +1,0 @@
-menu "HTTP_CONFIG"
-	config HTTP
-		bool "Enable http"
-		default y
-endmenu

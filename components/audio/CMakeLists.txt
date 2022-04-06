@@ -1,5 +1,0 @@
-if (CONFIG_AUDIO)
-	armino_component_register(SRCS "audio_intf.c" PRIV_REQUIRES bk_common)
-else()
-	armino_component_register(PRIV_REQUIRES bk_common)
-endif()

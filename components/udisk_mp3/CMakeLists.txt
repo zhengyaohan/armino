@@ -1,5 +1,0 @@
-if (CONFIG_UDISK_MP3)
-armino_component_register(SRCS "ump3.c" INCLUDE_DIRS ".")
-else()
-armino_component_register()
-endif()
