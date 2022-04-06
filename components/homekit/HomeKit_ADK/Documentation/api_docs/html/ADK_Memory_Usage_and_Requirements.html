@@ -1,0 +1,1217 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Memory Requirements &mdash; HomeKit ADK  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Cryptographic Libraries" href="crypto.html" />
+    <link rel="prev" title="Provisioning Tools" href="provisioning_tools.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> HomeKit ADK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="adk_architecture.html">ADK Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adk_directory_structure.html">ADK Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Docker with ADK</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Step-by-step Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started with ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="raspi_setup.html">Raspberry Pi Setup Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bct.html">Bonjour Conformance Test (BCT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wac_on_raspberrypi.html">WAC on Raspberry Pi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_on_darwin.html">Camera on macOS</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Troubleshooting ADK</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="interact_with_applications.html">Interacting with ADK applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="writing_unit_tests.html">Writing Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="debug_adk.html">Debugging ADK Applications</a></li>
+</ul>
+<p class="caption"><span class="caption-text">ADK Development</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="accessory_development.html">Accessory Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_pairing.html">Accessory Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_authentication.html">Accessory Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="provisioning_tools.html">Provisioning Tools</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Memory Requirements</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#thread">Thread</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Memory Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#release-configuration">Release Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#debug-configuration">Debug Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#adk-memory-usage">ADK Memory Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openthread-memory-usage">OpenThread Memory Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#nordic-stack-and-memory-manager">Nordic Stack and Memory Manager</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ble">BLE</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Memory Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id3">Release Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id4">Debug Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">ADK Memory Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mbedtls-crypto-requirements">MBedTLS Crypto Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ip">IP</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id6">Memory Requirements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id7">Release Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id8">Debug Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">ADK Memory Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hap-dynamic-memory-allocation">HAP_DYNAMIC_MEMORY_ALLOCATION</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#release-configuration-hap-dynamic-memory-allocation-1">Release Configuration (<code class="docutils literal notranslate"><span class="pre">HAP_DYNAMIC_MEMORY_ALLOCATION=1</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#debug-configuration-hap-dynamic-memory-allocation-1">Debug Configuration (<code class="docutils literal notranslate"><span class="pre">HAP_DYNAMIC_MEMORY_ALLOCATION=1</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="crypto.html">Cryptographic Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make_options.html">Compile Time Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coding_convention.html">Coding Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration_guide.html">ADK Migration Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">HomeKit Services</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="accessory_diagnostics.html">Accessory Diagnostics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_metrics.html">Accessory Metrics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adaptive_light.html">Adaptive Lighting Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appletv_remote.html">Apple TV Remote</a></li>
+<li class="toctree-l1"><a class="reference internal" href="firmware_update.html">Firmware Update Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="homekit_bridge.html">HomeKit Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ip_camera.html">IP Camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lock_profile.html">Lock Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stateless_programmable_switch.html">Stateless Programmable Switch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thread.html">HAP over Thread Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wifi_reconfiguration_feature.html">WiFi Reconfiguration Service</a></li>
+</ul>
+<p class="caption"><span class="caption-text">PAL APIs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_api_docs/dir_PAL.html">Directory PAL</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HomeKit ADK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Memory Requirements</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/ADK_Memory_Usage_and_Requirements.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="memory-requirements">
+<h1>Memory Requirements<a class="headerlink" href="#memory-requirements" title="Permalink to this headline">¶</a></h1>
+<p>This document provides information on how memory is used by the ADK, as well as guidance for fine tuning memory consumption.  The ADK is designed to be generic, and as such does not provide fine tuned memory solutions for each accessory type.  This doc describes ADK requirements for a basic profile such as <code class="docutils literal notranslate"><span class="pre">Lightbulb</span></code> and provides tips to allow vendors to fine tune their individual solutions.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="#thread">Thread</a></p></li>
+<li><p><a class="reference external" href="#ble">BLE</a></p></li>
+<li><p><a class="reference external" href="#ip">IP</a></p></li>
+</ul>
+<div class="section" id="thread">
+<h2>Thread<a class="headerlink" href="#thread" title="Permalink to this headline">¶</a></h2>
+<p>This section describes the memory requirements of the Nordic implementation of Thread.</p>
+<div class="section" id="id1">
+<h3>Memory Requirements<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="release-configuration">
+<h4>Release Configuration<a class="headerlink" href="#release-configuration" title="Permalink to this headline">¶</a></h4>
+<p>NOTE: The following requirements are for Full Thread Devices:</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">Memory Type</th>
+<th align="center">Size (KB)</th>
+<th align="center">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">RAM</td>
+<td align="center"><code>128.35</code></td>
+<td align="center">Further breakdown available in the table below</td>
+</tr>
+<tr>
+<td align="center">Flash</td>
+<td align="center"><code>427</code></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">Secure Storage</td>
+<td align="center"><code>4</code></td>
+<td align="center">Writable non-volatile storage (flash or EEPROM)</td>
+</tr>
+</tbody>
+</table><table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">RAM Section</th>
+<th align="center">Size (KB)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">Stack</td>
+<td align="center"><code>8</code></td>
+</tr>
+<tr>
+<td align="center">Heap</td>
+<td align="center"><code>8</code></td>
+</tr>
+<tr>
+<td align="center">Mem Mgr Heap*</td>
+<td align="center"><code>40.56</code></td>
+</tr>
+<tr>
+<td align="center">.bss</td>
+<td align="center"><code>71.79</code></td>
+</tr>
+<tr>
+<td align="center"><strong>TOTAL</strong></td>
+<td align="center"><strong>128.35</strong></td>
+</tr>
+</tbody>
+</table><p>Largest contributors to BSS:</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">Symbol</th>
+<th align="center">Size (KB)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><code>otInstanceRaw</code></td>
+<td align="center"><code>35.375</code></td>
+</tr>
+<tr>
+<td align="center"><code>threadSessions</code></td>
+<td align="center"><code>4</code></td>
+</tr>
+<tr>
+<td align="center"><code>nrf_rx_buffers</code></td>
+<td align="center"><code>2.02</code></td>
+</tr>
+<tr>
+<td align="center"><code>APP_SCHED_BUF</code></td>
+<td align="center"><code>2.02</code></td>
+</tr>
+</tbody>
+</table></div>
+<div class="section" id="debug-configuration">
+<h4>Debug Configuration<a class="headerlink" href="#debug-configuration" title="Permalink to this headline">¶</a></h4>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">Memory Type</th>
+<th align="center">Size (KB)</th>
+<th align="center">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">RAM</td>
+<td align="center"><code>146.93</code></td>
+<td align="center">Further breakdown available in the table below</td>
+</tr>
+<tr>
+<td align="center">Flash</td>
+<td align="center"><code>636</code></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">Secure Storage</td>
+<td align="center"><code>4</code></td>
+<td align="center">Writable non-volatile storage (flash or EEPROM)</td>
+</tr>
+</tbody>
+</table><table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">RAM Section</th>
+<th align="center">Size (KB)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">Stack</td>
+<td align="center"><code>8</code></td>
+</tr>
+<tr>
+<td align="center">Heap</td>
+<td align="center"><code>8</code></td>
+</tr>
+<tr>
+<td align="center">Mem Mgr Heap*</td>
+<td align="center"><code>40.56</code></td>
+</tr>
+<tr>
+<td align="center">.bss</td>
+<td align="center"><code>91.26</code></td>
+</tr>
+<tr>
+<td align="center"><strong>TOTAL</strong></td>
+<td align="center"><strong>146.93</strong></td>
+</tr>
+</tbody>
+</table><p>Largest contributors to BSS:</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">Symbol</th>
+<th align="center">Size (KB)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><code>otInstanceRaw</code></td>
+<td align="center"><code>35.375</code></td>
+</tr>
+<tr>
+<td align="center"><code>acUpBuffer</code></td>
+<td align="center"><code>13.67</code></td>
+</tr>
+<tr>
+<td align="center"><code>debugCommand</code></td>
+<td align="center"><code>8</code></td>
+</tr>
+<tr>
+<td align="center"><code>threadSessions</code></td>
+<td align="center"><code>4</code></td>
+</tr>
+</tbody>
+</table><p><strong>*</strong> The Nordic Mem Mgr Heap is statically allocated memory and is actually part of the .bss.</p>
+</div>
+</div>
+<div class="section" id="adk-memory-usage">
+<h3>ADK Memory Usage<a class="headerlink" href="#adk-memory-usage" title="Permalink to this headline">¶</a></h3>
+<p>The ADK utilizes an 8k heap and an 8k stack for local variables and function calls.  The ADK avoids allocating data from the heap when possible, preferring to statically allocate its buffers.  Statically allocated ADK buffers that can be tuned include:</p>
+<ul class="simple">
+<li><p><strong>threadSessions</strong>:  The size of this buffer is controlled by <code class="docutils literal notranslate"><span class="pre">kAppConfig_NumThreadSessions</span></code> which determines the maximum number of simultaneous Thread sessions an accessory can support.  Default is the minimum allowed by spec: 8.</p></li>
+<li><p><strong>keyValueStoreBytes</strong>:  Declared in function <code class="docutils literal notranslate"><span class="pre">HAPPlatformSetupInitKeyValueStore</span></code>.  This buffer is used to build a queue of keyValueStore commands when interacting with the keyValueStore.  Resize according to kvs need.</p></li>
+<li><p><strong>MAX_NUM_COAP_REQUESTS</strong>:  This parameter determines how many CoAP messages can be “in Flight” between an accessory and the controller. ADK tracks messages “In Flight” to determine how best to process failed responses.  ADK Default: 8.</p></li>
+<li><p><strong>kAppConfig_NumAccessoryServerSessionStorageBytes</strong>: This parameter determines how many bytes are provided to Thread Session Storage.  Session storage is used to store outgoing Event notifications and handle Timed Writes.  The number of characteristics that support these features will determine the minimum safe size for this buffer.</p></li>
+<li><p><strong>APP_SCHED_BUF</strong>: Used to store SoftDevice application events.  The size is controlled by <code class="docutils literal notranslate"><span class="pre">SCHED_QUEUE_SIZE</span></code>.</p></li>
+</ul>
+</div>
+<div class="section" id="openthread-memory-usage">
+<h3>OpenThread Memory Usage<a class="headerlink" href="#openthread-memory-usage" title="Permalink to this headline">¶</a></h3>
+<p>The OpenThread library’s memory footprint depends a great deal on compile time configuration.  The required configuration depends on the requirements of the accessory, and as such must be tuned by the accessory developer / vendor.  This section describes ADK defaults and provides tips on how to tune OpenThread for your accessory.</p>
+<p>The OpenThread library is built with any number of <a class="reference external" href="https://github.com/openthread/openthread/blob/master/examples/common-switches.mk">Build Switches</a>.  Each of these switches have their own memory requirements and may or may not be necessary for your accessory.</p>
+<p>In addition to Build Switches, the following compile time parameters have a significant impact on OpenThread’s memory footprint:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/openthread/openthread/blob/2b9e8facba4e30fd5c28cc19e4f870abcc08cdc9/src/core/config/mle.h#L58">OPENTHREAD_CONFIG_MLE_MAX_CHILDREN</a>.  This compile time parameter determines how many children the accessory can support.  Should be set to 0 for sleepy devices.  Default is 32, which is likely higher than most FTDs will want to support.</p></li>
+<li><p><a class="reference external" href="https://github.com/openthread/openthread/blob/2b9e8facba4e30fd5c28cc19e4f870abcc08cdc9/src/core/config/openthread-core-default-config.h#L137">OPENTHREAD_CONFIG_NUM_MESSAGE_BUFFERS</a>.  Determines how many message buffers a node needs.</p></li>
+<li><p><a class="reference external" href="https://github.com/openthread/openthread/blob/2b9e8facba4e30fd5c28cc19e4f870abcc08cdc9/src/core/config/tmf.h#L45">OPENTHREAD_CONFIG_TMF_ADDRESS_CACHE_ENTRIES</a>.  EID to RLOC cache entries.</p></li>
+<li><p><a class="reference external" href="https://github.com/openthread/openthread/blob/2b9e8facba4e30fd5c28cc19e4f870abcc08cdc9/src/core/config/coap.h#L46">OPENTHREAD_CONFIG_COAP_SERVER_MAX_CACHED_RESPONSES</a> The Number of CoAP responses to save for retries</p></li>
+<li><p><a class="reference external" href="https://github.com/openthread/openthread/blob/master/src/core/config/diag.h">All Diagnostic Parameters</a></p></li>
+</ul>
+<p>ADK builds with the following OpenThread build switches:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BORDER_AGENT=1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BORDER_ROUTER=1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">COAP=1</span> </code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">COMMISSIONER=1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DISABLE_BUILTIN_MBEDTLS=1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DNS_CLIENT=1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DIAGNOSTIC=1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">EXTERNAL_HEAP=1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">IP6_FRAGM=1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">JOINER=1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LINK_RAW=1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MAC_FILTER=1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MTD_NETDIAG=1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SERVICE=1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">UDP_FORWARD=1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ECDSA=1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SNTP_CLIENT=1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">COAPS=1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DHCP6_SERVER=1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DHCP6_CLIENT=1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CHILD_SUPERVISION=1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">JAM_DETECTION=1</span></code></p></li>
+</ul>
+<p>Many of these features may be unnecessary for your application.  An accessory that is not a Border Router does not need <code class="docutils literal notranslate"><span class="pre">BORDER_AGENT</span></code>, <code class="docutils literal notranslate"><span class="pre">BORDER_ROUTER</span></code>, or <code class="docutils literal notranslate"><span class="pre">COMMISSIONER</span></code> for example.</p>
+</div>
+<div class="section" id="nordic-stack-and-memory-manager">
+<h3>Nordic Stack and Memory Manager<a class="headerlink" href="#nordic-stack-and-memory-manager" title="Permalink to this headline">¶</a></h3>
+<p>In addition to a standard stack and heap, Nordic SoftDevices provide a <a class="reference external" href="https://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.sdk5.v15.0.0%2Fgroup__mem__manager.html">Memory Manager</a>.  This memory manager statically allocates a chunk of memory and allows applications allocate from it as though it were standard heap. The functions <code class="docutils literal notranslate"><span class="pre">nrf_calloc</span></code> and <code class="docutils literal notranslate"><span class="pre">nrf_free</span></code> may be used to allocate memory from this managed heap.</p>
+<p>The memory manager block sizes are defined in <code class="docutils literal notranslate"><span class="pre">Build/nRF52/sdk_config.h</span></code> and should be tailored by vendors directly.  OpenThread’s requirements of the memory manager are summarized as follows:</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">Block Size (Bytes)</th>
+<th align="center">Num Blocks</th>
+<th align="center">Total Per Block</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><code>4</code></td>
+<td align="center"><code>32</code></td>
+<td align="center"><code>128</code></td>
+</tr>
+<tr>
+<td align="center"><code>16</code></td>
+<td align="center"><code>64</code></td>
+<td align="center"><code>1024</code></td>
+</tr>
+<tr>
+<td align="center"><code>2</code></td>
+<td align="center"><code>240</code></td>
+<td align="center"><code>480</code></td>
+</tr>
+<tr>
+<td align="center"><code>4</code></td>
+<td align="center"><code>1280</code></td>
+<td align="center"><code>5120</code></td>
+</tr>
+<tr>
+<td align="center"><code>2</code></td>
+<td align="center"><code>2908</code></td>
+<td align="center"><code>5816</code></td>
+</tr>
+<tr>
+<td align="center"><strong>TOTAL (Bytes)</strong></td>
+<td align="center"></td>
+<td align="center"><strong>12568</strong></td>
+</tr>
+</tbody>
+</table><p>This is a generalization.  Some OT features, such as Joiner, may require a different larger block allocation.</p>
+<p>In order to support all devices, the values provided by ADK are considerably larger. ADK provides the current allocation, which should be tuned by individual accessory developers according to need, as what is provided by ADK is considerably larger than necessary</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">Block Size (Bytes)</th>
+<th align="center">Num Blocks</th>
+<th align="center">Total Per Block</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><code>64</code></td>
+<td align="center"><code>64</code></td>
+<td align="center"><code>4096</code></td>
+</tr>
+<tr>
+<td align="center"><code>16</code></td>
+<td align="center"><code>256</code></td>
+<td align="center"><code>4096</code></td>
+</tr>
+<tr>
+<td align="center"><code>4</code></td>
+<td align="center"><code>512</code></td>
+<td align="center"><code>2048</code></td>
+</tr>
+<tr>
+<td align="center"><code>5</code></td>
+<td align="center"><code>2816</code></td>
+<td align="center"><code>14080</code></td>
+</tr>
+<tr>
+<td align="center"><code>5</code></td>
+<td align="center"><code>3444</code></td>
+<td align="center"><code>17220</code></td>
+</tr>
+<tr>
+<td align="center"><strong>TOTAL (Bytes)</strong></td>
+<td align="center"></td>
+<td align="center"><strong>41540</strong></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="section" id="ble">
+<h2>BLE<a class="headerlink" href="#ble" title="Permalink to this headline">¶</a></h2>
+<p>This section describes the memory requirements of the Nordic implementation of BLE Protocol for <code class="docutils literal notranslate"><span class="pre">Lightbulb</span></code> sample application.</p>
+<div class="section" id="id2">
+<h3>Memory Requirements<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id3">
+<h4>Release Configuration<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">Memory  Type</th>
+<th align="center">Size (KB)</th>
+<th align="center">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">RAM</td>
+<td align="center"><code>29.11</code></td>
+<td align="center">Further breakdown available in the table below</td>
+</tr>
+<tr>
+<td align="center">Flash</td>
+<td align="center"><code>95.84</code></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">Secure Storage</td>
+<td align="center"><code>4</code></td>
+<td align="center">Writable non-volatile storage (flash or EEPROM)</td>
+</tr>
+</tbody>
+</table><table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">RAM Section</th>
+<th align="center">Size (KB)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">Stack</td>
+<td align="center"><code>8</code></td>
+</tr>
+<tr>
+<td align="center">Heap</td>
+<td align="center"><code>8</code></td>
+</tr>
+<tr>
+<td align="center">.bss</td>
+<td align="center"><code>13.11</code></td>
+</tr>
+<tr>
+<td align="center"><strong>TOTAL (KB)</strong></td>
+<td align="center"><strong>29.11</strong></td>
+</tr>
+</tbody>
+</table><p>Largest contributors to BSS:</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">Symbol</th>
+<th align="center">Size (KB)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><code>APP_SCHED_BUF</code></td>
+<td align="center"><code>2.02</code></td>
+</tr>
+<tr>
+<td align="center"><code>procedureBytes</code></td>
+<td align="center"><code>2</code></td>
+</tr>
+<tr>
+<td align="center"><code>keyValueStoreBytes</code></td>
+<td align="center"><code>2</code></td>
+</tr>
+<tr>
+<td align="center"><code>accessoryServer</code></td>
+<td align="center"><code>1.88</code></td>
+</tr>
+</tbody>
+</table></div>
+<div class="section" id="id4">
+<h4>Debug Configuration<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h4>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">Memory  Type</th>
+<th align="center">Size (KB)</th>
+<th align="center">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">RAM</td>
+<td align="center"><code>51.08</code></td>
+<td align="center">Further breakdown available in the table below</td>
+</tr>
+<tr>
+<td align="center">Flash</td>
+<td align="center"><code>249</code></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">Secure Storage</td>
+<td align="center"><code>4</code></td>
+<td align="center">Writable non-volatile storage (flash or EEPROM)</td>
+</tr>
+</tbody>
+</table><table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">RAM Section</th>
+<th align="center">Size (KB)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">Stack</td>
+<td align="center"><code>8</code></td>
+</tr>
+<tr>
+<td align="center">Heap</td>
+<td align="center"><code>8</code></td>
+</tr>
+<tr>
+<td align="center">.bss</td>
+<td align="center"><code>35.08</code></td>
+</tr>
+<tr>
+<td align="center"><strong>TOTAL (KB)</strong></td>
+<td align="center"><strong>51.08</strong></td>
+</tr>
+</tbody>
+</table><p>Largest contributors to BSS:</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">Symbol</th>
+<th align="center">Size (KB)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><code>acUpBuffer</code></td>
+<td align="center"><code>13.67</code></td>
+</tr>
+<tr>
+<td align="center"><code>debugCommand</code></td>
+<td align="center"><code>8</code></td>
+</tr>
+<tr>
+<td align="center"><code>APP_SCHED_BUF</code></td>
+<td align="center"><code>2.02</code></td>
+</tr>
+<tr>
+<td align="center"><code>procedureBytes</code></td>
+<td align="center"><code>2</code></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="section" id="id5">
+<h3>ADK Memory Usage<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>The ADK utilizes an 8k heap and an 8k stack for local variables and function calls.  The ADK avoids allocating data from the heap when possible, preferring to statically allocate its buffers.  Statically allocated ADK buffers that can be tuned include:</p>
+<ul class="simple">
+<li><p><strong>keyValueStoreBytes</strong>.  Declared in function <code class="docutils literal notranslate"><span class="pre">HAPPlatformSetupInitKeyValueStore</span></code>.  This buffer is used to build a queue of keyValueStore commands when interacting with the keyValueStore.  Resize according to kvs need.</p></li>
+<li><p><strong>APP_SCHED_BUF</strong> Used to store SoftDevice application events.  The size is controlled by <code class="docutils literal notranslate"><span class="pre">SCHED_QUEUE_SIZE</span></code>.</p></li>
+</ul>
+</div>
+<div class="section" id="mbedtls-crypto-requirements">
+<h3>MBedTLS Crypto Requirements<a class="headerlink" href="#mbedtls-crypto-requirements" title="Permalink to this headline">¶</a></h3>
+<p>In addition to a standard stack and heap, Nordic SoftDevices provide a <a class="reference external" href="https://infocenter.nordicsemi.com/index.jsp?topic=%2Fcom.nordic.infocenter.sdk5.v15.0.0%2Fgroup__mem__manager.html">Memory Manager</a>.  This memory manager statically allocates a chunk of memory and allows applications allocate from it as though it were standard heap. The functions <code class="docutils literal notranslate"><span class="pre">nrf_calloc</span></code> and <code class="docutils literal notranslate"><span class="pre">nrf_free</span></code> may be used to allocate memory from this managed heap.</p>
+<p>MBedTLS must be given a pointer to <code class="docutils literal notranslate"><span class="pre">nrf_calloc</span></code> and <code class="docutils literal notranslate"><span class="pre">nrf_free</span></code> via the <code class="docutils literal notranslate"><span class="pre">mbedtls_platform_set_calloc_free</span></code>.  This necessitates setting up the NRF Memory manager’s.</p>
+<p>The memory manager block sizes are defined in <code class="docutils literal notranslate"><span class="pre">Build/nRF52/sdk_config.h</span></code> and should be tailored by vendors directly.</p>
+<p>MbedTLS crypto requires the following minimum block sizes:</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">Block Size (Bytes)</th>
+<th align="center">Num Blocks</th>
+<th align="center">Total Per Block</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><code>16</code></td>
+<td align="center"><code>16</code></td>
+<td align="center"><code>256</code></td>
+</tr>
+<tr>
+<td align="center"><code>8</code></td>
+<td align="center"><code>64</code></td>
+<td align="center"><code>512</code></td>
+</tr>
+<tr>
+<td align="center"><code>8</code></td>
+<td align="center"><code>256</code></td>
+<td align="center"><code>2048</code></td>
+</tr>
+<tr>
+<td align="center"><code>4</code></td>
+<td align="center"><code>512</code></td>
+<td align="center"><code>2048</code></td>
+</tr>
+<tr>
+<td align="center"><code>6</code></td>
+<td align="center"><code>1024</code></td>
+<td align="center"><code>6144</code></td>
+</tr>
+<tr>
+<td align="center"><code>2</code></td>
+<td align="center"><code>3444</code></td>
+<td align="center"><code>6888</code></td>
+</tr>
+<tr>
+<td align="center"><strong>TOTAL (Bytes)</strong></td>
+<td align="center"></td>
+<td align="center"><strong>17896</strong></td>
+</tr>
+</tbody>
+</table><p>In order to support all devices, the values provided by ADK are considerably larger. ADK provides the current allocation, which should be tuned by individual accessory developers according to need, as what is provided by ADK is considerably larger than necessary</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">Block Size (Bytes)</th>
+<th align="center">Num Blocks</th>
+<th align="center">Total Per Block</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><code>64</code></td>
+<td align="center"><code>64</code></td>
+<td align="center"><code>4096</code></td>
+</tr>
+<tr>
+<td align="center"><code>16</code></td>
+<td align="center"><code>256</code></td>
+<td align="center"><code>4096</code></td>
+</tr>
+<tr>
+<td align="center"><code>4</code></td>
+<td align="center"><code>512</code></td>
+<td align="center"><code>2048</code></td>
+</tr>
+<tr>
+<td align="center"><code>5</code></td>
+<td align="center"><code>2816</code></td>
+<td align="center"><code>14080</code></td>
+</tr>
+<tr>
+<td align="center"><code>5</code></td>
+<td align="center"><code>3444</code></td>
+<td align="center"><code>17220</code></td>
+</tr>
+<tr>
+<td align="center"><strong>TOTAL (Bytes)</strong></td>
+<td align="center"></td>
+<td align="center"><strong>41540</strong></td>
+</tr>
+</tbody>
+</table><p>Note that these values may increase depending on other memory requirements.  Vendors should tune these values according to need.</p>
+</div>
+</div>
+<div class="section" id="ip">
+<h2>IP<a class="headerlink" href="#ip" title="Permalink to this headline">¶</a></h2>
+<p>This section describes the memory requirements of the Raspberry Pi implementation of IP Protocol for the <code class="docutils literal notranslate"><span class="pre">Lightbulb</span></code>
+sample application. Note that memory requirements vary based upon the HomeKit profile and features an accessory
+incorporates.</p>
+<div class="section" id="id6">
+<h3>Memory Requirements<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id7">
+<h4>Release Configuration<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h4>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">Memory  Type</th>
+<th align="center">Size (KB)</th>
+<th align="center">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">RAM</td>
+<td align="center"><code>1178.3</code></td>
+<td align="center">Further breakdown available in the table below</td>
+</tr>
+<tr>
+<td align="center">Flash</td>
+<td align="center"><code>135.8</code></td>
+<td align="center">Code space, read-only and initialized data</td>
+</tr>
+<tr>
+<td align="center">Secure Storage</td>
+<td align="center"><code>4</code></td>
+<td align="center">Writable non-volatile storage (flash or EEPROM)</td>
+</tr>
+</tbody>
+</table><table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">RAM Section</th>
+<th align="center">Size (KB)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">.bss</td>
+<td align="center"><code>1175.2</code></td>
+</tr>
+<tr>
+<td align="center">.data</td>
+<td align="center"><code>3.1</code></td>
+</tr>
+<tr>
+<td align="center"><strong>TOTAL (KB)</strong></td>
+<td align="center"><strong>1178.3</strong></td>
+</tr>
+</tbody>
+</table><p>Largest contributors to BSS:</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">Symbol</th>
+<th align="center">Size (KB)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><code>ipOutboundBuffers</code></td>
+<td align="center"><code>557</code></td>
+</tr>
+<tr>
+<td align="center"><code>ipInboundBuffers</code></td>
+<td align="center"><code>557</code></td>
+</tr>
+<tr>
+<td align="center"><code>ipScratchBuffer</code></td>
+<td align="center"><code>32</code></td>
+</tr>
+<tr>
+<td align="center"><code>ipSessions</code></td>
+<td align="center"><code>12</code></td>
+</tr>
+</tbody>
+</table></div>
+<div class="section" id="id8">
+<h4>Debug Configuration<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h4>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">Memory  Type</th>
+<th align="center">Size (KB)</th>
+<th align="center">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">RAM</td>
+<td align="center"><code>1194.3</code></td>
+<td align="center">Further breakdown available in the table below</td>
+</tr>
+<tr>
+<td align="center">Flash</td>
+<td align="center"><code>1633.6</code></td>
+<td align="center">Code space, read-only and initialized data</td>
+</tr>
+<tr>
+<td align="center">Secure Storage</td>
+<td align="center"><code>4</code></td>
+<td align="center">Writable non-volatile storage (flash or EEPROM)</td>
+</tr>
+</tbody>
+</table><table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">RAM Section</th>
+<th align="center">Size (KB)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">.bss</td>
+<td align="center"><code>1185.8</code></td>
+</tr>
+<tr>
+<td align="center">.data</td>
+<td align="center"><code>8.5</code></td>
+</tr>
+<tr>
+<td align="center"><strong>TOTAL (KB)</strong></td>
+<td align="center"><strong>1194.3</strong></td>
+</tr>
+</tbody>
+</table><p>Largest contributors to BSS:</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">Symbol</th>
+<th align="center">Size (KB)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><code>ipOutboundBuffers</code></td>
+<td align="center"><code>557</code></td>
+</tr>
+<tr>
+<td align="center"><code>ipInboundBuffers</code></td>
+<td align="center"><code>557</code></td>
+</tr>
+<tr>
+<td align="center"><code>ipScratchBuffer</code></td>
+<td align="center"><code>32</code></td>
+</tr>
+<tr>
+<td align="center"><code>ipSessions</code></td>
+<td align="center"><code>12</code></td>
+</tr>
+</tbody>
+</table><p>Debug builds include precondition and assert checks, which are disabled in release builds. Release builds also
+disable logging, resulting in a much smaller flash footprint.</p>
+</div>
+</div>
+<div class="section" id="id9">
+<h3>ADK Memory Usage<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<p>By default, the ADK HAP implementation uses static memory allocation. As seen above, the majority of RAM usage
+corresponds to buffers whose sizing is determined as follows:</p>
+<ul class="simple">
+<li><p><strong>ipSessions</strong>: IP session storage. Controlled by <code class="docutils literal notranslate"><span class="pre">kHAPIPSessionStorage_DefaultNumElements</span></code> and limits the
+maximum number of simultaneous IP sessions an accessory can support. Default is 17.</p></li>
+<li><p><strong>ipInboundBuffers</strong>: Buffers for controller-to-accessory messages. Controlled by the number of IP sessions
+and <code class="docutils literal notranslate"><span class="pre">kHAPIPSession_DefaultInboundBufferSize</span></code>. Default is 32 KB per session.</p></li>
+<li><p><strong>ipOutboundBuffers</strong>: Buffers for accessory-to-controller messages. Controlled by the number of IP sessions
+and <code class="docutils literal notranslate"><span class="pre">kHAPIPSession_DefaultOutboundBufferSize</span></code>. Default is 32 KB per session.</p></li>
+</ul>
+<p>Note that ADK memory usage does not incorporate OS resources, platform dependencies such as the IP stack or shared
+libraries, nor the stack allocated for the context in which the ADK executes.</p>
+</div>
+<div class="section" id="hap-dynamic-memory-allocation">
+<h3>HAP_DYNAMIC_MEMORY_ALLOCATION<a class="headerlink" href="#hap-dynamic-memory-allocation" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">HAP_DYNAMIC_MEMORY_ALLOCATION</span></code> build flag may be used to dynamically allocate the inbound and outbound buffers
+as well as event notification objects based upon session activity to minimize the idle memory usage. If enabled,
+the platform must provide memory allocation, reallocation, and deallocation functions. This has a large impact on
+the .bss section size, although peak RAM usage is dependent upon the number of controllers simultaneously exchanging
+data with the accessory.</p>
+<div class="section" id="release-configuration-hap-dynamic-memory-allocation-1">
+<h4>Release Configuration (<code class="docutils literal notranslate"><span class="pre">HAP_DYNAMIC_MEMORY_ALLOCATION=1</span></code>)<a class="headerlink" href="#release-configuration-hap-dynamic-memory-allocation-1" title="Permalink to this headline">¶</a></h4>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">Memory  Type</th>
+<th align="center">Size (KB)</th>
+<th align="center">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">RAM</td>
+<td align="center"><code>53.8</code></td>
+<td align="center">Further breakdown available in the table below</td>
+</tr>
+<tr>
+<td align="center">Flash</td>
+<td align="center"><code>138.4</code></td>
+<td align="center">Code space, read-only and initialized data</td>
+</tr>
+<tr>
+<td align="center">Secure Storage</td>
+<td align="center"><code>4</code></td>
+<td align="center">Writable non-volatile storage (flash or EEPROM)</td>
+</tr>
+</tbody>
+</table><table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">RAM Section</th>
+<th align="center">Size (KB)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">.bss</td>
+<td align="center"><code>50.6</code></td>
+</tr>
+<tr>
+<td align="center">.data</td>
+<td align="center"><code>3.2</code></td>
+</tr>
+<tr>
+<td align="center"><strong>TOTAL (KB)</strong></td>
+<td align="center"><strong>53.8</strong></td>
+</tr>
+</tbody>
+</table><p>Largest contributors to BSS:</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">Symbol</th>
+<th align="center">Size (KB)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><code>ipScratchBuffer</code></td>
+<td align="center"><code>32</code></td>
+</tr>
+<tr>
+<td align="center"><code>ipSessions</code></td>
+<td align="center"><code>12</code></td>
+</tr>
+<tr>
+<td align="center"><code>accessoryServer</code></td>
+<td align="center"><code>2.3</code></td>
+</tr>
+<tr>
+<td align="center"><code>ipWriteContexts</code></td>
+<td align="center"><code>1.2</code></td>
+</tr>
+</tbody>
+</table></div>
+<div class="section" id="debug-configuration-hap-dynamic-memory-allocation-1">
+<h4>Debug Configuration (<code class="docutils literal notranslate"><span class="pre">HAP_DYNAMIC_MEMORY_ALLOCATION=1</span></code>)<a class="headerlink" href="#debug-configuration-hap-dynamic-memory-allocation-1" title="Permalink to this headline">¶</a></h4>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">Memory  Type</th>
+<th align="center">Size (KB)</th>
+<th align="center">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">RAM</td>
+<td align="center"><code>68.5</code></td>
+<td align="center">Further breakdown available in the table below</td>
+</tr>
+<tr>
+<td align="center">Flash</td>
+<td align="center"><code>1645.5</code></td>
+<td align="center">Code space, read-only and initialized data</td>
+</tr>
+<tr>
+<td align="center">Secure Storage</td>
+<td align="center"><code>4</code></td>
+<td align="center">Writable non-volatile storage (flash or EEPROM)</td>
+</tr>
+</tbody>
+</table><table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">RAM Section</th>
+<th align="center">Size (KB)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">.bss</td>
+<td align="center"><code>60</code></td>
+</tr>
+<tr>
+<td align="center">.data</td>
+<td align="center"><code>8.5</code></td>
+</tr>
+<tr>
+<td align="center"><strong>TOTAL (KB)</strong></td>
+<td align="center"><strong>68.5</strong></td>
+</tr>
+</tbody>
+</table><p>Largest contributors to BSS:</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th align="center">Symbol</th>
+<th align="center">Size (KB)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><code>ipScratchBuffer</code></td>
+<td align="center"><code>32</code></td>
+</tr>
+<tr>
+<td align="center"><code>ipSessions</code></td>
+<td align="center"><code>12</code></td>
+</tr>
+<tr>
+<td align="center"><code>debugCommand</code></td>
+<td align="center"><code>8</code></td>
+</tr>
+<tr>
+<td align="center"><code>accessoryServer</code></td>
+<td align="center"><code>2.3</code></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="crypto.html" class="btn btn-neutral float-right" title="Cryptographic Libraries" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="provisioning_tools.html" class="btn btn-neutral float-left" title="Provisioning Tools" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright © 2021 Apple Inc. All Rights Reserved..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

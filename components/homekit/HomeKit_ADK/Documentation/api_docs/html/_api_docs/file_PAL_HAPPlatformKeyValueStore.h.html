@@ -1,0 +1,317 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>File HAPPlatformKeyValueStore.h &mdash; HomeKit ADK  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> HomeKit ADK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../adk_architecture.html">ADK Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../adk_directory_structure.html">ADK Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docker.html">Docker with ADK</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Step-by-step Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting started with ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../raspi_setup.html">Raspberry Pi Setup Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bct.html">Bonjour Conformance Test (BCT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wac_on_raspberrypi.html">WAC on Raspberry Pi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../camera_on_darwin.html">Camera on macOS</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Troubleshooting ADK</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../interact_with_applications.html">Interacting with ADK applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writing_unit_tests.html">Writing Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../debug_adk.html">Debugging ADK Applications</a></li>
+</ul>
+<p class="caption"><span class="caption-text">ADK Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_development.html">Accessory Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_pairing.html">Accessory Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_authentication.html">Accessory Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../provisioning_tools.html">Provisioning Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ADK_Memory_Usage_and_Requirements.html">Memory Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../crypto.html">Cryptographic Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../make_options.html">Compile Time Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../coding_convention.html">Coding Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migration_guide.html">ADK Migration Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">HomeKit Services</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_diagnostics.html">Accessory Diagnostics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_metrics.html">Accessory Metrics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../adaptive_light.html">Adaptive Lighting Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appletv_remote.html">Apple TV Remote</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../firmware_update.html">Firmware Update Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../homekit_bridge.html">HomeKit Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ip_camera.html">IP Camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lock_profile.html">Lock Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../stateless_programmable_switch.html">Stateless Programmable Switch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../thread.html">HAP over Thread Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wifi_reconfiguration_feature.html">WiFi Reconfiguration Service</a></li>
+</ul>
+<p class="caption"><span class="caption-text">PAL APIs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dir_PAL.html">Directory PAL</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HomeKit ADK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>File HAPPlatformKeyValueStore.h</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/_api_docs/file_PAL_HAPPlatformKeyValueStore.h.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="file-happlatformkeyvaluestore-h">
+<span id="file-pal-happlatformkeyvaluestore-h"></span><h1>File HAPPlatformKeyValueStore.h<a class="headerlink" href="#file-happlatformkeyvaluestore-h" title="Permalink to this headline">¶</a></h1>
+<p>↰ <a class="reference internal" href="dir_PAL.html#dir-pal"><span class="std std-ref">Parent directory</span></a> (<code class="docutils literal notranslate"><span class="pre">PAL</span></code>)</p>
+<div class="contents local topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#definition-pal-happlatformkeyvaluestore-h" id="id1">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformKeyValueStore.h</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#detailed-description" id="id2">Detailed Description</a></p></li>
+<li><p><a class="reference internal" href="#includes" id="id3">Includes</a></p></li>
+<li><p><a class="reference internal" href="#functions" id="id4">Functions</a></p></li>
+<li><p><a class="reference internal" href="#typedefs" id="id5">Typedefs</a></p></li>
+</ul>
+</div>
+<div class="section" id="definition-pal-happlatformkeyvaluestore-h">
+<h2>Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformKeyValueStore.h</span></code>)<a class="headerlink" href="#definition-pal-happlatformkeyvaluestore-h" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformKeyValueStore.h.html">Program Listing for File HAPPlatformKeyValueStore.h</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="detailed-description">
+<h2>Detailed Description<a class="headerlink" href="#detailed-description" title="Permalink to this headline">¶</a></h2>
+<p>HAP expects to have a few KB of mutable persistent memory for its keys and other information. The data is stored as a set of key-value pairs.
+Expected behavior: Several instances of a key-value store must be supported (domains), so that information owned by the accessory, by the SDK provider and by the HAP implementation can be separately managed. The following domains are defined:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0x00–0x3F</span></code> is reserved for accessory developers</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x40-0x7F</span></code> is reserved for platform developers</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0x80-0xFF</span></code> is reserved for the HAP Library</p></li>
+</ul>
+<p>In every domain, keys in the range 0x00 to 0xFF can be used.
+Note that the function <code class="docutils literal notranslate"><span class="pre">HAPKeystoreRestoreFactorySettings</span></code> only touches domains 0x80 through 0xFF. This means that provisioning information that is stored in the key-value store (domain 0x40 in the POSIX and BLE sample PALs) survives such a factory reset as required by the HAP specification. However, it is up to the platform developer where the provisioning information is stored, it does not have to be in the key-value store. Adjust <code class="docutils literal notranslate"><span class="pre">HAPPlatformAccessorySetup</span></code> if you want to use another backing store for provisioning.
+Storage of key-value pairs is possible in files or directly on a micro-controller on-chip flash or EEPROM memory. A flash-based implementation of the key-value store may require up to twice as much flash memory compared to what HAP may require. The additional flash memory may be required e.g. because a copy of a flash sector has to be written before deleting the old sector.
+The maximum theoretical possible capacity of the key-value store is <code class="docutils literal notranslate"><span class="pre">256</span> <span class="pre">*</span> <span class="pre">256</span></code> key-value pairs. The HAP Library owns <code class="docutils literal notranslate"><span class="pre">128</span> <span class="pre">*</span> <span class="pre">256</span></code> of these pairs, the PAL owns <code class="docutils literal notranslate"><span class="pre">64</span> <span class="pre">*</span> <span class="pre">256</span></code> pairs, and the accessory logic also owns <code class="docutils literal notranslate"><span class="pre">64</span> <span class="pre">*</span> <span class="pre">256</span></code> pairs. Note that PAL and accessory logic are not required to use the parts of the key-value store that are defined for them. These parts are merely defined for convenience, and also used in this way in the ADK reference implementations.
+In practice, only few pairs are used (sparse structure). Actual use depends on parameters like the number of pairings, the given accessory attribute database, IP vs BLE capabilities, etc. It is expected that a total size of <code class="docutils literal notranslate"><span class="pre">4</span> <span class="pre">KB</span></code> is sufficient if the accessory logic does not use the key-value store.
+Values have different sizes depending on the key; the ones used by HAP Library stay within reasonable bounds (up to <code class="docutils literal notranslate"><span class="pre">128</span> <span class="pre">bytes</span></code> for the longest). In the PAL, there are larger values, for example to store SRP salt and verifier. But PAL code is provided in source form, so these values can be split across multiple keys if necessary.</p>
+</div>
+<div class="section" id="includes">
+<h2>Includes<a class="headerlink" href="#includes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPBase.h</span></code></p></li>
+</ul>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="function_HAPPlatformKeyValueStore_8h_1ac28eed421b80368a404a5fcafeac74c7.html#exhale-function-happlatformkeyvaluestore-8h-1ac28eed421b80368a404a5fcafeac74c7"><span class="std std-ref">Function HAPPlatformKeyValueStoreEnumerate</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformKeyValueStore_8h_1ad90cb0842ab9137371bf60a75cba5967.html#exhale-function-happlatformkeyvaluestore-8h-1ad90cb0842ab9137371bf60a75cba5967"><span class="std std-ref">Function HAPPlatformKeyValueStoreGet</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformKeyValueStore_8h_1a44b8b9491bea69421de7353c9fce1425.html#exhale-function-happlatformkeyvaluestore-8h-1a44b8b9491bea69421de7353c9fce1425"><span class="std std-ref">Function HAPPlatformKeyValueStoreOverrideAndSet</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformKeyValueStore_8h_1a55e457e75ef5cc630080f2987ec753f9.html#exhale-function-happlatformkeyvaluestore-8h-1a55e457e75ef5cc630080f2987ec753f9"><span class="std std-ref">Function HAPPlatformKeyValueStorePurgeDomain</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformKeyValueStore_8h_1ad6fe03ccdc304875c7914e45f77d39b5.html#exhale-function-happlatformkeyvaluestore-8h-1ad6fe03ccdc304875c7914e45f77d39b5"><span class="std std-ref">Function HAPPlatformKeyValueStoreRemove</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformKeyValueStore_8h_1a4244dd50926c5a8fa8b276675e9573c5.html#exhale-function-happlatformkeyvaluestore-8h-1a4244dd50926c5a8fa8b276675e9573c5"><span class="std std-ref">Function HAPPlatformKeyValueStoreSet</span></a></p></li>
+</ul>
+</div>
+<div class="section" id="typedefs">
+<h2>Typedefs<a class="headerlink" href="#typedefs" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="typedef_HAPPlatformKeyValueStore_8h_1ad727d5b4201757679fd9d05d951cc285.html#exhale-typedef-happlatformkeyvaluestore-8h-1ad727d5b4201757679fd9d05d951cc285"><span class="std std-ref">Typedef HAPPlatformKeyValueStore</span></a></p></li>
+<li><p><a class="reference internal" href="typedef_HAPPlatformKeyValueStore_8h_1ab2d16532bf17617db04a656805714531.html#exhale-typedef-happlatformkeyvaluestore-8h-1ab2d16532bf17617db04a656805714531"><span class="std std-ref">Typedef HAPPlatformKeyValueStoreDomain</span></a></p></li>
+<li><p><a class="reference internal" href="typedef_HAPPlatformKeyValueStore_8h_1a4fef9c5d25a217c706dc31214b4bf0d6.html#exhale-typedef-happlatformkeyvaluestore-8h-1a4fef9c5d25a217c706dc31214b4bf0d6"><span class="std std-ref">Typedef HAPPlatformKeyValueStoreEnumerateCallback</span></a></p></li>
+<li><p><a class="reference internal" href="typedef_HAPPlatformKeyValueStore_8h_1af01373b436350b48f8a69cf17d3f4afd.html#exhale-typedef-happlatformkeyvaluestore-8h-1af01373b436350b48f8a69cf17d3f4afd"><span class="std std-ref">Typedef HAPPlatformKeyValueStoreKey</span></a></p></li>
+<li><p><a class="reference internal" href="typedef_HAPPlatformKeyValueStore_8h_1a6b6f86b5900b4dd7730c193949767491.html#exhale-typedef-happlatformkeyvaluestore-8h-1a6b6f86b5900b4dd7730c193949767491"><span class="std std-ref">Typedef HAPPlatformKeyValueStoreRef</span></a></p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright © 2021 Apple Inc. All Rights Reserved..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

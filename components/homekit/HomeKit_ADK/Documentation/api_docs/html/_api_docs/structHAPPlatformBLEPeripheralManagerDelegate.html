@@ -1,0 +1,384 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Struct HAPPlatformBLEPeripheralManagerDelegate &mdash; HomeKit ADK  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> HomeKit ADK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../adk_architecture.html">ADK Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../adk_directory_structure.html">ADK Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docker.html">Docker with ADK</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Step-by-step Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting started with ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../raspi_setup.html">Raspberry Pi Setup Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bct.html">Bonjour Conformance Test (BCT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wac_on_raspberrypi.html">WAC on Raspberry Pi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../camera_on_darwin.html">Camera on macOS</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Troubleshooting ADK</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../interact_with_applications.html">Interacting with ADK applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writing_unit_tests.html">Writing Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../debug_adk.html">Debugging ADK Applications</a></li>
+</ul>
+<p class="caption"><span class="caption-text">ADK Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_development.html">Accessory Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_pairing.html">Accessory Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_authentication.html">Accessory Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../provisioning_tools.html">Provisioning Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ADK_Memory_Usage_and_Requirements.html">Memory Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../crypto.html">Cryptographic Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../make_options.html">Compile Time Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../coding_convention.html">Coding Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migration_guide.html">ADK Migration Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">HomeKit Services</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_diagnostics.html">Accessory Diagnostics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_metrics.html">Accessory Metrics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../adaptive_light.html">Adaptive Lighting Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appletv_remote.html">Apple TV Remote</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../firmware_update.html">Firmware Update Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../homekit_bridge.html">HomeKit Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ip_camera.html">IP Camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lock_profile.html">Lock Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../stateless_programmable_switch.html">Stateless Programmable Switch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../thread.html">HAP over Thread Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wifi_reconfiguration_feature.html">WiFi Reconfiguration Service</a></li>
+</ul>
+<p class="caption"><span class="caption-text">PAL APIs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dir_PAL.html">Directory PAL</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HomeKit ADK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Struct HAPPlatformBLEPeripheralManagerDelegate</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/_api_docs/structHAPPlatformBLEPeripheralManagerDelegate.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="struct-happlatformbleperipheralmanagerdelegate">
+<span id="exhale-struct-structhapplatformbleperipheralmanagerdelegate"></span><h1>Struct HAPPlatformBLEPeripheralManagerDelegate<a class="headerlink" href="#struct-happlatformbleperipheralmanagerdelegate" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p>Defined in <a class="reference internal" href="file_PAL_HAPPlatformBLEPeripheralManager.h.html#file-pal-happlatformbleperipheralmanager-h"><span class="std std-ref">File HAPPlatformBLEPeripheralManager.h</span></a></p></li>
+</ul>
+<div class="section" id="struct-documentation">
+<h2>Struct Documentation<a class="headerlink" href="#struct-documentation" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="_CPPv439HAPPlatformBLEPeripheralManagerDelegate">
+<span id="_CPPv339HAPPlatformBLEPeripheralManagerDelegate"></span><span id="_CPPv239HAPPlatformBLEPeripheralManagerDelegate"></span><span id="HAPPlatformBLEPeripheralManagerDelegate"></span><span class="target" id="structHAPPlatformBLEPeripheralManagerDelegate"></span><em class="property">struct </em><code class="sig-name descname">HAPPlatformBLEPeripheralManagerDelegate</code><a class="headerlink" href="#_CPPv439HAPPlatformBLEPeripheralManagerDelegate" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Delegate that is used to monitor read, write, and subscription requests from remote central devices. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="member">
+<dt id="_CPPv4N39HAPPlatformBLEPeripheralManagerDelegate7contextE">
+<span id="_CPPv3N39HAPPlatformBLEPeripheralManagerDelegate7contextE"></span><span id="_CPPv2N39HAPPlatformBLEPeripheralManagerDelegate7contextE"></span><span id="HAPPlatformBLEPeripheralManagerDelegate::context__voidP"></span><span class="target" id="structHAPPlatformBLEPeripheralManagerDelegate_1ae9d1158b9ac43c218c5ea53f66e57e8e"></span>void *<code class="sig-name descname">context</code><a class="headerlink" href="#_CPPv4N39HAPPlatformBLEPeripheralManagerDelegate7contextE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Client context pointer. Will be passed to callbacks. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv4N39HAPPlatformBLEPeripheralManagerDelegate22handleConnectedCentralE">
+<span id="_CPPv3N39HAPPlatformBLEPeripheralManagerDelegate22handleConnectedCentralE"></span><span id="_CPPv2N39HAPPlatformBLEPeripheralManagerDelegate22handleConnectedCentralE"></span><span class="target" id="structHAPPlatformBLEPeripheralManagerDelegate_1af75da30c8d0ecce5770ff59b13088fd0"></span>void (*<code class="sig-name descname">handleConnectedCentral</code>)<span class="sig-paren">(</span><a class="reference internal" href="typedef_HAPPlatformBLEPeripheralManager_8h_1a0c50d38977aaa6051406ef57108e4f93.html#_CPPv434HAPPlatformBLEPeripheralManagerRef" title="HAPPlatformBLEPeripheralManagerRef">HAPPlatformBLEPeripheralManagerRef</a> blePeripheralManager, <a class="reference internal" href="typedef_HAPPlatformBLEPeripheralManager_8h_1af7f2ef4b7b0d08f535b0d73555add380.html#_CPPv447HAPPlatformBLEPeripheralManagerConnectionHandle" title="HAPPlatformBLEPeripheralManagerConnectionHandle">HAPPlatformBLEPeripheralManagerConnectionHandle</a> connectionHandle, void *context<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N39HAPPlatformBLEPeripheralManagerDelegate22handleConnectedCentralE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Invoked when a connection has been established in response to the advertising data that has been set through HAPPlatformBLEPeripheralManagerStartAdvertising.</p>
+<p><ul class="simple">
+<li><p>If a connection is established through other means, it is not considered a HomeKit connection and must not lead to the invocation of this callback.</p></li>
+</ul>
+</p>
+<p><dl class="simple">
+<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">blePeripheralManager</span></code>: BLE peripheral manager. </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">connectionHandle</span></code>: Connection handle of the connected central. </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">context</span></code>: The context pointer of the BLE peripheral manager delegate structure. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv4N39HAPPlatformBLEPeripheralManagerDelegate25handleDisconnectedCentralE">
+<span id="_CPPv3N39HAPPlatformBLEPeripheralManagerDelegate25handleDisconnectedCentralE"></span><span id="_CPPv2N39HAPPlatformBLEPeripheralManagerDelegate25handleDisconnectedCentralE"></span><span class="target" id="structHAPPlatformBLEPeripheralManagerDelegate_1a280d00ade0d26ab06ad07eb4f3f622ea"></span>void (*<code class="sig-name descname">handleDisconnectedCentral</code>)<span class="sig-paren">(</span><a class="reference internal" href="typedef_HAPPlatformBLEPeripheralManager_8h_1a0c50d38977aaa6051406ef57108e4f93.html#_CPPv434HAPPlatformBLEPeripheralManagerRef" title="HAPPlatformBLEPeripheralManagerRef">HAPPlatformBLEPeripheralManagerRef</a> blePeripheralManager, <a class="reference internal" href="typedef_HAPPlatformBLEPeripheralManager_8h_1af7f2ef4b7b0d08f535b0d73555add380.html#_CPPv447HAPPlatformBLEPeripheralManagerConnectionHandle" title="HAPPlatformBLEPeripheralManagerConnectionHandle">HAPPlatformBLEPeripheralManagerConnectionHandle</a> connectionHandle, void *context<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N39HAPPlatformBLEPeripheralManagerDelegate25handleDisconnectedCentralE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Invoked when a connection that was reported to the handleConnectedCentral callback has been terminated.</p>
+<p><dl class="simple">
+<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">blePeripheralManager</span></code>: BLE peripheral manager. </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">connectionHandle</span></code>: Connection handle of the disconnected central. </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">context</span></code>: The context pointer of the BLE peripheral manager delegate structure. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv4N39HAPPlatformBLEPeripheralManagerDelegate17handleReadRequestE">
+<span id="_CPPv3N39HAPPlatformBLEPeripheralManagerDelegate17handleReadRequestE"></span><span id="_CPPv2N39HAPPlatformBLEPeripheralManagerDelegate17handleReadRequestE"></span><span class="target" id="structHAPPlatformBLEPeripheralManagerDelegate_1a25a558cbc5b6fc779b605db1abce6de1"></span>HAPError (*<code class="sig-name descname">handleReadRequest</code>)<span class="sig-paren">(</span><a class="reference internal" href="typedef_HAPPlatformBLEPeripheralManager_8h_1a0c50d38977aaa6051406ef57108e4f93.html#_CPPv434HAPPlatformBLEPeripheralManagerRef" title="HAPPlatformBLEPeripheralManagerRef">HAPPlatformBLEPeripheralManagerRef</a> blePeripheralManager, <a class="reference internal" href="typedef_HAPPlatformBLEPeripheralManager_8h_1af7f2ef4b7b0d08f535b0d73555add380.html#_CPPv447HAPPlatformBLEPeripheralManagerConnectionHandle" title="HAPPlatformBLEPeripheralManagerConnectionHandle">HAPPlatformBLEPeripheralManagerConnectionHandle</a> connectionHandle, <a class="reference internal" href="typedef_HAPPlatformBLEPeripheralManager_8h_1a90307ee9d962b01b58dc09484d1c38f4.html#_CPPv446HAPPlatformBLEPeripheralManagerAttributeHandle" title="HAPPlatformBLEPeripheralManagerAttributeHandle">HAPPlatformBLEPeripheralManagerAttributeHandle</a> attributeHandle, void *bytes, size_t maxBytes, size_t *numBytes, void *context<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N39HAPPlatformBLEPeripheralManagerDelegate17handleReadRequestE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Invoked when a read request is received on an attribute that has been registered through HAPPlatformBLEPeripheralManagerAddCharacteristic or HAPPlatformBLEPeripheralManagerAddDescriptor.</p>
+<p><ul class="simple">
+<li><p>The supplied buffer should have space for kHAPPlatformBLEPeripheralManager_MaxAttributeBytes bytes. It is left to the BLE peripheral manager implementation to then transfer the full buffer over a sequence of central-initiated “Read Request” and “Read Blob Request” operations to the central. This callback should only be invoked again once the full data has been transmitted.</p></li>
+</ul>
+</p>
+<p><dl class="simple">
+<dt><strong>Return</strong></dt><dd><p>kHAPError_None If successful. </p>
+</dd>
+<dt><strong>Return</strong></dt><dd><p>kHAPError_InvalidState If a read on that characteristic is not allowed in the current state. </p>
+</dd>
+<dt><strong>Return</strong></dt><dd><p>kHAPError_OutOfResources If the supplied buffer is not large enough. </p>
+</dd>
+<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">blePeripheralManager</span></code>: BLE peripheral manager. </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">connectionHandle</span></code>: Connection handle of the central that sent the request. </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">attributeHandle</span></code>: Attribute handle that is being read. </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[out]</span> <span class="pre">bytes</span></code>: Buffer to fill read response into. </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">maxBytes</span></code>: Capacity of buffer. </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[out]</span> <span class="pre">numBytes</span></code>: Length of data that was filled into buffer. </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">context</span></code>: The context pointer of the BLE peripheral manager delegate structure.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv4N39HAPPlatformBLEPeripheralManagerDelegate18handleWriteRequestE">
+<span id="_CPPv3N39HAPPlatformBLEPeripheralManagerDelegate18handleWriteRequestE"></span><span id="_CPPv2N39HAPPlatformBLEPeripheralManagerDelegate18handleWriteRequestE"></span><span class="target" id="structHAPPlatformBLEPeripheralManagerDelegate_1acc4288e13767c83c4d75e468fb228237"></span>HAPError (*<code class="sig-name descname">handleWriteRequest</code>)<span class="sig-paren">(</span><a class="reference internal" href="typedef_HAPPlatformBLEPeripheralManager_8h_1a0c50d38977aaa6051406ef57108e4f93.html#_CPPv434HAPPlatformBLEPeripheralManagerRef" title="HAPPlatformBLEPeripheralManagerRef">HAPPlatformBLEPeripheralManagerRef</a> blePeripheralManager, <a class="reference internal" href="typedef_HAPPlatformBLEPeripheralManager_8h_1af7f2ef4b7b0d08f535b0d73555add380.html#_CPPv447HAPPlatformBLEPeripheralManagerConnectionHandle" title="HAPPlatformBLEPeripheralManagerConnectionHandle">HAPPlatformBLEPeripheralManagerConnectionHandle</a> connectionHandle, <a class="reference internal" href="typedef_HAPPlatformBLEPeripheralManager_8h_1a90307ee9d962b01b58dc09484d1c38f4.html#_CPPv446HAPPlatformBLEPeripheralManagerAttributeHandle" title="HAPPlatformBLEPeripheralManagerAttributeHandle">HAPPlatformBLEPeripheralManagerAttributeHandle</a> attributeHandle, void *bytes, size_t numBytes, void *context<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N39HAPPlatformBLEPeripheralManagerDelegate18handleWriteRequestE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Invoked when a write request is received on an attribute that has been registered through HAPPlatformBLEPeripheralManagerAddCharacteristic or HAPPlatformBLEPeripheralManagerAddDescriptor.</p>
+<p><ul class="simple">
+<li><p>The supplied buffer must support writes up to kHAPPlatformBLEPeripheralManager_MaxAttributeBytes bytes. It is left to the BLE peripheral manager implementation to assemble fragments of potential “Prepare Write Request” and “Execute Write Request” operations. This callback should only be invoked once the full data has been received.</p></li>
+</ul>
+</p>
+<p><dl class="simple">
+<dt><strong>Return</strong></dt><dd><p>kHAPError_None If successful. </p>
+</dd>
+<dt><strong>Return</strong></dt><dd><p>kHAPError_InvalidState If a write on that characteristic is not allowed in the current state. </p>
+</dd>
+<dt><strong>Return</strong></dt><dd><p>kHAPError_InvalidData If the request data has an invalid format. </p>
+</dd>
+<dt><strong>Return</strong></dt><dd><p>kHAPError_OutOfResources If there are not enough resources to handle the request. </p>
+</dd>
+<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">blePeripheralManager</span></code>: BLE peripheral manager. </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">connectionHandle</span></code>: Connection handle of the central that sent the request. </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">attributeHandle</span></code>: Attribute handle that is being read. </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bytes</span></code>: Buffer that contains the request data. </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">numBytes</span></code>: Length of data in buffer. </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">context</span></code>: The context pointer of the BLE peripheral manager delegate structure.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv4N39HAPPlatformBLEPeripheralManagerDelegate30handleReadyToUpdateSubscribersE">
+<span id="_CPPv3N39HAPPlatformBLEPeripheralManagerDelegate30handleReadyToUpdateSubscribersE"></span><span id="_CPPv2N39HAPPlatformBLEPeripheralManagerDelegate30handleReadyToUpdateSubscribersE"></span><span class="target" id="structHAPPlatformBLEPeripheralManagerDelegate_1a5e9342932bca23088a571d087aa1b18b"></span>void (*<code class="sig-name descname">handleReadyToUpdateSubscribers</code>)<span class="sig-paren">(</span><a class="reference internal" href="typedef_HAPPlatformBLEPeripheralManager_8h_1a0c50d38977aaa6051406ef57108e4f93.html#_CPPv434HAPPlatformBLEPeripheralManagerRef" title="HAPPlatformBLEPeripheralManagerRef">HAPPlatformBLEPeripheralManagerRef</a> blePeripheralManager, <a class="reference internal" href="typedef_HAPPlatformBLEPeripheralManager_8h_1af7f2ef4b7b0d08f535b0d73555add380.html#_CPPv447HAPPlatformBLEPeripheralManagerConnectionHandle" title="HAPPlatformBLEPeripheralManagerConnectionHandle">HAPPlatformBLEPeripheralManagerConnectionHandle</a> connectionHandle, void *context<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N39HAPPlatformBLEPeripheralManagerDelegate30handleReadyToUpdateSubscribersE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Invoked when the BLE peripheral manager is again ready to send characteristic value updates through HAPPlatformBLEPeripheralManagerSendHandleValueIndication.</p>
+<p><dl class="simple">
+<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">blePeripheralManager</span></code>: BLE peripheral manager. </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">connectionHandle</span></code>: Connection handle of the central that is ready to receive events. </p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">context</span></code>: The context pointer of the BLE peripheral manager delegate structure. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright © 2021 Apple Inc. All Rights Reserved..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

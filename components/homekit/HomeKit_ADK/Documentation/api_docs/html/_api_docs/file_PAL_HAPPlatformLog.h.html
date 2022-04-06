@@ -1,0 +1,325 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>File HAPPlatformLog.h &mdash; HomeKit ADK  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> HomeKit ADK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../adk_architecture.html">ADK Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../adk_directory_structure.html">ADK Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docker.html">Docker with ADK</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Step-by-step Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting started with ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../raspi_setup.html">Raspberry Pi Setup Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bct.html">Bonjour Conformance Test (BCT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wac_on_raspberrypi.html">WAC on Raspberry Pi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../camera_on_darwin.html">Camera on macOS</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Troubleshooting ADK</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../interact_with_applications.html">Interacting with ADK applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writing_unit_tests.html">Writing Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../debug_adk.html">Debugging ADK Applications</a></li>
+</ul>
+<p class="caption"><span class="caption-text">ADK Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_development.html">Accessory Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_pairing.html">Accessory Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_authentication.html">Accessory Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../provisioning_tools.html">Provisioning Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ADK_Memory_Usage_and_Requirements.html">Memory Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../crypto.html">Cryptographic Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../make_options.html">Compile Time Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../coding_convention.html">Coding Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migration_guide.html">ADK Migration Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">HomeKit Services</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_diagnostics.html">Accessory Diagnostics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_metrics.html">Accessory Metrics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../adaptive_light.html">Adaptive Lighting Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appletv_remote.html">Apple TV Remote</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../firmware_update.html">Firmware Update Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../homekit_bridge.html">HomeKit Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ip_camera.html">IP Camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lock_profile.html">Lock Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../stateless_programmable_switch.html">Stateless Programmable Switch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../thread.html">HAP over Thread Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wifi_reconfiguration_feature.html">WiFi Reconfiguration Service</a></li>
+</ul>
+<p class="caption"><span class="caption-text">PAL APIs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dir_PAL.html">Directory PAL</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HomeKit ADK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>File HAPPlatformLog.h</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/_api_docs/file_PAL_HAPPlatformLog.h.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="file-happlatformlog-h">
+<span id="file-pal-happlatformlog-h"></span><h1>File HAPPlatformLog.h<a class="headerlink" href="#file-happlatformlog-h" title="Permalink to this headline">¶</a></h1>
+<p>↰ <a class="reference internal" href="dir_PAL.html#dir-pal"><span class="std std-ref">Parent directory</span></a> (<code class="docutils literal notranslate"><span class="pre">PAL</span></code>)</p>
+<div class="contents local topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#definition-pal-happlatformlog-h" id="id1">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformLog.h</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#detailed-description" id="id2">Detailed Description</a></p></li>
+<li><p><a class="reference internal" href="#includes" id="id3">Includes</a></p></li>
+<li><p><a class="reference internal" href="#functions" id="id4">Functions</a></p></li>
+<li><p><a class="reference internal" href="#typedefs" id="id5">Typedefs</a></p></li>
+<li><p><a class="reference internal" href="#variables" id="id6">Variables</a></p></li>
+</ul>
+</div>
+<div class="section" id="definition-pal-happlatformlog-h">
+<h2>Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformLog.h</span></code>)<a class="headerlink" href="#definition-pal-happlatformlog-h" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformLog.h.html">Program Listing for File HAPPlatformLog.h</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="detailed-description">
+<h2>Detailed Description<a class="headerlink" href="#detailed-description" title="Permalink to this headline">¶</a></h2>
+<p>The logging concept is based on Apple’s Unified Logging, see
+<a class="reference external" href="https://developer.apple.com/documentation/os/logging?language=objc">Apple Developer Logging Documentation</a>.</p>
+<p>For producing log output, please use the front-end logging functions in HAPLog.h, their implementation internally uses <code class="docutils literal notranslate"><span class="pre">HAPPlatformLog.h</span></code>.
+The HAP Library writes no security-critical information to the log (e.g., no key data in plain text).
+<strong>Expected behavior:</strong>
+Two functions must be provided by the PAL.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformLogGetEnabledTypes</span></code> indicates whether a specific type of logging, such as default, <em>info</em>, <em>debug</em>, <em>error</em>, or <em>fault</em>, is enabled for a specific subsystem / category. This allows the logging for different subsystems / categories to be controlled individually. The default, error and fault level messages are always enabled. Log levels are documented for type <code class="docutils literal notranslate"><span class="pre">HAPLogType</span></code> in the header file HAPLog.h. Here a summary:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Debug-level messages contain information that may be useful during developing, or for troubleshooting a specific problem.</p></li>
+<li><p>Info-level messages contain information that may be helpful, but isn’t essential, for troubleshooting errors.</p></li>
+<li><p>Default-level messages contain information about things that may result in a failure.</p></li>
+<li><p>Error-level messages are intended for reporting component-level errors.</p></li>
+<li><p>Fault-level messages are intended for reporting system-level errors (more than one component)</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformLogCapture</span></code> should write a log message to the target platform. If no log output is desired, its function body should be made empty. Small SoCs typically do not have sufficient memory, RAM nor flash, to store log output. Thus log output on such chipsets is usually forwarded directly to a serial port, typically a UART port. To observe an accessory’s behavior, a Mac or PC with a terminal program can be attached. On the smallest systems, there may not be sufficient flash memory available, for them the _min variants of the HAP Library binaries are provided that emit no log output at all and have considerably smaller code sizes.</p></li>
+</ul>
+<p>The default maximum length of a log message is <em>2KB</em>. On platforms that do not have sufficient memory the size can be modified using the compile option <code class="docutils literal notranslate"><span class="pre">HAP_LOG_MESSAGE_MAX_BYTES</span></code>.</p>
+</div>
+<div class="section" id="includes">
+<h2>Includes<a class="headerlink" href="#includes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPBase.h</span></code></p></li>
+</ul>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="function_HAPPlatformLog_8h_1a1b78756be64fdd650473ae33f22553c2.html#exhale-function-happlatformlog-8h-1a1b78756be64fdd650473ae33f22553c2"><span class="std std-ref">Function __attribute__((packed))</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformLog_8h_1a4d652103949377906928a5ca0ce90aea.html#exhale-function-happlatformlog-8h-1a4d652103949377906928a5ca0ce90aea"><span class="std std-ref">Function HAPPlatformLogCapture</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformLog_8h_1ae0fa3a2d2f89db55d93ea0db84d955df.html#exhale-function-happlatformlog-8h-1ae0fa3a2d2f89db55d93ea0db84d955df"><span class="std std-ref">Function HAPPlatformLogGetEnabledTypes</span></a></p></li>
+</ul>
+</div>
+<div class="section" id="typedefs">
+<h2>Typedefs<a class="headerlink" href="#typedefs" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="typedef_HAPPlatformLog_8h_1a38496e253f95610d1d426a2b70b880b0.html#exhale-typedef-happlatformlog-8h-1a38496e253f95610d1d426a2b70b880b0"><span class="std std-ref">Typedef HAPStaticAssert_HAPPlatformLogEnabledTypes</span></a></p></li>
+</ul>
+</div>
+<div class="section" id="variables">
+<h2>Variables<a class="headerlink" href="#variables" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="variable_HAPPlatformLog_8h_1a75f967ba56604153e6e96bec14b58902.html#exhale-variable-happlatformlog-8h-1a75f967ba56604153e6e96bec14b58902"><span class="std std-ref">Variable HAPPlatformLogEnabledTypes</span></a></p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright © 2021 Apple Inc. All Rights Reserved..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,239 @@
+set(incs)
+set(srcs)
+
+if(CONFIG_HOMEKIT)
+
+set(incs
+	bk_pal/include
+	HomeKit_ADK/External/Base64
+	HomeKit_ADK/External/HTTP
+	HomeKit_ADK/External/JSON
+	HomeKit_ADK/External/UARP
+	HomeKit_ADK/External/mdnsresponder/mDNSShared
+	HomeKit_ADK/External/mdnsresponder/ServiceRegistration
+	HomeKit_ADK/HAP
+	HomeKit_ADK/HAP/Thread
+	HomeKit_ADK/PAL
+	HomeKit_ADK/PAL/Thread
+	HomeKit_ADK/PAL/Crypto/Common
+	HomeKit_ADK/PAL/Crypto/Common/ChaCha20Poly1305
+	HomeKit_ADK/PAL/Crypto/Common/Curve25519
+	HomeKit_ADK/PAL/Crypto/Common/Ed25519
+	HomeKit_ADK/PAL/Crypto/Common/HKDF
+	HomeKit_ADK/Applications
+	HomeKit_ADK/Applications/Common/DB
+	HomeKit_ADK/Applications/Common/Helper
+	HomeKit_ADK/Applications/Common/Platform
+	HomeKit_ADK/Applications/Lightbulb
+	)
+
+set(srcs
+	HomeKit_ADK/Applications/AppBase.c
+	#HomeKit_ADK/Applications/Main.c
+	HomeKit_ADK/Applications/Common/DB/AccessoryInformationServiceDB.c
+	HomeKit_ADK/Applications/Common/DB/MotionSensorServiceDB.c
+	HomeKit_ADK/Applications/Common/DB/AccessoryRuntimeInformationServiceDB.c
+	HomeKit_ADK/Applications/Common/DB/PairingServiceDB.c
+	HomeKit_ADK/Applications/Common/DB/BatteryServiceDB.c
+	HomeKit_ADK/Applications/Common/DB/ProtocolInformationServiceDB.c
+	HomeKit_ADK/Applications/Common/DB/DataStreamTransportManagementServiceDB.c
+	HomeKit_ADK/Applications/Common/DB/SpeakerServiceDB.c
+	HomeKit_ADK/Applications/Common/DB/DebugCommandServiceDB.c
+	HomeKit_ADK/Applications/Common/DB/ThreadManagementServiceDB.c
+	HomeKit_ADK/Applications/Common/DB/HeaterCoolerServiceDB.c
+	HomeKit_ADK/Applications/Common/DB/ValveServiceDB.c
+	HomeKit_ADK/Applications/Common/DB/MicrophoneServiceDB.c
+	HomeKit_ADK/Applications/Common/DB/WifiTransportServiceDB.c
+	##update use
+	HomeKit_ADK/Applications/Common/DB/FirmwareUpdateServiceDB.c
+	HomeKit_ADK/Applications/Common/Helper/FirmwareUpdate.c
+	HomeKit_ADK/Applications/Common/Helper/UARP.c
+	HomeKit_ADK/Applications/Common/Platform/AppUserInputGeneric.c
+	HomeKit_ADK/Applications/Common/Helper/AdaptiveLight.c
+	HomeKit_ADK/Applications/Lightbulb/App.c
+	##HomeKit_ADK/Applications/Lightbulb/app_wifi.c
+	HomeKit_ADK/Applications/Lightbulb/DB.c
+	HomeKit_ADK/Applications/Lightbulb/DebugCommandHandler.c
+	##update use
+	HomeKit_ADK/External/UARP/CoreUARPAccessory.c
+	HomeKit_ADK/External/UARP/CoreUARPPlatformAccessory.c
+	HomeKit_ADK/External/UARP/CoreUARPUtils.c
+	##common third
+	HomeKit_ADK/External/Base64/util_base64.c
+	HomeKit_ADK/External/HTTP/util_http_reader.c
+	HomeKit_ADK/External/JSON/util_json_reader.c
+	HomeKit_ADK/External/mdnsresponder/mDNSShared/dnssd_clientlib.c
+	### no necessary func use Mock
+	HomeKit_ADK/PAL/Mock/HAPPlatformMFiHWAuth.c
+	HomeKit_ADK/PAL/Mock/HAPPlatformEui.c
+	HomeKit_ADK/PAL/Mock/HAPPlatformAccessorySetupDisplay.c
+	## no need to adapt, build with Mock
+	HomeKit_ADK/PAL/Thread/Mock/HAPPlatformThreadCoAPManager.c
+	HomeKit_ADK/PAL/Thread/Mock/HAPPlatformThreadUtils.c
+	##hap
+	HomeKit_ADK/HAP/HAPAccessory.c
+	HomeKit_ADK/HAP/HAPAccessory+Camera.c
+	HomeKit_ADK/HAP/HAPAccessory+Info.c
+	HomeKit_ADK/HAP/HAPAccessoryServer.c
+	HomeKit_ADK/HAP/HAPAccessoryServer+Reset.c
+	HomeKit_ADK/HAP/HAPAccessorySetup.c
+	HomeKit_ADK/HAP/HAPAccessorySetupInfo.c
+	HomeKit_ADK/HAP/HAPAccessorySetupOwnership.c
+	HomeKit_ADK/HAP/HAPAccessoryValidation.c
+	HomeKit_ADK/HAP/HAPBitSet.c
+	HomeKit_ADK/HAP/HAPBLEAccessoryServer+Advertising.c
+	HomeKit_ADK/HAP/HAPBLEAccessoryServer+Broadcast.c
+	HomeKit_ADK/HAP/HAPBLEAccessoryServer.c
+	HomeKit_ADK/HAP/HAPBLECharacteristic+Broadcast.c
+	HomeKit_ADK/HAP/HAPBLECharacteristic.c
+	HomeKit_ADK/HAP/HAPBLEPDU.c
+	HomeKit_ADK/HAP/HAPBLEPeripheralManager.c
+	HomeKit_ADK/HAP/HAPBLEProcedure.c
+	HomeKit_ADK/HAP/HAPBLESession.c
+	HomeKit_ADK/HAP/HAPBLETransaction.c
+	HomeKit_ADK/HAP/HAPCharacteristic.c
+	HomeKit_ADK/HAP/HAPCharacteristicTypes.c
+	HomeKit_ADK/HAP/HAPCheckedPlatformWiFiRouter.c
+	HomeKit_ADK/HAP/HAPDataStream.c
+	HomeKit_ADK/HAP/HAPDataStreamDispatcher.c
+	HomeKit_ADK/HAP/HAPDataStreamProtocols+Control.c
+	HomeKit_ADK/HAP/HAPDataStreamProtocols+DataSend.c
+	HomeKit_ADK/HAP/HAPDataStreamProtocols+TargetControl.c
+	HomeKit_ADK/HAP/HAPDataStream+TCP.c
+	HomeKit_ADK/HAP/HAPDataStreamProtocols+Stream.c
+	HomeKit_ADK/HAP/HAPDeviceID.c
+	HomeKit_ADK/HAP/HAPFragmentedMP4.c
+	HomeKit_ADK/HAP/HAPIPAccessory.c
+	HomeKit_ADK/HAP/HAPIPAccessoryProtocol.c
+	HomeKit_ADK/HAP/HAPIPAccessoryServer.c
+	HomeKit_ADK/HAP/HAPIP+ByteBuffer.c
+	HomeKit_ADK/HAP/HAPIPCharacteristic.c
+	HomeKit_ADK/HAP/HAPIPGlobalStateNumber.c
+	HomeKit_ADK/HAP/HAPIPSecurityProtocol.c
+	HomeKit_ADK/HAP/HAPIPService.c
+	HomeKit_ADK/HAP/HAPIPServiceDiscovery.c
+	HomeKit_ADK/HAP/HAPJSONUtils.c
+	HomeKit_ADK/HAP/HAPLegacyImport.c
+	HomeKit_ADK/HAP/HAPMACAddress.c
+	HomeKit_ADK/HAP/HAPMFiHWAuth.c
+	HomeKit_ADK/HAP/HAPMFiTokenAuth.c
+	HomeKit_ADK/HAP/HAPMP4BoxWriter.c
+	HomeKit_ADK/HAP/HAPOPACK.c
+	HomeKit_ADK/HAP/HAPOPACKReader.c
+	HomeKit_ADK/HAP/HAPOPACKWriter.c
+	HomeKit_ADK/HAP/HAPPairingBLESessionCache.c
+	HomeKit_ADK/HAP/HAPPairing.c
+	HomeKit_ADK/HAP/HAPPairingKVS.c
+	HomeKit_ADK/HAP/HAPPairingPairings.c
+	HomeKit_ADK/HAP/HAPPairingPairSetup.c
+	HomeKit_ADK/HAP/HAPPairingPairVerify.c
+	HomeKit_ADK/HAP/HAPPDU.c
+	HomeKit_ADK/HAP/HAPPDU+Characteristic.c
+	HomeKit_ADK/HAP/HAPPDU+CharacteristicConfiguration.c
+	HomeKit_ADK/HAP/HAPPDU+CharacteristicSignature.c
+	HomeKit_ADK/HAP/HAPPDU+ParseAndWriteCharacteristicValue.c
+	HomeKit_ADK/HAP/HAPPDUProcedure.c
+	HomeKit_ADK/HAP/HAPPDU+ProtocolConfiguration.c
+	HomeKit_ADK/HAP/HAPPDU+ReadAndSerializeCharacteristicValue.c
+	HomeKit_ADK/HAP/HAPPDU+Service.c
+	HomeKit_ADK/HAP/HAPPDU+ServiceSignature.c
+	HomeKit_ADK/HAP/HAPPDU+TLV.c
+	HomeKit_ADK/HAP/HAPRequestHandlers+AccessoryInformation.c
+	HomeKit_ADK/HAP/HAPRequestHandlers.c
+	HomeKit_ADK/HAP/HAPRequestHandlers+CameraEventRecordingManagement.c
+	HomeKit_ADK/HAP/HAPRequestHandlers+CameraRTPStreamManagement.c
+	HomeKit_ADK/HAP/HAPRequestHandlers+DataStreamTransportManagement.c
+	HomeKit_ADK/HAP/HAPRequestHandlers+HAPProtocolInformation.c
+	HomeKit_ADK/HAP/HAPRequestHandlers+Pairing.c
+	HomeKit_ADK/HAP/HAPRequestHandlers+WiFiReconfiguration.c
+	HomeKit_ADK/HAP/HAPRequestHandlers+WiFiRouter.c
+	HomeKit_ADK/HAP/HAPRequestHandlers+FirmwareUpdate.c
+	HomeKit_ADK/HAP/HAPRTPController.c
+	HomeKit_ADK/HAP/HAPService.c
+	HomeKit_ADK/HAP/HAPServiceDiscoveryUtils.c
+	HomeKit_ADK/HAP/HAPServiceTypes.c
+	HomeKit_ADK/HAP/HAPSession.c
+	HomeKit_ADK/HAP/HAPSRTP.c
+	HomeKit_ADK/HAP/HAPStringBuilder.c
+	HomeKit_ADK/HAP/HAPTLV.c
+	HomeKit_ADK/HAP/HAPTLVMemory.c
+	HomeKit_ADK/HAP/HAPTLVReader.c
+	HomeKit_ADK/HAP/HAPTLVWriter.c
+	HomeKit_ADK/HAP/HAPUUID.c
+	HomeKit_ADK/HAP/HAPVersion.c
+	HomeKit_ADK/HAP/HAPVideo.c
+	HomeKit_ADK/HAP/HAPWACAppleDeviceIE.c
+	HomeKit_ADK/HAP/HAPWACEngine.c
+	HomeKit_ADK/HAP/HAPWiFiRouter.c
+	HomeKit_ADK/HAP/Thread/HAPAccessoryServer+Info.c
+	HomeKit_ADK/HAP/Thread/HAPNotification+Delivery.c
+	HomeKit_ADK/HAP/Thread/HAPPDU+AccessorySignature.c
+	HomeKit_ADK/HAP/Thread/HAPPDU+NotificationConfiguration.c
+	HomeKit_ADK/HAP/Thread/HAPRequestHandlers+ThreadManagement.c
+	HomeKit_ADK/HAP/Thread/HAPThreadAccessoryServer.c
+	HomeKit_ADK/HAP/Thread/HAPThreadAccessoryServer+NetworkJoin.c
+	HomeKit_ADK/HAP/Thread/HAPThreadAccessoryServer+Reachability.c
+	HomeKit_ADK/HAP/Thread/HAPThreadSessionStorage.c
+	##update use
+	HomeKit_ADK/HAP/HAPBase36Util.c
+	HomeKit_ADK/HAP/HAPDataStream+HAP.c
+	##pal
+	HomeKit_ADK/PAL/HAPAssert.c
+	HomeKit_ADK/PAL/HAPBase+ASCII.c
+	HomeKit_ADK/PAL/HAPBase+Crypto.c
+	HomeKit_ADK/PAL/HAPBase+Double.c
+	HomeKit_ADK/PAL/HAPBase+Float.c
+	HomeKit_ADK/PAL/HAPBase+Int.c
+	HomeKit_ADK/PAL/HAPBase+IPAddress.c
+	HomeKit_ADK/PAL/HAPBase+IPAddressConstants.c
+	HomeKit_ADK/PAL/HAPBase+MACAddress.c
+	HomeKit_ADK/PAL/HAPBase+RawBuffer.c
+	HomeKit_ADK/PAL/HAPBase+Sha1Checksum.c
+	HomeKit_ADK/PAL/HAPBase+String.c
+	HomeKit_ADK/PAL/HAPBase+Transports.c
+	HomeKit_ADK/PAL/HAPBase+UTF8.c
+	HomeKit_ADK/PAL/HAPBase+WiFi.c
+	HomeKit_ADK/PAL/HAPLog.c
+	HomeKit_ADK/PAL/Crypto/MbedTLS/HAPMbedTLS.c
+	HomeKit_ADK/PAL/Crypto/Common/ChaCha20Poly1305/chacha20.c
+	HomeKit_ADK/PAL/Crypto/Common/ChaCha20Poly1305/chachapoly.c
+	HomeKit_ADK/PAL/Crypto/Common/ChaCha20Poly1305/poly1305.c
+	#HomeKit_ADK/PAL/Crypto/Common/Curve25519/curve25519.c
+	#HomeKit_ADK/PAL/Crypto/Common/HKDF/hkdf.c
+	##app for user
+	app/AppLED.c
+	##pal
+	bk_pal/src/HAPPlatformAbort.c
+	bk_pal/src/HAPPlatformAccessorySetup.c
+	bk_pal/src/HAPPlatform.c
+	bk_pal/src/HAPPlatformClock.c
+	bk_pal/src/HAPPlatformFileManager.c
+	bk_pal/src/HAPPlatformKeyValueStore.c
+	bk_pal/src/HAPPlatformLog.c
+	bk_pal/src/HAPPlatformMFiTokenAuth.c
+	bk_pal/src/HAPPlatformRandomNumber.c
+	bk_pal/src/HAPPlatformRunLoop.c
+	bk_pal/src/HAPPlatformServiceDiscovery.c
+	bk_pal/src/HAPPlatformTCPStreamManager.c
+	bk_pal/src/HAPPlatformSetup.c
+	bk_pal/src/HAPPlatformSoftwareAccessPoint.c
+	bk_pal/src/HAPPlatformWiFiManager.c
+	bk_pal/src/HAPPlatformUARP.c
+	bk_pal/src/HAPPlatformMutex.c
+	)
+	
+armino_component_register(SRCS "${srcs}"
+	INCLUDE_DIRS "${incs}"
+	PRIV_REQUIRES bk_common mbedtls bk_wifi bk_rtos compal
+	)
+
+unset(c_compile_options)
+list(APPEND c_compile_options "-DHAP_DYNAMIC_MEMORY_ALLOCATION")
+armino_build_set_property(C_COMPILE_OPTIONS "${c_compile_options}" APPEND)
+
+else()
+
+armino_component_register(SRCS "${srcs}"INCLUDE_DIRS "${incs}")
+
+endif()
+

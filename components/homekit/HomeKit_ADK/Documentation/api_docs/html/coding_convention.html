@@ -1,0 +1,769 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Coding Conventions &mdash; HomeKit ADK  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="ADK Migration Guide" href="migration_guide.html" />
+    <link rel="prev" title="Compile Time Options" href="make_options.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> HomeKit ADK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="adk_architecture.html">ADK Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adk_directory_structure.html">ADK Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Docker with ADK</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Step-by-step Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started with ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="raspi_setup.html">Raspberry Pi Setup Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bct.html">Bonjour Conformance Test (BCT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wac_on_raspberrypi.html">WAC on Raspberry Pi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_on_darwin.html">Camera on macOS</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Troubleshooting ADK</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="interact_with_applications.html">Interacting with ADK applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="writing_unit_tests.html">Writing Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="debug_adk.html">Debugging ADK Applications</a></li>
+</ul>
+<p class="caption"><span class="caption-text">ADK Development</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="accessory_development.html">Accessory Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_pairing.html">Accessory Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_authentication.html">Accessory Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="provisioning_tools.html">Provisioning Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ADK_Memory_Usage_and_Requirements.html">Memory Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crypto.html">Cryptographic Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make_options.html">Compile Time Options</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Coding Conventions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#code-style">Code Style</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#linting">Linting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#enforcing-lint-rules-at-commit-time">Enforcing Lint Rules at Commit Time</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#commit-style">Commit Style</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#what-qualifies-as-a-breaking-change">What Qualifies as a BREAKING CHANGE</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#conventions">Conventions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sample-application">Sample Application</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#error-handling">Error Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#specification-references">Specification References</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#example-for-documentation-block">Example for documentation block</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#example-for-code-comment">Example for code comment</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#definitions">Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#enumerations">Enumerations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#functions">Functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#header-files">Header Files</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#hap-h">HAP.h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#hap-api-h">HAP+API.h</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#other-hap-header-files">Other HAP Header files</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#switch-statements">Switch Statements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#goto-statements">Goto Statements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#magic-numbers">Magic Numbers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dynamic-memory-allocation">Dynamic Memory Allocation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#use-of-parameters">Use of Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#use-of-void-parameters">Use of Void Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#internal-structures">Internal Structures</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="migration_guide.html">ADK Migration Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">HomeKit Services</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="accessory_diagnostics.html">Accessory Diagnostics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_metrics.html">Accessory Metrics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adaptive_light.html">Adaptive Lighting Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appletv_remote.html">Apple TV Remote</a></li>
+<li class="toctree-l1"><a class="reference internal" href="firmware_update.html">Firmware Update Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="homekit_bridge.html">HomeKit Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ip_camera.html">IP Camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lock_profile.html">Lock Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stateless_programmable_switch.html">Stateless Programmable Switch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thread.html">HAP over Thread Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wifi_reconfiguration_feature.html">WiFi Reconfiguration Service</a></li>
+</ul>
+<p class="caption"><span class="caption-text">PAL APIs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_api_docs/dir_PAL.html">Directory PAL</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HomeKit ADK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Coding Conventions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/coding_convention.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="coding-conventions">
+<h1>Coding Conventions<a class="headerlink" href="#coding-conventions" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="code-style">
+<h2>Code Style<a class="headerlink" href="#code-style" title="Permalink to this headline">¶</a></h2>
+<p>Please use the following tools to auto-format your code before submitting a Pull Request.</p>
+<div class="section" id="linting">
+<h3>Linting<a class="headerlink" href="#linting" title="Permalink to this headline">¶</a></h3>
+<p>This project uses <code class="docutils literal notranslate"><span class="pre">clang-format</span></code> tool to lint and format source code and uses <code class="docutils literal notranslate"><span class="pre">shellcheck</span></code> to lint
+shell files.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>./Tools/linters/lint.sh -h
+</pre></div>
+</div>
+</div>
+<div class="section" id="enforcing-lint-rules-at-commit-time">
+<h3>Enforcing Lint Rules at Commit Time<a class="headerlink" href="#enforcing-lint-rules-at-commit-time" title="Permalink to this headline">¶</a></h3>
+<p>As a convenience, the following git pre-commit hook can be used to validate that commits are properly linted. The hook
+will check all staged files with the linter and fail the commit if the linter finds issues (but does not reformat or
+fix any issues).</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>cp Tools/linters/git-hooks-pre-commit .git/hooks/pre-commit
+chmod <span class="m">755</span> .git/hooks/pre-commit
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="commit-style">
+<h2>Commit Style<a class="headerlink" href="#commit-style" title="Permalink to this headline">¶</a></h2>
+<p>This project uses <a class="reference external" href="https://github.com/conventional-changelog/commitlint">commitlint</a> rules for all commit messages. This is done to make commit messages consistent as well as to be able to generate changelog automatically using <a class="reference external" href="https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-angular">conventional-changelog</a>.</p>
+<p>In general the pattern mostly looks like this:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>type<span class="o">(</span>scope?<span class="o">)</span>: subject  <span class="c1">#scope is optional</span>
+</pre></div>
+</div>
+<p>Type is one of the following:</p>
+<ul class="simple">
+<li><p><strong>feat</strong>: A new feature</p></li>
+<li><p><strong>fix</strong>: A bug fix</p></li>
+<li><p><strong>perf</strong>: A code change that improves performance</p></li>
+<li><p><strong>build</strong>: Changes that affect the build system or external dependencies (example <code class="docutils literal notranslate"><span class="pre">Makefile</span></code>)</p></li>
+<li><p><strong>ci</strong>: Changes to CI configuration files and scripts</p></li>
+<li><p><strong>docs</strong>: Documentation only changes</p></li>
+<li><p><strong>refactor</strong>: A code change that neither fixes a bug nor adds a feature</p></li>
+<li><p><strong>style</strong>: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)</p></li>
+<li><p><strong>test</strong>: Adding missing tests or correcting existing tests</p></li>
+</ul>
+<p>If the prefix is <code class="docutils literal notranslate"><span class="pre">feat</span></code>, <code class="docutils literal notranslate"><span class="pre">fix</span></code> or <code class="docutils literal notranslate"><span class="pre">perf</span></code>, it will appear in the changelog. However if there is any BREAKING CHANGE,
+the commit will always appear in the changelog. Breaking Changes should start with the word <code class="docutils literal notranslate"><span class="pre">BREAKING</span> <span class="pre">CHANGE:</span></code> with a
+space followed by description. Example:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">feat</span><span class="p">(</span><span class="n">scope</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">simplify</span><span class="w"> </span><span class="n">isolate</span><span class="w"> </span><span class="n">scope</span><span class="w"> </span><span class="n">bindings</span><span class="w"></span>
+
+<span class="n">BREAKING</span><span class="w"> </span><span class="nl">CHANGE</span><span class="p">:</span><span class="w"> </span><span class="n">isolate</span><span class="w"> </span><span class="n">scope</span><span class="w"> </span><span class="n">bindings</span><span class="w"> </span><span class="n">definition</span><span class="w"> </span><span class="n">has</span><span class="w"> </span><span class="n">changed</span><span class="w"> </span><span class="n">and</span><span class="w"></span>
+<span class="n">the</span><span class="w"> </span><span class="n">inject</span><span class="w"> </span><span class="n">option</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">directive</span><span class="w"> </span><span class="n">controller</span><span class="w"> </span><span class="n">injection</span><span class="w"> </span><span class="n">was</span><span class="w"> </span><span class="n">removed</span><span class="p">.</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Will be converted to:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">### Features</span>
+
+<span class="o">*</span><span class="w"> </span><span class="o">**</span><span class="nl">scope</span><span class="p">:</span><span class="o">**</span><span class="w"> </span><span class="n">simplify</span><span class="w"> </span><span class="n">isolate</span><span class="w"> </span><span class="n">scope</span><span class="w"> </span><span class="n">bindings</span><span class="w"> </span><span class="n">d772fba</span><span class="w"></span>
+
+<span class="cp">### BREAKING CHANGES</span>
+
+<span class="o">*</span><span class="w"> </span><span class="o">**</span><span class="nl">scope</span><span class="p">:</span><span class="o">**</span><span class="w"> </span><span class="n">isolate</span><span class="w"> </span><span class="n">scope</span><span class="w"> </span><span class="n">bindings</span><span class="w"> </span><span class="n">definition</span><span class="w"> </span><span class="n">has</span><span class="w"> </span><span class="n">changed</span><span class="w"> </span><span class="n">and</span><span class="w"></span>
+<span class="n">the</span><span class="w"> </span><span class="n">inject</span><span class="w"> </span><span class="n">option</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">directive</span><span class="w"> </span><span class="n">controller</span><span class="w"> </span><span class="n">injection</span><span class="w"> </span><span class="n">was</span><span class="w"> </span><span class="n">removed</span><span class="p">.</span><span class="w"></span>
+</pre></div>
+</div>
+<p><em>NOTE:</em> Any scope information associated with the commit title will be carried forward to the BREAKING CHANGE.</p>
+<div class="section" id="what-qualifies-as-a-breaking-change">
+<h3>What Qualifies as a BREAKING CHANGE<a class="headerlink" href="#what-qualifies-as-a-breaking-change" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Any changes to function prototypes of existing PAL APIs.</p></li>
+<li><p>Any behavioral changes to existing PAL APIs.</p></li>
+<li><p>Any changes in feature macro use to compile existing PAL APIs.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="conventions">
+<h2>Conventions<a class="headerlink" href="#conventions" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="sample-application">
+<h3>Sample Application<a class="headerlink" href="#sample-application" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>In DB.c, the following IIDs should be used:</p>
+<ul>
+<li><p>0x…0 Service IID.</p></li>
+<li><p>0x…1 Service Signature characteristic IID. Only present when the service has linked service or has properties.</p></li>
+<li><p>0x…2 Name characteristic IID. Services can have a Name characteristic if they are user visible.</p></li>
+<li><p>0x…3+ Regular characteristics, ordered the same way as in the service specification, with required characteristics
+listed before optional characteristics.</p></li>
+</ul>
+</li>
+</ul>
+<p>When updating a DB file for a sample that has already been released, try to avoid changing existing IIDs.</p>
+</div>
+<div class="section" id="error-handling">
+<h3>Error Handling<a class="headerlink" href="#error-handling" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Unexpected errors <code class="docutils literal notranslate"><span class="pre">HAPError</span></code> are used for exceptional circumstances such as communication failure with I2C,
+or access problems with key-value store. Those errors should be modeled as <code class="docutils literal notranslate"><span class="pre">HAPError</span></code> and are in most cases
+bubbled out to the caller until the next error handler.</p></li>
+<li><p>Expected errors are conditions such as a key that is not available in the key-value store, or a Wi-Fi configuration
+that has not yet been set. Such errors should be modeled as separate out parameters, such as
+<code class="docutils literal notranslate"><span class="pre">bool</span> <span class="pre">*found</span></code>, <code class="docutils literal notranslate"><span class="pre">bool</span> <span class="pre">*isSet</span></code>, <code class="docutils literal notranslate"><span class="pre">bool</span> <span class="pre">*isDefined</span></code>, <code class="docutils literal notranslate"><span class="pre">bool</span> <span class="pre">*isAvailable</span></code>, or <code class="docutils literal notranslate"><span class="pre">bool</span> <span class="pre">*isConfigured</span></code>. Do not use
+<code class="docutils literal notranslate"><span class="pre">bool</span> <span class="pre">*isValid</span></code> to denote existence of a value.</p></li>
+<li><p>The idea is that a caller of a function in general should always be able to treat a <code class="docutils literal notranslate"><span class="pre">HAPError</span></code> as a boolean, and only
+has to handle expected errors returned through the separate out parameters.</p></li>
+<li><p>When a HAPError is returned, the caller shall not make assumptions about the validity of any out-parameters.</p></li>
+<li><p>When kHAPError_None is returned, all applicable out parameters of the function must contain valid values.</p></li>
+</ul>
+</div>
+<div class="section" id="specification-references">
+<h3>Specification References<a class="headerlink" href="#specification-references" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Always reference the spec if possible, and always use the exact same format to simplify “Find in Files” searches.</p>
+<ul>
+<li><p>First line: <code class="docutils literal notranslate"><span class="pre">&#64;see</span></code> or See followed by exact PDF Title as shown in title bar when opening it.</p></li>
+<li><p>Second line: Section + Section number + exact Section Title.</p></li>
+<li><p>Tables may be referenced as well, in that case use Table instead of Section.</p></li>
+<li><p>Section references are preferred as tables may be harder to find.</p></li>
+</ul>
+</li>
+<li><p>For code comments, quote exactly what part of the spec is referenced.</p></li>
+<li><p>Always use the most recent specification version where the feature is documented. If a feature becomes obsolete, use
+the Doxygen <code class="docutils literal notranslate"><span class="pre">&#64;obsolete</span></code> tag to specify the first revision it got removed. Avoid actually deleting enum values etc,
+use <code class="docutils literal notranslate"><span class="pre">&#64;obsolete</span></code> instead.</p></li>
+</ul>
+<div class="section" id="example-for-documentation-block">
+<h4>Example for documentation block<a class="headerlink" href="#example-for-documentation-block" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<span class="cm"> * ...</span>
+<span class="cm"> *</span>
+<span class="cm"> * @see HomeKit Accessory Protocol Specification R17</span>
+<span class="cm"> *      Section 1.2.3.4 Some Sample Section</span>
+<span class="cm"> */</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="example-for-code-comment">
+<h4>Example for code comment<a class="headerlink" href="#example-for-code-comment" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// ...</span>
+<span class="c1">// See HomeKit Accessory Protocol Specification R17</span>
+<span class="c1">// Section 1.2.3.4 Some Sample Section</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="definitions">
+<h3>Definitions<a class="headerlink" href="#definitions" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Definition name: <code class="docutils literal notranslate"><span class="pre">kHAPCategory_PascalCase</span></code></p></li>
+<li><p>Always explicitly specify the type of the definition, e.g., <code class="docutils literal notranslate"><span class="pre">uint8_t</span></code>, <code class="docutils literal notranslate"><span class="pre">size_t</span></code>.</p></li>
+<li><p>Consider using enumerations instead, where possible.</p></li>
+</ul>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<span class="cm"> * Brief description</span>
+<span class="cm"> */</span><span class="w"></span>
+<span class="cp">#define kHAPCategory_PascalCase ((size_t) 0x42)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="enumerations">
+<h3>Enumerations<a class="headerlink" href="#enumerations" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Enumerations are never used to store out-of-range values. Instead, the underlying type is used, e.g., <code class="docutils literal notranslate"><span class="pre">uint8_t</span></code>.
+Before casting to an enum, perform proper input validation. When receiving an enum, no thorough input validation is
+necessary as it is already done.</p></li>
+<li><p>Type name: <code class="docutils literal notranslate"><span class="pre">HAPPascalCase</span></code></p></li>
+<li><p>Case name: <code class="docutils literal notranslate"><span class="pre">kHAPTypeName_PascalCase</span></code> Always prefix with lower case <code class="docutils literal notranslate"><span class="pre">k</span></code>.</p></li>
+<li><p>If there is a default, uninitialized, 0 case, list it first, but do not set explicitly to <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p></li>
+<li><p>If there is no default case, set first value to 1 to avoid accidents with <code class="docutils literal notranslate"><span class="pre">HAPRawBufferZero</span></code>. Do not set values to other cases.</p></li>
+<li><p>For flags, set the initial case to <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">&lt;&lt;</span> <span class="pre">0</span></code>, the next to <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">&lt;&lt;</span> <span class="pre">1</span></code> etc.</p></li>
+<li><p>Align documentation on column 37 if possible, otherwise use a full separate Doxygen style comment block. If there are
+some long and some short cases, consider using the full comment block for all cases. A single-line Doxygen style
+comment block may be used to condense information. If the enum is defined in an indented scope, columns advance by <code class="docutils literal notranslate"><span class="pre">4</span></code>
+per indentation.</p></li>
+<li><p>In interfaces, always use <code class="docutils literal notranslate"><span class="pre">HAP_ENUM_BEGIN</span></code> / <code class="docutils literal notranslate"><span class="pre">HAP_ENUM_END</span></code> for portability across different compiler settings.</p></li>
+</ul>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<span class="cm"> * Enum type documentation.</span>
+<span class="cm"> */</span><span class="w"></span>
+<span class="n">HAP_ENUM_BEGIN</span><span class="p">(</span><span class="kt">uint8_t</span><span class="p">,</span><span class="w"> </span><span class="n">HAPEnumType</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">kHAPEnumType_PascalCase1</span><span class="p">,</span><span class="w"> </span><span class="cm">/**&lt; Case 1 documentation. */</span><span class="w"></span>
+<span class="w">    </span><span class="n">kHAPEnumType_PascalCase2</span><span class="p">,</span><span class="w"> </span><span class="cm">/**&lt; Case 2 documentation. */</span><span class="w"></span>
+
+<span class="w">    </span><span class="cm">/**</span>
+<span class="cm">     * Case 3 documentation.</span>
+<span class="cm">     *</span>
+<span class="cm">     * - Remark 1.</span>
+<span class="cm">     *</span>
+<span class="cm">     * - Remark 2.</span>
+<span class="cm">     */</span><span class="w"></span>
+<span class="w">    </span><span class="n">kHAPEnumType_ReallyReallyLongCase</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">    </span><span class="cm">/** Case 4 documentation. */</span><span class="w"></span>
+<span class="w">    </span><span class="n">kHAPEnumType_ReallyReallyLongCase2</span><span class="p">,</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="n">HAP_ENUM_END</span><span class="p">(</span><span class="kt">uint8_t</span><span class="p">,</span><span class="w"> </span><span class="n">HAPEnumType</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Function names: <em>HAPPascalCase</em><br>
+Use concise names and avoid abbreviations. Length does not matter here. If targeting an object, first mention the
+object, e.g., <code class="docutils literal notranslate"><span class="pre">HAPAccessoryServerStartBridge</span></code> targets a <code class="docutils literal notranslate"><span class="pre">HAPAccessoryServer</span></code> object. In that case, also make sure that
+the target object is the very first parameter.</p></li>
+<li><p>Parameter names: <em>camelCase</em><br>
+Maximum parameter length name is 20. Otherwise it will break the table in the documentation.
+Use <code class="docutils literal notranslate"><span class="pre">HAP_UNUSED</span></code>, if the argument is not used in the function body. Do not cast to (void) for compiler warnings.
+Pointers are assumed to always be non-NULL. Use <code class="docutils literal notranslate"><span class="pre">_Nullable</span></code> on pointer arguments that may be NULL.</p></li>
+<li><p>Parameter types use fixed size C99 integers, e.g., <code class="docutils literal notranslate"><span class="pre">uint8_t</span></code>, <code class="docutils literal notranslate"><span class="pre">int16_t</span></code>, <code class="docutils literal notranslate"><span class="pre">size_t</span></code>. Avoid <code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">short</span></code>,
+<code class="docutils literal notranslate"><span class="pre">unsigned</span> <span class="pre">char</span></code>. For booleans, use <code class="docutils literal notranslate"><span class="pre">bool</span></code>. Yes, it’s just a typedef to int in C, but it improves readability.</p></li>
+<li><p>Return type must be <code class="docutils literal notranslate"><span class="pre">HAPError</span></code> if the function is expected to fail. If the function returns a value (non-void),
+it must be marked with <code class="docutils literal notranslate"><span class="pre">HAP_RESULT_USE_CHECK</span></code>. If the function cannot fail and does not provide any outputs,
+return void. If unsure whether a function may return an error, start with void return first. Errors that arise from
+API misuse (invalid arguments, invalid state) crash / assert instead of returning error.</p></li>
+<li><p>Every parameter and return value is documented.</p>
+<ul>
+<li><p>If a parameter is an out-parameter, [out] is attached after the <code class="docutils literal notranslate"><span class="pre">&#64;param</span></code>.</p></li>
+<li><p>If a parameter is an in/out parameter, [in, out] is attached after the <code class="docutils literal notranslate"><span class="pre">&#64;param</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">true</span></code> / <code class="docutils literal notranslate"><span class="pre">false</span></code> return values are written in lowercase in documentation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPError</span></code> return values are sorted in documentation in the same way as listed in the <code class="docutils literal notranslate"><span class="pre">HAPError</span></code> enum.</p></li>
+</ul>
+</li>
+<li><p>GCC attributes one per line, sorted alphabetically. Apply GCC attributes to both declaration and definition of the
+function.</p></li>
+<li><p>Function bodies are streamlined</p>
+<ul>
+<li><p>Precondition checks: One precondition per line, checked in the order they appear in the function signature.
+Casts from Refs to internal types should be made as close as possible to where their preconditions are checked.
+Early returns may also be included as part of the precondition checks block if it makes sense.</p></li>
+<li><p>HAPError err;</p></li>
+<li><p>Function body.</p></li>
+</ul>
+</li>
+<li><p>Use early returns if possible.
+If returning because of an error, use a <code class="docutils literal notranslate"><span class="pre">HAPLog</span></code> statement to print the reason of the error before throwing. When
+just re-throwing an error, do not log. The error is already logged when it was thrown. If a post-condition must be
+checked even in error cases, wrap the function body in a second function that uses early returns, and check the
+post-condition in the wrapping function.</p></li>
+</ul>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<span class="cm"> * Brief documentation about the function.</span>
+<span class="cm"> *</span>
+<span class="cm"> * - Remark 1 about special considerations.</span>
+<span class="cm"> *</span>
+<span class="cm"> * - Remark 2 about special considerations.</span>
+<span class="cm"> *</span>
+<span class="cm"> * @param      arg1                 Argument 1 documentation.</span>
+<span class="cm"> * @param      arg2                 Argument 2 documentation.</span>
+<span class="cm"> * @param[out] bytes                Buffer that will be filled with data.</span>
+<span class="cm"> * @param      maxBytes             Maximum number of bytes that may be filled into the buffer.</span>
+<span class="cm"> * @param[in,out] numBytes          Effective number of bytes written to the buffer.</span>
+<span class="cm"> *</span>
+<span class="cm"> * @return kHAPError_None           If successful.</span>
+<span class="cm"> * @return kHAPError_OutOfResources If the supplied buffer was not large enough.</span>
+<span class="cm"> */</span><span class="w"></span>
+<span class="n">HAP_RESULT_USE_CHECK</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="n">HAPError</span><span class="w"> </span><span class="n">HAPDoSomething</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="kt">size_t</span><span class="w"> </span><span class="n">arg1</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="n">arg2</span><span class="w"> </span><span class="n">HAP_UNUSED</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">bytes</span><span class="p">,</span><span class="w"> </span><span class="c1">// _Nullable if bytes are _Nullable</span>
+<span class="w">        </span><span class="kt">size_t</span><span class="w"> </span><span class="n">maxBytes</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="kt">size_t</span><span class="o">*</span><span class="w"> </span><span class="n">numBytes</span><span class="p">)</span><span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="c1">// _Nullable if bytes are _Nullable</span>
+<span class="w">    </span><span class="n">HAPPrecondition</span><span class="p">(</span><span class="n">arg1</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">42</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">HAPPrecondition</span><span class="p">(</span><span class="n">bytes</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">HAPError</span><span class="w"> </span><span class="n">err</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="c1">// ...</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">kHAPError_None</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="header-files">
+<h3>Header Files<a class="headerlink" href="#header-files" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Name: <code class="docutils literal notranslate"><span class="pre">HAPPascalCase.h</span></code>. The file name does not have to be a prefix of all functions.</p></li>
+<li><p>If several items form a certain subgroup of a header, consider using a separate header file.
+Name: <code class="docutils literal notranslate"><span class="pre">HAPBaseHeader+CategoryName.h</span></code></p></li>
+<li><p>Include header files from <code class="docutils literal notranslate"><span class="pre">HAP.h</span></code>. Include category headers from their corresponding base header.</p></li>
+<li><p>Header guards: <code class="docutils literal notranslate"><span class="pre">HAP_UNDERSCORED_FILE_NAME_H</span></code>. Do not forget to update the header guard after file renames. Do not
+forget to update the log category / subsystem in source files that implement the header after file renames.</p></li>
+<li><p>Always include <code class="docutils literal notranslate"><span class="pre">extern</span> <span class="pre">&quot;C&quot;</span></code> declaration, even in internal headers. Headers may move around over time and become
+visible to C++. Also include the declaration when it is not necessary, for consistency. It doesn’t hurt.</p></li>
+<li><p>Header files are streamlined:</p>
+<ul>
+<li><p>Copyright notice. Make sure it is EXACTLY the same in all files, so that automated re-copyrighting scripts work.</p></li>
+<li><p>Empty line.</p></li>
+<li><p>Header guard.</p></li>
+<li><p>Empty line.</p></li>
+<li><p>extern “C” declaration.</p></li>
+<li><p>Header files should be grouped into following categories separate by newline.</p></li>
+<li><p>System headers sorted alphabetically</p></li>
+<li><p>Platform headers sorted alphabetically</p></li>
+<li><p>HAP headers sorted alphabetically</p></li>
+<li><p>PAL headers sorted alphabetically</p></li>
+<li><p>Application headers sorted alphabetically</p></li>
+<li><p>Empty line.</p></li>
+<li><p>Enter <code class="docutils literal notranslate"><span class="pre">assume_nonnull</span></code> block.</p></li>
+<li><p>Header file contents.</p></li>
+<li><p>Exit <code class="docutils literal notranslate"><span class="pre">assume_nonnull</span></code> block.</p></li>
+<li><p>Empty line.</p></li>
+<li><p>If necessary, further <code class="docutils literal notranslate"><span class="pre">#include</span></code> statements, followed by empty line.</p></li>
+<li><p>Complete extern “C” declaration.</p></li>
+<li><p>Empty line.</p></li>
+<li><p>Complete header guard.</p></li>
+<li><p>Empty line.</p></li>
+</ul>
+</li>
+</ul>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#ifndef HAP_HEADER_FILE_NAME_H</span>
+<span class="cp">#define HAP_HEADER_FILE_NAME_H</span>
+
+<span class="cp">#ifdef __cplusplus</span>
+<span class="k">extern</span><span class="w"> </span><span class="s">&quot;C&quot;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="cp">#endif</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;system_header.h&gt;</span><span class="cp"></span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;HAPPlatform.h&quot;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;platform_header.h&quot;</span><span class="cp"></span>
+
+<span class="cp">#if __has_feature(nullability)</span>
+<span class="cp">#pragma clang assume_nonnull begin</span>
+<span class="cp">#endif</span>
+
+<span class="c1">// Header file contents.</span>
+
+<span class="cp">#if __has_feature(nullability)</span>
+<span class="cp">#pragma clang assume_nonnull end</span>
+<span class="cp">#endif</span>
+
+<span class="cp">#ifdef __cplusplus</span>
+<span class="p">}</span><span class="w"></span>
+<span class="cp">#endif</span>
+
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+<div class="section" id="hap-h">
+<h4>HAP.h<a class="headerlink" href="#hap-h" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">HAP.h</span></code> is the header file that application and PAL source files must include in order to access
+HAP API.</p>
+</div>
+<div class="section" id="hap-api-h">
+<h4>HAP+API.h<a class="headerlink" href="#hap-api-h" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">HAP+API.h</span></code> is the header file that declares types and functions that application or PAL can use.</p>
+<p><code class="docutils literal notranslate"><span class="pre">HAP.h</span></code> includes <code class="docutils literal notranslate"><span class="pre">HAP+API.h</span></code> and application and PAL should include <code class="docutils literal notranslate"><span class="pre">HAP.h</span></code> and
+do not include <code class="docutils literal notranslate"><span class="pre">HAP+API.h</span></code> directly.</p>
+</div>
+<div class="section" id="other-hap-header-files">
+<h4>Other HAP Header files<a class="headerlink" href="#other-hap-header-files" title="Permalink to this headline">¶</a></h4>
+<p>Each HAP header files must resolve its dependencies on its own, so that HAP source files can include
+a selection of HAP header files in dumb alphabetical order.</p>
+<p>Note that HAP header files must not create circular dependencies with one another,
+typically by including <code class="docutils literal notranslate"><span class="pre">HAP.h</span></code> or <code class="docutils literal notranslate"><span class="pre">HAPRequestHandlers.h</span></code>, for instance.</p>
+</div>
+</div>
+<div class="section" id="switch-statements">
+<h3>Switch Statements<a class="headerlink" href="#switch-statements" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>When switching over a closed enum, do not add a default case. Try to return from every case, and place a fatal error
+after the switch. This ensures compiler warnings when new enum cases are added but are not explicitly handled.</p></li>
+<li><p>Use a separate scope for every case. (Empty cases are allowed to be condensed together, e.g., case ‘c’ / ‘d’ below).</p></li>
+<li><p>After the closing bracket of each case’s scope, put either a <code class="docutils literal notranslate"><span class="pre">break;</span></code> statement or a <code class="docutils literal notranslate"><span class="pre">//</span> <span class="pre">Fallthrough.</span></code> comment.</p></li>
+<li><p>When switching on enumerations, add a default case like <code class="docutils literal notranslate"><span class="pre">default:</span> <span class="pre">HAPFatalError();</span></code> or <code class="docutils literal notranslate"><span class="pre">default:</span> <span class="pre">false</span></code>
+as the final line to cover unexpected values.</p></li>
+</ul>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">foo</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="sc">&#39;a&#39;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Handle case.</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="sc">&#39;b&#39;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Handle case.</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="sc">&#39;c&#39;</span><span class="o">:</span><span class="w"></span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="sc">&#39;d&#39;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Handle cases.</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="c1">// Fallthrough.</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="sc">&#39;e&#39;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="c1">// Handle case.</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Exceptions are simple switch statements with early returns where putting an extra break statement after the case’s
+scope does not help with readability. If there are a lot of cases and the switch is just a conversion table from
+one constant to another it can also be considered to remove the brackets to avoid spanning the switch across pages.</p></li>
+</ul>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="nf">GetCurrentHeatingCoolingStateDescription</span><span class="p">(</span><span class="n">HAPCharacteristicValue_CurrentHeatingCoolingState</span><span class="w"> </span><span class="n">state</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">state</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">kHAPCharacteristicValue_CurrentHeatingCoolingState_Off</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;Off.&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">kHAPCharacteristicValue_CurrentHeatingCoolingState_Heat</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;Heat. The Heater is currently on.&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="nl">kHAPCharacteristicValue_CurrentHeatingCoolingState_Cool</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;Cool. Cooler is currently on.&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">default</span><span class="o">:</span><span class="w"></span>
+<span class="w">            </span><span class="n">HAPFatalError</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="goto-statements">
+<h3>Goto Statements<a class="headerlink" href="#goto-statements" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>In general, goto statements should be avoided. Especially, goto statements must not be used to jump backwards.
+However, in the following scenarios, goto statements may be used.</p></li>
+<li><p>If a postcondition needs to be checked or final cleanup needs to be performed before returning from a function,
+instead of using an early return, a goto statement may be used to handle that finalization.</p></li>
+<li><p>Goto statements may be used to break out of nested loops.</p></li>
+<li><p>Goto statements may also be used to break from a case statement of a switch on an enumeration.
+This allows placing a <code class="docutils literal notranslate"><span class="pre">HAPFatalError()</span></code> immediately after the switch without providing a default case.
+Not providing a default case allows the compiler to emit warnings if an enumeration value is not handled.
+Placing a <code class="docutils literal notranslate"><span class="pre">HAPFatalError()</span></code> and goto label immediately after the switch allows catching unexpected value.</p></li>
+<li><p>Goto statements may be used when multiple cases of a switch prepare some variables but otherwise share their
+implementation. In this case the goto label shall be placed immediately after the cases sharing the code,
+before the definition of the next case label.</p></li>
+<li><p>Goto labels should use camelCase.</p></li>
+</ul>
+</div>
+<div class="section" id="magic-numbers">
+<h3>Magic Numbers<a class="headerlink" href="#magic-numbers" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Number literals are avoided in favor of named constants, except where a literal is more transparent, e.g</p>
+<ul>
+<li><p>obvious offsets like <code class="docutils literal notranslate"><span class="pre">+/-</span> <span class="pre">1</span></code></p></li>
+<li><p>offsets or shift distances and masks for bit manipulation like this:  <code class="docutils literal notranslate"><span class="pre">mantissa</span> <span class="pre">=</span> <span class="pre">(x</span> <span class="pre">&gt;&gt;</span> <span class="pre">9)</span> <span class="pre">&amp;</span> <span class="pre">0x1FFFF;</span></code></p></li>
+<li><p>POSIX success <code class="docutils literal notranslate"><span class="pre">(0)</span></code> and most important error <code class="docutils literal notranslate"><span class="pre">(-1)</span></code> numbers</p></li>
+</ul>
+</li>
+<li><p>Test code is allowed to contain magic numbers</p></li>
+</ul>
+</div>
+<div class="section" id="dynamic-memory-allocation">
+<h3>Dynamic Memory Allocation<a class="headerlink" href="#dynamic-memory-allocation" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>There are only a few places in the PAL where we do dynamic memory allocation, none in the HAP Library.</p></li>
+<li><p>Use the macro <code class="docutils literal notranslate"><span class="pre">HAPPlatformFreeSafe</span></code> to deallocate memory in cases where memory is allocated dynamically with libc.</p></li>
+<li><p>Use similar macros for third-party library deallocation.</p></li>
+</ul>
+</div>
+<div class="section" id="use-of-parameters">
+<h3>Use of Parameters<a class="headerlink" href="#use-of-parameters" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>All public functions are documented with Doxygen comments.</p></li>
+<li><p>All const pointers and non-pointer values are inputs (caller provides data).</p></li>
+<li><p>All non-const pointers are outputs or in/outs.</p></li>
+<li><p>In Doxygen, parameters where the caller must supply input data are not annotated.</p></li>
+<li><p>In Doxygen, parameters where the caller should use output data are annotated with [out].</p></li>
+<li><p>In Doxygen, parameters where the caller must supply input data and should use output data are annotated with [in,out],
+except for “this” pointers which are the first parameters of functions that work with object-like data types.</p></li>
+</ul>
+</div>
+<div class="section" id="use-of-void-parameters">
+<h3>Use of Void Parameters<a class="headerlink" href="#use-of-void-parameters" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>We normally use typed parameters.</p></li>
+<li><p>If byte buffers are returned, void is used instead, to not force clients to use type casts. This is the same style as
+Apple’s mDNSResponder.</p></li>
+</ul>
+</div>
+<div class="section" id="internal-structures">
+<h3>Internal Structures<a class="headerlink" href="#internal-structures" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>HAP API functions and data structures accessible by applications must be exposed by <code class="docutils literal notranslate"><span class="pre">HAP/HAP+API.h</span></code> or <code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatform.h</span></code>.</p></li>
+<li><p>Applications may need to access HAP internal structure definitions in order to declare and provide statically allocated objects,
+in which case, the header files that define such internal structures may be listed in <code class="docutils literal notranslate"><span class="pre">HAP/HAP.h</span></code>.</p></li>
+<li><p>Applications should avoid accessing fields of the internal structures.</p></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="migration_guide.html" class="btn btn-neutral float-right" title="ADK Migration Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="make_options.html" class="btn btn-neutral float-left" title="Compile Time Options" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright © 2021 Apple Inc. All Rights Reserved..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

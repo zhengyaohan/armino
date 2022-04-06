@@ -1,0 +1,549 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Thread Use Cases &mdash; HomeKit ADK  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="WiFi Reconfiguration Service" href="wifi_reconfiguration_feature.html" />
+    <link rel="prev" title="Getting Started with Thread" href="setting_up_thread.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> HomeKit ADK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="adk_architecture.html">ADK Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adk_directory_structure.html">ADK Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Docker with ADK</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Step-by-step Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started with ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="raspi_setup.html">Raspberry Pi Setup Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bct.html">Bonjour Conformance Test (BCT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wac_on_raspberrypi.html">WAC on Raspberry Pi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_on_darwin.html">Camera on macOS</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Troubleshooting ADK</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="interact_with_applications.html">Interacting with ADK applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="writing_unit_tests.html">Writing Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="debug_adk.html">Debugging ADK Applications</a></li>
+</ul>
+<p class="caption"><span class="caption-text">ADK Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="accessory_development.html">Accessory Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_pairing.html">Accessory Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_authentication.html">Accessory Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="provisioning_tools.html">Provisioning Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ADK_Memory_Usage_and_Requirements.html">Memory Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crypto.html">Cryptographic Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make_options.html">Compile Time Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coding_convention.html">Coding Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration_guide.html">ADK Migration Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">HomeKit Services</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="accessory_diagnostics.html">Accessory Diagnostics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_metrics.html">Accessory Metrics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adaptive_light.html">Adaptive Lighting Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appletv_remote.html">Apple TV Remote</a></li>
+<li class="toctree-l1"><a class="reference internal" href="firmware_update.html">Firmware Update Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="homekit_bridge.html">HomeKit Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ip_camera.html">IP Camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lock_profile.html">Lock Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stateless_programmable_switch.html">Stateless Programmable Switch</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="thread.html">HAP over Thread Profile</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="setting_up_thread.html">Getting Started with Thread</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Thread Use Cases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#accessory-states">Accessory States</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#definitions">Definitions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#thread-ble-accessories">Thread &amp; BLE Accessories</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#thread-mode">Thread Mode</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ble-fallback-mode">BLE Fallback Mode</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pairing">Pairing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#commissioning">Commissioning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#decommissioning">Decommissioning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#attaching-to-thread-network">Attaching to Thread Network</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lost-thread-network">Lost Thread Network</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#factory-reset">Factory Reset</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#thread-only-accessories">Thread Only Accessories</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#thread-only-uncommissioned-idle">Thread Only Uncommissioned Idle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#thread-only-commissioned-idle">Thread Only Commissioned Idle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id3">Pairing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#thread-only-commissioning">Thread Only Commissioning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#thread-only-decommissioning">Thread Only Decommissioning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#thread-only-factory-reset">Thread Only Factory Reset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#unpairing-and-unpaired-advertising">Unpairing and Unpaired Advertising</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#state-diagram">State Diagram</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wifi_reconfiguration_feature.html">WiFi Reconfiguration Service</a></li>
+</ul>
+<p class="caption"><span class="caption-text">PAL APIs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_api_docs/dir_PAL.html">Directory PAL</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HomeKit ADK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="thread.html">HAP over Thread Profile</a> &raquo;</li>
+        
+      <li>Thread Use Cases</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/Thread_Use_Case_Flows.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="thread-use-cases">
+<h1>Thread Use Cases<a class="headerlink" href="#thread-use-cases" title="Permalink to this headline">¶</a></h1>
+<p>This document describes the Use Cases a Thread Accessory is expected to provide.</p>
+<div class="section" id="accessory-states">
+<h2>Accessory States<a class="headerlink" href="#accessory-states" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><em>Commissioned</em>:  A Thread Accessory is <em>Commissioned</em> if it has received Thread Network Credentials.</p></li>
+<li><p><em>Paired</em>:  A Thread accessory is paired if it has at least one pairing from a HAP Controller. This pairing could
+have been performed over BLE; the accessory is still <em>Paired</em>.</p></li>
+<li><p><em>Detached</em>:  A Detached Thread accessory is one that has been <em>commissioned</em> but cannot find a <em>Viable</em> Thread
+Network corresponding to its Network Credentials to join.</p></li>
+</ul>
+<div class="section" id="definitions">
+<h3>Definitions<a class="headerlink" href="#definitions" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><em>Viable</em>:  A Thread network is <em>Viable</em> if it contains at least one Border Router and serves at least one instance
+of srp-mdns-proxy.</p></li>
+<li><p><em>Joiner Mode</em>:  A mode of operation that allows an Accessory to be commissioned via the Thread Network.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="thread-ble-accessories">
+<h2>Thread &amp; BLE Accessories<a class="headerlink" href="#thread-ble-accessories" title="Permalink to this headline">¶</a></h2>
+<p>A HAP controller may communicate with an accessory over either BLE or Thread transport protocol but not over both.
+Accessories do not advertise over BLE while Thread transport is up.</p>
+<ul class="simple">
+<li><p><em>Uncommissioned</em>: An <em>Uncommissioned</em> Accessory operates in BLE mode.</p></li>
+<li><p><em>Commissioned</em>: A <em>Commissioned</em> Accessory operates in one of two modes.</p></li>
+</ul>
+<div class="section" id="thread-mode">
+<h3>Thread Mode<a class="headerlink" href="#thread-mode" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Upon becoming <em>Commissioned</em> The accessory initiates <a class="reference external" href="#attach-to-thread-network">Attach to Thread Network Flow</a>.</p></li>
+<li><p>If successful, the Accessory will be reachable via Thread.</p></li>
+</ul>
+</div>
+<div class="section" id="ble-fallback-mode">
+<h3>BLE Fallback Mode<a class="headerlink" href="#ble-fallback-mode" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>If unsuccessful, or if the Thread Network is <a class="reference external" href="#lost-thread-network">Lost</a> the <em>Commissioned</em> accessory falls back
+to BLE.</p></li>
+<li><p>Accessories operating in BLE Fallback mode periodically attempt to perform the
+<a class="reference external" href="#attach-to-thread-network">Thread Attach</a> flow to reconnect to their Thread Network.</p></li>
+<li><p>This continues until the network is found or the accessory is <a class="reference external" href="#decommissioning">Decommissioned</a>.</p></li>
+</ul>
+<div class="section" id="alternate-flow-unpaired">
+<h4>Alternate Flow - Unpaired<a class="headerlink" href="#alternate-flow-unpaired" title="Permalink to this headline">¶</a></h4>
+<p>An accessory that is <em>Unpaired</em> but also <em>Commissioned</em>, which can happen when the last pairing is removed, will
+perform the same actions with the following exceptions:</p>
+<ul class="simple">
+<li><p>Sleepy <em>Unpaired Commissioned</em> Accessories will not enter sleep mode to facilitate pairing.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="pairing">
+<h3>Pairing<a class="headerlink" href="#pairing" title="Permalink to this headline">¶</a></h3>
+<p>There are two methods of Pairing. Over BLE or over Thread.</p>
+<div class="section" id="standard-flow">
+<h4>Standard Flow<a class="headerlink" href="#standard-flow" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>Accessory is in BLE mode</p></li>
+<li><p>User initiates Pairing by scanning QR code or entering setup id.</p></li>
+<li><p>Controller Pairs with accessory over BLE.</p></li>
+<li><p>Controller Commissions the Accessory over BLE via the <a class="reference external" href="#commissioning">Commissioning Flow</a></p></li>
+<li><p>This transitions the Accessory to Thread Mode. The controller will now interact with the accessory over Thread.</p></li>
+</ul>
+</div>
+<div class="section" id="alternative-flow-accessory-is-in-thread-mode">
+<h4>Alternative Flow - Accessory is in Thread Mode<a class="headerlink" href="#alternative-flow-accessory-is-in-thread-mode" title="Permalink to this headline">¶</a></h4>
+<p>This can happen if an Accessory is currently <em>Commissioned</em> and <em>Unpaired</em>  See <a class="reference external" href="#alternate-flow---unpaired">Unpaired</a>.</p>
+<ul class="simple">
+<li><p>Accessory is in Thread Mode, and is attached to a <em>Viable</em> Thread Network.</p></li>
+<li><p>User initiates Pairing by scanning QR code.</p></li>
+<li><p>Controller Pairs with accessory over Thread.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="commissioning">
+<h3>Commissioning<a class="headerlink" href="#commissioning" title="Permalink to this headline">¶</a></h3>
+<p>Thread/BLE accessories may only be commissioned over BLE. Once commissioned the accessory will attempt to transition
+to Thread.</p>
+<div class="section" id="id1">
+<h4>Standard Flow<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>Thread Network Credentials are sent to the Thread Accessory over BLE.</p></li>
+<li><p>The Thread Accessory performs an Active Scan to find a thread network with matching credentials.</p></li>
+<li><p>Upon finding a matching network, the Thread Accessory commits the credentials and is now <em>Commissioned</em>.</p></li>
+<li><p>The Thread Accessory initiates the <a class="reference external" href="#attach-to-thread-network">Attach to Thread Network</a> flow.</p></li>
+<li><p>The Thread Accessory disables BLE and is now only reachable over Thread.</p></li>
+</ul>
+</div>
+<div class="section" id="alternative-flow-failure-to-find-thread-network-in-scan">
+<h4>Alternative Flow - Failure to find Thread Network in Scan<a class="headerlink" href="#alternative-flow-failure-to-find-thread-network-in-scan" title="Permalink to this headline">¶</a></h4>
+<p>When the Thread Network cannot be found with an active scan within a specified period of time (Currently set to 65
+seconds).</p>
+<ul class="simple">
+<li><p>The Accessory remains in BLE mode.</p></li>
+<li><p>The accessory periodically performs the Active Scan to find a Thread Network matching the credentials provided.</p></li>
+<li><p>If a matching network is found during these scans, the Thread Accessory commits the credentials and is now
+<em>Commissioned</em>.</p></li>
+<li><p>The Thread accessory then initiates the <a class="reference external" href="#attach-to-thread-network">Attach to Thread Network</a> flow.</p></li>
+<li><p>If successful, the Accessory disables BLE and is now only reachable over Thread.</p></li>
+</ul>
+</div>
+<div class="section" id="alternative-flow-attach-to-thread-network-flow-fails">
+<h4>Alternative Flow - Attach To Thread Network flow fails<a class="headerlink" href="#alternative-flow-attach-to-thread-network-flow-fails" title="Permalink to this headline">¶</a></h4>
+<p>Once the Active Scan has been successfully performed the Thread Accessory is <em>Commissioned</em>, but that does not mean
+it can use the Thread Network. If the network is not <em>Viable</em>, the Attach will fail.</p>
+<ul class="simple">
+<li><p>The Thread Accessory will continue to operate in BLE mode.</p></li>
+<li><p>As a commissioned device, the Accessory will periodically reattempt the
+<a class="reference external" href="#attach-to-thread-network">Attach to Thread Network</a> flow.</p></li>
+<li><p>If rebooted The Thread Accessory will perform the <a class="reference external" href="#commissioned">Commissioned</a> flow.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="decommissioning">
+<h3>Decommissioning<a class="headerlink" href="#decommissioning" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Controller initiates decommissioning by sending a “Clear Thread Credentials” command to the Thread Accessory.</p></li>
+<li><p>Thread Accessory erases all thread network credentials.</p></li>
+<li><p>Thread Accessory disables Thread and returns to BLE mode. The Accessory is no longer <em>Commissioned</em>.</p></li>
+</ul>
+</div>
+<div class="section" id="attaching-to-thread-network">
+<h3>Attaching to Thread Network<a class="headerlink" href="#attaching-to-thread-network" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id2">
+<h4>Standard Flow<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>The Accessory will join the commissioned Thread Network.</p></li>
+<li><p>The Accessory will verify that the Thread Network it has joined is <em>Viable</em>. A Thread network is Viable if it has
+a border router and srp-mdns-proxy.</p></li>
+<li><p>The accessory disables BLE and Transitions to Thread completely.</p></li>
+<li><p>The accessory sends its advertisement to the MDNS Proxy.</p></li>
+</ul>
+</div>
+<div class="section" id="alternative-flow-network-is-not-viable">
+<h4>Alternative Flow: Network is not Viable<a class="headerlink" href="#alternative-flow-network-is-not-viable" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>If the Thread Network does not have a Border Router or is serving srp-mdns-proxy it is not <em>Viable</em>.</p></li>
+<li><p>The accessory will enter a The accessory will refuse to join a network that is not <em>Viable</em>, and will return to
+BLE mode.</p></li>
+<li><p>As long as the Accessory is <em>Commissioned</em> it will periodically reattempt the
+<a class="reference external" href="#attach-to-thread-network">Attach to Thread Network</a> flow.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="lost-thread-network">
+<h3>Lost Thread Network<a class="headerlink" href="#lost-thread-network" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Accessory is notified that the Thread Network is no longer <em>Viable</em>. This means either that it has lost a
+connection to its Parent and cannot attach to any other, the Border Router can no longer be found on the network, or
+srp-mdns-proxy is no longer served by the network.</p></li>
+<li><p>Accessory will enter a grace period (currently lasting 65 seconds) to see if the accessory can reattach to the
+network.</p></li>
+<li><p>Upon expiration of the grace period the Accessory will return to BLE operation and exit Thread mode.</p></li>
+<li><p>As long as the Accessory is <em>Commissioned</em>, it will periodically reattempt the
+<a class="reference external" href="#attach-to-thread-network">Attach to Thread Network</a> flow.</p></li>
+</ul>
+</div>
+<div class="section" id="factory-reset">
+<h3>Factory Reset<a class="headerlink" href="#factory-reset" title="Permalink to this headline">¶</a></h3>
+<p>Factory Reset clears all parameters, Pairings, and Commissioned Thread Network Credentials.</p>
+<ul class="simple">
+<li><p>Factory Reset is initiated.</p></li>
+<li><p><em>Pairings</em> are removed.</p></li>
+<li><p>The Accessory is <a class="reference external" href="#decommissioning">Decommissioned</a>.</p></li>
+<li><p>The Accessory is rebooted. It will boot into the <a class="reference external" href="#uncommissioned">Uncommissioned</a> flow.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="thread-only-accessories">
+<h2>Thread Only Accessories<a class="headerlink" href="#thread-only-accessories" title="Permalink to this headline">¶</a></h2>
+<p>Some accessories may not support BLE. These accessories do not transition between BLE and Thread modes.</p>
+<div class="section" id="thread-only-uncommissioned-idle">
+<h3>Thread Only Uncommissioned Idle<a class="headerlink" href="#thread-only-uncommissioned-idle" title="Permalink to this headline">¶</a></h3>
+<p>Uncommissioned Accessories immediately attempt to join a Thread Network.</p>
+<ul class="simple">
+<li><p>Accessory enters Joiner-Mode to look for Thread Networks.</p></li>
+<li><p>Accessory repeats Joiner-Mode until successful <a class="reference external" href="#thread-only-commissioning">Commissioning</a> is completed.</p></li>
+</ul>
+<p>Note:  Sleepy Devices will prevent themselves from going to sleep while <em>Uncommissioned</em> and <em>Unpaired</em> to
+facilitate Network Join and Pairing.</p>
+</div>
+<div class="section" id="thread-only-commissioned-idle">
+<h3>Thread Only Commissioned Idle<a class="headerlink" href="#thread-only-commissioned-idle" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>A <em>Commissioned</em> Thread Accessory will attach to its Thread Network. It does not check whether the network is
+<em>Viable</em> because there is no BLE to fall back to.</p></li>
+</ul>
+<div class="section" id="alternate-flow-lost-network">
+<h4>Alternate Flow: Lost Network<a class="headerlink" href="#alternate-flow-lost-network" title="Permalink to this headline">¶</a></h4>
+<p>If a <em>Commissioned</em> and <em>Paired</em> Thread only Accessory loses its Thread network it will enter the <em>Detached</em> state.
+It will remain in this state until <a class="reference external" href="#thread-only-factory-reset">Factory Reset</a> or the Thread Network is recovered.</p>
+</div>
+</div>
+<div class="section" id="id3">
+<h3>Pairing<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>Native Thread pairing is performed as follows:</p>
+<ul class="simple">
+<li><p>User initiates Pairing by scanning QR code.</p></li>
+<li><p>Controller commissioned the accessory via the <a class="reference external" href="#thread-only-commissioning">Commissioning Flow</a>.</p></li>
+<li><p>Controller pairs with the accessory over Thread.</p></li>
+</ul>
+</div>
+<div class="section" id="thread-only-commissioning">
+<h3>Thread Only Commissioning<a class="headerlink" href="#thread-only-commissioning" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Thread Accessory enters <em>Joiner-Mode</em>.</p></li>
+<li><p>Controller initiates a Commissioner - Add using the Accessory’s EUI and Passphrase (Provided via QR Code).</p></li>
+<li><p>Accessory is provided Thread Network Credentials from the Thread Network directly. Accessory is now <em>Commissioned</em>.</p></li>
+<li><p>Accessory attaches to the Thread Network.</p></li>
+</ul>
+</div>
+<div class="section" id="thread-only-decommissioning">
+<h3>Thread Only Decommissioning<a class="headerlink" href="#thread-only-decommissioning" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Thread Accessory leaves the Thread Network.</p></li>
+<li><p>Thread Accessory erases all Thread Network credentials.</p></li>
+<li><p>Thread Accessory returns to <a class="reference external" href="#thread-only-uncommissioned-idle">Uncommissioned</a>.</p></li>
+</ul>
+</div>
+<div class="section" id="thread-only-factory-reset">
+<h3>Thread Only Factory Reset<a class="headerlink" href="#thread-only-factory-reset" title="Permalink to this headline">¶</a></h3>
+<p>Factory Reset clears all parameters, Pairings, and Commissioned Thread Network Credentials.</p>
+<ul class="simple">
+<li><p>Factory Reset is initiated.</p></li>
+<li><p><em>Pairings</em> are removed.</p></li>
+<li><p>The Accessory is <a class="reference external" href="#thread-only-decommission">Decommissioned</a>.</p></li>
+<li><p>The Accessory is rebooted. It will boot into the <a class="reference external" href="#thread-only-uncommissioned-idle">Uncommissioned</a> flow.</p></li>
+</ul>
+</div>
+<div class="section" id="unpairing-and-unpaired-advertising">
+<h3>Unpairing and Unpaired Advertising<a class="headerlink" href="#unpairing-and-unpaired-advertising" title="Permalink to this headline">¶</a></h3>
+<p>By default, if an ADK Application is on a Thread Network and its last pairing is removed, it will remain
+on the Thread Network and begin advertising as unpaired on that network to facilitate pairing over that
+Thread Network. However, for some devices, especially devices relating to security, this may not be desirable.</p>
+<p>For this reason, the Thread HAP Accessory Server Options structure defines suppressUnpairedThreadAdvertising.
+Example code will set this option to true by using the following command:</p>
+<p>make PROTOCOLS=THREAD HAP_THREAD_DECOMMISSION_ON_UNPAIR=1 apps</p>
+<p>If this option is set to true, it will ensure the ADK Accessory does not advertise itself as unpaired over
+the Thread Network. This allows an ADK Application to handle several use cases, including but not limited to:</p>
+<ul class="simple">
+<li><p>Purposely transition to BLE, <em>and/or</em></p></li>
+<li><p>Stop the Thread Transport, <em>and/or</em></p></li>
+<li><p>Decommission from the Thread Network, <em>and/or</em></p></li>
+<li><p>Stop the entire ADK Accessory Server, <em>and/or</em></p></li>
+<li><p>Execute any other necessary Application/Hardware specific logic related to unpairing before refreshing the Thread Advertisement</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="state-diagram">
+<h2>State Diagram<a class="headerlink" href="#state-diagram" title="Permalink to this headline">¶</a></h2>
+<p>The following state diagram describes the general behavior of Thread/BLE devices.
+<img alt="State Diagram" src="_images/ThreadBleSM.jpg" /></p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="wifi_reconfiguration_feature.html" class="btn btn-neutral float-right" title="WiFi Reconfiguration Service" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="setting_up_thread.html" class="btn btn-neutral float-left" title="Getting Started with Thread" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright © 2021 Apple Inc. All Rights Reserved..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

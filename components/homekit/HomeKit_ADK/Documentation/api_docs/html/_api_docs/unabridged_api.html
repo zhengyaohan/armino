@@ -1,0 +1,2406 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Full API &mdash; HomeKit ADK  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> HomeKit ADK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../adk_architecture.html">ADK Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../adk_directory_structure.html">ADK Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docker.html">Docker with ADK</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Step-by-step Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting started with ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../raspi_setup.html">Raspberry Pi Setup Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bct.html">Bonjour Conformance Test (BCT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wac_on_raspberrypi.html">WAC on Raspberry Pi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../camera_on_darwin.html">Camera on macOS</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Troubleshooting ADK</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../interact_with_applications.html">Interacting with ADK applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writing_unit_tests.html">Writing Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../debug_adk.html">Debugging ADK Applications</a></li>
+</ul>
+<p class="caption"><span class="caption-text">ADK Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_development.html">Accessory Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_pairing.html">Accessory Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_authentication.html">Accessory Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../provisioning_tools.html">Provisioning Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ADK_Memory_Usage_and_Requirements.html">Memory Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../crypto.html">Cryptographic Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../make_options.html">Compile Time Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../coding_convention.html">Coding Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migration_guide.html">ADK Migration Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">HomeKit Services</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_diagnostics.html">Accessory Diagnostics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_metrics.html">Accessory Metrics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../adaptive_light.html">Adaptive Lighting Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appletv_remote.html">Apple TV Remote</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../firmware_update.html">Firmware Update Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../homekit_bridge.html">HomeKit Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ip_camera.html">IP Camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lock_profile.html">Lock Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../stateless_programmable_switch.html">Stateless Programmable Switch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../thread.html">HAP over Thread Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wifi_reconfiguration_feature.html">WiFi Reconfiguration Service</a></li>
+</ul>
+<p class="caption"><span class="caption-text">PAL APIs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dir_PAL.html">Directory PAL</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HomeKit ADK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Full API</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/_api_docs/unabridged_api.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="full-api">
+<h1>Full API<a class="headerlink" href="#full-api" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="classes-and-structs">
+<h2>Classes and Structs<a class="headerlink" href="#classes-and-structs" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structDiagnosticsLog.html">Struct DiagnosticsLog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structDiagnosticsLog.html#struct-documentation">Struct Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structHAPPlatformBLEPeripheralManagerCharacteristicProperties.html">Struct HAPPlatformBLEPeripheralManagerCharacteristicProperties</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structHAPPlatformBLEPeripheralManagerCharacteristicProperties.html#struct-documentation">Struct Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structHAPPlatformBLEPeripheralManagerDelegate.html">Struct HAPPlatformBLEPeripheralManagerDelegate</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structHAPPlatformBLEPeripheralManagerDelegate.html#struct-documentation">Struct Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structHAPPlatformBLEPeripheralManagerDescriptorProperties.html">Struct HAPPlatformBLEPeripheralManagerDescriptorProperties</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structHAPPlatformBLEPeripheralManagerDescriptorProperties.html#struct-documentation">Struct Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structHAPPlatformBLEPeripheralManagerDeviceAddress.html">Struct HAPPlatformBLEPeripheralManagerDeviceAddress</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structHAPPlatformBLEPeripheralManagerDeviceAddress.html#struct-documentation">Struct Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structHAPPlatformBLEPeripheralManagerUUID.html">Struct HAPPlatformBLEPeripheralManagerUUID</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structHAPPlatformBLEPeripheralManagerUUID.html#struct-documentation">Struct Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structHAPPlatformCameraComfortNoise.html">Struct HAPPlatformCameraComfortNoise</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structHAPPlatformCameraComfortNoise.html#struct-documentation">Struct Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structHAPPlatformCameraDelegate.html">Struct HAPPlatformCameraDelegate</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structHAPPlatformCameraDelegate.html#struct-documentation">Struct Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structHAPPlatformCameraEndpointParameters.html">Struct HAPPlatformCameraEndpointParameters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structHAPPlatformCameraEndpointParameters.html#struct-documentation">Struct Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structHAPPlatformCameraIPAddress.html">Struct HAPPlatformCameraIPAddress</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structHAPPlatformCameraIPAddress.html#struct-documentation">Struct Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structHAPPlatformCameraReconfigureStreamingSessionConfiguration.html">Struct HAPPlatformCameraReconfigureStreamingSessionConfiguration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structHAPPlatformCameraReconfigureStreamingSessionConfiguration.html#struct-documentation">Struct Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structHAPPlatformCameraReconfigureStreamingSessionVideoRTPParameters.html">Struct HAPPlatformCameraReconfigureStreamingSessionVideoRTPParameters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structHAPPlatformCameraReconfigureStreamingSessionVideoRTPParameters.html#struct-documentation">Struct Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structHAPPlatformCameraRTPParameters.html">Struct HAPPlatformCameraRTPParameters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structHAPPlatformCameraRTPParameters.html#struct-documentation">Struct Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structHAPPlatformCameraSnapshotReader.html">Struct HAPPlatformCameraSnapshotReader</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structHAPPlatformCameraSnapshotReader.html#struct-documentation">Struct Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structHAPPlatformCameraSRTPParameters.html">Struct HAPPlatformCameraSRTPParameters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structHAPPlatformCameraSRTPParameters.html#struct-documentation">Struct Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structHAPPlatformCameraStartStreamingSessionConfiguration.html">Struct HAPPlatformCameraStartStreamingSessionConfiguration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structHAPPlatformCameraStartStreamingSessionConfiguration.html#struct-documentation">Struct Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structHAPPlatformMFiTokenAuthUUID.html">Struct HAPPlatformMFiTokenAuthUUID</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structHAPPlatformMFiTokenAuthUUID.html#struct-documentation">Struct Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structHAPPlatformRegulatoryDomain.html">Struct HAPPlatformRegulatoryDomain</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structHAPPlatformRegulatoryDomain.html#struct-documentation">Struct Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structHAPPlatformServiceDiscoveryTXTRecord.html">Struct HAPPlatformServiceDiscoveryTXTRecord</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structHAPPlatformServiceDiscoveryTXTRecord.html#struct-documentation">Struct Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structHAPPlatformSSID.html">Struct HAPPlatformSSID</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structHAPPlatformSSID.html#struct-documentation">Struct Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structHAPPlatformTCPStreamEvent.html">Struct HAPPlatformTCPStreamEvent</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structHAPPlatformTCPStreamEvent.html#struct-documentation">Struct Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structHAPPlatformWiFiCapability.html">Struct HAPPlatformWiFiCapability</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structHAPPlatformWiFiCapability.html#struct-documentation">Struct Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structHAPPlatformWiFiManagerCapabilities.html">Struct HAPPlatformWiFiManagerCapabilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structHAPPlatformWiFiManagerCapabilities.html#struct-documentation">Struct Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a1b78756be64fdd650473ae33f22553c2.html">Function __attribute__((packed))</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a1b78756be64fdd650473ae33f22553c2.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformLog_8h_1a1b78756be64fdd650473ae33f22553c2.html">Function __attribute__((packed))</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformLog_8h_1a1b78756be64fdd650473ae33f22553c2.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1a930b56167787f2c64c0d6ff700dab63f.html">Function HAP_NONNULL_SUPPORT(HAPPlatformCameraInput)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1a930b56167787f2c64c0d6ff700dab63f.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1a0aaee3040c7aa4e63e67d5099a294846.html">Function HAP_NONNULL_SUPPORT(HAPPlatformCameraInputStream)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1a0aaee3040c7aa4e63e67d5099a294846.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1a56aa0c06d375b11aa96dbe3872488e9c.html">Function HAP_NONNULL_SUPPORT(HAPPlatformCameraSnapshot)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1a56aa0c06d375b11aa96dbe3872488e9c.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformSpeaker_8h_1a00a75f8e5be5bc010111f8328cb3e330.html">Function HAP_NONNULL_SUPPORT(HAPPlatformSpeaker)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformSpeaker_8h_1a00a75f8e5be5bc010111f8328cb3e330.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformSpeaker_8h_1adf2137504bc8e6ddf320ca6de641a240.html">Function HAP_NONNULL_SUPPORT(HAPPlatformSpeakerStream)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformSpeaker_8h_1adf2137504bc8e6ddf320ca6de641a240.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformAbort_8h_1a5688c911509cd24c9625a2640ded28e6.html">Function HAPPlatformAbort</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformAbort_8h_1a5688c911509cd24c9625a2640ded28e6.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformAccessorySetupDisplay_8h_1abae3583fd47d3dfd4c8e1e8b0e2a9e1e.html">Function HAPPlatformAccessorySetupDisplayHandleStartPairing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformAccessorySetupDisplay_8h_1abae3583fd47d3dfd4c8e1e8b0e2a9e1e.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformAccessorySetupDisplay_8h_1aa0de52562b8723076334c7c196500a55.html">Function HAPPlatformAccessorySetupDisplayHandleStopPairing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformAccessorySetupDisplay_8h_1aa0de52562b8723076334c7c196500a55.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformAccessorySetupDisplay_8h_1aea5bb590481d32652082c0cea5bd4247.html">Function HAPPlatformAccessorySetupDisplayUpdateSetupPayload</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformAccessorySetupDisplay_8h_1aea5bb590481d32652082c0cea5bd4247.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformAccessorySetup_8h_1afd022ff721598c9385ac6a06e173867f.html">Function HAPPlatformAccessorySetupLoadSetupCode</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformAccessorySetup_8h_1afd022ff721598c9385ac6a06e173867f.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformAccessorySetup_8h_1a8c5aa97b9b69de8018df7649ba999178.html">Function HAPPlatformAccessorySetupLoadSetupID</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformAccessorySetup_8h_1a8c5aa97b9b69de8018df7649ba999178.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformAccessorySetup_8h_1a72fba94711c7564501aa58ee009470d2.html">Function HAPPlatformAccessorySetupLoadSetupInfo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformAccessorySetup_8h_1a72fba94711c7564501aa58ee009470d2.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformAccessorySetupNFC_8h_1a9749a5a1832b373ecb45a9453cae319f.html">Function HAPPlatformAccessorySetupNFCUpdateSetupPayload</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformAccessorySetupNFC_8h_1a9749a5a1832b373ecb45a9453cae319f.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1a90e57f6feff02e0be2ff2ba8d4f9e269.html">Function HAPPlatformBLEPeripheralManagerAddCharacteristic</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1a90e57f6feff02e0be2ff2ba8d4f9e269.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1ae93952411ab8c2e897b0f3ef52cc153e.html">Function HAPPlatformBLEPeripheralManagerAddDescriptor</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1ae93952411ab8c2e897b0f3ef52cc153e.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1a7ab3ed4bdfdd1bd801461bc3924e4419.html">Function HAPPlatformBLEPeripheralManagerAddService</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1a7ab3ed4bdfdd1bd801461bc3924e4419.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1a11b9eb991c850529b83b7743222f2f0d.html">Function HAPPlatformBLEPeripheralManagerAllowsServiceRefresh</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1a11b9eb991c850529b83b7743222f2f0d.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1a7b64de91a2534cf1ef4eff38c0882721.html">Function HAPPlatformBLEPeripheralManagerCancelCentralConnection</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1a7b64de91a2534cf1ef4eff38c0882721.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1a673a40cee7deacadbf96b3d8efc17e3a.html">Function HAPPlatformBLEPeripheralManagerGetAdvertisementAddress</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1a673a40cee7deacadbf96b3d8efc17e3a.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1ad70913633afc442b527d09d0c41d1240.html">Function HAPPlatformBLEPeripheralManagerPublishServices</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1ad70913633afc442b527d09d0c41d1240.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1ae047a748abfb3f2ed221befd07bc5603.html">Function HAPPlatformBLEPeripheralManagerRemoveAllServices</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1ae047a748abfb3f2ed221befd07bc5603.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1aca03583c8a8fc193ee50faed7bb4b74c.html">Function HAPPlatformBLEPeripheralManagerSendHandleValueIndication</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1aca03583c8a8fc193ee50faed7bb4b74c.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1a6cea49b28e79308f4a5cca898d9ecef3.html">Function HAPPlatformBLEPeripheralManagerSetDelegate</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1a6cea49b28e79308f4a5cca898d9ecef3.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1ae9dbfdf7bfe44c98c9867161c6d06230.html">Function HAPPlatformBLEPeripheralManagerSetDeviceAddress</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1ae9dbfdf7bfe44c98c9867161c6d06230.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1ae4ff57fb8d074087be9a6be00c9fd509.html">Function HAPPlatformBLEPeripheralManagerSetDeviceName</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1ae4ff57fb8d074087be9a6be00c9fd509.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1aa7db452c971552fda0ddc870ce2e3469.html">Function HAPPlatformBLEPeripheralManagerStartAdvertising</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1aa7db452c971552fda0ddc870ce2e3469.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1aa661aaef5952a82513a097c7aa27804a.html">Function HAPPlatformBLEPeripheralManagerStopAdvertising</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformBLEPeripheralManager_8h_1aa661aaef5952a82513a097c7aa27804a.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a344358128f6bbd52255f51b5ed37bc96.html">Function HAPPlatformCameraAreEventSnapshotsActive</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a344358128f6bbd52255f51b5ed37bc96.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a2707053c8e8ca509743e0c9be9630663.html">Function HAPPlatformCameraArePeriodicSnapshotsActive</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a2707053c8e8ca509743e0c9be9630663.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a5616b5355d205046e17d143788535354.html">Function HAPPlatformCameraEndStreamingSession</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a5616b5355d205046e17d143788535354.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a9eb82a8e8d0fb6d3e5e118604089adb6.html">Function HAPPlatformCameraGetRecordingConfiguration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a9eb82a8e8d0fb6d3e5e118604089adb6.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1af8c21c852c802d2ba6f7bf0eac989e6a.html">Function HAPPlatformCameraGetStreamingSessionEndpoint</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1af8c21c852c802d2ba6f7bf0eac989e6a.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a569a93f275a3f8a63013db7414775fb2.html">Function HAPPlatformCameraGetStreamStatus</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a569a93f275a3f8a63013db7414775fb2.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1a268c323db3816830a26759f0dc51408b.html">Function HAPPlatformCameraInputInitializeSnapshot</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1a268c323db3816830a26759f0dc51408b.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1a6ee770fb24a2ebfb8d64371660d225c6.html">Function HAPPlatformCameraInputIsStreamRunning</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1a6ee770fb24a2ebfb8d64371660d225c6.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1a26c4bebe3673fe992aacc40e773b69a4.html">Function HAPPlatformCameraInputReconfigureStream</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1a26c4bebe3673fe992aacc40e773b69a4.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1a6cbbeaff5eb06994d8d6d4ba1e9e3b46.html">Function HAPPlatformCameraInputRequestKeyFrame</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1a6cbbeaff5eb06994d8d6d4ba1e9e3b46.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1ae05a9f98a1a377d29b2c3408ae57cc82.html">Function HAPPlatformCameraInputResumeStream</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1ae05a9f98a1a377d29b2c3408ae57cc82.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1ae43d136755d19e15a67e4243c9246587.html">Function HAPPlatformCameraInputSetBitrate</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1ae43d136755d19e15a67e4243c9246587.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1a0649655dd3aa4cde7b7869849ef8f603.html">Function HAPPlatformCameraInputStartStream</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1a0649655dd3aa4cde7b7869849ef8f603.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1a10db71366ad5e0e57c87dceed7130c5b.html">Function HAPPlatformCameraInputStopStream</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1a10db71366ad5e0e57c87dceed7130c5b.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1aaac899b14b0d145d4cf5e77bde891d9b.html">Function HAPPlatformCameraInputSuspendStream</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1aaac899b14b0d145d4cf5e77bde891d9b.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1a0586d1b4068572b3e7797550983bdcf5.html">Function HAPPlatformCameraInputTakeSnapshot</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCameraInput_8h_1a0586d1b4068572b3e7797550983bdcf5.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a7f44ab8c8f143cfe1a2840dd773fd4b7.html">Function HAPPlatformCameraInvalidateRecordingConfiguration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a7f44ab8c8f143cfe1a2840dd773fd4b7.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1acce655d34433f18245c09b86c8c3ba34.html">Function HAPPlatformCameraIsHomeKitCameraActive</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1acce655d34433f18245c09b86c8c3ba34.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a20f5b733b5e512c3729ac1b9ce200780.html">Function HAPPlatformCameraIsManuallyDisabled</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a20f5b733b5e512c3729ac1b9ce200780.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1af1dc89c43e73fb09100bff96b4420570.html">Function HAPPlatformCameraIsOperatingModeIndicatorEnabled</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1af1dc89c43e73fb09100bff96b4420570.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a6cfe6eb97664d48ffffb1faa815e4d6b.html">Function HAPPlatformCameraIsRecordingActive</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a6cfe6eb97664d48ffffb1faa815e4d6b.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a7c575c464028e0186668788d09163e5a.html">Function HAPPlatformCameraIsRecordingAudioEnabled</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a7c575c464028e0186668788d09163e5a.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a548e779f20d7060780eff5d8241f23c3.html">Function HAPPlatformCameraIsStreamingActive</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a548e779f20d7060780eff5d8241f23c3.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1ad84902b98b40d5f43415d1fd82fb4d6c.html">Function HAPPlatformCameraIsThirdPartyCameraActive</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1ad84902b98b40d5f43415d1fd82fb4d6c.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1ae923e3625986efa43929788f0c5e2bf0.html">Function HAPPlatformCameraReconfigureStreamingSession</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1ae923e3625986efa43929788f0c5e2bf0.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a835780cd327234fcf11de61e368e6383.html">Function HAPPlatformCameraResumeStreamingSession</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a835780cd327234fcf11de61e368e6383.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1ab9100c88d982040ddf6e4097d028f373.html">Function HAPPlatformCameraSetDelegate</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1ab9100c88d982040ddf6e4097d028f373.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a21ac4463606ab90987865c04ede380b1.html">Function HAPPlatformCameraSetEventSnapshotsActive</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a21ac4463606ab90987865c04ede380b1.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a823412894bba7636d43421d813a46dcf.html">Function HAPPlatformCameraSetHomeKitCameraActive</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a823412894bba7636d43421d813a46dcf.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a4ed122376f233cdd754dde37614719cf.html">Function HAPPlatformCameraSetOperatingModeIndicatorEnabled</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a4ed122376f233cdd754dde37614719cf.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a866535e76814ac478e1c52b911ce2b8f.html">Function HAPPlatformCameraSetPeriodicSnapshotsActive</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a866535e76814ac478e1c52b911ce2b8f.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a2e7b8ff8881671ee953d1d62f5b1063d.html">Function HAPPlatformCameraSetRecordingActive</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a2e7b8ff8881671ee953d1d62f5b1063d.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a2070e62250c993eb5c0dffec6be58b4d.html">Function HAPPlatformCameraSetRecordingAudioEnabled</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a2070e62250c993eb5c0dffec6be58b4d.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a405c923cc3ca713abc5a13cc8db9cd39.html">Function HAPPlatformCameraSetRecordingConfiguration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a405c923cc3ca713abc5a13cc8db9cd39.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a9df0c59947867ae91e6f481322eacf30.html">Function HAPPlatformCameraSetStreamingActive</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a9df0c59947867ae91e6f481322eacf30.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1abe5af5cd452524d0f586264afc42e53d.html">Function HAPPlatformCameraStartStreamingSession</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1abe5af5cd452524d0f586264afc42e53d.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1ad9b5c4456faf3babc5faa5e9263c9639.html">Function HAPPlatformCameraSuspendStreamingSession</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1ad9b5c4456faf3babc5faa5e9263c9639.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a2869c9885e98b3f352ea801999cf46e1.html">Function HAPPlatformCameraTakeSnapshot</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1a2869c9885e98b3f352ea801999cf46e1.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformCamera_8h_1af9ffe2a0ae427621cf991c2e329ca040.html">Function HAPPlatformCameraTrySetStreamStatus</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformCamera_8h_1af9ffe2a0ae427621cf991c2e329ca040.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformClock_8h_1a9c599b843339d503ef3090d92d45abc5.html">Function HAPPlatformClockGetCurrent</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformClock_8h_1a9c599b843339d503ef3090d92d45abc5.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformDiagnosticsLog_8h_1a8af01ece1deddd48164f3fe3ffc2ff8d.html">Function HAPPlatformCloseDiagnosticsLogFile</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformDiagnosticsLog_8h_1a8af01ece1deddd48164f3fe3ffc2ff8d.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformConcurrency_8h_1a54a15c123e814b37dd50574a95d68487.html">Function HAPPlatformConcurrencyGetTIDString</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformConcurrency_8h_1a54a15c123e814b37dd50574a95d68487.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformConcurrency_8h_1a4b1914a43c46987b8bd7a92ac9806805.html">Function HAPPlatformConcurrencyHasTIDChanged</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformConcurrency_8h_1a4b1914a43c46987b8bd7a92ac9806805.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformDiagnosticsLog_8h_1af605da1d33149559686eb2a7f8a26048.html">Function HAPPlatformDeleteAllDiagnosticsLogFiles</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformDiagnosticsLog_8h_1af605da1d33149559686eb2a7f8a26048.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a79c88931231dc30b40868c1fd2471fc6.html">Function HAPPlatformDiagnosticsAbort</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a79c88931231dc30b40868c1fd2471fc6.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a49bc19036a48a653e3aa97473fb198d0.html">Function HAPPlatformDiagnosticsClearCrashLog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a49bc19036a48a653e3aa97473fb198d0.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1ab5584de926a5b5fa72423ac51a12fdf5.html">Function HAPPlatformDiagnosticsDataTransferComplete</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1ab5584de926a5b5fa72423ac51a12fdf5.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a07aac5bf309c27e0d207d187d2d93886.html">Function HAPPlatformDiagnosticsDeinitialize</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a07aac5bf309c27e0d207d187d2d93886.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a8cd4038a433762264566547c529fb019.html">Function HAPPlatformDiagnosticsFlushLog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a8cd4038a433762264566547c529fb019.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a776d7fc80fe745c499c5a671a6552eb4.html">Function HAPPlatformDiagnosticsGetBytesToUpload</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a776d7fc80fe745c499c5a671a6552eb4.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a710025016419dc90fae0b9ba59fdc527.html">Function HAPPlatformDiagnosticsInitialize</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a710025016419dc90fae0b9ba59fdc527.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1aa5f25f094bc70a126fa76ee6e91119e6.html">Function HAPPlatformDiagnosticsPrepareData</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1aa5f25f094bc70a126fa76ee6e91119e6.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1acb1ad844e9b357fe3d5637678de5d95e.html">Function HAPPlatformDiagnosticsStartLogCaptureToFile</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1acb1ad844e9b357fe3d5637678de5d95e.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a76573229568f2a7331db3f0952448a9f.html">Function HAPPlatformDiagnosticsStopLogCaptureToFile</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a76573229568f2a7331db3f0952448a9f.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a9532c115443842d7812308115f8e6057.html">Function HAPPlatformDiagnosticsWriteToConfigLog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a9532c115443842d7812308115f8e6057.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1aaa83367b0aa8bae6719fbd989fc62e28.html">Function HAPPlatformDiagnosticsWriteToCrashLog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1aaa83367b0aa8bae6719fbd989fc62e28.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a95a4157eed4381a0cb7b76bebb777366.html">Function HAPPlatformDiagnosticsWriteToFile</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a95a4157eed4381a0cb7b76bebb777366.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a2780692850e87ad297c58ab04044f089.html">Function HAPPlatformDiagnosticsWriteToLogBuffer</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a2780692850e87ad297c58ab04044f089.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformKeyValueStore_8h_1ac28eed421b80368a404a5fcafeac74c7.html">Function HAPPlatformKeyValueStoreEnumerate</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformKeyValueStore_8h_1ac28eed421b80368a404a5fcafeac74c7.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformKeyValueStore_8h_1ad90cb0842ab9137371bf60a75cba5967.html">Function HAPPlatformKeyValueStoreGet</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformKeyValueStore_8h_1ad90cb0842ab9137371bf60a75cba5967.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformKeyValueStore_8h_1a44b8b9491bea69421de7353c9fce1425.html">Function HAPPlatformKeyValueStoreOverrideAndSet</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformKeyValueStore_8h_1a44b8b9491bea69421de7353c9fce1425.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformKeyValueStore_8h_1a55e457e75ef5cc630080f2987ec753f9.html">Function HAPPlatformKeyValueStorePurgeDomain</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformKeyValueStore_8h_1a55e457e75ef5cc630080f2987ec753f9.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformKeyValueStore_8h_1ad6fe03ccdc304875c7914e45f77d39b5.html">Function HAPPlatformKeyValueStoreRemove</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformKeyValueStore_8h_1ad6fe03ccdc304875c7914e45f77d39b5.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformKeyValueStore_8h_1a4244dd50926c5a8fa8b276675e9573c5.html">Function HAPPlatformKeyValueStoreSet</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformKeyValueStore_8h_1a4244dd50926c5a8fa8b276675e9573c5.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformLog_8h_1a4d652103949377906928a5ca0ce90aea.html">Function HAPPlatformLogCapture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformLog_8h_1a4d652103949377906928a5ca0ce90aea.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformLog_8h_1ae0fa3a2d2f89db55d93ea0db84d955df.html">Function HAPPlatformLogGetEnabledTypes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformLog_8h_1ae0fa3a2d2f89db55d93ea0db84d955df.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformMFiHWAuth_8h_1adc5e77b7a918924decd61f623c8375bf.html">Function HAPPlatformMFiHWAuthIsPoweredOn</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformMFiHWAuth_8h_1adc5e77b7a918924decd61f623c8375bf.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformMFiHWAuth_8h_1aed950105a02e1ea1521a47e00fa4978d.html">Function HAPPlatformMFiHWAuthPowerOff</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformMFiHWAuth_8h_1aed950105a02e1ea1521a47e00fa4978d.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformMFiHWAuth_8h_1a4f412537ce811a6da49c46fded07b7d3.html">Function HAPPlatformMFiHWAuthPowerOn</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformMFiHWAuth_8h_1a4f412537ce811a6da49c46fded07b7d3.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformMFiHWAuth_8h_1a759e771933b2833a89eab65a2436dbdf.html">Function HAPPlatformMFiHWAuthRead</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformMFiHWAuth_8h_1a759e771933b2833a89eab65a2436dbdf.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformMFiHWAuth_8h_1a508f759fc794e4809cf372f4ca9b1f95.html">Function HAPPlatformMFiHWAuthWrite</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformMFiHWAuth_8h_1a508f759fc794e4809cf372f4ca9b1f95.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformMFiTokenAuth_8h_1aa3a61f717c0ac745f5e09d7cc155b80c.html">Function HAPPlatformMFiTokenAuthLoad</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformMFiTokenAuth_8h_1aa3a61f717c0ac745f5e09d7cc155b80c.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformMFiTokenAuth_8h_1a3645380d31be59aea94f90dfb8be484c.html">Function HAPPlatformMFiTokenAuthUpdate</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformMFiTokenAuth_8h_1a3645380d31be59aea94f90dfb8be484c.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformRandomNumber_8h_1a376a091c68e6375c7270c11467f1921e.html">Function HAPPlatformRandomNumberFill</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformRandomNumber_8h_1a376a091c68e6375c7270c11467f1921e.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformRunLoop_8h_1ae847f470db80058bb6d29e83c6163871.html">Function HAPPlatformRunLoopRun</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformRunLoop_8h_1ae847f470db80058bb6d29e83c6163871.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformRunLoop_8h_1a41602e1bdd0b7b025223d822459b29e2.html">Function HAPPlatformRunLoopScheduleCallback</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformRunLoop_8h_1a41602e1bdd0b7b025223d822459b29e2.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformRunLoop_8h_1a8b75a9dac48b18f0b71c1c0e02e5f5f8.html">Function HAPPlatformRunLoopStop</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformRunLoop_8h_1a8b75a9dac48b18f0b71c1c0e02e5f5f8.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformServiceDiscovery_8h_1aa00878e76efedfb1e93010b1a20648b9.html">Function HAPPlatformServiceDiscoveryRegister</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformServiceDiscovery_8h_1aa00878e76efedfb1e93010b1a20648b9.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformServiceDiscovery_8h_1af1ee36188bf45ef6866272d00eb8a28e.html">Function HAPPlatformServiceDiscoveryRegisterReplyCallback</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformServiceDiscovery_8h_1af1ee36188bf45ef6866272d00eb8a28e.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformServiceDiscovery_8h_1a5c502893547abaeb3b3b3e7582e32372.html">Function HAPPlatformServiceDiscoveryStop</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformServiceDiscovery_8h_1a5c502893547abaeb3b3b3e7582e32372.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformServiceDiscovery_8h_1a08833d1abfef6e421bcd86c3f987715a.html">Function HAPPlatformServiceDiscoveryUpdateTXTRecords</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformServiceDiscovery_8h_1a08833d1abfef6e421bcd86c3f987715a.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformDiagnosticsLog_8h_1a036ec6e2f3b3b2288a5b3d04c536d73b.html">Function HAPPlatformSetupDiagnosticsLogFiles</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformDiagnosticsLog_8h_1a036ec6e2f3b3b2288a5b3d04c536d73b.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformSoftwareAccessPoint_8h_1a444094bc7b3627ac2a314b56d2b7a3f6.html">Function HAPPlatformSoftwareAccessPointStart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformSoftwareAccessPoint_8h_1a444094bc7b3627ac2a314b56d2b7a3f6.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformSoftwareAccessPoint_8h_1a44e78dd613374cde07d6f7822ab1e6c0.html">Function HAPPlatformSoftwareAccessPointStop</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformSoftwareAccessPoint_8h_1a44e78dd613374cde07d6f7822ab1e6c0.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformSpeaker_8h_1acb5a740ba042c75357c2f666666dffd7.html">Function HAPPlatformSpeakerPushData</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformSpeaker_8h_1acb5a740ba042c75357c2f666666dffd7.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformSpeaker_8h_1a0b1c60e60fad4511c5ed37acb4304246.html">Function HAPPlatformSpeakerResumeStream</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformSpeaker_8h_1a0b1c60e60fad4511c5ed37acb4304246.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformSpeaker_8h_1ab0ef9275bf75a9b9c4d4a5cf7952a1f3.html">Function HAPPlatformSpeakerSetMuted</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformSpeaker_8h_1ab0ef9275bf75a9b9c4d4a5cf7952a1f3.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformSpeaker_8h_1a56581e047676119cf563db7ddd6a6f0e.html">Function HAPPlatformSpeakerSetVolume</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformSpeaker_8h_1a56581e047676119cf563db7ddd6a6f0e.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformSpeaker_8h_1aebfb3ec7aee8a170e552a04f43b81ec3.html">Function HAPPlatformSpeakerStopStream</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformSpeaker_8h_1aebfb3ec7aee8a170e552a04f43b81ec3.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformSpeaker_8h_1a5a60406c1117ef011e52d5d6667e87a4.html">Function HAPPlatformSpeakerSuspendStream</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformSpeaker_8h_1a5a60406c1117ef011e52d5d6667e87a4.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformSystemCommand_8h_1a95ac5e75f90d0669ab0764e808a691fd.html">Function HAPPlatformSystemCommandRun</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformSystemCommand_8h_1a95ac5e75f90d0669ab0764e808a691fd.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformSystemCommand_8h_1a9c2c1e9d61855bf0b1cb38c8c93dc675.html">Function HAPPlatformSystemCommandRunWithEnvironment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformSystemCommand_8h_1a9c2c1e9d61855bf0b1cb38c8c93dc675.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1a3ed393c602f834ce963c9698c53552ee.html">Function HAPPlatformTCPStreamClose</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1a3ed393c602f834ce963c9698c53552ee.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1ac4757fd7f2aa025132aa9f93742370fa.html">Function HAPPlatformTCPStreamCloseOutput</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1ac4757fd7f2aa025132aa9f93742370fa.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1ac4b27749f5f478263f87986a6b18a3b6.html">Function HAPPlatformTCPStreamGetNumNonAcknowledgedBytes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1ac4b27749f5f478263f87986a6b18a3b6.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1a88394455805f5ce192b80b70b05e416d.html">Function HAPPlatformTCPStreamManagerAcceptTCPStream</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1a88394455805f5ce192b80b70b05e416d.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1a6290feef9f8c3db6c9eb3d9bf37392b6.html">Function HAPPlatformTCPStreamManagerCloseListener</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1a6290feef9f8c3db6c9eb3d9bf37392b6.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1a5d737afab359c0af15d9a629c072424c.html">Function HAPPlatformTCPStreamManagerGetListenerPort</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1a5d737afab359c0af15d9a629c072424c.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1ab05e264644c7398dcea995ea1dc11bcb.html">Function HAPPlatformTCPStreamManagerGetWiFiCapability</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1ab05e264644c7398dcea995ea1dc11bcb.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1a5c5a07ed77eb7a4124ebe21e1ab77780.html">Function HAPPlatformTCPStreamManagerIsListenerOpen</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1a5c5a07ed77eb7a4124ebe21e1ab77780.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1af5584ff88de051ea53c24bb96a5db3fa.html">Function HAPPlatformTCPStreamManagerIsWiFiCurrentTransport</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1af5584ff88de051ea53c24bb96a5db3fa.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1ae2ea6a205d49f5493dd4947b97782e0a.html">Function HAPPlatformTCPStreamManagerOpenListener</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1ae2ea6a205d49f5493dd4947b97782e0a.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1ab235d4e47ace9765150e38b915719474.html">Function HAPPlatformTCPStreamManagerSetTCPUserTimeout</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1ab235d4e47ace9765150e38b915719474.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1afe3e2b370b3d5c7ace7050838ef7ee1f.html">Function HAPPlatformTCPStreamRead</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1afe3e2b370b3d5c7ace7050838ef7ee1f.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1a4531025847ab57c117859cacdc0bdfe4.html">Function HAPPlatformTCPStreamSetPriority</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1a4531025847ab57c117859cacdc0bdfe4.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1a3cb33e0797941f03bda5062d80f1c8a6.html">Function HAPPlatformTCPStreamUpdateInterests</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1a3cb33e0797941f03bda5062d80f1c8a6.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1a9170478c9a5e397352bebeed668ac40e.html">Function HAPPlatformTCPStreamWrite</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformTCPStreamManager_8h_1a9170478c9a5e397352bebeed668ac40e.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformTimer_8h_1a11217bcf3d2102dca250d6aeb79de668.html">Function HAPPlatformTimerDeregister</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformTimer_8h_1a11217bcf3d2102dca250d6aeb79de668.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformTimer_8h_1a0ee3f7e2115eb43851c2b2fca13e2c4e.html">Function HAPPlatformTimerRegister</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformTimer_8h_1a0ee3f7e2115eb43851c2b2fca13e2c4e.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1ad17ee2f0123557af78cf77f4b3859fc8.html">Function HAPPlatformWiFiManagerApplyConfiguration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1ad17ee2f0123557af78cf77f4b3859fc8.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a734b8f1f6d00eedcf30a9a14970a113f.html">Function HAPPlatformWiFiManagerBackUpConfiguration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a734b8f1f6d00eedcf30a9a14970a113f.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a8733e7d46d6c588a1fbb3a46ec058d42.html">Function HAPPlatformWiFiManagerClearConfiguration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a8733e7d46d6c588a1fbb3a46ec058d42.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a2bc3914d6ff36c5640010658e5957097.html">Function HAPPlatformWiFiManagerGetConfiguredSSID</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a2bc3914d6ff36c5640010658e5957097.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1aecf0493dd13c3e5ed08dd6d177733af7.html">Function HAPPlatformWiFiManagerGetCookie</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1aecf0493dd13c3e5ed08dd6d177733af7.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a8f72b81144877d3c593252b4647c0e89.html">Function HAPPlatformWiFiManagerGetRegulatoryDomain</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a8f72b81144877d3c593252b4647c0e89.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a45849510fed6a7fe35f4483ecc4f5d1e.html">Function HAPPlatformWiFiManagerGetSSID</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a45849510fed6a7fe35f4483ecc4f5d1e.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a965a959386d4e9eae64fa30824d98608.html">Function HAPPlatformWiFiManagerGetUpdateStatus</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a965a959386d4e9eae64fa30824d98608.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a3afe475d0d3c98160b71d60b3e351573.html">Function HAPPlatformWiFiManagerIsConfigured</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a3afe475d0d3c98160b71d60b3e351573.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a40856556fb0b5390e7a1c07c93e9638f.html">Function HAPPlatformWiFiManagerIsPSKConfigured</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a40856556fb0b5390e7a1c07c93e9638f.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a0ea7112a5c116ff6a0306f24c5c5f8fa.html">Function HAPPlatformWiFiManagerIsWiFiLinkEstablished</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a0ea7112a5c116ff6a0306f24c5c5f8fa.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a887c3eae63a32d1c7fd922a111870a8b.html">Function HAPPlatformWiFiManagerIsWiFiNetworkConfigured</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a887c3eae63a32d1c7fd922a111870a8b.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1abda79810ca21262d410538b2d94ee29b.html">Function HAPPlatformWiFiManagerRemoveConfiguration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1abda79810ca21262d410538b2d94ee29b.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a1b108325ddb6e1de1ac0835146599b91.html">Function HAPPlatformWiFiManagerRestartWiFi</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a1b108325ddb6e1de1ac0835146599b91.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1aea958db9b254a798ffd86da289a59a40.html">Function HAPPlatformWiFiManagerSetCookie</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1aea958db9b254a798ffd86da289a59a40.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a7bf2e93bfe5ee791da9fde0dc86791ea.html">Function HAPPlatformWiFiManagerSetUpdateStatus</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a7bf2e93bfe5ee791da9fde0dc86791ea.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_HAPPlatformDiagnosticsLog_8h_1a74133c6cbebb26057093739a160f5e0b.html">Function HAPPlatformWriteToDiagnosticsLogFile</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_HAPPlatformDiagnosticsLog_8h_1a74133c6cbebb26057093739a160f5e0b.html#function-documentation">Function Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="variables">
+<h2>Variables<a class="headerlink" href="#variables" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="variable_HAPPlatformCameraInput_8h_1afdb6b7edcb556db4d9806e8976a56494.html">Variable bytes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="variable_HAPPlatformCameraInput_8h_1afdb6b7edcb556db4d9806e8976a56494.html#variable-documentation">Variable Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="variable_HAPPlatformCameraInput_8h_1a44cdd45696f7d8e717684a339336774d.html">Variable cameraInput</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="variable_HAPPlatformCameraInput_8h_1a44cdd45696f7d8e717684a339336774d.html#variable-documentation">Variable Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="variable_HAPPlatformCameraInput_8h_1a535b11c4417a9559c9964205c138501e.html">Variable cameraInputStream</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="variable_HAPPlatformCameraInput_8h_1a535b11c4417a9559c9964205c138501e.html#variable-documentation">Variable Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="variable_HAPPlatformCamera_8h_1a3ce46f603bfd966de1b3ad4cc240a619.html">Variable HAPCameraStreamingStatus</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="variable_HAPPlatformCamera_8h_1a3ce46f603bfd966de1b3ad4cc240a619.html#variable-documentation">Variable Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="variable_HAPPlatformLog_8h_1a75f967ba56604153e6e96bec14b58902.html">Variable HAPPlatformLogEnabledTypes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="variable_HAPPlatformLog_8h_1a75f967ba56604153e6e96bec14b58902.html#variable-documentation">Variable Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="variable_HAPPlatformCameraInput_8h_1a4adc546bffa378bbdd1a64471aa2ab31.html">Variable numBytes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="variable_HAPPlatformCameraInput_8h_1a4adc546bffa378bbdd1a64471aa2ab31.html#variable-documentation">Variable Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="variable_HAPPlatformSpeaker_8h_1a67310a5a8b68da14b76967fdac2c89f4.html">Variable packetTime</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="variable_HAPPlatformSpeaker_8h_1a67310a5a8b68da14b76967fdac2c89f4.html#variable-documentation">Variable Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="variable_HAPPlatformSpeaker_8h_1a966bb44deed6e2a14233628ccec4c5b9.html">Variable sampleRate</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="variable_HAPPlatformSpeaker_8h_1a966bb44deed6e2a14233628ccec4c5b9.html#variable-documentation">Variable Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="variable_HAPPlatformCameraInput_8h_1ad04e46c6bbb13ab041f3339f7864daaa.html">Variable sampleTime</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="variable_HAPPlatformCameraInput_8h_1ad04e46c6bbb13ab041f3339f7864daaa.html#variable-documentation">Variable Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="variable_HAPPlatformSpeaker_8h_1a94b687df9daf17664c81583cd6a4ce69.html">Variable speakerStream</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="variable_HAPPlatformSpeaker_8h_1a94b687df9daf17664c81583cd6a4ce69.html#variable-documentation">Variable Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="defines">
+<h2>Defines<a class="headerlink" href="#defines" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="define_HAPPlatformFeatures_8h_1a13a979c2267068196b103e1339bec54b.html">Define HAP_FEATURE_ENABLED</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="define_HAPPlatformFeatures_8h_1a13a979c2267068196b103e1339bec54b.html#define-documentation">Define Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="define_HAPPlatformFeatures_8h_1a97ee108cd50381289752a9e77b523631.html">Define HAP_TESTING</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="define_HAPPlatformFeatures_8h_1a97ee108cd50381289752a9e77b523631.html#define-documentation">Define Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="define_HAPPlatformWiFiManager_8h_1a0ad8b10f2b63ced6642b3eb0e962fc54.html">Define HAPPlatformCountryCode_MaxBytes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="define_HAPPlatformWiFiManager_8h_1a0ad8b10f2b63ced6642b3eb0e962fc54.html#define-documentation">Define Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="define_HAPPlatformWiFiManager_8h_1a7d31f19d27292b19976e0634ff86b488.html">Define HAPPlatformSSID_MaxBytes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="define_HAPPlatformWiFiManager_8h_1a7d31f19d27292b19976e0634ff86b488.html#define-documentation">Define Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="define_HAPPlatformCamera_8h_1af776b22a727aae7c9f4d869d50df47e8.html">Define INET6_ADDRSTRLEN</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="define_HAPPlatformCamera_8h_1af776b22a727aae7c9f4d869d50df47e8.html#define-documentation">Define Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="define_HAPPlatformCamera_8h_1a93b37007689284fd9c4bde1a8f4b9199.html">Define INET_ADDRSTRLEN</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="define_HAPPlatformCamera_8h_1a93b37007689284fd9c4bde1a8f4b9199.html#define-documentation">Define Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="define_HAPPlatformBLEPeripheralManager_8h_1a17fdd0bc23c1955e25f9db91a207ef16.html">Define kHAPPlatformBLEPeripheralManager_MaxAttributeBytes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="define_HAPPlatformBLEPeripheralManager_8h_1a17fdd0bc23c1955e25f9db91a207ef16.html#define-documentation">Define Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1a78eb2ce934981f174b33515905738ac9.html">Define kHAPPlatformDiagnosticsADKLogsFolder</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1a78eb2ce934981f174b33515905738ac9.html#define-documentation">Define Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1a45a0cb165eaddabfbd13c5f1451e08e9.html">Define kHAPPlatformDiagnosticsAudioLogsFolder</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1a45a0cb165eaddabfbd13c5f1451e08e9.html#define-documentation">Define Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1affdb331c00bd978184b199591dd8db55.html">Define kHAPPlatformDiagnosticsBTLogsFolder</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1affdb331c00bd978184b199591dd8db55.html#define-documentation">Define Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1a041473b115029a24ccd7b4ee7156ff99.html">Define kHAPPlatformDiagnosticsConfigFile</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1a041473b115029a24ccd7b4ee7156ff99.html#define-documentation">Define Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1a81f11ed9740f528a270353af0b3e4871.html">Define kHAPPlatformDiagnosticsCrashLogFile</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1a81f11ed9740f528a270353af0b3e4871.html#define-documentation">Define Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1a05f5215233fcc60ca0978ea81692136e.html">Define kHAPPlatformDiagnosticsDmesgFile</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1a05f5215233fcc60ca0978ea81692136e.html#define-documentation">Define Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1ab3e2f0e0fbcc5cb6655f39cf71db7f55.html">Define kHAPPlatformDiagnosticsFolder</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1ab3e2f0e0fbcc5cb6655f39cf71db7f55.html#define-documentation">Define Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1a5cbecba8d373725045439f95b1c65ab2.html">Define kHAPPlatformDiagnosticsFolderPermissions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1a5cbecba8d373725045439f95b1c65ab2.html#define-documentation">Define Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="define_HAPPlatformDiagnosticsLog_8h_1a78b1868b14c7c949b2c41c596fcb995f.html">Define kHAPPlatformDiagnosticsLog1KBytes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="define_HAPPlatformDiagnosticsLog_8h_1a78b1868b14c7c949b2c41c596fcb995f.html#define-documentation">Define Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="define_HAPPlatformDiagnosticsLog_8h_1a384f128d2de2e2264c0ad7f931567fb6.html">Define kHAPPlatformDiagnosticsLogMessageMaxBytes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="define_HAPPlatformDiagnosticsLog_8h_1a384f128d2de2e2264c0ad7f931567fb6.html#define-documentation">Define Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1a253eaafc8086c111279a9c71c9217893.html">Define kHAPPlatformDiagnosticsNumLogFiles</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1a253eaafc8086c111279a9c71c9217893.html#define-documentation">Define Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1afe96f41bdddf000c66b230677be3d90e.html">Define kHAPPlatformDiagnosticsTextFileName</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1afe96f41bdddf000c66b230677be3d90e.html#define-documentation">Define Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1a0522f99b343dcc795d852afa1b9806bd.html">Define kHAPPlatformDiagnosticsZipFileName</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1a0522f99b343dcc795d852afa1b9806bd.html#define-documentation">Define Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1ab6e3574e7b4728237396a7562b90ffc8.html">Define kHAPPlatformDiagnosticsZipUtility</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1ab6e3574e7b4728237396a7562b90ffc8.html#define-documentation">Define Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="define_HAPPlatformMFiTokenAuth_8h_1a3d8c0cdd6aefbefb2f420bf3010e824a.html">Define kHAPPlatformMFiTokenAuth_MaxMFiTokenBytes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="define_HAPPlatformMFiTokenAuth_8h_1a3d8c0cdd6aefbefb2f420bf3010e824a.html#define-documentation">Define Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="define_HAPPlatformWiFiManager_8h_1a99fa8b03efdd907e62b45665cf7faa99.html">Define kHAPPlatformWiFiManagerCookie_Unmanaged</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="define_HAPPlatformWiFiManager_8h_1a99fa8b03efdd907e62b45665cf7faa99.html#define-documentation">Define Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="define_HAPPlatformWiFiManager_8h_1ae9bf8eb6ddb14eb18f3d922e0dc6969a.html">Define kHAPPlatformWiFiManagerUpdateStatus_Unmanaged</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="define_HAPPlatformWiFiManager_8h_1ae9bf8eb6ddb14eb18f3d922e0dc6969a.html#define-documentation">Define Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="typedefs">
+<h2>Typedefs<a class="headerlink" href="#typedefs" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformAccessorySetup_8h_1a726b4597777fb6ca17d4c27434a5159b.html">Typedef HAPPlatformAccessorySetup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformAccessorySetup_8h_1a726b4597777fb6ca17d4c27434a5159b.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformAccessorySetupDisplay_8h_1a6bf847d34defbe3c3540beab57728c4f.html">Typedef HAPPlatformAccessorySetupDisplay</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformAccessorySetupDisplay_8h_1a6bf847d34defbe3c3540beab57728c4f.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformAccessorySetupDisplay_8h_1a61b039829b8dea01909ce8fdd8e16299.html">Typedef HAPPlatformAccessorySetupDisplayRef</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformAccessorySetupDisplay_8h_1a61b039829b8dea01909ce8fdd8e16299.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformAccessorySetupNFC_8h_1ad332637991cb0a29b87acf30815d95cc.html">Typedef HAPPlatformAccessorySetupNFC</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformAccessorySetupNFC_8h_1ad332637991cb0a29b87acf30815d95cc.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformAccessorySetupNFC_8h_1a0a7da861e3b4acf28597332e89d368fc.html">Typedef HAPPlatformAccessorySetupNFCRef</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformAccessorySetupNFC_8h_1a0a7da861e3b4acf28597332e89d368fc.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformAccessorySetup_8h_1a17079ea30243c96293330270c601d967.html">Typedef HAPPlatformAccessorySetupRef</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformAccessorySetup_8h_1a17079ea30243c96293330270c601d967.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformBLEPeripheralManager_8h_1a617b24d8882718fb0aef714b9dd83a56.html">Typedef HAPPlatformBLEPeripheralManager</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformBLEPeripheralManager_8h_1a617b24d8882718fb0aef714b9dd83a56.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformBLEPeripheralManager_8h_1a90307ee9d962b01b58dc09484d1c38f4.html">Typedef HAPPlatformBLEPeripheralManagerAttributeHandle</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformBLEPeripheralManager_8h_1a90307ee9d962b01b58dc09484d1c38f4.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformBLEPeripheralManager_8h_1af7f2ef4b7b0d08f535b0d73555add380.html">Typedef HAPPlatformBLEPeripheralManagerConnectionHandle</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformBLEPeripheralManager_8h_1af7f2ef4b7b0d08f535b0d73555add380.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformBLEPeripheralManager_8h_1a0c50d38977aaa6051406ef57108e4f93.html">Typedef HAPPlatformBLEPeripheralManagerRef</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformBLEPeripheralManager_8h_1a0c50d38977aaa6051406ef57108e4f93.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformCamera_8h_1af7b9db60f367bcfea2f7aef58dca3d20.html">Typedef HAPPlatformCamera</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformCamera_8h_1af7b9db60f367bcfea2f7aef58dca3d20.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformCameraInput_8h_1af11dd9cd238ad14a8919b04d4ef976a9.html">Typedef HAPPlatformCameraInput</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformCameraInput_8h_1af11dd9cd238ad14a8919b04d4ef976a9.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformCameraInput_8h_1ab23476ce126844d057dd9006239c6f67.html">Typedef HAPPlatformCameraInputRef</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformCameraInput_8h_1ab23476ce126844d057dd9006239c6f67.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformCameraInput_8h_1a8fd9dd7da78c74538228b428a584a9d5.html">Typedef HAPPlatformCameraInputStreamRef</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformCameraInput_8h_1a8fd9dd7da78c74538228b428a584a9d5.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformCamera_8h_1a8c8a6c90d86224ed258fbc1d3b9ea27b.html">Typedef HAPPlatformCameraRef</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformCamera_8h_1a8c8a6c90d86224ed258fbc1d3b9ea27b.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformCamera_8h_1a0c79b2aaac63a110d9d5b222335ec54c.html">Typedef HAPPlatformCameraSnapshotReader</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformCamera_8h_1a0c79b2aaac63a110d9d5b222335ec54c.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformCamera_8h_1a0131a1624f07d250c8b1b44191d02ba9.html">Typedef HAPPlatformCameraSnapshotReaderClose</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformCamera_8h_1a0131a1624f07d250c8b1b44191d02ba9.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformCamera_8h_1a47e5ac162d43f2f526e25ad93cd3b413.html">Typedef HAPPlatformCameraSnapshotReaderGetSize</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformCamera_8h_1a47e5ac162d43f2f526e25ad93cd3b413.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformCamera_8h_1aaad4995c9301afa0d9998bb0aa09d0bc.html">Typedef HAPPlatformCameraSnapshotReaderRead</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformCamera_8h_1aaad4995c9301afa0d9998bb0aa09d0bc.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformCameraInput_8h_1a5ec662deb250652ec0e8923f39fbd962.html">Typedef HAPPlatformCameraSnapshotRef</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformCameraInput_8h_1a5ec662deb250652ec0e8923f39fbd962.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformKeyValueStore_8h_1ad727d5b4201757679fd9d05d951cc285.html">Typedef HAPPlatformKeyValueStore</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformKeyValueStore_8h_1ad727d5b4201757679fd9d05d951cc285.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformKeyValueStore_8h_1ab2d16532bf17617db04a656805714531.html">Typedef HAPPlatformKeyValueStoreDomain</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformKeyValueStore_8h_1ab2d16532bf17617db04a656805714531.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformKeyValueStore_8h_1a4fef9c5d25a217c706dc31214b4bf0d6.html">Typedef HAPPlatformKeyValueStoreEnumerateCallback</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformKeyValueStore_8h_1a4fef9c5d25a217c706dc31214b4bf0d6.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformKeyValueStore_8h_1af01373b436350b48f8a69cf17d3f4afd.html">Typedef HAPPlatformKeyValueStoreKey</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformKeyValueStore_8h_1af01373b436350b48f8a69cf17d3f4afd.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformKeyValueStore_8h_1a6b6f86b5900b4dd7730c193949767491.html">Typedef HAPPlatformKeyValueStoreRef</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformKeyValueStore_8h_1a6b6f86b5900b4dd7730c193949767491.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformMFiHWAuth_8h_1a8e57984656de91f609860d7e133dba7c.html">Typedef HAPPlatformMFiHWAuth</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformMFiHWAuth_8h_1a8e57984656de91f609860d7e133dba7c.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformMFiHWAuth_8h_1ac64e58e116e8cf683eda0b197e1f9e0f.html">Typedef HAPPlatformMFiHWAuthRef</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformMFiHWAuth_8h_1ac64e58e116e8cf683eda0b197e1f9e0f.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformMFiTokenAuth_8h_1a0b79e1ee50260c414b97228d093ba7bc.html">Typedef HAPPlatformMFiTokenAuth</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformMFiTokenAuth_8h_1a0b79e1ee50260c414b97228d093ba7bc.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformMFiTokenAuth_8h_1a00107f073ec849574f313a749b0d230f.html">Typedef HAPPlatformMFiTokenAuthRef</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformMFiTokenAuth_8h_1a00107f073ec849574f313a749b0d230f.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformRunLoop_8h_1a59646d983b82ffacc2fdf1a6ebce3c52.html">Typedef HAPPlatformRunLoopCallback</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformRunLoop_8h_1a59646d983b82ffacc2fdf1a6ebce3c52.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformServiceDiscovery_8h_1ad77be5039b88461972c9fc469c2bfada.html">Typedef HAPPlatformServiceDiscovery</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformServiceDiscovery_8h_1ad77be5039b88461972c9fc469c2bfada.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformServiceDiscovery_8h_1a8747ccec9c963651c5d14495a69cf323.html">Typedef HAPPlatformServiceDiscoveryRef</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformServiceDiscovery_8h_1a8747ccec9c963651c5d14495a69cf323.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformSoftwareAccessPoint_8h_1a8ff9e938dd13a1dad9f3f74e83d32d40.html">Typedef HAPPlatformSoftwareAccessPoint</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformSoftwareAccessPoint_8h_1a8ff9e938dd13a1dad9f3f74e83d32d40.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformSoftwareAccessPoint_8h_1a7613edcc656f903c20800d4356705e3a.html">Typedef HAPPlatformSoftwareAccessPointRef</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformSoftwareAccessPoint_8h_1a7613edcc656f903c20800d4356705e3a.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformSpeaker_8h_1a6c2bf047c3c4347ef698e8d3dc32206a.html">Typedef HAPPlatformSpeaker</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformSpeaker_8h_1a6c2bf047c3c4347ef698e8d3dc32206a.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformSpeaker_8h_1abed33a2a34e65d29c42ba31b0a1f2912.html">Typedef HAPPlatformSpeakerRef</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformSpeaker_8h_1abed33a2a34e65d29c42ba31b0a1f2912.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformSpeaker_8h_1a303f2ceacb20e3422941603b834ee35a.html">Typedef HAPPlatformSpeakerStreamRef</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformSpeaker_8h_1a303f2ceacb20e3422941603b834ee35a.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformTCPStreamManager_8h_1add981ba6a4481174160a441b391a628b.html">Typedef HAPPlatformTCPStreamEventCallback</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformTCPStreamManager_8h_1add981ba6a4481174160a441b391a628b.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformTCPStreamManager_8h_1aff377310415528e8bfda97f9cfc14f98.html">Typedef HAPPlatformTCPStreamListenerCallback</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformTCPStreamManager_8h_1aff377310415528e8bfda97f9cfc14f98.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformTCPStreamManager_8h_1aee8d6bd95f133c298d731748be4f8474.html">Typedef HAPPlatformTCPStreamManager</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformTCPStreamManager_8h_1aee8d6bd95f133c298d731748be4f8474.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformTCPStreamManager_8h_1ace01ee5b3a31dd81e542c071461615e6.html">Typedef HAPPlatformTCPStreamManagerRef</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformTCPStreamManager_8h_1ace01ee5b3a31dd81e542c071461615e6.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformTCPStreamManager_8h_1a64e89bc1674589210c0d2356c88603cd.html">Typedef HAPPlatformTCPStreamRef</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformTCPStreamManager_8h_1a64e89bc1674589210c0d2356c88603cd.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformTimer_8h_1a0bd6642fc3db68344040640a1586e79d.html">Typedef HAPPlatformTimerCallback</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformTimer_8h_1a0bd6642fc3db68344040640a1586e79d.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformTimer_8h_1a543404b70a6e7e3acf4ac0d94b100ec9.html">Typedef HAPPlatformTimerRef</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformTimer_8h_1a543404b70a6e7e3acf4ac0d94b100ec9.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformWiFiManager_8h_1a4d66164562bf18aaffa1060590106801.html">Typedef HAPPlatformWiFiManager</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformWiFiManager_8h_1a4d66164562bf18aaffa1060590106801.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformWiFiManager_8h_1aa162656437d30ac6281c87e4b1b216f8.html">Typedef HAPPlatformWiFiManagerCookie</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformWiFiManager_8h_1aa162656437d30ac6281c87e4b1b216f8.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformWiFiManager_8h_1abd658431622c6ae0509048c4558bf0d3.html">Typedef HAPPlatformWiFiManagerRef</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformWiFiManager_8h_1abd658431622c6ae0509048c4558bf0d3.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformWiFiManager_8h_1aced3f9d239bba93a36a2a7dd42c0694b.html">Typedef HAPPlatformWiFiManagerUpdateStatus</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformWiFiManager_8h_1aced3f9d239bba93a36a2a7dd42c0694b.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformCamera_8h_1a49b35c8046416ed8a252587c1b21be00.html">Typedef HAPStaticAssert_AllIpAddressesCanBeRepresented</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformCamera_8h_1a49b35c8046416ed8a252587c1b21be00.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformCamera_8h_1a26dfd7a1fd45d2d61123ce50177806e2.html">Typedef HAPStaticAssert_HAPCameraStreamingStatus</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformCamera_8h_1a26dfd7a1fd45d2d61123ce50177806e2.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformBLEPeripheralManager_8h_1a02fd738e320aeba5b3ff3a870553d667.html">Typedef HAPStaticAssert_HAPPlatformBLEPeripheralManagerDeviceAddress</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformBLEPeripheralManager_8h_1a02fd738e320aeba5b3ff3a870553d667.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformBLEPeripheralManager_8h_1a5eef1b25a267ba7e2f88871a89aad794.html">Typedef HAPStaticAssert_HAPPlatformBLEPeripheralManagerUUID</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformBLEPeripheralManager_8h_1a5eef1b25a267ba7e2f88871a89aad794.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformLog_8h_1a38496e253f95610d1d426a2b70b880b0.html">Typedef HAPStaticAssert_HAPPlatformLogEnabledTypes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformLog_8h_1a38496e253f95610d1d426a2b70b880b0.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformMFiTokenAuth_8h_1ab1ad81495d83820198f3071668f99742.html">Typedef HAPStaticAssert_HAPPlatformMFiTokenAuthUUID</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformMFiTokenAuth_8h_1ab1ad81495d83820198f3071668f99742.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="typedef_HAPPlatformServiceDiscovery_8h_1ae840320ed9cd01601a623f0ce8c4074f.html">Typedef ServiceDiscoveryCallback</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="typedef_HAPPlatformServiceDiscovery_8h_1ae840320ed9cd01601a623f0ce8c4074f.html#typedef-documentation">Typedef Documentation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright © 2021 Apple Inc. All Rights Reserved..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,4 @@
+config USB_PLUG_IN_OUT
+	depends on USB
+	bool "Enable USB Plug In Out"
+	default n

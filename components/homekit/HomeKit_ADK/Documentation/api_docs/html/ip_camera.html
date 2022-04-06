@@ -1,0 +1,608 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>IP Camera &mdash; HomeKit ADK  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/tabs.js"></script>
+        <script src="_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Lock Profile" href="lock_profile.html" />
+    <link rel="prev" title="HomeKit Bridge" href="homekit_bridge.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> HomeKit ADK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="adk_architecture.html">ADK Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adk_directory_structure.html">ADK Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Docker with ADK</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Step-by-step Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started with ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="raspi_setup.html">Raspberry Pi Setup Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bct.html">Bonjour Conformance Test (BCT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wac_on_raspberrypi.html">WAC on Raspberry Pi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_on_darwin.html">Camera on macOS</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Troubleshooting ADK</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="interact_with_applications.html">Interacting with ADK applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="writing_unit_tests.html">Writing Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="debug_adk.html">Debugging ADK Applications</a></li>
+</ul>
+<p class="caption"><span class="caption-text">ADK Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="accessory_development.html">Accessory Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_pairing.html">Accessory Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_authentication.html">Accessory Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="provisioning_tools.html">Provisioning Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ADK_Memory_Usage_and_Requirements.html">Memory Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crypto.html">Cryptographic Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make_options.html">Compile Time Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coding_convention.html">Coding Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration_guide.html">ADK Migration Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">HomeKit Services</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="accessory_diagnostics.html">Accessory Diagnostics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_metrics.html">Accessory Metrics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adaptive_light.html">Adaptive Lighting Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appletv_remote.html">Apple TV Remote</a></li>
+<li class="toctree-l1"><a class="reference internal" href="firmware_update.html">Firmware Update Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="homekit_bridge.html">HomeKit Bridge</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">IP Camera</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#compile">Compile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run">Run</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#camera-streaming">Camera Streaming</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#implementation-details">Implementation Details</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#requirements">Requirements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#hap-implementation">HAP Implementation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pal-implementation">PAL Implementation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ip-camera-for-raspberry-pi">IP Camera for Raspberry Pi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#supporting-aac-eld">Supporting AAC-ELD</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#coexistence-with-non-homekit-a-v-streams">Coexistence with non-HomeKit A/V streams</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#camera-event-recording">Camera Event Recording</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Implementation Details</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id2">Requirements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id3">PAL Implementation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id4">HAP Implementation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lock_profile.html">Lock Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stateless_programmable_switch.html">Stateless Programmable Switch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thread.html">HAP over Thread Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wifi_reconfiguration_feature.html">WiFi Reconfiguration Service</a></li>
+</ul>
+<p class="caption"><span class="caption-text">PAL APIs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_api_docs/dir_PAL.html">Directory PAL</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HomeKit ADK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>IP Camera</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/ip_camera.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="ip-camera">
+<h1>IP Camera<a class="headerlink" href="#ip-camera" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>Cameras and video doorbells are unique in that the HomeKit Accessory Protocol is used for setting up the video
+(and audio) streams for such an accessory, but the actual communication is done via standard protocols like SRTP and
+using standard data formats like H.264. In essence, a HomeKit service is used to configure, start and stop SRTP streams
+that are otherwise completely independent of HomeKit.</p>
+<div class="section" id="compile">
+<h3>Compile<a class="headerlink" href="#compile" title="Permalink to this headline">¶</a></h3>
+<p>You must have all the <a class="reference internal" href="getting_started.html"><span class="doc">prerequisites</span></a> for your development platform to compile the ADK.
+Once all the prerequisites are installed for your platform, run the following to compile ADK sample camera applications:</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-bWFjT1M=" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-0-bWFjT1M=" name="bWFjT1M=" role="tab" tabindex="0">macOS</button><button aria-controls="panel-0-TGludXg=" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-0-TGludXg=" name="TGludXg=" role="tab" tabindex="-1">Linux</button><button aria-controls="panel-0-UmFzcGJlcnJ5IFBp" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-0-UmFzcGJlcnJ5IFBp" name="UmFzcGJlcnJ5IFBp" role="tab" tabindex="-1">Raspberry Pi</button><button aria-controls="panel-0-Tm9yZGljIG5SRjUy" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-0-Tm9yZGljIG5SRjUy" name="Tm9yZGljIG5SRjUy" role="tab" tabindex="-1">Nordic nRF52</button></div><div aria-labelledby="tab-0-bWFjT1M=" class="sphinx-tabs-panel group-tab" id="panel-0-bWFjT1M=" name="bWFjT1M=" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make <span class="nv">TARGET</span><span class="o">=</span>Darwin <span class="nv">APPS</span><span class="o">=</span><span class="s2">&quot;IPCamera IPCameraEventRecorder&quot;</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-TGludXg=" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-0-TGludXg=" name="TGludXg=" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make <span class="nv">TARGET</span><span class="o">=</span>Linux <span class="nv">APPS</span><span class="o">=</span><span class="s2">&quot;IPCamera IPCameraEventRecorder&quot;</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-UmFzcGJlcnJ5IFBp" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-0-UmFzcGJlcnJ5IFBp" name="UmFzcGJlcnJ5IFBp" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make <span class="nv">TARGET</span><span class="o">=</span>Raspi <span class="nv">APPS</span><span class="o">=</span><span class="s2">&quot;IPCamera IPCameraEventRecorder&quot;</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-Tm9yZGljIG5SRjUy" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-0-Tm9yZGljIG5SRjUy" name="Tm9yZGljIG5SRjUy" role="tabpanel" tabindex="0"><div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This feature is currently not supported on this platform.</p>
+</div>
+</div></div>
+</div>
+<div class="section" id="run">
+<h3>Run<a class="headerlink" href="#run" title="Permalink to this headline">¶</a></h3>
+<p>Please follow instructions at <a class="reference external" href="getting_started.html#step-5-running-an-adk-application">Running an ADK Application</a> to
+run an ADK sample application.</p>
+</div>
+</div>
+<div class="section" id="camera-streaming">
+<h2>Camera Streaming<a class="headerlink" href="#camera-streaming" title="Permalink to this headline">¶</a></h2>
+<p>Here is an overview of the data flow within an IP camera:</p>
+<p><img alt="IP Camera Overview" src="_images/ip_camera_overview.png" /></p>
+<div class="section" id="implementation-details">
+<h3>Implementation Details<a class="headerlink" href="#implementation-details" title="Permalink to this headline">¶</a></h3>
+<p>Supporting IP camera functionality in a HomeKit accessory consists of two tasks:</p>
+<ul class="simple">
+<li><p>Handle the HomeKit part of the communication, e.g., to obtain information from the HomeKit controller about the
+desired video resolution for the video stream. This task mainly requires HomeKit know-how. A complete implementation is
+provided in <code class="docutils literal notranslate"><span class="pre">ADK/Applications/IPCamera</span></code>. Change its configuration part to reflect the properties of the camera accessory.</p></li>
+<li><p>Implement what is called the <em>A/V pipeline</em>, which for video means capturing video frames from the camera, encoding
+them into <em>H.264</em>, and streaming the result using the <em>SRTP</em> protocol via a UDP socket to the HomeKit controller. For
+audio it means capturing audio data from the microphone, encoding it using one of the permitted audio formats
+(<em>Opus</em> or <em>AAC-ELD</em>), and streaming it using the <em>SRTP</em> protocol via another UDP socket to the HomeKit controller.
+In addition, there is an audio pipeline for decoding received audio data and forwarding it to a speaker. This task
+mainly requires A/V know-how and experience with the special video processors that are typically used. The result is an
+implementation of the <a class="reference external" href="_api_docs/file_PAL_HAPPlatformCamera.h.html">HAPPlatformCamera</a> PAL API (see IP Camera), plus the
+setup of whatever additional system software is needed.</p></li>
+</ul>
+<div class="section" id="requirements">
+<h4>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h4>
+<p>IP cameras need megabytes of RAM and considerable processing power. Use of dedicated video processing hardware is
+recommended. The hardware must support the following video requirements:</p>
+<ul class="simple">
+<li><p>Codec: <em>H.264</em>, main profile, level 4</p></li>
+<li><p>Resolution: Please read the HomeKit Accessory Protocol Specification for the complete list of supported resolutions.</p></li>
+<li><p>Support for at least two parallel streams: one must support at least <em>1080p&#64;30</em>, the others at least <em>720p&#64;30</em>.</p></li>
+<li><p>In addition, support for <em>JPEG-encoded</em> snapshots.</p></li>
+<li><p>On-the-fly reconfiguration of the video streams (resolution and bitrate).</p></li>
+</ul>
+<p>The hardware must support the following audio requirements:</p>
+<ul class="simple">
+<li><p>Codec: <em>AAC-ELD</em> or <em>Opus</em>, variable bit rate mode</p></li>
+<li><p>Sample rate: <em>16k</em> or <em>24k</em> samples per second</p></li>
+<li><p>The RTP timestamp frequency must be equal to the sample frequency, even for <em>Opus</em></p></li>
+</ul>
+<p>The chipset-specific drivers must also support these requirements. Typically, the chipset vendor needs to supply
+software that acquires the raw data from camera and microphone and encodes it into the standard formats mentioned above.
+This task is performance-critical. Even if a processor with its GPU may have enough raw horsepower to meet all HomeKit
+requirements, the available software may not be sufficient. For example, on a Raspberry Pi, the programs <em>raspivid</em> and
+<em>raspistill</em> appear to monopolize the GPU and only support one stream at the time. For this reason, the camera sample in
+the ADK’s POSIX PAL uses lower-level APIs in order to meet the minimal HomeKit requirements on that hardware. For more
+information, see the <em>HomeKit Accessory Protocol Specification</em>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>H.264 and AAC-ELD require licenses, which may be included with processors that provide special hardware support for
+these standards. It is the licensee’s responsibility to ensure that valid licenses are available</p>
+</div>
+<p>Once the incoming data is in the correct format, in can be forwarded to another component that performs streaming over
+<em>IP</em>. This software must meet the following requirements:</p>
+<ul class="simple">
+<li><p>Protocol: <em>SRTP</em> with <em>AES_CM_128_HMAC_SHA1_80</em> and <em>AES_256_CM_HMAC_SHA1_80</em></p></li>
+<li><p><em>RTP</em> and <em>RTCP</em> packets multiplexed on same port</p></li>
+<li><p>Separate ports for audio and video</p></li>
+<li><p><em>RTCP</em> must support extended feedback and codec control including <em>PLI</em>, <em>FIR</em>, <em>TMMB</em> and <em>TST</em> messages</p></li>
+</ul>
+</div>
+<div class="section" id="hap-implementation">
+<h4>HAP Implementation<a class="headerlink" href="#hap-implementation" title="Permalink to this headline">¶</a></h4>
+<p>In the ADK, HomeKit support for cameras relies on the small number of streaming operations in
+<a class="reference external" href="_api_docs/file_PAL_HAPPlatformCamera.h.html">HAPPlatformCamera.h</a> that must be implemented in some way. Implementation
+of this PAL module is not trivial. There are mainly two ways how this PAL API, which is completely platform-independent
+can be implemented:</p>
+</div>
+<div class="section" id="pal-implementation">
+<h4>PAL Implementation<a class="headerlink" href="#pal-implementation" title="Permalink to this headline">¶</a></h4>
+<p><em>HAPPlatformCamera</em> is completely implemented by licensee, in whatever way that is suitable for the target platform.
+Typically, some existing A/V library is used, such as GStreamer (https://gstreamer.freedesktop.org) or FFmpeg
+(https://www.ffmpeg.org). In principle, this approach can allow getting something up and running quickly and easily.
+In practice, if there are problems or the library does not implement exactly what is needed - or does not provide the
+performance needed - it can become very difficult to find and fix issues, and the system may never get into a state
+where it runs fully reliably or may not fully meet the HomeKit requirements. So, this approach should only be considered
+by licensees that have extensive experience in using their A/V library on their target platform, and have the necessary
+in-depth knowledge to analyze and fix any issues that it may have.</p>
+<p><code class="docutils literal notranslate"><span class="pre">HAPPlatformCamera</span></code> calls the ADK’s own implementation of RTP, called as <em>HAP-RTP</em>.  Apple’s <em>HAP-RTP</em> is a stable,
+efficient, and light-weight protocol implementation of <em>RTP</em>, <em>RTCP</em> and <em>SRTP</em> that meets the HomeKit specifications.
+Technically, this implementation is shipped as part of the HAP Library. Logically, it is independent of HomeKit and thus
+only very loosely coupled with the rest of the HAP Library. It does not need to adapted to a target platform. The
+<em>HAP-RTP</em> introduces and uses the following PAL APIs: <em>CameraInput</em>, <em>Microphone</em> and <em>Speaker</em>. A licensee only needs
+to implement these far simpler helper APIs. If the target platform uses Linux, the sample implementations of the
+<em>Microphone</em> and <em>Speaker</em> modules for the Raspberry Pi can typically be reused with minimal changes only. This approach
+is recommended for most licensees and is described in more detail in the following section of this guide.</p>
+</div>
+<div class="section" id="ip-camera-for-raspberry-pi">
+<h4>IP Camera for Raspberry Pi<a class="headerlink" href="#ip-camera-for-raspberry-pi" title="Permalink to this headline">¶</a></h4>
+<p>The camera input PAL module in <code class="docutils literal notranslate"><span class="pre">ADK/PAL/POSIX/HAPPlatformCameraInput.c</span></code> implements the following video pipeline:</p>
+<p><img alt="IP Camera Pipeline" src="_images/ip_camera_pipeline.png" /></p>
+<p>The figure below shows the dependencies of the main APIs (.h files) and their implementation (.c files):</p>
+<p><img alt="IP Camera Architecture" src="_images/ip_camera_architecture.png" /></p>
+<p>The interface <a class="reference external" href="_api_docs/file_PAL_HAPPlatformCamera.h.html">HAPPlatformCamera.h</a> of the camera PAL module must be
+implemented as defined by the ADK. It controls the A/V streams of the accessory. More information on how to implement
+this PAL module or to adapt the sample implementation is given below.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ADK/Common/Helper/CameraHelper.c</span></code> uses the <code class="docutils literal notranslate"><span class="pre">HAPPlatformCamera+Init.h</span></code> interface to initialize the PAL
+(not shown above). This interface can be defined by the platform developer as needed for the specific PAL implementation.</p></li>
+<li><p>The sample code in <code class="docutils literal notranslate"><span class="pre">HAPPlatformCamera.c</span></code> can be largely reused, i.e., it typically requires few modifications for
+porting from a Raspberry Pi to a different POSIX system. This portability is made possible by the introduction of helper
+APIs for camera input, microphone input, and speaker output.</p></li>
+<li><p>The main interfaces of the <em>CameraInput</em>, <em>Microphone</em> and <em>Speaker</em> PAL modules are portable. The initialization of
+these modules may use platform-specific constructs, i.e. the <code class="docutils literal notranslate"><span class="pre">HAPPlatformCameraInput+Init.h</span></code>,
+<code class="docutils literal notranslate"><span class="pre">HAPPlatformMicrophone+Init.h</span></code>, and <code class="docutils literal notranslate"><span class="pre">HAPPlatformSpeaker+Init.h</span></code> interfaces (not shown above) can be defined by the
+platform developer as needed for the specific PAL implementation.</p></li>
+<li><p>During development, the helper files <code class="docutils literal notranslate"><span class="pre">HAPPlatformLog+Camera.h/.c</span></code> are useful for diagnosing the data being streamed
+by the sample. Normally, only the most important RTP-related information is logged: key frames, errors and statistics.
+For debugging camera-related issues, more extensive logging can be switched on by setting variable logVideoRTP in
+<code class="docutils literal notranslate"><span class="pre">HAPPlatformLog.c</span></code> to true. The format of these packet log lines is documented in the header of
+<code class="docutils literal notranslate"><span class="pre">HAPPlatformLog+Camera.c</span></code>. The main parts of the video packet log lines are:</p></li>
+</ul>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>&lt;id&gt;<span class="o">]</span> h264: &lt;sequence number&gt;, &lt;<span class="nb">time</span> stamp&gt;, &lt;nri&gt;, &lt;NAL-type&gt;
+</pre></div>
+</div>
+<p>Plus additional fields for fragmented and aggregated packets.Similarly, there is a variable logAudioRTP in the same
+header file for the audio data stream that is also set to false by default. The format of the audio packet log lines is:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="o">[</span>&lt;id&gt;<span class="o">]</span> audio: &lt;sequence number&gt;, &lt;<span class="nb">time</span> stamp&gt;
+</pre></div>
+</div>
+<p>Porting to a target platform requires the following tasks:</p>
+<ul class="simple">
+<li><p>If the target platform supports the Broadcom MMAL (Multimedia Abstraction Layer) API, the sample <code class="docutils literal notranslate"><span class="pre">HAPCameraInput</span></code>
+implementation (<code class="docutils literal notranslate"><span class="pre">ADK/PAL/POSIX/HAPPlatformCameraInput.c</span></code>) can be largely reused. For other video APIs,
+<code class="docutils literal notranslate"><span class="pre">HAPCameraInput+init.h</span></code> and <code class="docutils literal notranslate"><span class="pre">HAPCameraInput.c</span></code> will require modifications that are platform-specific.</p></li>
+<li><p>If the target platform supports the Linux ALSA (Advanced Linux Sound Architecture) API, the sample Microphone
+(<code class="docutils literal notranslate"><span class="pre">ADK/PAL/POSIX/HAPPlatformMicrophone.c</span></code>) and Speaker (<code class="docutils literal notranslate"><span class="pre">ADK/PAL/POSIX/HAPPlatformSpeaker.c</span></code>) implementations can be
+largely reused. For other audio APIs, <code class="docutils literal notranslate"><span class="pre">HAPPlatformMicrophone+Init.h</span></code>/<code class="docutils literal notranslate"><span class="pre">HAPPlatformMicrophone.c</span></code> and
+<code class="docutils literal notranslate"><span class="pre">HAPPlatformSpeaker+Init.h</span></code>/<code class="docutils literal notranslate"><span class="pre">HAPPlatformSpeaker.c</span></code> will require modifications that are platform-specific.</p></li>
+<li><p>If the target platform supports POSIX, the camera sample implementations of UDP sockets can be largely reused. Other
+socket APIs will require modifications that are platform-specific.</p></li>
+</ul>
+</div>
+<div class="section" id="supporting-aac-eld">
+<h4>Supporting AAC-ELD<a class="headerlink" href="#supporting-aac-eld" title="Permalink to this headline">¶</a></h4>
+<p>The ADK supports all audio codecs permitted by the HomeKit specification. The camera sample uses <em>Opus</em>. To change the
+sample from <em>Opus</em> to <em>AAC-ELD</em> you have to make the following changes:</p>
+<ul>
+<li><p>Change the codec type in the Supported Audio Configuration in <code class="docutils literal notranslate"><span class="pre">App.c</span></code> from <code class="docutils literal notranslate"><span class="pre">kHAPAudioCodecType_Opus</span></code> to
+<code class="docutils literal notranslate"><span class="pre">kHAPAudioCodecType_AAC_ELD</span></code>.</p></li>
+<li><p>Provide audio input and output PALs similar to <code class="docutils literal notranslate"><span class="pre">HAPPlatformMicrophone.c</span></code> and <code class="docutils literal notranslate"><span class="pre">HAPPlatformSpeaker.c</span></code> supporting <em>AAC</em>
+instead of <em>Opus</em>.</p></li>
+<li><p>In <code class="docutils literal notranslate"><span class="pre">HAPPlatformCamera.HAPPlatformCameraStartStreamingSession()</span></code>:</p>
+<ul class="simple">
+<li><p>Change the assertion</p></li>
+</ul>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="o">(</span>streamConfiguration-&gt;audio.codecType !<span class="o">=</span> kHAPAudioCodecType_Opus<span class="o">)</span>
+</pre></div>
+</div>
+<p>to</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="o">(</span>streamConfiguration-&gt;audio.codecType !<span class="o">=</span> kHAPAudioCodecType_AAC_ELD<span class="o">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Call your function to start the AAC input stream instead of <code class="docutils literal notranslate"><span class="pre">HAPPlatformMicrophoneStartOpusStream()</span></code>.</p></li>
+<li><p>Call your function to start the AAC output stream instead of <code class="docutils literal notranslate"><span class="pre">HAPPlatformSpeakerStartOpusStream()</span></code>.</p></li>
+<li><p><em>NOTE:</em> No changes to the RTP and UDP handling are needed.</p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="coexistence-with-non-homekit-a-v-streams">
+<h4>Coexistence with non-HomeKit A/V streams<a class="headerlink" href="#coexistence-with-non-homekit-a-v-streams" title="Permalink to this headline">¶</a></h4>
+<p>A HomeKit camera may also support other, non-HomeKit controllers. This section contains information on how to implement
+the camera PAL for enabling coexistence between audio/video streams that are used for HomeKit, and others:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformCameraTrySetStreamStatus</span></code> is called by <em>HAP-RTP</em> as soon as a stream should be reserved for HomeKit
+(i.e., Setup Endpoints request is received by the accessory), whereas <code class="docutils literal notranslate"><span class="pre">HAPPlatformCameraStartStreamingSession</span></code> is called
+when streaming on the reserved stream should be started. The HAP Library will only transition from stream status
+<em>Available</em> to <em>In Use</em> and back.</p></li>
+<li><p>You need to call <code class="docutils literal notranslate"><span class="pre">HAPPlatformCameraStartStreamingSession</span></code> on your own in these cases:</p>
+<ul>
+<li><p>You want to end a HomeKit stream before having received an <em>EndStreamingSession</em> command. This scenario occurs for
+example when there is an <em>RTP</em> timeout. In this case, the platform would transition from <em>In Use</em> to <em>Available</em>
+autonomously and report to the HAP Library that this change has occurred.</p></li>
+<li><p>You want to use a non-HomeKit method for streaming, in which case you have to transition from <em>Available</em> to
+<em>Unavailable</em>. While <em>Unavailable</em>, the HAP Library will not attempt to set the stream as <em>In Use</em> and will report
+a different error message to the user. When the stream is available again, you have to transition back from
+<em>Unavailable</em> to <em>Available</em>.</p></li>
+</ul>
+</li>
+<li><p>Notably, you never have to manually transition from <em>Available</em> to <em>In Use</em>, this transition is only made by the
+HAP Library.</p></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="camera-event-recording">
+<h2>Camera Event Recording<a class="headerlink" href="#camera-event-recording" title="Permalink to this headline">¶</a></h2>
+<p>The Camera Event Recording extension adds the ability to record and transfer video sequences. Recording is triggered
+either by a door bell or by a motion detector. In addition, the HomeKit controller may start a recording, without a
+trigger event on the accessory. When not active, the recorder continuously stores data to a prerecording buffer, in
+order to be able to provide a few seconds of video prior to the trigger event. After recording is started, the recorder
+encodes the prerecording buffer and any further incoming video and audio as a fragmented MP4 stream and sends it to the
+controller using a HomeKit Data Stream.</p>
+<p>The recorder extension adds several new HomeKit services and characteristics to the baseline IP Camera profile. In
+particular, the Camera Event Recording Management service is used to query and configure the various recording
+parameters, and the Camera Operating Mode service is used to enable or disable individual features.</p>
+<p>On the audio/video pipeline side, there are two main differences to a baseline camera:</p>
+<ul class="simple">
+<li><p><em>AAC-LC</em> or <em>AAC-ELD</em> (https://en.wikipedia.org/wiki/Advanced_Audio_Coding) are used for audio encoding.</p></li>
+<li><p>Instead of <em>RTP</em>, the recorder encodes the audio/video data as a fragmented MP4 stream and transfers it using the
+<em>HomeKit DataStream (HDS)</em> protocol.</p></li>
+</ul>
+<p>Here an overview of the data flow within an IP camera with the Camera Event Recording extension:</p>
+<p><img alt="IP Camera Event Recording Overview" src="_images/ip_camera_event_recording.png" /></p>
+<p>A recorder is always in one of the following states:</p>
+<p><img alt="IP Camera Event Recorder States" src="_images/ip_camera_event_recorder_states.png" /></p>
+<p>In the above diagram, the transition from <em>Recording</em> to <em>Paused</em> happens when out of memory, from <em>Paused</em> to
+<em>Recording</em> when memory has become available again.</p>
+<div class="section" id="id1">
+<h3>Implementation Details<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id2">
+<h4>Requirements<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<p>Besides the two video streams required already for the baseline camera, support for a third video stream with <em>1080p</em>
+and at least <em>24</em> frames per second is needed in principle. However, the specification allows using only two streams
+(<em>1080p</em> and <em>720p</em>) in total for both live streaming and recording. Additional logic is needed in this case to prevent
+the user from starting a third stream.</p>
+<p>The prerecording buffer must be able to store at least four seconds of data. The recording buffer used after receiving
+the recording trigger must be able to store at least eight seconds of data. A single circular buffer of appropriate
+size can be used for storing both the prerecording and the recording data.</p>
+<p>Note: It is the responsibility of a licensee to obtain the necessary encoder license for <em>AAC</em> encoding. It may come as
+part of the hardware being used.</p>
+</div>
+<div class="section" id="id3">
+<h4>PAL Implementation<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<p>In addition to the code used for the baseline camera, a recorder must implement the part of the
+<a class="reference external" href="_api_docs/file_PAL_HAPPlatformCamera.h.html">HAPPlatformCamera.h</a> interface related to recording. Similar to the
+baseline camera, the licensee is free to use its own implementation or to reuse the code provided as part of the
+Raspberry Pi IPCameraEventRecorder sample.</p>
+<p>This diagram shows the dependencies of the main APIs (.h files) and their implementation (.c files):</p>
+<p><img alt="IP Camera Event Recorder Architecture" src="_images/ip_camera_event_recorder_architecture.png" /></p>
+<p>The recorder sample implements the additional functions in <code class="docutils literal notranslate"><span class="pre">ADK/PAL/Raspi/HAPPlatformCameraRecorder.c</span></code>. The sample uses
+the same PAL modules for video and audio input as the camera sample: <code class="docutils literal notranslate"><span class="pre">HAPPlatformCameraInput</span></code> and
+<code class="docutils literal notranslate"><span class="pre">HAPPlatformMicrophone</span></code>. The <code class="docutils literal notranslate"><span class="pre">AppBase.c</span></code> uses the <code class="docutils literal notranslate"><span class="pre">HAPPlatformCameraRecorder+Init.h</span></code> interface for initializing the PAL.
+This interface can be defined by the platform developer as needed for the specific PAL implementation. The recorder
+sample code can be largely reused. The only POSIX dependency is the usage of the pthread_mutex_t type and the
+corresponding synchronization function calls.</p>
+<p>A battery-driven camera recorder may be implemented with no prerecording. Some changes are needed in the state
+transitions of such a recorder because there is no need for the camera input streams to run continuously if no
+prerecording takes place. <code class="docutils literal notranslate"><span class="pre">HAPPlatformCameraBatteryRecorder.c</span></code> can be used instead of the <code class="docutils literal notranslate"><span class="pre">HAPPlatformCameraRecorder.c</span></code>
+in this case.</p>
+<div class="section" id="implement-a-camera-event-recording-store">
+<h5>Implement a Camera Event Recording Store<a class="headerlink" href="#implement-a-camera-event-recording-store" title="Permalink to this headline">¶</a></h5>
+<p>The sample implementation in <code class="docutils literal notranslate"><span class="pre">HAPPlatformCameraRecorder.c</span></code> implements the recorder store as a single circular buffer
+(queue) used for both prerecording and recording. During prerecording all outdated data (data older than the
+prerecording duration) is immediately discarded. During recording the queue space is fully used to store as much video
+data as possible.</p>
+<p>Properly encoded and interleaved video and audio data is stored in the buffer. For proper interleaving two additional
+small queues are used to synchronize the video and audio streams to each other.</p>
+<p>The following diagrams show the structure of the sample recorder store:</p>
+<p><img alt="IP Camera Event Recorder Store" src="_images/ip_camera_event_recorder_store.png" /></p>
+<p>How to map recordings to HomeKit Data Stream dataSend operations:The Fragmented MP4 standard (ISO/IEC 14496-12, RFC8216)
+is used for representing HomeKit recordings. A recording consists of a header and a sequence of fragments. For HomeKit,
+a fragment must contain a multiplexed and interleaved sequence of video and audio runs. The size of a run is at most
+<em>0.5 seconds</em>. The length of a whole fragment is given by the controller-specified <em>Fragment Duration</em>.</p>
+</div>
+</div>
+<div class="section" id="id4">
+<h4>HAP Implementation<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h4>
+<p>The ADK’s MP4 encoder (<code class="docutils literal notranslate"><span class="pre">HAPFragmentedMP4.h</span></code>) may be used for properly packing the encoded video and audio into the
+Fragmented MP4 container.</p>
+<p>The following diagram shows the structure of a fragmented MP4 file:</p>
+<p><img alt="Fragmented MP4" src="_images/fragmented_mp4.png" /></p>
+<p>The following diagram shows how corresponding video and audio runs are placed in sequence within a fragment, e.g.,
+from time stamp <em>0.5</em> to <em>1.0</em> seconds:</p>
+<p><img alt="Fragmented MP4 Audio Video Run" src="_images/fragmented_mp4_audio_video.png" /></p>
+<p>For sending such a recording to a HomeKit controller, it must be mapped to the <em>HomeKit Data Stream (HDS)</em> dataSend
+protocol. The HAP API provides the functions <code class="docutils literal notranslate"><span class="pre">HAPDataStreamDispatcherCreate</span></code>, <code class="docutils literal notranslate"><span class="pre">HAPDataSendDataStreamProtocolAccept</span></code> and
+<code class="docutils literal notranslate"><span class="pre">HAPDataSendDataStreamProtocolReject</span></code> for setting up a stream, and <code class="docutils literal notranslate"><span class="pre">HAPDataSendDataStreamProtocolSendData</span></code> and
+<code class="docutils literal notranslate"><span class="pre">HAPDataSendDataStreamProtocolCancel</span></code> for sending data and stream termination. See <code class="docutils literal notranslate"><span class="pre">HAPDataStreamProtocols+DataSend.h</span></code>
+for details.</p>
+<p>Most of the activity is done in the callback functions <code class="docutils literal notranslate"><span class="pre">HandleDataSendStreamAvailable</span></code>, <code class="docutils literal notranslate"><span class="pre">HandleDataSendStreamOpen</span></code>,
+<code class="docutils literal notranslate"><span class="pre">HandleDataSendStreamClose</span></code>, and <code class="docutils literal notranslate"><span class="pre">HandleSendDataComplete</span></code> called by the HomeKit Data Stream dispatcher.</p>
+<p>The following diagram shows the important events and calls during a recorder stream:</p>
+<p><img alt="IP Camera Recorder Event Diagram" src="_images/ip_camera_recorder_event_diagram.png" /></p>
+<p><code class="docutils literal notranslate"><span class="pre">HAPDataSendDataStreamProtocolSendData</span></code> takes a list of packets as parameters, and sends the data contained in these
+packets. A packet (<code class="docutils literal notranslate"><span class="pre">type</span> <span class="pre">HAPDataSendDataStreamProtocolPacket</span></code>) contains data, a so-called chunk, plus some metadata
+about this chunk, in particular its sequence number (field dataChunkSequenceNumber). A chunk can contain a small portion
+of a fragment, a full fragment, or multiple fragments. The total size of all packets to be sent in one <em>dataSend</em>
+operation including metadata and protocol headers must be less than 1 MB, but is usually much smaller.</p>
+<p>The following diagram shows the relation between the MP4 fragments and the data stream packets:The data stream packets
+on the right side include the dataType string and the two sequence numbers: the <em>dataSequenceNumber</em> which is always 0
+for the header and <em>fragment number + 1</em> for the fragments and the <em>dataChunkSequenceNumber</em> which enumerates the chunks
+belonging to one fragment.</p>
+<p><img alt="IP Camera Data Stream Packets" src="_images/ip_camera_data_stream_packets.png" /></p>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="lock_profile.html" class="btn btn-neutral float-right" title="Lock Profile" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="homekit_bridge.html" class="btn btn-neutral float-left" title="HomeKit Bridge" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright © 2021 Apple Inc. All Rights Reserved..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

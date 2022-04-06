@@ -1,0 +1,336 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>WAC on Raspberry Pi &mdash; HomeKit ADK  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Camera on macOS" href="camera_on_darwin.html" />
+    <link rel="prev" title="Bonjour Conformance Test (BCT)" href="bct.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> HomeKit ADK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="adk_architecture.html">ADK Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adk_directory_structure.html">ADK Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Docker with ADK</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Step-by-step Guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started with ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="raspi_setup.html">Raspberry Pi Setup Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bct.html">Bonjour Conformance Test (BCT)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">WAC on Raspberry Pi</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#step-1-compiling-adk-application-with-wac">Step 1 - Compiling ADK Application with WAC</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-2-setting-up-authentication">Step 2 - Setting up Authentication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-3-configuring-accessory-using-wac">Step 3 - Configuring accessory using WAC</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="camera_on_darwin.html">Camera on macOS</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Troubleshooting ADK</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="interact_with_applications.html">Interacting with ADK applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="writing_unit_tests.html">Writing Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="debug_adk.html">Debugging ADK Applications</a></li>
+</ul>
+<p class="caption"><span class="caption-text">ADK Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="accessory_development.html">Accessory Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_pairing.html">Accessory Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_authentication.html">Accessory Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="provisioning_tools.html">Provisioning Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ADK_Memory_Usage_and_Requirements.html">Memory Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crypto.html">Cryptographic Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make_options.html">Compile Time Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coding_convention.html">Coding Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration_guide.html">ADK Migration Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">HomeKit Services</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="accessory_diagnostics.html">Accessory Diagnostics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_metrics.html">Accessory Metrics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adaptive_light.html">Adaptive Lighting Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appletv_remote.html">Apple TV Remote</a></li>
+<li class="toctree-l1"><a class="reference internal" href="firmware_update.html">Firmware Update Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="homekit_bridge.html">HomeKit Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ip_camera.html">IP Camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lock_profile.html">Lock Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stateless_programmable_switch.html">Stateless Programmable Switch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thread.html">HAP over Thread Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wifi_reconfiguration_feature.html">WiFi Reconfiguration Service</a></li>
+</ul>
+<p class="caption"><span class="caption-text">PAL APIs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_api_docs/dir_PAL.html">Directory PAL</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HomeKit ADK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>WAC on Raspberry Pi</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/wac_on_raspberrypi.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="wac-on-raspberry-pi">
+<h1>WAC on Raspberry Pi<a class="headerlink" href="#wac-on-raspberry-pi" title="Permalink to this headline">¶</a></h1>
+<p>Please follow the steps below to build, install and test WAC on a Raspberry Pi.</p>
+<p>Pre-requisites:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="#step-1-compiling-adk-application-with-wac">Step 1 - Compiling ADK Application with WAC</a></p></li>
+<li><p><a class="reference external" href="#step-2-setting-up-authentication">Step 2 - Setting up Authentication</a></p></li>
+<li><p><a class="reference external" href="#step-4-configuring-accessory-using-wac">Step 3 - Configuring accessory using WAC</a></p></li>
+</ul>
+<div class="section" id="step-1-compiling-adk-application-with-wac">
+<h2>Step 1 - Compiling ADK Application with WAC<a class="headerlink" href="#step-1-compiling-adk-application-with-wac" title="Permalink to this headline">¶</a></h2>
+<p>Please go through the <a class="reference internal" href="getting_started.html"><span class="doc">Getting started with ADK</span></a> before following the instructions below.</p>
+<details>
+<summary>Compiling with hardware authentication</summary>
+<BR><p>ADK for Raspberry Pi can be compiled using Docker or directly on a connected Raspberry Pi. To test WAC, we must use a
+form of authentication. Either hardware or software authentication can be used.</p>
+<p><strong>Docker</strong></p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make <span class="nv">TARGET</span><span class="o">=</span>Raspi <span class="nv">USE_WAC</span><span class="o">=</span><span class="m">1</span> <span class="nv">USE_HW_AUTH</span><span class="o">=</span><span class="m">1</span> apps
+</pre></div>
+</div>
+<p><strong>Raspberry Pi</strong></p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>./Tools/build_on_target.sh -n &lt;host_name&gt; -p &lt;password&gt; -u &lt;user_name&gt; -c <span class="s2">&quot;TARGET=Raspi DOCKER=0 USE_WAC=1 USE_HW_AUTH=1 apps&quot;</span>
+</pre></div>
+</div>
+</details>
+<BR><details>
+<summary>Compiling with software authentication</summary>
+<BR><p><strong>Docker</strong></p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make <span class="nv">TARGET</span><span class="o">=</span>Raspi <span class="nv">USE_WAC</span><span class="o">=</span><span class="m">1</span> apps
+</pre></div>
+</div>
+<p><strong>Raspberry Pi</strong></p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>./Tools/build_on_target.sh -n &lt;host_name&gt; -p &lt;password&gt; -u &lt;user_name&gt; -c <span class="s2">&quot;TARGET=Raspi DOCKER=0 USE_WAC=1 apps&quot;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Compiling using Docker is slower than compiling on Raspberry Pi directly.</p>
+</div>
+</details>
+<BR></div>
+<div class="section" id="step-2-setting-up-authentication">
+<h2>Step 2 - Setting up Authentication<a class="headerlink" href="#step-2-setting-up-authentication" title="Permalink to this headline">¶</a></h2>
+<p>Please refer to <a class="reference internal" href="accessory_authentication.html"><span class="doc">Accessory Authentication</span></a> for different Authentication types supported by ADK.</p>
+</div>
+<div class="section" id="step-3-configuring-accessory-using-wac">
+<h2>Step 3 - Configuring accessory using WAC<a class="headerlink" href="#step-3-configuring-accessory-using-wac" title="Permalink to this headline">¶</a></h2>
+<details>
+  <summary>Using HAT</summary>
+<BR><p>If the accessory has a previous configuration, either factory reset the accessory or just delete the network block in
+<code class="docutils literal notranslate"><span class="pre">/etc/wpa_supplicant/wpa_supplicant.conf</span></code> and restart the raspberry pi.</p>
+<ul class="simple">
+<li><p>Pair the accessory with HAT using the set up code used to run the application.</p></li>
+<li><p>Make sure accessory is advertising on _hap._tcp. You can use the Discovery app for macOS available on the mac app store.</p></li>
+<li><p>Use Wi-Fi Accessory Configuration (WAC2) section in HAT to populate the Wifi SSID and PSK.</p></li>
+<li><p>Click the Send WAC configuration button.</p></li>
+<li><p>Wait until the accessory is connected to HAT again to use the accessory.</p></li>
+</ul>
+</details>
+<BR><details>
+  <summary>Using iOS</summary>
+<BR><ul class="simple">
+<li><p>Go to Home App on iOS.</p></li>
+<li><p>Make sure accessory is advertising on _hap._tcp. You can use the Discovery app for macOS available on the mac app store.</p></li>
+<li><p>Click on + on the top right corner. Click Add Accessory.</p></li>
+<li><p>Click More options.</p></li>
+<li><p>It will show all accessories currently advertising. Choose your accessory.</p></li>
+<li><p>The accessory should be added now. You can add it to a specific room or set automation.</p></li>
+<li><p>The accessory should now be ready for use.</p></li>
+</ul>
+</details>
+<BR></div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="camera_on_darwin.html" class="btn btn-neutral float-right" title="Camera on macOS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="bct.html" class="btn btn-neutral float-left" title="Bonjour Conformance Test (BCT)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright © 2021 Apple Inc. All Rights Reserved..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

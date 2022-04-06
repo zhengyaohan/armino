@@ -1,0 +1,453 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Getting started with ADK &mdash; HomeKit ADK  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/tabs.js"></script>
+        <script src="_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Raspberry Pi Setup Guide" href="raspi_setup.html" />
+    <link rel="prev" title="Docker with ADK" href="docker.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> HomeKit ADK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="adk_architecture.html">ADK Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adk_directory_structure.html">ADK Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Docker with ADK</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Step-by-step Guides</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting started with ADK</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#step-1-setting-up-a-development-platform">Step 1 - Setting up a Development Platform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-2-setting-up-an-accessory-platform">Step 2 - Setting up an Accessory Platform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-3-compiling-an-adk-application">Step 3 - Compiling an ADK Application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-4-provisioning-an-adk-application">Step 4 - Provisioning an ADK Application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-5-running-an-adk-application">Step 5 - Running an ADK Application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-options">Advanced Options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="raspi_setup.html">Raspberry Pi Setup Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bct.html">Bonjour Conformance Test (BCT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wac_on_raspberrypi.html">WAC on Raspberry Pi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_on_darwin.html">Camera on macOS</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Troubleshooting ADK</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="interact_with_applications.html">Interacting with ADK applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="writing_unit_tests.html">Writing Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="debug_adk.html">Debugging ADK Applications</a></li>
+</ul>
+<p class="caption"><span class="caption-text">ADK Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="accessory_development.html">Accessory Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_pairing.html">Accessory Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_authentication.html">Accessory Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="provisioning_tools.html">Provisioning Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ADK_Memory_Usage_and_Requirements.html">Memory Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crypto.html">Cryptographic Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make_options.html">Compile Time Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coding_convention.html">Coding Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration_guide.html">ADK Migration Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">HomeKit Services</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="accessory_diagnostics.html">Accessory Diagnostics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_metrics.html">Accessory Metrics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adaptive_light.html">Adaptive Lighting Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appletv_remote.html">Apple TV Remote</a></li>
+<li class="toctree-l1"><a class="reference internal" href="firmware_update.html">Firmware Update Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="homekit_bridge.html">HomeKit Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ip_camera.html">IP Camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lock_profile.html">Lock Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stateless_programmable_switch.html">Stateless Programmable Switch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thread.html">HAP over Thread Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wifi_reconfiguration_feature.html">WiFi Reconfiguration Service</a></li>
+</ul>
+<p class="caption"><span class="caption-text">PAL APIs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_api_docs/dir_PAL.html">Directory PAL</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HomeKit ADK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Getting started with ADK</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/getting_started.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="getting-started-with-adk">
+<h1>Getting started with ADK<a class="headerlink" href="#getting-started-with-adk" title="Permalink to this headline">¶</a></h1>
+<p>These steps will help you get started with building an ADK accessory.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="#step-1-setting-up-a-development-platform">Step 1 - Setting up a Development Platform</a></p></li>
+<li><p><a class="reference external" href="#step-2-setting-up-an-accessory-platform">Step 2 - Setting up an Accessory Platform</a></p></li>
+<li><p><a class="reference external" href="#step-3-compiling-an-adk-application">Step 3 - Compiling an ADK Application</a></p></li>
+<li><p><a class="reference external" href="#step-4-provisioning-an-adk-application">Step 4 - Provisioning an ADK Application</a></p></li>
+<li><p><a class="reference external" href="#step-5-running-an-adk-application">Step 5 - Running an ADK Application</a></p></li>
+</ul>
+<div class="section" id="step-1-setting-up-a-development-platform">
+<h2>Step 1 - Setting up a Development Platform<a class="headerlink" href="#step-1-setting-up-a-development-platform" title="Permalink to this headline">¶</a></h2>
+<p>Please make sure to setup your development platform, specifically macOS, even if you are targeting other accessory
+platforms such as Raspberry Pi. This is needed because the tools required to provision the accessories are run on macOS.</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-bWFjT1M=" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-0-bWFjT1M=" name="bWFjT1M=" role="tab" tabindex="0">macOS</button><button aria-controls="panel-0-TGludXg=" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-0-TGludXg=" name="TGludXg=" role="tab" tabindex="-1">Linux</button><button aria-controls="panel-0-UmFzcGJlcnJ5IFBp" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-0-UmFzcGJlcnJ5IFBp" name="UmFzcGJlcnJ5IFBp" role="tab" tabindex="-1">Raspberry Pi</button><button aria-controls="panel-0-Tm9yZGljIG5SRjUy" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-0-Tm9yZGljIG5SRjUy" name="Tm9yZGljIG5SRjUy" role="tab" tabindex="-1">Nordic nRF52</button></div><div aria-labelledby="tab-0-bWFjT1M=" class="sphinx-tabs-panel group-tab" id="panel-0-bWFjT1M=" name="bWFjT1M=" role="tabpanel" tabindex="0"><p>Please follow the steps below to install the required dependencies.</p>
+<ul class="simple">
+<li><p>Download and install <a class="reference external" href="https://developer.apple.com/download/more/">Xcode</a>. Minimum required version is
+<em>Xcode 11</em>.</p></li>
+<li><p>Download and install <a class="reference external" href="https://developer.apple.com/download/more/">Command Line Tools</a> for the corresponding
+Xcode.</p></li>
+<li><p>Set the path for the active developer directory <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">xcode-select</span> <span class="pre">-s</span> <span class="pre">&lt;xcode_path&gt;/Contents/Developer</span></code>.</p></li>
+<li><p>List of macOS dependencies can be found at  <a class="reference internal" href="darwin_dependencies.html"><span class="doc">macOS ADK dependencies</span></a>.</p></li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Run docker (Look in Spotlight/Applications folder). Make sure you go to <code class="docutils literal notranslate"><span class="pre">Docker</span> <span class="pre">→</span> <span class="pre">Preferences</span> <span class="pre">→</span> <span class="pre">General</span></code> and
+check the option → <code class="docutils literal notranslate"><span class="pre">Start</span> <span class="pre">Docker</span> <span class="pre">Desktop</span> <span class="pre">when</span> <span class="pre">you</span> <span class="pre">log</span> <span class="pre">in</span></code>. This needs to be done only once after installing
+Docker.</p>
+</div>
+</div><div aria-labelledby="tab-0-TGludXg=" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-0-TGludXg=" name="TGludXg=" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo apt install docker
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>ADK uses <a class="reference external" href="https://www.docker.com/">Docker</a> by default to compile code on Linux. This can be turned off by
+setting <code class="docutils literal notranslate"><span class="pre">DOCKER=0</span></code> when compiling ADK.</p>
+</div>
+</div><div aria-labelledby="tab-0-UmFzcGJlcnJ5IFBp" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-0-UmFzcGJlcnJ5IFBp" name="UmFzcGJlcnJ5IFBp" role="tabpanel" tabindex="0"><p>The Raspberry Pi development requires a macOS or a Linux machine. Please follow instructions for your
+respective development platform.</p>
+</div><div aria-labelledby="tab-0-Tm9yZGljIG5SRjUy" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-0-Tm9yZGljIG5SRjUy" name="Tm9yZGljIG5SRjUy" role="tabpanel" tabindex="0"><p>The Nordic nRF52 development requires a macOS or a Linux machine. Please follow instructions for your
+respective development platform.</p>
+</div></div>
+</div>
+<div class="section" id="step-2-setting-up-an-accessory-platform">
+<h2>Step 2 - Setting up an Accessory Platform<a class="headerlink" href="#step-2-setting-up-an-accessory-platform" title="Permalink to this headline">¶</a></h2>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-bWFjT1M=" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-1-bWFjT1M=" name="bWFjT1M=" role="tab" tabindex="0">macOS</button><button aria-controls="panel-1-TGludXg=" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-1-TGludXg=" name="TGludXg=" role="tab" tabindex="-1">Linux</button><button aria-controls="panel-1-UmFzcGJlcnJ5IFBp" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-1-UmFzcGJlcnJ5IFBp" name="UmFzcGJlcnJ5IFBp" role="tab" tabindex="-1">Raspberry Pi</button><button aria-controls="panel-1-Tm9yZGljIG5SRjUy" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-1-Tm9yZGljIG5SRjUy" name="Tm9yZGljIG5SRjUy" role="tab" tabindex="-1">Nordic nRF52</button></div><div aria-labelledby="tab-1-bWFjT1M=" class="sphinx-tabs-panel group-tab" id="panel-1-bWFjT1M=" name="bWFjT1M=" role="tabpanel" tabindex="0"><p>Please follow the steps at <a class="reference external" href="#step-1-setting-up-a-development-platform">Setting up a Development Platform</a> to
+setup a macOS as an accessory platform.</p>
+</div><div aria-labelledby="tab-1-TGludXg=" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-1-TGludXg=" name="TGludXg=" role="tabpanel" tabindex="0"><p>If you already have setup your development platform then no additional steps are required to run a Linux ADK
+accessory.</p>
+</div><div aria-labelledby="tab-1-UmFzcGJlcnJ5IFBp" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-1-UmFzcGJlcnJ5IFBp" name="UmFzcGJlcnJ5IFBp" role="tabpanel" tabindex="0"><p>Please follow our detailed <a class="reference internal" href="raspi_setup.html"><span class="doc">Raspberry Pi Setup Guide</span></a> to get started with using a Raspberry
+Pi as an ADK accessory.</p>
+</div><div aria-labelledby="tab-1-Tm9yZGljIG5SRjUy" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-1-Tm9yZGljIG5SRjUy" name="Tm9yZGljIG5SRjUy" role="tabpanel" tabindex="0"><p>HomeKitADK come with built in support for
+<a class="reference external" href="https://www.nordicsemi.com/Software-and-Tools/Development-Kits/nRF52840-DK">Nordic nRF52840</a>.</p>
+</div></div>
+</div>
+<div class="section" id="step-3-compiling-an-adk-application">
+<h2>Step 3 - Compiling an ADK Application<a class="headerlink" href="#step-3-compiling-an-adk-application" title="Permalink to this headline">¶</a></h2>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-2-bWFjT1M=" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-2-bWFjT1M=" name="bWFjT1M=" role="tab" tabindex="0">macOS</button><button aria-controls="panel-2-TGludXg=" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-2-TGludXg=" name="TGludXg=" role="tab" tabindex="-1">Linux</button><button aria-controls="panel-2-UmFzcGJlcnJ5IFBp" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-2-UmFzcGJlcnJ5IFBp" name="UmFzcGJlcnJ5IFBp" role="tab" tabindex="-1">Raspberry Pi</button><button aria-controls="panel-2-Tm9yZGljIG5SRjUy" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-2-Tm9yZGljIG5SRjUy" name="Tm9yZGljIG5SRjUy" role="tab" tabindex="-1">Nordic nRF52</button></div><div aria-labelledby="tab-2-bWFjT1M=" class="sphinx-tabs-panel group-tab" id="panel-2-bWFjT1M=" name="bWFjT1M=" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make <span class="nv">TARGET</span><span class="o">=</span>Darwin apps
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Darwin accessory development is only supported on macOS platform.</p>
+</div>
+</div><div aria-labelledby="tab-2-TGludXg=" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-2-TGludXg=" name="TGludXg=" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make <span class="nv">TARGET</span><span class="o">=</span>Linux apps
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-2-UmFzcGJlcnJ5IFBp" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-2-UmFzcGJlcnJ5IFBp" name="UmFzcGJlcnJ5IFBp" role="tabpanel" tabindex="0"><p>ADK for Raspberry Pi can be compiled using Docker or directly on a connected Raspberry Pi.</p>
+<p><strong>Docker</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make <span class="nv">TARGET</span><span class="o">=</span>Raspi apps
+</pre></div>
+</div>
+<p><strong>Raspberry Pi</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./Tools/build_on_target.sh -n &lt;host_name&gt; -p &lt;password&gt; -u &lt;user_name&gt; -c <span class="s2">&quot;TARGET=Raspi DOCKER=0 apps&quot;</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-2-Tm9yZGljIG5SRjUy" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-2-Tm9yZGljIG5SRjUy" name="Tm9yZGljIG5SRjUy" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make <span class="nv">TARGET</span><span class="o">=</span>nRF52 apps
+</pre></div>
+</div>
+</div></div>
+</div>
+<div class="section" id="step-4-provisioning-an-adk-application">
+<h2>Step 4 - Provisioning an ADK Application<a class="headerlink" href="#step-4-provisioning-an-adk-application" title="Permalink to this headline">¶</a></h2>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-3-bWFjT1M=" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-3-bWFjT1M=" name="bWFjT1M=" role="tab" tabindex="0">macOS</button><button aria-controls="panel-3-UmFzcGJlcnJ5IFBp" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-3-UmFzcGJlcnJ5IFBp" name="UmFzcGJlcnJ5IFBp" role="tab" tabindex="-1">Raspberry Pi</button><button aria-controls="panel-3-Tm9yZGljIG5SRjUy" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-3-Tm9yZGljIG5SRjUy" name="Tm9yZGljIG5SRjUy" role="tab" tabindex="-1">Nordic nRF52</button></div><div aria-labelledby="tab-3-bWFjT1M=" class="sphinx-tabs-panel group-tab" id="panel-3-bWFjT1M=" name="bWFjT1M=" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./Tools/install.sh <span class="se">\</span>
+  -d macOS <span class="se">\</span>
+  -t &lt;protocol&gt; <span class="se">\</span>
+  -a Output/Darwin-x86_64-apple-darwin<span class="k">$(</span>uname -r<span class="k">)</span>/Debug/&lt;protocol&gt;/Applications/&lt;app_name&gt;.OpenSSL <span class="se">\</span>
+  -c &lt;category&gt; <span class="se">\</span>
+  -k <span class="se">\</span>
+  -i
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-3-UmFzcGJlcnJ5IFBp" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-3-UmFzcGJlcnJ5IFBp" name="UmFzcGJlcnJ5IFBp" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./Tools/install.sh <span class="se">\</span>
+  -d raspi <span class="se">\</span>
+  -t &lt;protocol&gt; <span class="se">\</span>
+  -a Output/Raspi-armv6k-unknown-linux-gnueabihf/Debug/&lt;protocol&gt;/Applications/&lt;app_name&gt;.OpenSSL <span class="se">\</span>
+  -n &lt;host_name&gt; <span class="se">\</span>
+  -u &lt;user&gt; <span class="se">\</span>
+  -p &lt;password&gt; <span class="se">\</span>
+  -c &lt;category&gt; <span class="se">\</span>
+  -k <span class="se">\</span>
+  -i
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-n</span></code> [Optional] argument can be provided to specify raspberry pi host name. Default is <code class="docutils literal notranslate"><span class="pre">raspberrypi</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-u</span></code> [Optional] argument can be provided to specify raspberry pi user name. Default is <code class="docutils literal notranslate"><span class="pre">pi</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-p</span></code> [Optional] argument can be provided to specify raspberry pi password. Default is <code class="docutils literal notranslate"><span class="pre">raspberry</span></code>.</p></li>
+</ul>
+</div><div aria-labelledby="tab-3-Tm9yZGljIG5SRjUy" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-3-Tm9yZGljIG5SRjUy" name="Tm9yZGljIG5SRjUy" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./Tools/install.sh <span class="se">\</span>
+  -d nRF52 <span class="se">\</span>
+  -a Output/nRF52-arm-none-eabi/Debug/BLE/Applications/&lt;app_name&gt;.Oberon <span class="se">\</span>
+  -s &lt;serial_number&gt; <span class="se">\</span>
+  -c &lt;category&gt; <span class="se">\</span>
+  -k <span class="se">\</span>
+  -i
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-s</span></code> [Optional] argument can be provided to specify the serial number of a connected nRF52
+board if more than one nRF52 boards are connected to your host platform. The <code class="docutils literal notranslate"><span class="pre">&lt;serial</span> <span class="pre">number&gt;</span></code> is either
+printed on the boards or displayed on the selected device.</p></li>
+</ul>
+</div></div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-t</span></code> [Optional] argument can be provided to specify the transport type. Possible values are <em>ip</em>, <em>ble</em> or
+<em>thread</em>. Defaults to <em>ble</em> if not provided.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-c</span></code> [Optional] argument can be provided to specify the category of the device. Defaults to category <em>5</em> for
+<em>Lightbulb</em>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-k</span></code> [Optional] argument can be provided to create a key-value store with a default setup code of <em>111-22-333</em>.
+Setting this option clears up the previous key-value store store. So, if you don’t want to have to pair the application
+again with Home app on your iOS device the next time you run the application please make sure to <em>not include</em> the
+this argument.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-i</span></code> [Optional] argument can be provided to only generate the provisioning information but not run the application.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Please run <cite>./Tools/install.sh -h</cite> to get more information about this tool.</p>
+</div>
+</div>
+<div class="section" id="step-5-running-an-adk-application">
+<h2>Step 5 - Running an ADK Application<a class="headerlink" href="#step-5-running-an-adk-application" title="Permalink to this headline">¶</a></h2>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-4-bWFjT1M=" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-4-bWFjT1M=" name="bWFjT1M=" role="tab" tabindex="0">macOS</button><button aria-controls="panel-4-TGludXg=" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-4-TGludXg=" name="TGludXg=" role="tab" tabindex="-1">Linux</button><button aria-controls="panel-4-UmFzcGJlcnJ5IFBp" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-4-UmFzcGJlcnJ5IFBp" name="UmFzcGJlcnJ5IFBp" role="tab" tabindex="-1">Raspberry Pi</button><button aria-controls="panel-4-Tm9yZGljIG5SRjUy" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-4-Tm9yZGljIG5SRjUy" name="Tm9yZGljIG5SRjUy" role="tab" tabindex="-1">Nordic nRF52</button></div><div aria-labelledby="tab-4-bWFjT1M=" class="sphinx-tabs-panel group-tab" id="panel-4-bWFjT1M=" name="bWFjT1M=" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./Output/Darwin-x86_64-apple-darwin<span class="k">$(</span>uname -r<span class="k">)</span>/Debug/&lt;protocol&gt;/Applications/&lt;app_name&gt;.OpenSSL
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-4-TGludXg=" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-4-TGludXg=" name="TGludXg=" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./Output/Linux-x86_64-pc-linux-gnu/Debug/IP/Applications/&lt;app_name&gt;.OpenSSL
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-4-UmFzcGJlcnJ5IFBp" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-4-UmFzcGJlcnJ5IFBp" name="UmFzcGJlcnJ5IFBp" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./Tools/install.sh <span class="se">\</span>
+  -d raspi <span class="se">\</span>
+  -a Output/Raspi-armv6k-unknown-linux-gnueabihf/Debug/&lt;protocol&gt;/Applications/&lt;app_name&gt;.OpenSSL <span class="se">\</span>
+  -n &lt;host_name&gt; <span class="se">\</span>
+  -u &lt;user&gt; <span class="se">\</span>
+  -p &lt;password&gt;
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-n</span></code> [Optional] argument can be provided to specify raspberry pi host name. Default is <code class="docutils literal notranslate"><span class="pre">raspberrypi</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-u</span></code> [Optional] argument can be provided to specify raspberry pi user name. Default is <code class="docutils literal notranslate"><span class="pre">pi</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-p</span></code> [Optional] argument can be provided to specify raspberry pi password. Default is <code class="docutils literal notranslate"><span class="pre">raspberry</span></code>.</p></li>
+</ul>
+</div><div aria-labelledby="tab-4-Tm9yZGljIG5SRjUy" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-4-Tm9yZGljIG5SRjUy" name="Tm9yZGljIG5SRjUy" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./Tools/install.sh <span class="se">\</span>
+  -d nRF52 <span class="se">\</span>
+  -a Output/nRF52-arm-none-eabi/Debug/BLE/Applications/&lt;app_name&gt;.Oberon <span class="se">\</span>
+  -s &lt;serial_number&gt;
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-s</span></code> [Optional] argument can be passed to the script to specify the serial number of a
+connected nRF52 board if more than one nRF52 boards are connected to your host platform. The <code class="docutils literal notranslate"><span class="pre">&lt;serial</span> <span class="pre">number&gt;</span></code>
+is either printed on the boards or displayed on the selected device.</p></li>
+</ul>
+</div></div>
+</div>
+<div class="section" id="advanced-options">
+<h2>Advanced Options<a class="headerlink" href="#advanced-options" title="Permalink to this headline">¶</a></h2>
+<p>Please refer to <a class="reference internal" href="make_options.html"><span class="doc">ADK Compile Time Options</span></a> to see a list of most common compile time options
+available to compile ADK. Please refer to <a class="reference external" href="index.html#homekit-services">HomeKit Services</a> section to see compile time
+options available to compile specific HomeKit Services and Profiles.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="raspi_setup.html" class="btn btn-neutral float-right" title="Raspberry Pi Setup Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="docker.html" class="btn btn-neutral float-left" title="Docker with ADK" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright © 2021 Apple Inc. All Rights Reserved..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

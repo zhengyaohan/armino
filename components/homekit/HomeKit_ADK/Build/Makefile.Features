@@ -1,0 +1,286 @@
+# Resetting these variables before adding them to CFLAGS later to avoid duplicate feature flags
+FEATURES_APP :=
+FEATURES_IP :=
+FEATURES_BLE :=
+FEATURES_TEST :=
+
+##################################################
+# Enable Dynamic QRCode generation for Accessories
+##################################################
+USE_DISPLAY ?= 0
+FEATURES_APP += HAVE_DISPLAY=$(USE_DISPLAY)
+
+############################
+# Enable WAC for Accessories
+############################
+USE_WAC ?= 0
+FEATURES_APP += HAVE_WAC=$(USE_WAC)
+FEATURES_IP += HAP_FEATURE_WAC=$(USE_WAC)
+
+############################
+# Enable NFC for Accessories
+############################
+USE_NFC ?= 0
+FEATURES_APP += HAVE_NFC=$(USE_NFC)
+FEATURES_IP += HAP_FEATURE_NFC=$(USE_NFC)
+FEATURES_BLE += HAP_FEATURE_NFC=$(USE_NFC)
+FEATURES_THREAD += HAP_FEATURE_NFC=$(USE_NFC)
+
+################################################
+# Enable Hardware Authentication for Accessories
+################################################
+USE_HW_AUTH ?= 0
+FEATURES_APP += HAVE_MFI_HW_AUTH=$(USE_HW_AUTH)
+FEATURES_IP += HAP_FEATURE_MFI_HW_AUTH=$(USE_HW_AUTH)
+FEATURES_BLE += HAP_FEATURE_MFI_HW_AUTH=$(USE_HW_AUTH)
+FEATURES_THREAD += HAP_FEATURE_MFI_HW_AUTH=$(USE_HW_AUTH)
+
+################################################
+# Enable MFi token Authentication for Accessories
+################################################
+USE_TOKEN_AUTH ?= 1
+FEATURES_APP += HAVE_MFI_TOKEN_AUTH=$(USE_TOKEN_AUTH)
+FEATURES_IP += HAP_FEATURE_MFI_TOKEN_AUTH=$(USE_TOKEN_AUTH)
+FEATURES_BLE += HAP_FEATURE_MFI_TOKEN_AUTH=$(USE_TOKEN_AUTH)
+FEATURES_THREAD += HAP_FEATURE_MFI_TOKEN_AUTH=$(USE_TOKEN_AUTH)
+
+########################################################
+# Enable dynamic memory support for IP based accessories
+########################################################
+HAP_DYNAMIC_MEMORY_ALLOCATION ?= 0
+FEATURES_IP += HAP_DYNAMIC_MEMORY_ALLOCATION=$(HAP_DYNAMIC_MEMORY_ALLOCATION)
+
+##################################################
+# Enable Siri functionality for Remote Application
+##################################################
+USE_SIRI_REMOTE ?= 1
+FEATURES_APP += HAP_SIRI_REMOTE=$(USE_SIRI_REMOTE)
+
+################################################################
+# Enable support for color temperature for Lightbulb Application
+################################################################
+USE_COLOR_TEMPERATURE ?= 1
+FEATURES_APP += HAVE_COLOR_TEMPERATURE=$(USE_COLOR_TEMPERATURE)
+
+########################################################
+# Enable Adaptive Light support in Lightbulb Application
+########################################################
+HAP_ADAPTIVE_LIGHT ?= 0
+FEATURES_APP += HAVE_ADAPTIVE_LIGHT=$(HAP_ADAPTIVE_LIGHT)
+
+############################################################
+# Enable support for portrait mode for IPCamera Applications
+############################################################
+USE_PORTRAIT_MODE ?= 0
+FEATURES_APP += HAVE_PORTRAIT_MODE=$(USE_PORTRAIT_MODE)
+
+######################################################################
+# Enable battery camera recorder for IPCameraEventRecorder Application
+######################################################################
+USE_BATTERY_POWERED_CAMERA_RECORDER ?= 0
+FEATURES_APP += HAVE_BATTERY_POWERED_RECORDER=$(USE_BATTERY_POWERED_CAMERA_RECORDER)
+FEATURES_IP += HAP_FEATURE_BATTERY_POWERED_RECORDER=$(USE_BATTERY_POWERED_CAMERA_RECORDER)
+
+##################################################
+# Enable silent mode for VideoDoorbell Application
+##################################################
+HAP_VIDEODOORBELL_SILENT_MODE ?= 0
+FEATURES_APP += HAVE_VIDEODOORBELL_SILENT_MODE=$(HAP_VIDEODOORBELL_SILENT_MODE)
+
+######################################################
+# Enable opertaing state for VideoDoorbell Application
+######################################################
+HAP_VIDEODOORBELL_OPERATING_STATE ?= 0
+FEATURES_APP += HAVE_VIDEODOORBELL_OPERATING_STATE=$(HAP_VIDEODOORBELL_OPERATING_STATE)
+
+#####################################################
+# Features applicable to all Thread based accessories
+#####################################################
+FEATURES_THREAD += \
+	OPENTHREAD_ENABLE_APPLICATION_COAP=1 \
+	THREAD_DEVKIT_ADK=1
+
+###############################################################
+# Enable Full Thread device capabilities for Thread accessories
+###############################################################
+USE_MTD ?= 0
+OT_FTD=1
+ifeq ($(USE_MTD),1)
+    OT_FTD=0
+endif
+FEATURES_THREAD += OPENTHREAD_FTD=$(OT_FTD)
+
+###########################################################################
+# Enables Stop Server After Thread Unpair Example for Lightbulb Application
+###########################################################################
+HAP_THREAD_DECOMMISSION_ON_UNPAIR ?= 0
+FEATURES_APP += HAVE_THREAD_DECOMMISSION_ON_UNPAIR=$(HAP_THREAD_DECOMMISSION_ON_UNPAIR)
+
+#######################################
+# Enable Accessory Reachability Service
+#######################################
+ifeq ($(PROTOCOLS),THREAD)
+    HAP_ACCESSORY_REACHABILITY ?= 1
+endif
+HAP_ACCESSORY_REACHABILITY ?= 0
+FEATURES_APP += HAVE_ACCESSORY_REACHABILITY=$(HAP_ACCESSORY_REACHABILITY)
+
+############################################
+# Enable Wi-Fi Configuration Control Service
+############################################
+HAP_WIFI_RECONFIGURATION ?= 0
+FEATURES_APP += HAVE_WIFI_RECONFIGURATION=$(HAP_WIFI_RECONFIGURATION)
+FEATURES_IP += HAP_FEATURE_WIFI_RECONFIGURATION=$(HAP_WIFI_RECONFIGURATION)
+
+###############################
+# Enable HDS Transport over HAP
+###############################
+# This is required for BLE accessories using HDS (UARP/Diagnostics/Metrics)
+HAP_HDS_TRANSPORT_OVER_HAP ?= 1
+FEATURES_APP += HAVE_HDS_TRANSPORT_OVER_HAP=$(HAP_HDS_TRANSPORT_OVER_HAP)
+FEATURES_IP += HAP_FEATURE_HDS_TRANSPORT_OVER_HAP=$(HAP_HDS_TRANSPORT_OVER_HAP)
+FEATURES_BLE += HAP_FEATURE_HDS_TRANSPORT_OVER_HAP=$(HAP_HDS_TRANSPORT_OVER_HAP)
+FEATURES_THREAD += HAP_FEATURE_HDS_TRANSPORT_OVER_HAP=$(HAP_HDS_TRANSPORT_OVER_HAP)
+
+#################################################
+# Enable Access Code service for Lock Application
+#################################################
+# Access Code service
+USE_ACCESS_CODE ?= 0
+FEATURES_ACCESS_CODE += HAP_FEATURE_ACCESS_CODE=$(USE_ACCESS_CODE)
+FEATURES_APP += HAVE_ACCESS_CODE=$(USE_ACCESS_CODE)
+FEATURES_IP += $(FEATURES_ACCESS_CODE)
+FEATURES_BLE += $(FEATURES_ACCESS_CODE)
+FEATURES_THREAD += $(FEATURES_ACCESS_CODE)
+FEATURES_TEST += $(FEATURES_APP)
+
+################################################
+# Enable NFC Access service for Lock Application
+################################################
+USE_NFC_ACCESS ?= 0
+FEATURES_APP += HAVE_NFC_ACCESS=$(USE_NFC_ACCESS)
+FEATURES_NFC_ACCESS += HAP_FEATURE_NFC_ACCESS=$(USE_NFC_ACCESS)
+FEATURES_IP += $(FEATURES_NFC_ACCESS)
+FEATURES_BLE += $(FEATURES_NFC_ACCESS)
+FEATURES_THREAD += $(FEATURES_NFC_ACCESS)
+FEATURES_TEST += $(FEATURES_APP)
+
+###############################################################
+# Enable Key Export required to enumerate HAP pairings for LTPK
+###############################################################
+ifeq ($(USE_NFC_ACCESS), 1)
+    HAP_KEY_EXPORT ?= 1
+endif
+HAP_KEY_EXPORT ?= 0
+FEATURES_APP += HAVE_KEY_EXPORT=$(HAP_KEY_EXPORT)
+FEATURES_KEY_EXPORT += HAP_FEATURE_KEY_EXPORT=$(HAP_KEY_EXPORT)
+FEATURES_IP += $(FEATURES_KEY_EXPORT)
+FEATURES_BLE += $(FEATURES_KEY_EXPORT)
+FEATURES_THREAD += $(FEATURES_KEY_EXPORT)
+
+################################
+# Enable Firmware Update Service
+################################
+# Firmware update service
+HAP_FIRMWARE_UPDATE ?= 1
+FEATURES_APP += HAVE_FIRMWARE_UPDATE=$(HAP_FIRMWARE_UPDATE)
+# HAVE_FIRMWARE_UPDATE is also set in FEATURES_TEST to include UARP.c
+FEATURES_TEST += HAVE_FIRMWARE_UPDATE=$(HAP_FIRMWARE_UPDATE)
+ifeq ($(HAP_FIRMWARE_UPDATE), 1)
+    ENABLE_UARP ?= 1
+endif
+
+#############
+# Enable UARP
+#############
+ifeq ($(ENABLE_UARP), 1)
+    ENABLE_UARP_ASSET_CREATION ?= 0
+    ENABLE_UARP_CONTROLLER ?= 0
+    ENABLE_UARP_PERSONALIZATION ?= 0
+    ENABLE_UARP_VENDOR_SPECIFIC ?= 0
+    SRC_DIRS_HAP += External/UARP
+    FEATURES_APP += HAVE_UARP_SUPPORT=$(ENABLE_UARP)
+    FEATURES_TEST += HAVE_UARP_SUPPORT=$(ENABLE_UARP)
+    FEATURES_UARP += HAP_FEATURE_UARP_SUPPORT=$(ENABLE_UARP)
+    ifeq ($(ENABLE_UARP_ASSET_CREATION), 1)
+        FEATURES_UARP += UARP_DISABLE_ASSET_CREATION=0
+    endif
+    ifeq ($(ENABLE_UARP_CONTROLLER), 1)
+        FEATURES_UARP += UARP_DISABLE_CONTROLLER=0
+    endif
+    ifeq ($(ENABLE_UARP_PERSONALIZATION), 1)
+        FEATURES_UARP += UARP_DISABLE_PERSONALIZATION=0
+    endif
+    ifeq ($(ENABLE_UARP_VENDOR_SPECIFIC), 1)
+        FEATURES_UARP += UARP_DISABLE_VENDOR_SPECIFIC=0
+    endif
+    ifeq ($(BUILD_TYPE),Release)
+        FEATURES_UARP += UARP_DISABLE_LOGS=1
+        FEATURES_UARP += UARP_DISABLE_REQUIRE_LOGS=1
+        FEATURES_UARP += UARP_DISABLE_VERIFY=1
+    endif
+    FEATURES_IP += $(FEATURES_UARP)
+    FEATURES_BLE += $(FEATURES_UARP)
+    FEATURES_THREAD += $(FEATURES_UARP)
+endif
+
+######################################
+# Enable Accessory Diagnostics Service
+######################################
+HAP_DIAGNOSTICS_SERVICE ?= 0
+USE_DIAGNOSTICS_TEXT_FORMAT ?= 0
+ifeq ($(TARGET),nRF52)
+    # nRF52 only supports diagnostics text format
+    USE_DIAGNOSTICS_TEXT_FORMAT = 1
+endif
+FEATURES_APP += HAVE_DIAGNOSTICS_SERVICE=$(HAP_DIAGNOSTICS_SERVICE)
+FEATURES_APP += HAVE_DIAGNOSTICS_TEXT_FORMAT=$(USE_DIAGNOSTICS_TEXT_FORMAT)
+FEATURES_IP += HAP_FEATURE_DIAGNOSTICS_SERVICE=$(HAP_DIAGNOSTICS_SERVICE)
+FEATURES_BLE += HAP_FEATURE_DIAGNOSTICS_SERVICE=$(HAP_DIAGNOSTICS_SERVICE)
+FEATURES_THREAD += HAP_FEATURE_DIAGNOSTICS_SERVICE=$(HAP_DIAGNOSTICS_SERVICE)
+HAP_DIAGNOSTICS_MANUFACTURER ?= 0
+FEATURES_APP += HAVE_DIAGNOSTICS_MANUFACTURER=$(HAP_DIAGNOSTICS_MANUFACTURER)
+
+##################################
+# Enable Accessory Metrics Service
+##################################
+# Accessory Metrics Service
+USE_ACCESSORY_METRICS ?= 0
+FEATURES_APP += HAVE_ACCESSORY_METRICS=$(USE_ACCESSORY_METRICS)
+FEATURES_IP += HAP_FEATURE_ACCESSORY_METRICS=$(USE_ACCESSORY_METRICS)
+
+#######################################
+# Enable Lock Event Notfication Context
+#######################################
+USE_LOCK_ENC ?= 0
+FEATURES_APP += HAVE_LOCK_ENC=$(USE_LOCK_ENC)
+FEATURES_IP += HAP_LOCK_ENC=$(USE_LOCK_ENC)
+FEATURES_BLE += HAP_LOCK_ENC=$(USE_LOCK_ENC)
+FEATURES_THREAD += HAP_LOCK_ENC=$(USE_LOCK_ENC)
+
+#####################################
+# Enable BlueZ Patch for Raspberry Pi
+#####################################
+ifeq ($(TARGET), Raspi)
+    FEATURES_IP += HAP_BLUEZ_PATCH=1
+    FEATURES_BLE += HAP_BLUEZ_PATCH=1
+    FEATURES_THREAD += HAP_BLUEZ_PATCH=1
+endif
+
+########################################
+# Disable Thread Network Viability Check
+########################################
+THREAD_CERTIFICATION_OVERRIDES ?= 0
+FEATURES_THREAD += HAP_FEATURE_THREAD_CERTIFICATION_OVERRIDES=$(THREAD_CERTIFICATION_OVERRIDES)
+FEATURES_TEST += HAP_FEATURE_THREAD_CERTIFICATION_OVERRIDES=$(THREAD_CERTIFICATION_OVERRIDES)
+ifeq ($(THREAD_CERTIFICATION_OVERRIDES),1)
+    CFLAGS_FEATURES_THREAD += -include Build/ValueOverrides/ADKThreadCertificationValueOverrides.h
+    CFLAGS_Test += -include Build/ValueOverrides/ADKThreadCertificationValueOverrides.h
+endif
+
+# Create protocol flag list for Makefile.$(PAL) to use
+CFLAGS_FEATURES_IP += -DHAP_FEATURE_IP=1 $(addprefix -D, $(FEATURES_IP))
+CFLAGS_FEATURES_BLE += -DHAP_FEATURE_BLE=1 $(addprefix -D, $(FEATURES_BLE))
+CFLAGS_FEATURES_THREAD += -DHAP_FEATURE_THREAD=1 $(addprefix -D, $(FEATURES_THREAD))
+CFLAGS_FEATURES_APP += $(addprefix -D, $(FEATURES_APP))
+CFLAGS_Test += $(addprefix -D, $(FEATURES_TEST))

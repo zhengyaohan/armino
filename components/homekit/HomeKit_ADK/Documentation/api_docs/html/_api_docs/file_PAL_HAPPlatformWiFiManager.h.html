@@ -1,0 +1,336 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>File HAPPlatformWiFiManager.h &mdash; HomeKit ADK  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> HomeKit ADK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../adk_architecture.html">ADK Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../adk_directory_structure.html">ADK Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docker.html">Docker with ADK</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Step-by-step Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting started with ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../raspi_setup.html">Raspberry Pi Setup Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bct.html">Bonjour Conformance Test (BCT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wac_on_raspberrypi.html">WAC on Raspberry Pi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../camera_on_darwin.html">Camera on macOS</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Troubleshooting ADK</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../interact_with_applications.html">Interacting with ADK applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writing_unit_tests.html">Writing Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../debug_adk.html">Debugging ADK Applications</a></li>
+</ul>
+<p class="caption"><span class="caption-text">ADK Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_development.html">Accessory Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_pairing.html">Accessory Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_authentication.html">Accessory Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../provisioning_tools.html">Provisioning Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ADK_Memory_Usage_and_Requirements.html">Memory Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../crypto.html">Cryptographic Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../make_options.html">Compile Time Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../coding_convention.html">Coding Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migration_guide.html">ADK Migration Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">HomeKit Services</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_diagnostics.html">Accessory Diagnostics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_metrics.html">Accessory Metrics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../adaptive_light.html">Adaptive Lighting Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appletv_remote.html">Apple TV Remote</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../firmware_update.html">Firmware Update Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../homekit_bridge.html">HomeKit Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ip_camera.html">IP Camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lock_profile.html">Lock Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../stateless_programmable_switch.html">Stateless Programmable Switch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../thread.html">HAP over Thread Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wifi_reconfiguration_feature.html">WiFi Reconfiguration Service</a></li>
+</ul>
+<p class="caption"><span class="caption-text">PAL APIs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dir_PAL.html">Directory PAL</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HomeKit ADK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>File HAPPlatformWiFiManager.h</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/_api_docs/file_PAL_HAPPlatformWiFiManager.h.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="file-happlatformwifimanager-h">
+<span id="file-pal-happlatformwifimanager-h"></span><h1>File HAPPlatformWiFiManager.h<a class="headerlink" href="#file-happlatformwifimanager-h" title="Permalink to this headline">¶</a></h1>
+<p>↰ <a class="reference internal" href="dir_PAL.html#dir-pal"><span class="std std-ref">Parent directory</span></a> (<code class="docutils literal notranslate"><span class="pre">PAL</span></code>)</p>
+<div class="contents local topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#definition-pal-happlatformwifimanager-h" id="id1">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformWiFiManager.h</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#detailed-description" id="id2">Detailed Description</a></p></li>
+<li><p><a class="reference internal" href="#includes" id="id3">Includes</a></p></li>
+<li><p><a class="reference internal" href="#classes" id="id4">Classes</a></p></li>
+<li><p><a class="reference internal" href="#functions" id="id5">Functions</a></p></li>
+<li><p><a class="reference internal" href="#defines" id="id6">Defines</a></p></li>
+<li><p><a class="reference internal" href="#typedefs" id="id7">Typedefs</a></p></li>
+</ul>
+</div>
+<div class="section" id="definition-pal-happlatformwifimanager-h">
+<h2>Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformWiFiManager.h</span></code>)<a class="headerlink" href="#definition-pal-happlatformwifimanager-h" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformWiFiManager.h.html">Program Listing for File HAPPlatformWiFiManager.h</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="detailed-description">
+<h2>Detailed Description<a class="headerlink" href="#detailed-description" title="Permalink to this headline">¶</a></h2>
+<p>Many HomeKit IP accessories are based on Wi-Fi and need some specific support for taking part in Wi-Fi networks.
+<strong>Expected behavior:</strong>
+Following functions need to be implemented, to enable a Wi-Fi accessory to join and to leave a Wi-Fi network.</p>
+</div>
+<div class="section" id="includes">
+<h2>Includes<a class="headerlink" href="#includes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPBase.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformFeatures.h</span></code> (<a class="reference internal" href="file_PAL_HAPPlatformFeatures.h.html#file-pal-happlatformfeatures-h"><span class="std std-ref">File HAPPlatformFeatures.h</span></a>)</p></li>
+</ul>
+</div>
+<div class="section" id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="structHAPPlatformRegulatoryDomain.html#exhale-struct-structhapplatformregulatorydomain"><span class="std std-ref">Struct HAPPlatformRegulatoryDomain</span></a></p></li>
+<li><p><a class="reference internal" href="structHAPPlatformSSID.html#exhale-struct-structhapplatformssid"><span class="std std-ref">Struct HAPPlatformSSID</span></a></p></li>
+<li><p><a class="reference internal" href="structHAPPlatformWiFiManagerCapabilities.html#exhale-struct-structhapplatformwifimanagercapabilities"><span class="std std-ref">Struct HAPPlatformWiFiManagerCapabilities</span></a></p></li>
+</ul>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1ad17ee2f0123557af78cf77f4b3859fc8.html#exhale-function-happlatformwifimanager-8h-1ad17ee2f0123557af78cf77f4b3859fc8"><span class="std std-ref">Function HAPPlatformWiFiManagerApplyConfiguration</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a734b8f1f6d00eedcf30a9a14970a113f.html#exhale-function-happlatformwifimanager-8h-1a734b8f1f6d00eedcf30a9a14970a113f"><span class="std std-ref">Function HAPPlatformWiFiManagerBackUpConfiguration</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a8733e7d46d6c588a1fbb3a46ec058d42.html#exhale-function-happlatformwifimanager-8h-1a8733e7d46d6c588a1fbb3a46ec058d42"><span class="std std-ref">Function HAPPlatformWiFiManagerClearConfiguration</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a2bc3914d6ff36c5640010658e5957097.html#exhale-function-happlatformwifimanager-8h-1a2bc3914d6ff36c5640010658e5957097"><span class="std std-ref">Function HAPPlatformWiFiManagerGetConfiguredSSID</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1aecf0493dd13c3e5ed08dd6d177733af7.html#exhale-function-happlatformwifimanager-8h-1aecf0493dd13c3e5ed08dd6d177733af7"><span class="std std-ref">Function HAPPlatformWiFiManagerGetCookie</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a8f72b81144877d3c593252b4647c0e89.html#exhale-function-happlatformwifimanager-8h-1a8f72b81144877d3c593252b4647c0e89"><span class="std std-ref">Function HAPPlatformWiFiManagerGetRegulatoryDomain</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a45849510fed6a7fe35f4483ecc4f5d1e.html#exhale-function-happlatformwifimanager-8h-1a45849510fed6a7fe35f4483ecc4f5d1e"><span class="std std-ref">Function HAPPlatformWiFiManagerGetSSID</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a965a959386d4e9eae64fa30824d98608.html#exhale-function-happlatformwifimanager-8h-1a965a959386d4e9eae64fa30824d98608"><span class="std std-ref">Function HAPPlatformWiFiManagerGetUpdateStatus</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a3afe475d0d3c98160b71d60b3e351573.html#exhale-function-happlatformwifimanager-8h-1a3afe475d0d3c98160b71d60b3e351573"><span class="std std-ref">Function HAPPlatformWiFiManagerIsConfigured</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a40856556fb0b5390e7a1c07c93e9638f.html#exhale-function-happlatformwifimanager-8h-1a40856556fb0b5390e7a1c07c93e9638f"><span class="std std-ref">Function HAPPlatformWiFiManagerIsPSKConfigured</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a0ea7112a5c116ff6a0306f24c5c5f8fa.html#exhale-function-happlatformwifimanager-8h-1a0ea7112a5c116ff6a0306f24c5c5f8fa"><span class="std std-ref">Function HAPPlatformWiFiManagerIsWiFiLinkEstablished</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a887c3eae63a32d1c7fd922a111870a8b.html#exhale-function-happlatformwifimanager-8h-1a887c3eae63a32d1c7fd922a111870a8b"><span class="std std-ref">Function HAPPlatformWiFiManagerIsWiFiNetworkConfigured</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1abda79810ca21262d410538b2d94ee29b.html#exhale-function-happlatformwifimanager-8h-1abda79810ca21262d410538b2d94ee29b"><span class="std std-ref">Function HAPPlatformWiFiManagerRemoveConfiguration</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a1b108325ddb6e1de1ac0835146599b91.html#exhale-function-happlatformwifimanager-8h-1a1b108325ddb6e1de1ac0835146599b91"><span class="std std-ref">Function HAPPlatformWiFiManagerRestartWiFi</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1aea958db9b254a798ffd86da289a59a40.html#exhale-function-happlatformwifimanager-8h-1aea958db9b254a798ffd86da289a59a40"><span class="std std-ref">Function HAPPlatformWiFiManagerSetCookie</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformWiFiManager_8h_1a7bf2e93bfe5ee791da9fde0dc86791ea.html#exhale-function-happlatformwifimanager-8h-1a7bf2e93bfe5ee791da9fde0dc86791ea"><span class="std std-ref">Function HAPPlatformWiFiManagerSetUpdateStatus</span></a></p></li>
+</ul>
+</div>
+<div class="section" id="defines">
+<h2>Defines<a class="headerlink" href="#defines" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="define_HAPPlatformWiFiManager_8h_1a0ad8b10f2b63ced6642b3eb0e962fc54.html#exhale-define-happlatformwifimanager-8h-1a0ad8b10f2b63ced6642b3eb0e962fc54"><span class="std std-ref">Define HAPPlatformCountryCode_MaxBytes</span></a></p></li>
+<li><p><a class="reference internal" href="define_HAPPlatformWiFiManager_8h_1a7d31f19d27292b19976e0634ff86b488.html#exhale-define-happlatformwifimanager-8h-1a7d31f19d27292b19976e0634ff86b488"><span class="std std-ref">Define HAPPlatformSSID_MaxBytes</span></a></p></li>
+<li><p><a class="reference internal" href="define_HAPPlatformWiFiManager_8h_1a99fa8b03efdd907e62b45665cf7faa99.html#exhale-define-happlatformwifimanager-8h-1a99fa8b03efdd907e62b45665cf7faa99"><span class="std std-ref">Define kHAPPlatformWiFiManagerCookie_Unmanaged</span></a></p></li>
+<li><p><a class="reference internal" href="define_HAPPlatformWiFiManager_8h_1ae9bf8eb6ddb14eb18f3d922e0dc6969a.html#exhale-define-happlatformwifimanager-8h-1ae9bf8eb6ddb14eb18f3d922e0dc6969a"><span class="std std-ref">Define kHAPPlatformWiFiManagerUpdateStatus_Unmanaged</span></a></p></li>
+</ul>
+</div>
+<div class="section" id="typedefs">
+<h2>Typedefs<a class="headerlink" href="#typedefs" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="typedef_HAPPlatformWiFiManager_8h_1a4d66164562bf18aaffa1060590106801.html#exhale-typedef-happlatformwifimanager-8h-1a4d66164562bf18aaffa1060590106801"><span class="std std-ref">Typedef HAPPlatformWiFiManager</span></a></p></li>
+<li><p><a class="reference internal" href="typedef_HAPPlatformWiFiManager_8h_1aa162656437d30ac6281c87e4b1b216f8.html#exhale-typedef-happlatformwifimanager-8h-1aa162656437d30ac6281c87e4b1b216f8"><span class="std std-ref">Typedef HAPPlatformWiFiManagerCookie</span></a></p></li>
+<li><p><a class="reference internal" href="typedef_HAPPlatformWiFiManager_8h_1abd658431622c6ae0509048c4558bf0d3.html#exhale-typedef-happlatformwifimanager-8h-1abd658431622c6ae0509048c4558bf0d3"><span class="std std-ref">Typedef HAPPlatformWiFiManagerRef</span></a></p></li>
+<li><p><a class="reference internal" href="typedef_HAPPlatformWiFiManager_8h_1aced3f9d239bba93a36a2a7dd42c0694b.html#exhale-typedef-happlatformwifimanager-8h-1aced3f9d239bba93a36a2a7dd42c0694b"><span class="std std-ref">Typedef HAPPlatformWiFiManagerUpdateStatus</span></a></p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright © 2021 Apple Inc. All Rights Reserved..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,749 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Getting Started with Thread &mdash; HomeKit ADK  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Thread Use Cases" href="Thread_Use_Case_Flows.html" />
+    <link rel="prev" title="HAP over Thread Profile" href="thread.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> HomeKit ADK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="adk_architecture.html">ADK Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adk_directory_structure.html">ADK Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Docker with ADK</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Step-by-step Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started with ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="raspi_setup.html">Raspberry Pi Setup Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bct.html">Bonjour Conformance Test (BCT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wac_on_raspberrypi.html">WAC on Raspberry Pi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_on_darwin.html">Camera on macOS</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Troubleshooting ADK</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="interact_with_applications.html">Interacting with ADK applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="writing_unit_tests.html">Writing Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="debug_adk.html">Debugging ADK Applications</a></li>
+</ul>
+<p class="caption"><span class="caption-text">ADK Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="accessory_development.html">Accessory Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_pairing.html">Accessory Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_authentication.html">Accessory Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="provisioning_tools.html">Provisioning Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ADK_Memory_Usage_and_Requirements.html">Memory Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crypto.html">Cryptographic Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make_options.html">Compile Time Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coding_convention.html">Coding Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration_guide.html">ADK Migration Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">HomeKit Services</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="accessory_diagnostics.html">Accessory Diagnostics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_metrics.html">Accessory Metrics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adaptive_light.html">Adaptive Lighting Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appletv_remote.html">Apple TV Remote</a></li>
+<li class="toctree-l1"><a class="reference internal" href="firmware_update.html">Firmware Update Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="homekit_bridge.html">HomeKit Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ip_camera.html">IP Camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lock_profile.html">Lock Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stateless_programmable_switch.html">Stateless Programmable Switch</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="thread.html">HAP over Thread Profile</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Getting Started with Thread</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#compile">Compile</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#run">Run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#compile-flags">Compile Flags</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#setting-up-your-own-thread-network">Setting up your own thread network</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#setting-up-the-border-router">Setting up The Border Router</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#commissioning-a-thread-device-to-the-thread-network">Commissioning a Thread Device to the Thread Network</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#tools-and-notes">Tools and Notes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#flashing-nordic-devices">Flashing Nordic Devices</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Thread_Use_Case_Flows.html">Thread Use Cases</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wifi_reconfiguration_feature.html">WiFi Reconfiguration Service</a></li>
+</ul>
+<p class="caption"><span class="caption-text">PAL APIs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_api_docs/dir_PAL.html">Directory PAL</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HomeKit ADK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="thread.html">HAP over Thread Profile</a> &raquo;</li>
+        
+      <li>Getting Started with Thread</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/setting_up_thread.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="getting-started-with-thread">
+<h1>Getting Started with Thread<a class="headerlink" href="#getting-started-with-thread" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>This document describes the support for Thread protocol in ADK and how to integrate it into a HomeKit accessory.</p>
+<div class="section" id="compile">
+<h3>Compile<a class="headerlink" href="#compile" title="Permalink to this headline">¶</a></h3>
+<p>You must have all the <a class="reference internal" href="getting_started.html"><span class="doc">prerequisites</span></a> for your development platform to compile the ADK. Once all the
+prerequisites are installed for your platform, run the following to compile ADK with HAP over THREAD feature:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make <span class="nv">TARGET</span><span class="o">=</span>nRF52 <span class="nv">PROTOCOLS</span><span class="o">=</span>THREAD apps
+</pre></div>
+</div>
+</div>
+<div class="section" id="run">
+<h3>Run<a class="headerlink" href="#run" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>./Tools/install.sh <span class="se">\</span>
+  -d nRF52 <span class="se">\</span>
+  -a Output/nRF52-arm-none-eabi/Debug/THREAD/Applications/Lightbulb.Oberon <span class="se">\</span>
+  -k <span class="se">\</span>
+  -t thread <span class="se">\</span>
+  -t ble
+</pre></div>
+</div>
+</div>
+<div class="section" id="compile-flags">
+<h3>Compile Flags<a class="headerlink" href="#compile-flags" title="Permalink to this headline">¶</a></h3>
+<p>ADK supports the following Thread build flags:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_BLE</span></code>:     Set by default. May be set to 0 to build a Thread Only accessory. This is for testing purposes only,
+Thread Only accessories are not supported by the HAP spec.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_STATIC_COMMISSIONING</span></code>: builds an accessory that is pre-commissioned with OpenThread default network credentials.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_THREAD_HOSTNAME</span></code>: Sets the host name to be used in mdns advertisements. If not set the default name
+(Accessory name) will be used.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_MTD</span></code>: Builds a device as an MTD. Default is FTD.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DISABLE_THREAD_VIABILITY_CHECK</span></code>: Disable accessory check for network viability. ADK Thread accessories check for
+Thread network availability every so often and fall back to BLE if the Thread network is not reachable. Additionally,
+a minimal thread ADK accessory turns off the Thread network entirely to conserve power while it checks for Thread
+network availability using an exponential back-off algorithm. This build flag should be turned off on production
+accessories and is only recommended while going through OpenThread certification.</p></li>
+</ul>
+<div class="section" id="examples">
+<h4>Examples:<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h4>
+<ul>
+<li><p>To build a Thread and BLE Full Thread Device (non-sleepy)</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make <span class="nv">TARGET</span><span class="o">=</span>nRF52 <span class="nv">PROTOCOLS</span><span class="o">=</span>THREAD apps
+</pre></div>
+</div>
+</li>
+<li><p>To build a Thread only Full Thread Device which must be commissioned using Joiner</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make <span class="nv">TARGET</span><span class="o">=</span>nRF52 <span class="nv">PROTOCOLS</span><span class="o">=</span>THREAD <span class="nv">USE_BLE</span><span class="o">=</span><span class="m">0</span> apps
+</pre></div>
+</div>
+</li>
+<li><p>To build a Thread-only device that is statically commissioned</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make <span class="nv">TARGET</span><span class="o">=</span>nRF52 <span class="nv">PROTOCOLS</span><span class="o">=</span>THREAD <span class="nv">USE_BLE</span><span class="o">=</span><span class="m">0</span> <span class="nv">USE_STATIC_COMMISSIONING</span><span class="o">=</span><span class="m">1</span> apps
+</pre></div>
+</div>
+</li>
+<li><p>To build a Thread and BLE full Thread Device with host name <em>Accessory 1</em></p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make <span class="nv">TARGET</span><span class="o">=</span>nRF52 <span class="nv">PROTOCOLS</span><span class="o">=</span>THREAD <span class="nv">USE_THREAD_HOSTNAME</span><span class="o">=</span><span class="s2">&quot;Accessory 1&quot;</span> apps
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="setting-up-your-own-thread-network">
+<h2>Setting up your own thread network<a class="headerlink" href="#setting-up-your-own-thread-network" title="Permalink to this headline">¶</a></h2>
+<p>In order to create our own Thread Network you will need:</p>
+<ul class="simple">
+<li><p>A Border Router</p></li>
+<li><p>At least one thread device to connect to the border router</p></li>
+<li><p>A computer to run HAT which will connect to the thread device over the Border Router.</p></li>
+</ul>
+<div class="section" id="setting-up-the-border-router">
+<h3>Setting up The Border Router<a class="headerlink" href="#setting-up-the-border-router" title="Permalink to this headline">¶</a></h3>
+<p>A border router is a device that bridges the Thread Network and a local IP/Wifi network. This section will describe how
+to build a Border Router from a Raspberry Pi and an RCP.</p>
+<ul class="simple">
+<li><p>Raspberry Pi is responsible for running the <em>Thread Network Daemon</em> and <em>srp-mdns-proxy</em> which will provide the
+Thread Network Accessory’s mdns advertisements over the attached IP network.</p></li>
+<li><p>RCP is a device that implements the Thread Radio Control protocol over USB. The Daemon will use the RCP to
+send / receive data over the Thread Network. This document describes how to build an NCP using a
+<a class="reference external" href="https://www.nordicsemi.com/Software-and-tools/Development-Kits/nRF52840-Dongle">Nordic PCA10059</a>.</p></li>
+</ul>
+<div class="section" id="setting-up-the-raspberry-pi">
+<h4>Setting up the Raspberry Pi<a class="headerlink" href="#setting-up-the-raspberry-pi" title="Permalink to this headline">¶</a></h4>
+<p>To set up the Raspberry Pi you must perform the following steps:</p>
+<ul class="simple">
+<li><p>Install Raspbian</p></li>
+<li><p>Build and launch the OpenThread daemon.</p></li>
+<li><p>Build and launch srp-mdns-proxy.</p></li>
+</ul>
+<div class="section" id="installing-raspbian">
+<h5>Installing Raspbian<a class="headerlink" href="#installing-raspbian" title="Permalink to this headline">¶</a></h5>
+<ul class="simple">
+<li><p>Download <a class="reference external" href="https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2020-08-24/2020-08-20-raspios-buster-armhf-lite.zip">Raspbian Buster Lite</a></p></li>
+<li><p>Install Raspbian on an SD Card with a tool such as <em>Balena Etcher</em>.
+See <a class="reference external" href="https://www.raspberrypi.org/documentation/installation/installing-images/">Raspbian Documentation</a> for examples.</p></li>
+<li><p>Install SD card in Raspberry Pi and configure as normal (enable Wifi, SSH, etc).</p></li>
+</ul>
+</div>
+<div class="section" id="build-and-launch-openthread-daemon">
+<h5>Build and Launch OpenThread Daemon<a class="headerlink" href="#build-and-launch-openthread-daemon" title="Permalink to this headline">¶</a></h5>
+<p>These instructions are to be performed on the Raspberry Pi.</p>
+<ul>
+<li><p>Install tools:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>sudo apt install libmbedtls-dev libbsd-dev autoconf libtool
+sudo apt install git
+</pre></div>
+</div>
+</li>
+<li><p>Clone the appropriate repositories:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>mkdir br
+<span class="nb">cd</span> br
+git clone https://github.com/Abhayakara/openthread.git
+<span class="nb">cd</span> openthread/third_party/
+git clone https://github.com/Abhayakara/mdnsresponder.git
+<span class="nb">cd</span> ..
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These repositories are branches off of the OpenThread project. Here we have developed a border router with
+<em>srp-mdns-proxy</em> integration built in.</p>
+</div>
+</li>
+<li><p>Build the daemon:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>./bootstrap
+<span class="nv">HOST</span><span class="o">=</span> make -f src/posix/Makefile-posix <span class="nv">DAEMON</span><span class="o">=</span><span class="m">1</span> <span class="nv">DEBUG</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+</li>
+<li><p>Launch the daemon:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>sudo output/posix/armv7l-unknown-linux-gnueabihf/bin/ot-daemon <span class="s1">&#39;spinel+hdlc+uart:///dev/ttyACM0?uart-baudrate=115200&#39;</span> <span class="p">&amp;</span>
+
+<span class="nv">OT_CTL_SCRIPT</span><span class="o">=</span><span class="s2">&quot;</span>
+<span class="s2">  panid 0xabcd</span>
+<span class="s2">  channel 11</span>
+<span class="s2">  masterkey 00112233445566778899aabbccddeeff</span>
+<span class="s2">  dataset commit active</span>
+<span class="s2">  ifconfig up</span>
+<span class="s2">  thread start</span>
+<span class="s2">  networkname&quot;</span>
+
+sudo output/posix/armv7l-unknown-linux-gnueabihf/bin/ot-ctl <span class="s2">&quot;</span><span class="nv">$OT_CTL_SCRIPT</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <cite>OT_CTL_SCRIPT</cite> above sets the Thread Network Credentials. These may be altered as you see fit.</p>
+</div>
+</li>
+</ul>
+<p>At this point you may use <code class="docutils literal notranslate"><span class="pre">ot-ctl</span></code> to manage your Thread Network.
+<a class="reference external" href="https://github.com/openthread/openthread/blob/master/src/cli/README.md">OT-cli reference</a></p>
+</div>
+<div class="section" id="build-and-launch-srp-mdns-proxy">
+<h5>Build and Launch srp-mdns-proxy<a class="headerlink" href="#build-and-launch-srp-mdns-proxy" title="Permalink to this headline">¶</a></h5>
+<p>This section presumes that the <strong>Build and Launch OpenThread Daemon</strong> steps have been performed. The step that clones
+<em>mdnsresponder</em> into the third_party folder is particularly important.</p>
+<ul class="simple">
+<li><p>Install <em>mdnsresponder</em>. From the OpenThread directory, run:</p></li>
+</ul>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> third_party/mdnsresponder/mDNSPosix
+sudo make <span class="nv">os</span><span class="o">=</span>linux
+sudo make install
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Build <em>srp-mdns-proxy</em>:</p></li>
+</ul>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> third_party/mdnsresponder/ServiceRegistration
+make
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Launch <em>srp-mdns-proxy</em>:</p></li>
+</ul>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>sudo ./build/srp-mdns-proxy --log-stderr
+</pre></div>
+</div>
+<p>At this point srp-mdns-proxy should begin running. You should see debug output as the service runs.</p>
+</div>
+</div>
+<div class="section" id="setting-up-the-rcp">
+<h4>Setting up the RCP<a class="headerlink" href="#setting-up-the-rcp" title="Permalink to this headline">¶</a></h4>
+<p>The following instructions explain how to build an RCP for a Nordic PCA10059 RCP. This section presumes you have
+retrieved the openthread repo described in <em>Build and Launch OpenThread Daemon</em></p>
+<ul class="simple">
+<li><p>Build the RCP Image. From the openthread root directory, run:</p></li>
+</ul>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>./script/bootstrap
+./bootstrap
+make -f examples/Makefile-nrf52840 <span class="nv">USB</span><span class="o">=</span><span class="m">1</span> <span class="nv">BOOTLOADER</span><span class="o">=</span>USB
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Convert the output to a <em>.hex</em>:</p></li>
+</ul>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span> arm-none-eabi-objcopy -O ihex output/nrf52840/bin/ot-rcp ot-rcp.hex
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Use <a class="reference external" href="#flashing-nordic-devices">nRF Connect</a> to flash the ot-rcp.hex file to the RCP dongle.</p></li>
+</ul>
+<p><em>The RCP dongle is now ready to be attached to the Border Router</em></p>
+</div>
+</div>
+<div class="section" id="commissioning-a-thread-device-to-the-thread-network">
+<h3>Commissioning a Thread Device to the Thread Network<a class="headerlink" href="#commissioning-a-thread-device-to-the-thread-network" title="Permalink to this headline">¶</a></h3>
+<p>The Border router has now initiated a Thread Network. To connect a Thread Device to the Thread Network you must provide
+the device with Thread Network Credentials. This may be done by:</p>
+<ul class="simple">
+<li><p><em>Commissioning the accessory over HAP</em>: If the accessory supports BLE it may be paired over BLE and commissioned.
+through the ThreadManagementControl characteristic. See the Thread specification for details.</p></li>
+<li><p><em>Static Commissioning</em>: The ADK may be built with pre-determined Thread Network Credentials.</p></li>
+<li><p><em>Joiner Mode</em>: The ADK may be built such that it boots into ‘Joiner Mode’. An accessory in Joiner Mode must be
+manually commissioned by a node on the Thread Network (In this case the Border Router).
+See <a class="reference external" href="https://openthread.io/guides/build/commissioning">OpenThread</a> for details.</p></li>
+</ul>
+<p>The default build made from <em>make TARGET=nRF52 PROTOCOLS=THREAD</em> requires either commission over BLE or joiner mode
+triggered over BLE. If ADK Thread device is built with <em>make USE_BLE=0 TARGET=nRF52 PROTOCOLS=THREAD</em>, it will be
+built as a Thread-only device and will use joiner mode. When built with
+<em>make TARGET=nRF52 PROTOCOLS=THREAD USE_STATIC_COMMISSIONING=1</em>, the accessory will be boot with hard-coded
+commissioning credentials.</p>
+<div class="section" id="commissioning-a-thread-device-over-hap">
+<h4>Commissioning a Thread Device over HAP<a class="headerlink" href="#commissioning-a-thread-device-over-hap" title="Permalink to this headline">¶</a></h4>
+<ul>
+<li><p>Build a standard Thread Accessory:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make <span class="nv">TARGET</span><span class="o">=</span>nRF52 <span class="nv">PROTOCOLS</span><span class="o">=</span>THREAD
+</pre></div>
+</div>
+</li>
+<li><p>Load the Accessory. Note both <em>Thread</em> and <em>BLE</em> are enabled:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>./Tools/install.sh <span class="se">\</span>
+  -d nRF52 <span class="se">\</span>
+  -a Output/nRF52-arm-none-eabi/Debug/THREAD/Applications/Lightbulb.Oberon <span class="se">\</span>
+  -k <span class="se">\</span>
+  -t thread <span class="se">\</span>
+  -t ble
+</pre></div>
+</div>
+</li>
+<li><p>Pair the accessory with HAT over BLE:</p></li>
+<li><p>Using HAT, write the following TLV to the <em>Thread Control Point</em> characteristic of the <em>Thread Transport</em> service:</p></li>
+</ul>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>0101010230010A4F70656E54687265616402020B000302CDAB0408DEAD00BEEF00CAFE051000112233445566778899AABBCCDDEEFF
+</pre></div>
+</div>
+<p>This command breaks down as follows:</p>
+<ul class="simple">
+<li><p><em>0101010230010A4F70656E5468726561640202</em> - Header</p></li>
+<li><p><em>0B00</em> - Channel Number (11)</p></li>
+<li><p><em>0302</em> - Header</p></li>
+<li><p><em>CDAB</em> - PANID (0xABCD)</p></li>
+<li><p><em>0408</em> - Header</p></li>
+<li><p><em>DEAD00BEEF00CAFE</em> - ExtPANID</p></li>
+<li><p><em>0510</em> - Header</p></li>
+<li><p><em>00112233445566778899AABBCCDDEEFF</em> - Master Key</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Other command TLVs based on Thread Management service specification can also be written to the <em>Thread Control
+Point</em> for other purposes, for example:</p>
+<ul class="simple">
+<li><p><em>010102</em>: ClearParameters command</p></li>
+<li><p><em>010104</em>: Initiate joiner command</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="commissioning-a-thread-accessory-statically">
+<h4>Commissioning a Thread Accessory Statically<a class="headerlink" href="#commissioning-a-thread-accessory-statically" title="Permalink to this headline">¶</a></h4>
+<p>The ADK may be built to launch “just knowing” its Thread Network Credentials. This option must be used only for the
+convenience of testing the device over Thread without having to go through either commissioning over BLE or Thread
+joiner mode.</p>
+<ul>
+<li><p>Update the ADK Static Commissioning parameters. These are set in
+<em>ADK/PAL/Thread/OpenThread/HAPPlatformThreadUtils+Commissioning.c</em>:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#ifndef THREAD_PANID</span>
+<span class="cp">#define THREAD_PANID 43981</span>
+<span class="cp">#endif</span>
+<span class="cp">#ifndef THREAD_EXTPANID</span>
+<span class="cp">#define THREAD_EXTPANID 0xDEAD00BEEF00CAFEull</span>
+<span class="cp">#endif</span>
+<span class="cp">#ifndef THREAD_CHANNEL</span>
+<span class="cp">#define THREAD_CHANNEL 11</span>
+<span class="cp">#endif</span>
+<span class="cp">#ifndef THREAD_MASTERKEY_UPPER64</span>
+<span class="cp">#define THREAD_MASTERKEY_UPPER64 0x0011223344556677ull</span>
+<span class="cp">#endif</span>
+<span class="cp">#ifndef THREAD_MASTERKEY_LOWER64</span>
+<span class="cp">#define THREAD_MASTERKEY_LOWER64 0x8899AABBCCDDEEFFull</span>
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>PANID is decimal, not hex. <em>43981</em> corresponds to <em>0xabcd</em></p>
+</div>
+</li>
+<li><p>Compile the ADK for static commissioning thread:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make <span class="nv">TARGET</span><span class="o">=</span>nRF52 <span class="nv">PROTOCOLS</span><span class="o">=</span>THREAD <span class="nv">USE_STATIC_COMMISSIONING</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+</li>
+<li><p>Load the appropriate ADK accessory onto the PCA10056 device (Nordic Dev Board):</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>./Tools/install.sh <span class="se">\</span>
+  -d nRF52 <span class="se">\</span>
+  -a Output/nRF52-arm-none-eabi/Debug/THREAD/Applications/Lightbulb.Oberon <span class="se">\</span>
+  -k <span class="se">\</span>
+  -t thread
+</pre></div>
+</div>
+</li>
+<li><p>Make a note of the Device ID and IP address. In the log you will see something like the following:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="m">1</span>.173	Default	Thread state changed! Flags: 0x00000001 Current role: child.
+
+<span class="m">1</span>.175	Debug	FDDE:AD00:BEEF:0000:0000:00FF:FE00:4002
+<span class="m">1</span>.176	Debug	FDDE:AD00:BEEF:0000:0F83:FB05:77CC:100F
+<span class="m">1</span>.177	Debug	FE80:0000:0000:0000:800F:1D7B:D24C:68A5
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p><em>Current role: child</em>. This indicates that the device has joined a Thread Network.</p></li>
+<li><p><em>1.174 Debug FD11:0022:0000:0000:18F4:7861:CE3F:1E1E</em>. This is the first IP address listed after the role
+change. This IP address is the one exposed beyond the Thread network and is the one your MacBook will
+communicate with.</p></li>
+</ul>
+</div>
+</li>
+<li><p>Verify the border router can communicate with the thread device. Ping the thread device from the border router:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ping6 FD11:0022:0000:0000:18F4:7861:CE3F:1E1E
+</pre></div>
+</div>
+</li>
+<li><p>Verify the MacBook can ping the thread device:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ping6 FD11:0022:0000:0000:18F4:7861:CE3F:1E1E
+</pre></div>
+</div>
+</li>
+<li><p>If the ping fails, it is possible that the Mac does not know to route the ping request through the Border Router. Run
+the following command on the RPi to create a static route and try again:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>sudo ip -6 route add fd11:33::/64 dev wlan0 table <span class="nb">local</span>
+</pre></div>
+</div>
+</li>
+<li><p>It is also possible that MacOS has failed to retrieve the route from the RPi border router. Add a static route to your
+border router for fd11:22:/64. For example, if <em>fe80::ba27:3bff:fe67:64fc</em> is the border router’s wlan address then:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>sudo route add -inet6 fd11:22::/64 fe80::ba27:ebff:fe67:64fc%en0
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="commissioning-a-thread-device-using-joiner-mode">
+<h4>Commissioning a Thread Device using Joiner Mode<a class="headerlink" href="#commissioning-a-thread-device-using-joiner-mode" title="Permalink to this headline">¶</a></h4>
+<p>When the ADK is built without Static Commissioning or BLE support it will automatically boot into
+<a class="reference external" href="https://openthread.io/guides/build/commissioning">Joiner Mode</a>. Joiner Mode is when a Thread Accessory is actively
+searching for a Thread Network to join. The Thread Network must be told to accept a Joiner.</p>
+<ul>
+<li><p>Build the ADK without BLE support:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make <span class="nv">TARGET</span><span class="o">=</span>nRF52 <span class="nv">PROTOCOLS</span><span class="o">=</span>THREAD <span class="nv">USE_BLE</span><span class="o">=</span><span class="m">0</span>
+</pre></div>
+</div>
+</li>
+<li><p>Load the ADK without BLE support:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>./Tools/install.sh <span class="se">\</span>
+  -d nRF52 <span class="se">\</span>
+  -a Output/nRF52-arm-none-eabi/Debug/THREAD/Applications/Lightbulb.Oberon <span class="se">\</span>
+  -k <span class="se">\</span>
+  -t thread
+</pre></div>
+</div>
+</li>
+<li><p>The accessory will boot into Joiner Mode. It will periodically advertise its <code class="docutils literal notranslate"><span class="pre">EUI</span></code> and <code class="docutils literal notranslate"><span class="pre">Joiner</span> <span class="pre">Passphrase</span></code>. Make a
+note of these:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>    <span class="m">5</span>.029	Debug	EUI: F4:CE:36:6B:04:F7:D4:DF
+    <span class="m">5</span>.029	Debug	Joiner Passphrase: 6D8E3F0A99C2D399A334619304800804
+</pre></div>
+</div>
+</li>
+<li><p>Launch <code class="docutils literal notranslate"><span class="pre">ot-ctl</span></code> at the border router. From the OpenThread root directory:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>sudo output/posix/armv7l-unknown-linux-gnueabihf/bin/ot-ctl
+</pre></div>
+</div>
+</li>
+<li><p>Initialize the commissioner:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>&gt; commissioner start
+Commissioner: petitioning
+Done
+&gt; Commissioner: active
+</pre></div>
+</div>
+</li>
+<li><p>Tell the commissioner to accept the joiner with EUI and Passphrase:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>&gt; commissioner joiner add &lt;EUI&gt; &lt;PASSPHRASE&gt;
+Done
+</pre></div>
+</div>
+<p>For example:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>&gt; commissioner joiner add F4CE366B04F7D4DF 6D8E3F0A99C2D399A334619304800804
+Done
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You may replace the EUI with <cite>*</cite> to accept all joiners with the appropriate passphrase.</p>
+</div>
+</li>
+<li><p>After a few minutes the accessory will be allowed into the Thread Network by the Border Router, receive its
+commissioning credentials, and register with <em>srp-mdns-proxy</em>.</p></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="tools-and-notes">
+<h2>Tools and Notes<a class="headerlink" href="#tools-and-notes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="flashing-nordic-devices">
+<h3>Flashing Nordic Devices<a class="headerlink" href="#flashing-nordic-devices" title="Permalink to this headline">¶</a></h3>
+<p>Nordic provides different tools for flashing their devices depending on the file used to flash.</p>
+<ul class="simple">
+<li><p>To flash .hex files use nrfConnect</p></li>
+<li><p>To flash .zip use nrfutil.</p></li>
+</ul>
+<div class="section" id="nrfconnect">
+<h4>nrfConnect<a class="headerlink" href="#nrfconnect" title="Permalink to this headline">¶</a></h4>
+<p>You can download nrfConnect from <a class="reference external" href="https://www.nordicsemi.com/?sc_itemid=%7B49D2264D-62FD-4C16-811F-88B477833C5D%7D">here</a>.</p>
+<ul class="simple">
+<li><p>From the programmer app, on the top right corner choose <em>Add HEX file</em> and select the target <code class="docutils literal notranslate"><span class="pre">*.hex</span></code> image.</p></li>
+<li><p>Insert the USB dongle and press the button sticking out on top of the metallic box next to the big white button
+(not the big white button itself) to enter flash mode (the led will flash red).</p></li>
+<li><p>From the programmer app, go to the upper left corner and select the device from the drop down menu.</p></li>
+<li><p>Select <em>Write</em> on the lower right corner of the programmer app.</p></li>
+</ul>
+</div>
+<div class="section" id="nrfutil">
+<h4>nrfutil<a class="headerlink" href="#nrfutil" title="Permalink to this headline">¶</a></h4>
+<p>Install <em>nrfutil</em> with the following command in your python bin directory.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>sudo easy_install pip <span class="o">&amp;&amp;</span> pip install --user nrfutil
+</pre></div>
+</div>
+<p>You may need to add that to your path or move <em>nrfutil</em> to an appropriate location</p>
+<ul>
+<li><p>Insert the USB dongle and press the button sticking out on top of the metallic box next to the big white button
+(not the big white button itself) to enter flash mode (the led will flash red)</p></li>
+<li><p>Find the device</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ls /dev/tty.usbmodem*
+</pre></div>
+</div>
+</li>
+<li><p>Type the following command:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>nrfutil dfu usb-serial -pkg &lt;.zip image file path&gt; -p &lt;path to the device from previous step&gt;
+</pre></div>
+</div>
+<p>For example:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>nrfutil dfu usb-serial -pkg &lt;.zip image file path&gt; -p /dev/tty.usbmodemDDF59963F0211
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="Thread_Use_Case_Flows.html" class="btn btn-neutral float-right" title="Thread Use Cases" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="thread.html" class="btn btn-neutral float-left" title="HAP over Thread Profile" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright © 2021 Apple Inc. All Rights Reserved..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

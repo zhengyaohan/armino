@@ -1,0 +1,348 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>File HAPPlatformDiagnostics.h &mdash; HomeKit ADK  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> HomeKit ADK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../adk_architecture.html">ADK Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../adk_directory_structure.html">ADK Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docker.html">Docker with ADK</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Step-by-step Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting started with ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../raspi_setup.html">Raspberry Pi Setup Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bct.html">Bonjour Conformance Test (BCT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wac_on_raspberrypi.html">WAC on Raspberry Pi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../camera_on_darwin.html">Camera on macOS</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Troubleshooting ADK</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../interact_with_applications.html">Interacting with ADK applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writing_unit_tests.html">Writing Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../debug_adk.html">Debugging ADK Applications</a></li>
+</ul>
+<p class="caption"><span class="caption-text">ADK Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_development.html">Accessory Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_pairing.html">Accessory Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_authentication.html">Accessory Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../provisioning_tools.html">Provisioning Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ADK_Memory_Usage_and_Requirements.html">Memory Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../crypto.html">Cryptographic Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../make_options.html">Compile Time Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../coding_convention.html">Coding Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migration_guide.html">ADK Migration Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">HomeKit Services</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_diagnostics.html">Accessory Diagnostics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_metrics.html">Accessory Metrics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../adaptive_light.html">Adaptive Lighting Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appletv_remote.html">Apple TV Remote</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../firmware_update.html">Firmware Update Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../homekit_bridge.html">HomeKit Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ip_camera.html">IP Camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lock_profile.html">Lock Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../stateless_programmable_switch.html">Stateless Programmable Switch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../thread.html">HAP over Thread Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wifi_reconfiguration_feature.html">WiFi Reconfiguration Service</a></li>
+</ul>
+<p class="caption"><span class="caption-text">PAL APIs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dir_PAL.html">Directory PAL</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HomeKit ADK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>File HAPPlatformDiagnostics.h</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/_api_docs/file_PAL_HAPPlatformDiagnostics.h.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="file-happlatformdiagnostics-h">
+<span id="file-pal-happlatformdiagnostics-h"></span><h1>File HAPPlatformDiagnostics.h<a class="headerlink" href="#file-happlatformdiagnostics-h" title="Permalink to this headline">¶</a></h1>
+<p>↰ <a class="reference internal" href="dir_PAL.html#dir-pal"><span class="std std-ref">Parent directory</span></a> (<code class="docutils literal notranslate"><span class="pre">PAL</span></code>)</p>
+<div class="contents local topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#definition-pal-happlatformdiagnostics-h" id="id1">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformDiagnostics.h</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#includes" id="id2">Includes</a></p></li>
+<li><p><a class="reference internal" href="#functions" id="id3">Functions</a></p></li>
+<li><p><a class="reference internal" href="#defines" id="id4">Defines</a></p></li>
+</ul>
+</div>
+<div class="section" id="definition-pal-happlatformdiagnostics-h">
+<h2>Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformDiagnostics.h</span></code>)<a class="headerlink" href="#definition-pal-happlatformdiagnostics-h" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformDiagnostics.h.html">Program Listing for File HAPPlatformDiagnostics.h</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="includes">
+<h2>Includes<a class="headerlink" href="#includes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPBase.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPPlatformAbort.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPPlatformAccessorySetup.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPPlatformAccessorySetupDisplay.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPPlatformAccessorySetupNFC.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPPlatformBLE.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPPlatformBLEPeripheralManager.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPPlatformCamera.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPPlatformClock.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPPlatformFeatures.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPPlatformKeyValueStore.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPPlatformLog.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPPlatformMFiHWAuth.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPPlatformMFiTokenAuth.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPPlatformNfcAccess.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPPlatformRandomNumber.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPPlatformRunLoop.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPPlatformServiceDiscovery.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPPlatformSoftwareAccessPoint.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPPlatformTCPStreamManager.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPPlatformThread.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPPlatformTimer.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPPlatformWiFiManager.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPPlatformWiFiRouter.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAP.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPDiagnostics.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatform.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformThreadCoAPManager.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformThreadUtils+Commissioning.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformThreadUtils+Init.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformThreadUtils+MDNS.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformThreadUtils+Network.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformThreadUtils+Wakelock.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stdio.h</span></code></p></li>
+</ul>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a79c88931231dc30b40868c1fd2471fc6.html#exhale-function-happlatformdiagnostics-8h-1a79c88931231dc30b40868c1fd2471fc6"><span class="std std-ref">Function HAPPlatformDiagnosticsAbort</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a49bc19036a48a653e3aa97473fb198d0.html#exhale-function-happlatformdiagnostics-8h-1a49bc19036a48a653e3aa97473fb198d0"><span class="std std-ref">Function HAPPlatformDiagnosticsClearCrashLog</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1ab5584de926a5b5fa72423ac51a12fdf5.html#exhale-function-happlatformdiagnostics-8h-1ab5584de926a5b5fa72423ac51a12fdf5"><span class="std std-ref">Function HAPPlatformDiagnosticsDataTransferComplete</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a07aac5bf309c27e0d207d187d2d93886.html#exhale-function-happlatformdiagnostics-8h-1a07aac5bf309c27e0d207d187d2d93886"><span class="std std-ref">Function HAPPlatformDiagnosticsDeinitialize</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a8cd4038a433762264566547c529fb019.html#exhale-function-happlatformdiagnostics-8h-1a8cd4038a433762264566547c529fb019"><span class="std std-ref">Function HAPPlatformDiagnosticsFlushLog</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a776d7fc80fe745c499c5a671a6552eb4.html#exhale-function-happlatformdiagnostics-8h-1a776d7fc80fe745c499c5a671a6552eb4"><span class="std std-ref">Function HAPPlatformDiagnosticsGetBytesToUpload</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a710025016419dc90fae0b9ba59fdc527.html#exhale-function-happlatformdiagnostics-8h-1a710025016419dc90fae0b9ba59fdc527"><span class="std std-ref">Function HAPPlatformDiagnosticsInitialize</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1aa5f25f094bc70a126fa76ee6e91119e6.html#exhale-function-happlatformdiagnostics-8h-1aa5f25f094bc70a126fa76ee6e91119e6"><span class="std std-ref">Function HAPPlatformDiagnosticsPrepareData</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1acb1ad844e9b357fe3d5637678de5d95e.html#exhale-function-happlatformdiagnostics-8h-1acb1ad844e9b357fe3d5637678de5d95e"><span class="std std-ref">Function HAPPlatformDiagnosticsStartLogCaptureToFile</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a76573229568f2a7331db3f0952448a9f.html#exhale-function-happlatformdiagnostics-8h-1a76573229568f2a7331db3f0952448a9f"><span class="std std-ref">Function HAPPlatformDiagnosticsStopLogCaptureToFile</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a9532c115443842d7812308115f8e6057.html#exhale-function-happlatformdiagnostics-8h-1a9532c115443842d7812308115f8e6057"><span class="std std-ref">Function HAPPlatformDiagnosticsWriteToConfigLog</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1aaa83367b0aa8bae6719fbd989fc62e28.html#exhale-function-happlatformdiagnostics-8h-1aaa83367b0aa8bae6719fbd989fc62e28"><span class="std std-ref">Function HAPPlatformDiagnosticsWriteToCrashLog</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a95a4157eed4381a0cb7b76bebb777366.html#exhale-function-happlatformdiagnostics-8h-1a95a4157eed4381a0cb7b76bebb777366"><span class="std std-ref">Function HAPPlatformDiagnosticsWriteToFile</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformDiagnostics_8h_1a2780692850e87ad297c58ab04044f089.html#exhale-function-happlatformdiagnostics-8h-1a2780692850e87ad297c58ab04044f089"><span class="std std-ref">Function HAPPlatformDiagnosticsWriteToLogBuffer</span></a></p></li>
+</ul>
+</div>
+<div class="section" id="defines">
+<h2>Defines<a class="headerlink" href="#defines" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1a78eb2ce934981f174b33515905738ac9.html#exhale-define-happlatformdiagnostics-8h-1a78eb2ce934981f174b33515905738ac9"><span class="std std-ref">Define kHAPPlatformDiagnosticsADKLogsFolder</span></a></p></li>
+<li><p><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1a45a0cb165eaddabfbd13c5f1451e08e9.html#exhale-define-happlatformdiagnostics-8h-1a45a0cb165eaddabfbd13c5f1451e08e9"><span class="std std-ref">Define kHAPPlatformDiagnosticsAudioLogsFolder</span></a></p></li>
+<li><p><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1affdb331c00bd978184b199591dd8db55.html#exhale-define-happlatformdiagnostics-8h-1affdb331c00bd978184b199591dd8db55"><span class="std std-ref">Define kHAPPlatformDiagnosticsBTLogsFolder</span></a></p></li>
+<li><p><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1a041473b115029a24ccd7b4ee7156ff99.html#exhale-define-happlatformdiagnostics-8h-1a041473b115029a24ccd7b4ee7156ff99"><span class="std std-ref">Define kHAPPlatformDiagnosticsConfigFile</span></a></p></li>
+<li><p><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1a81f11ed9740f528a270353af0b3e4871.html#exhale-define-happlatformdiagnostics-8h-1a81f11ed9740f528a270353af0b3e4871"><span class="std std-ref">Define kHAPPlatformDiagnosticsCrashLogFile</span></a></p></li>
+<li><p><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1a05f5215233fcc60ca0978ea81692136e.html#exhale-define-happlatformdiagnostics-8h-1a05f5215233fcc60ca0978ea81692136e"><span class="std std-ref">Define kHAPPlatformDiagnosticsDmesgFile</span></a></p></li>
+<li><p><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1ab3e2f0e0fbcc5cb6655f39cf71db7f55.html#exhale-define-happlatformdiagnostics-8h-1ab3e2f0e0fbcc5cb6655f39cf71db7f55"><span class="std std-ref">Define kHAPPlatformDiagnosticsFolder</span></a></p></li>
+<li><p><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1a5cbecba8d373725045439f95b1c65ab2.html#exhale-define-happlatformdiagnostics-8h-1a5cbecba8d373725045439f95b1c65ab2"><span class="std std-ref">Define kHAPPlatformDiagnosticsFolderPermissions</span></a></p></li>
+<li><p><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1a253eaafc8086c111279a9c71c9217893.html#exhale-define-happlatformdiagnostics-8h-1a253eaafc8086c111279a9c71c9217893"><span class="std std-ref">Define kHAPPlatformDiagnosticsNumLogFiles</span></a></p></li>
+<li><p><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1afe96f41bdddf000c66b230677be3d90e.html#exhale-define-happlatformdiagnostics-8h-1afe96f41bdddf000c66b230677be3d90e"><span class="std std-ref">Define kHAPPlatformDiagnosticsTextFileName</span></a></p></li>
+<li><p><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1a0522f99b343dcc795d852afa1b9806bd.html#exhale-define-happlatformdiagnostics-8h-1a0522f99b343dcc795d852afa1b9806bd"><span class="std std-ref">Define kHAPPlatformDiagnosticsZipFileName</span></a></p></li>
+<li><p><a class="reference internal" href="define_HAPPlatformDiagnostics_8h_1ab6e3574e7b4728237396a7562b90ffc8.html#exhale-define-happlatformdiagnostics-8h-1ab6e3574e7b4728237396a7562b90ffc8"><span class="std std-ref">Define kHAPPlatformDiagnosticsZipUtility</span></a></p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright © 2021 Apple Inc. All Rights Reserved..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

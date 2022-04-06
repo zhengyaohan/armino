@@ -1,0 +1,417 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Raspberry Pi Setup Guide &mdash; HomeKit ADK  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Bonjour Conformance Test (BCT)" href="bct.html" />
+    <link rel="prev" title="Getting started with ADK" href="getting_started.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> HomeKit ADK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="adk_architecture.html">ADK Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adk_directory_structure.html">ADK Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Docker with ADK</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Step-by-step Guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started with ADK</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Raspberry Pi Setup Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#hardware-required">Hardware Required</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setup-instructions">Setup Instructions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ble-setup">BLE Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bct.html">Bonjour Conformance Test (BCT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wac_on_raspberrypi.html">WAC on Raspberry Pi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_on_darwin.html">Camera on macOS</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Troubleshooting ADK</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="interact_with_applications.html">Interacting with ADK applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="writing_unit_tests.html">Writing Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="debug_adk.html">Debugging ADK Applications</a></li>
+</ul>
+<p class="caption"><span class="caption-text">ADK Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="accessory_development.html">Accessory Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_pairing.html">Accessory Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_authentication.html">Accessory Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="provisioning_tools.html">Provisioning Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ADK_Memory_Usage_and_Requirements.html">Memory Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crypto.html">Cryptographic Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make_options.html">Compile Time Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coding_convention.html">Coding Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration_guide.html">ADK Migration Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">HomeKit Services</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="accessory_diagnostics.html">Accessory Diagnostics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_metrics.html">Accessory Metrics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adaptive_light.html">Adaptive Lighting Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appletv_remote.html">Apple TV Remote</a></li>
+<li class="toctree-l1"><a class="reference internal" href="firmware_update.html">Firmware Update Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="homekit_bridge.html">HomeKit Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ip_camera.html">IP Camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lock_profile.html">Lock Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stateless_programmable_switch.html">Stateless Programmable Switch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thread.html">HAP over Thread Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wifi_reconfiguration_feature.html">WiFi Reconfiguration Service</a></li>
+</ul>
+<p class="caption"><span class="caption-text">PAL APIs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_api_docs/dir_PAL.html">Directory PAL</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HomeKit ADK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Raspberry Pi Setup Guide</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/raspi_setup.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="raspberry-pi-setup-guide">
+<h1>Raspberry Pi Setup Guide<a class="headerlink" href="#raspberry-pi-setup-guide" title="Permalink to this headline">¶</a></h1>
+<p>This guide gets you started on setting up a Raspberry Pi to run an ADK application. Before you get started, please make
+sure to go through <a class="reference internal" href="getting_started.html"><span class="doc">Getting started with ADK</span></a> to set up your development environment.</p>
+<ol class="simple">
+<li><p><a class="reference external" href="#hardware-required">Hardware Required</a></p></li>
+<li><p><a class="reference external" href="#setup-instructions">Setup Instructions</a></p></li>
+<li><p><a class="reference external" href="#ble-setup">BLE Setup</a></p></li>
+<li><p><a class="reference external" href="#troubleshooting">Troubleshooting</a></p></li>
+</ol>
+<div class="section" id="hardware-required">
+<h2>Hardware Required<a class="headerlink" href="#hardware-required" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Raspberry Pi 3B+ or Raspberry Pi 4</p></li>
+<li><p>USBC → Ethernet Adaptor or USB → Ethernet Adaptor</p></li>
+</ul>
+</div>
+<div class="section" id="setup-instructions">
+<h2>Setup Instructions<a class="headerlink" href="#setup-instructions" title="Permalink to this headline">¶</a></h2>
+<p>To use Raspberry Pi you must setup an SD card first with a Raspberry Pi OS image along with additional dependencies
+required by the ADK.</p>
+<ul>
+<li><p>Open Terminal and change directory into the <code class="docutils literal notranslate"><span class="pre">ADK/Tools</span></code> directory:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> ADK/Tools
+</pre></div>
+</div>
+</li>
+<li><p>Run the following shell command to begin the Raspberry Pi SD card setup process</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>./raspi_sdcard_setup.sh
+</pre></div>
+</div>
+</li>
+<li><p>Insert the MicroSD card into the MicroSD reader and plug it into your Mac and hit <em>Return</em>.</p></li>
+<li><p>You will see an output of disk targets. Type in the SD card drive number. In the example below, it would be
+<code class="docutils literal notranslate"><span class="pre">/dev/disk2</span></code>.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="o">================================================================================</span>
+/dev/disk0 <span class="o">(</span>internal, physical<span class="o">)</span>:
+  <span class="c1">#:                       TYPE NAME                    SIZE       IDENTIFIER</span>
+  <span class="m">0</span>:      GUID_partition_scheme                        *248.9 GB   disk0
+  <span class="m">1</span>:                        EFI EFI                     <span class="m">314</span>.6 MB   disk0s1
+  <span class="m">2</span>:                 Apple_APFS Container disk1         <span class="m">247</span>.5 GB   disk0s2
+  <span class="m">3</span>:       Apple_KernelCoreDump                         <span class="m">1</span>.1 GB     disk0s3
+
+/dev/disk1 <span class="o">(</span>synthesized<span class="o">)</span>:
+  <span class="c1">#:                       TYPE NAME                    SIZE       IDENTIFIER</span>
+  <span class="m">0</span>:      APFS Container Scheme -                      +247.5 GB   disk1
+                                 Physical Store disk0s2
+  <span class="m">1</span>:                APFS Volume 19G73                   <span class="m">13</span>.9 GB    disk1s1
+  <span class="m">2</span>:                APFS Volume 19G73 - Data            <span class="m">17</span>.4 GB    disk1s2
+  <span class="m">3</span>:                APFS Volume Preboot                 <span class="m">81</span>.9 MB    disk1s3
+  <span class="m">4</span>:                APFS Volume Recovery                <span class="m">542</span>.1 MB   disk1s4
+  <span class="m">5</span>:                APFS Volume VM                      <span class="m">2</span>.1 GB     disk1s5
+
+/dev/disk2 <span class="o">(</span>external, physical<span class="o">)</span>:
+  <span class="c1">#:                       TYPE NAME                    SIZE       IDENTIFIER</span>
+  <span class="m">0</span>:     FDisk_partition_scheme                        *32.0 GB    disk2
+  <span class="m">1</span>:             Windows_FAT_32 CANAKIT                 <span class="m">32</span>.0 GB    <span class="nv">disk2s1</span>
+
+<span class="o">================================================================================</span>
+Please <span class="nb">type</span> <span class="k">in</span> Raspberry Pi SD card device name, or press enter to refresh disk list.
+/dev/disk2
+</pre></div>
+</div>
+</li>
+<li><p>Enter <code class="docutils literal notranslate"><span class="pre">y</span></code> when asked if you want to erase the disk. Authenticate to begin flashing the image to the SD card.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>Erase this disk: <span class="sb">`</span>/dev/disk2<span class="sb">`</span>? <span class="o">[</span>y/N<span class="o">]</span><span class="nv">y</span>
+
+<span class="o">==============================================================</span>
++ diskutil unmountDisk /dev/disk2
+Unmount of all volumes on disk2 was successful
++ sudo diskutil eraseDisk FAT32 RASPBIAN MBRFormat /dev/disk2
+Password:
+Started erase on disk2
+</pre></div>
+</div>
+</li>
+<li><p>When prompted, remove the SD card from your Mac, insert the SD card into your Raspberry Pi.<details></p>
+<summary>Expand to see Raspberry Pi SD card slot</summary><p><img alt="Raspberry Pi SD card slot" src="_images/raspi_sdcard.png" /></p>
+</details></li>
+<li><p>You would need to connect your Raspberry Pi to your mac using ethernet cable before you proceed. Following
+instructions to <a class="reference external" href="https://medium.com/&#64;tzhenghao/how-to-ssh-into-your-raspberry-pi-with-a-mac-and-ethernet-cable-636a197d055">connect Raspberry Pi to mac using internet sharing</a>.
+Once the ethernet cable is plugged into the Raspberry Pi and connected to your Mac, hit <em>Return</em>. This will start
+running configuration scripts.</p></li>
+<li><p>Following are the default configurations unless changed during setup:</p>
+<ul class="simple">
+<li><p>Wi-Fi Country Code: <code class="docutils literal notranslate"><span class="pre">US</span></code></p></li>
+<li><p>Host name: <code class="docutils literal notranslate"><span class="pre">raspberrypi</span></code></p></li>
+<li><p>User name: <code class="docutils literal notranslate"><span class="pre">pi</span></code></p></li>
+<li><p>Password: <code class="docutils literal notranslate"><span class="pre">raspberry</span></code></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="ble-setup">
+<h2>BLE Setup<a class="headerlink" href="#ble-setup" title="Permalink to this headline">¶</a></h2>
+<p>BLE support on Raspberry Pi is optional and is only required if using Raspberry Pi as a BLE HomeKit accessory.</p>
+<details>
+  <summary>Expand to follow instructions to setup BLE</summary>
+<BR><p>By default, the BlueZ stack on Raspberry Pi is not compatible with HomeKit. A script is available for MFi partners to
+address the HomeKit compatibility issues with Raspberry Pi bluetooth stack.</p>
+<p>Run the following on your development machine to address these issues with the bluetooth stack on Raspberry Pi:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>./Tools/raspi_bluez_install.py -n raspberrypi -p &lt;password&gt;
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Each time Raspberry Pi is rebooted, you have to restart bluetooth service. This seems to be related to a known
+issue: <a class="reference external" href="https://github.com/RPi-Distro/pi-bluetooth/issues/8">https://github.com/RPi-Distro/pi-bluetooth/issues/8</a>. The problem will affect pairing the Raspberry Pi
+accessory with Home Application.</p>
+<p>Following command can be run on Raspberry Pi to restart bluetooth stack after every reboot:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo systemctl restart bluetooth
+</pre></div>
+</div>
+</div>
+</details>
+<BR></div>
+<div class="section" id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h2>
+<details>
+  <summary>Change the default country code</summary>
+<BR><p>The default image uses <code class="docutils literal notranslate"><span class="pre">US</span></code> for wifi country code. If you need to change this, you can do so by logging into the
+Raspberry Pi using the command below.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>sudo raspi-config
+</pre></div>
+</div>
+</details>
+<BR><details>
+  <summary>Setup Wi-Fi</summary>
+<BR><p>Run command <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">raspi-config</span></code> and then go to <code class="docutils literal notranslate"><span class="pre">network</span> <span class="pre">options</span></code> &gt; <code class="docutils literal notranslate"><span class="pre">Wi-fi</span></code> and enter SSID and password. Refer to
+<a class="reference external" href="https://www.raspberrypi.org/documentation/configuration/wireless/wireless-cli.md">Setting up a wireless LAN via CLI</a>
+for more details.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>sudo raspi-config
+</pre></div>
+</div>
+</details>
+<BR><details>
+  <summary>Change Timezone</summary>
+<BR><p>To set the local time zone on Raspberry Pi to match your current time zone, do the following:</p>
+<ul class="simple">
+<li><p>ssh to the raspberry pi</p></li>
+<li><p>run <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">raspi-config</span></code></p></li>
+<li><p>Select <em>Localization Options</em></p></li>
+<li><p>Select <em>Change Timezone</em></p></li>
+<li><p>Select your timezone to match your other devices</p>
+<ul>
+<li><p>Example: if you are in <em>Cupertino</em> or America-Pacific timezone, select <em>America</em> then <em>Los Angeles</em></p></li>
+</ul>
+</li>
+<li><p>Select <em>Finish</em></p></li>
+</ul>
+</details>
+<BR></div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="bct.html" class="btn btn-neutral float-right" title="Bonjour Conformance Test (BCT)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="getting_started.html" class="btn btn-neutral float-left" title="Getting started with ADK" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright © 2021 Apple Inc. All Rights Reserved..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

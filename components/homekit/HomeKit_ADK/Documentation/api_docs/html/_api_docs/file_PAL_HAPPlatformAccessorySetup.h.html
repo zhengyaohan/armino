@@ -1,0 +1,359 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>File HAPPlatformAccessorySetup.h &mdash; HomeKit ADK  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> HomeKit ADK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../adk_architecture.html">ADK Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../adk_directory_structure.html">ADK Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docker.html">Docker with ADK</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Step-by-step Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting started with ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../raspi_setup.html">Raspberry Pi Setup Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bct.html">Bonjour Conformance Test (BCT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wac_on_raspberrypi.html">WAC on Raspberry Pi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../camera_on_darwin.html">Camera on macOS</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Troubleshooting ADK</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../interact_with_applications.html">Interacting with ADK applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writing_unit_tests.html">Writing Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../debug_adk.html">Debugging ADK Applications</a></li>
+</ul>
+<p class="caption"><span class="caption-text">ADK Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_development.html">Accessory Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_pairing.html">Accessory Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_authentication.html">Accessory Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../provisioning_tools.html">Provisioning Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ADK_Memory_Usage_and_Requirements.html">Memory Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../crypto.html">Cryptographic Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../make_options.html">Compile Time Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../coding_convention.html">Coding Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migration_guide.html">ADK Migration Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">HomeKit Services</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_diagnostics.html">Accessory Diagnostics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_metrics.html">Accessory Metrics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../adaptive_light.html">Adaptive Lighting Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appletv_remote.html">Apple TV Remote</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../firmware_update.html">Firmware Update Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../homekit_bridge.html">HomeKit Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ip_camera.html">IP Camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lock_profile.html">Lock Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../stateless_programmable_switch.html">Stateless Programmable Switch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../thread.html">HAP over Thread Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wifi_reconfiguration_feature.html">WiFi Reconfiguration Service</a></li>
+</ul>
+<p class="caption"><span class="caption-text">PAL APIs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dir_PAL.html">Directory PAL</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HomeKit ADK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>File HAPPlatformAccessorySetup.h</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/_api_docs/file_PAL_HAPPlatformAccessorySetup.h.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="file-happlatformaccessorysetup-h">
+<span id="file-pal-happlatformaccessorysetup-h"></span><h1>File HAPPlatformAccessorySetup.h<a class="headerlink" href="#file-happlatformaccessorysetup-h" title="Permalink to this headline">¶</a></h1>
+<p>↰ <a class="reference internal" href="dir_PAL.html#dir-pal"><span class="std std-ref">Parent directory</span></a> (<code class="docutils literal notranslate"><span class="pre">PAL</span></code>)</p>
+<div class="contents local topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#definition-pal-happlatformaccessorysetup-h" id="id1">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformAccessorySetup.h</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#detailed-description" id="id2">Detailed Description</a></p></li>
+<li><p><a class="reference internal" href="#includes" id="id3">Includes</a></p></li>
+<li><p><a class="reference internal" href="#functions" id="id4">Functions</a></p></li>
+<li><p><a class="reference internal" href="#typedefs" id="id5">Typedefs</a></p></li>
+</ul>
+</div>
+<div class="section" id="definition-pal-happlatformaccessorysetup-h">
+<h2>Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformAccessorySetup.h</span></code>)<a class="headerlink" href="#definition-pal-happlatformaccessorysetup-h" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformAccessorySetup.h.html">Program Listing for File HAPPlatformAccessorySetup.h</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="detailed-description">
+<h2>Detailed Description<a class="headerlink" href="#detailed-description" title="Permalink to this headline">¶</a></h2>
+<p>Each accessory must be provisioned for use with HomeKit during manufacturing. This platform module must be implemented to provide access to the provisioned information.
+<strong>Setup code:</strong>
+During HomeKit pairing, a setup code is used by the controller to set up an encrypted link with the accessory.</p>
+<ul class="simple">
+<li><p>If the accessory has a display that supports showing a setup code, a random setup code is used while pairing.</p></li>
+<li><p>Otherwise, a static setup code has to be generated during manufacturing that is deployed to the accessory.</p></li>
+</ul>
+<p>If a static setup code is used, the following steps must be followed for each accessory:</p>
+<ol class="arabic simple">
+<li><p>A random setup code in format <code class="docutils literal notranslate"><span class="pre">XXX-XX-XXX</span></code> with <code class="docutils literal notranslate"><span class="pre">X</span></code> being a digit from <code class="docutils literal notranslate"><span class="pre">0-9</span></code> must be generated.</p>
+<ul class="simple">
+<li><p>The setup code must be generated from a cryptographically secure random number generator.</p></li>
+<li><p>Setup codes that only consist of a repeating digit are not allowed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">123-45-678</span></code> and <code class="docutils literal notranslate"><span class="pre">876-54-321</span></code> are not allowed.</p></li>
+</ul>
+</li>
+<li><p>A random SRP salt (16 random bytes) must be generated.</p>
+<ul class="simple">
+<li><p>The SRP salt must be generated from a cryptographically secure random number generator.</p></li>
+</ul>
+</li>
+<li><p>The corresponding SRP verifier is derived from the setup code and the SRP salt.</p></li>
+<li><p>The SRP salt and SRP verifier are deployed to the accessory.</p></li>
+<li><p>If the accessory has a programmable NFC tag, the setup code must also be deployed. Otherwise, the raw setup code must not be deployed.</p></li>
+</ol>
+<p><strong>Setup ID:</strong>
+To improve the setup experience, a random setup ID is generated and deployed to each accessory during manufacturing. During pairing, the setup ID is used to identify the accessory to which a scanned label belongs.
+The following steps must be followed for each accessory:</p>
+<ol class="arabic simple">
+<li><p>A random setup ID in format <code class="docutils literal notranslate"><span class="pre">XXXX</span></code> with <code class="docutils literal notranslate"><span class="pre">X</span></code> being a digit from 0-9 or a character from A-Z must be generated.</p>
+<ul class="simple">
+<li><p>The setup ID must be generated from a cryptographically secure random number generator.</p></li>
+<li><p>Lowercase characters are not allowed.</p></li>
+</ul>
+</li>
+<li><p>The setup ID is deployed to the accessory.</p></li>
+</ol>
+<ul class="simple">
+<li><p>If no setup ID is deployed, certain features like QR code displays or programmable NFC are unavailable.</p></li>
+</ul>
+<p><strong>Labels:</strong>
+If the accessory has a static setup code, a label must be affixed to the accessory and its packaging. Labels are based on the setup payload that is derived from the setup ID and the setup code.
+There are different kinds of labels:</p>
+<ul class="simple">
+<li><p>Labels consisting of a QR code that encodes the setup payload, and containing the setup code.</p></li>
+<li><p>Labels with an embedded NFC tag that provides the setup payload when read, and containing the setup code.</p></li>
+<li><p>Legacy labels containing only the setup code.</p></li>
+</ul>
+<p>If an accessory has a programmable NFC tag, only QR code labels should be used. If the accessory is a security class device and uses NFC pairing, it must have a programmable NFC tag.
+Expected behavior:
+The setup data may be stored in a file, directly in flash, or in EEPROM chips. The key-value store may be used for this purpose.</p>
+</div>
+<div class="section" id="includes">
+<h2>Includes<a class="headerlink" href="#includes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPAssert.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPBase+CompilerAbstraction.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/workspace/export/out/PAL/HAPLog.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPBase.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">float.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">iso646.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">limits.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stdarg.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stdbool.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stddef.h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stdint.h</span></code></p></li>
+</ul>
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="function_HAPPlatformAccessorySetup_8h_1afd022ff721598c9385ac6a06e173867f.html#exhale-function-happlatformaccessorysetup-8h-1afd022ff721598c9385ac6a06e173867f"><span class="std std-ref">Function HAPPlatformAccessorySetupLoadSetupCode</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformAccessorySetup_8h_1a8c5aa97b9b69de8018df7649ba999178.html#exhale-function-happlatformaccessorysetup-8h-1a8c5aa97b9b69de8018df7649ba999178"><span class="std std-ref">Function HAPPlatformAccessorySetupLoadSetupID</span></a></p></li>
+<li><p><a class="reference internal" href="function_HAPPlatformAccessorySetup_8h_1a72fba94711c7564501aa58ee009470d2.html#exhale-function-happlatformaccessorysetup-8h-1a72fba94711c7564501aa58ee009470d2"><span class="std std-ref">Function HAPPlatformAccessorySetupLoadSetupInfo</span></a></p></li>
+</ul>
+</div>
+<div class="section" id="typedefs">
+<h2>Typedefs<a class="headerlink" href="#typedefs" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="typedef_HAPPlatformAccessorySetup_8h_1a726b4597777fb6ca17d4c27434a5159b.html#exhale-typedef-happlatformaccessorysetup-8h-1a726b4597777fb6ca17d4c27434a5159b"><span class="std std-ref">Typedef HAPPlatformAccessorySetup</span></a></p></li>
+<li><p><a class="reference internal" href="typedef_HAPPlatformAccessorySetup_8h_1a17079ea30243c96293330270c601d967.html#exhale-typedef-happlatformaccessorysetup-8h-1a17079ea30243c96293330270c601d967"><span class="std std-ref">Typedef HAPPlatformAccessorySetupRef</span></a></p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright © 2021 Apple Inc. All Rights Reserved..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

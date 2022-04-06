@@ -1,0 +1,1 @@
+#include "../Mock/HAPPlatformStartup.S"

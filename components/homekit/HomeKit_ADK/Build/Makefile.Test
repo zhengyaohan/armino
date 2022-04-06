@@ -1,0 +1,37 @@
+CXXFLAGS += --std=c++11
+CXXFLAGS += $(CXXFLAGS_$(PAL))
+LDXXFLAGS += $(LDXXFLAGS_$(PAL))
+
+$(eval $(foreach build_type,$(BUILD_TYPES),$(foreach ext,$(CXXSRC_EXTS),$(call cxxcompile,$(build_type),%.o,%.$(ext),))))
+
+# Build tests
+ifeq ($(TESTS),)
+	TEST_DIRS := Tests
+	TEST_SRCS := $(filter-out $(EXCLUDE_$(PAL)),$(call all_sources_in,$(TEST_DIRS)))
+	TEST_CXXSRCS := $(filter-out $(EXCLUDE_$(PAL)),$(call all_cxxsources_in,$(TEST_DIRS)))
+	ALL_TESTS := $(call to_executable,Test,$(TEST_SRCS) $(TEST_CXXSRCS),$(CRYPTO))
+	TESTS_LIST := $(filter-out $(call to_executable,Test,$(addprefix Tests/,$(SKIPPED_TESTS_$(PAL))),$(CRYPTO)),$(ALL_TESTS))
+else
+	TEST_DIRS := Tests
+	TEST_SRCS := $(filter $(addsuffix .c,$(addprefix Tests/,$(TESTS))),$(call all_sources_in,$(TEST_DIRS)))
+	TEST_SRCS += $(filter $(addsuffix .m,$(addprefix Tests/,$(TESTS))),$(call all_sources_in,$(TEST_DIRS)))
+	TEST_CXXSRCS := $(filter $(addsuffix .cpp,$(addprefix Tests/,$(TESTS))),$(call all_cxxsources_in,$(TEST_DIRS)))
+	ALL_TESTS := $(call to_executable,Test,$(TEST_SRCS) $(TEST_CXXSRCS),$(CRYPTO))
+	TESTS_LIST := $(filter-out $(call to_executable,Test,$(addprefix Tests/,$(SKIPPED_TESTS_$(PAL))),$(CRYPTO)),$(ALL_TESTS))
+endif
+
+SRC_DIRS_TEST_HARNESS := Tests/Harness
+
+$(call build_module,TestHarness,$(filter-out $(EXCLUDE_$(PAL)),$(call all_sources_in,$(SRC_DIRS_TEST_HARNESS)) $(call all_cxxsources_in,$(SRC_DIRS_TEST_HARNESS))))
+$(foreach crypto,$(CRYPTO_MODULES),$(foreach test,$(TEST_SRCS),$(call build_executable,$(test),$(crypto),$(test),$(CORE) TestHarness Mock $(crypto))))
+$(foreach crypto,$(CRYPTO_MODULES),$(foreach test,$(TEST_CXXSRCS),$(call cxxbuild_executable,$(test),$(crypto),$(test),$(CORE) TestHarness Mock $(crypto))))
+
+define run_test
+	@echo $(RUN_$(PAL)) $(1) >> $(OUTPUT_DIR)/Test/_tmptest.lst
+
+endef
+
+tests: $(TESTS_LIST)
+	@rm -f $(OUTPUT_DIR)/Test/_tmptest.lst
+	$(foreach test,$^,$(call run_test,$(test)))
+	@Tools/run_tests.py $(OUTPUT_DIR)/Test/_tmptest.lst

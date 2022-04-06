@@ -1,0 +1,742 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Accessory Development &mdash; HomeKit ADK  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Accessory Pairing" href="accessory_pairing.html" />
+    <link rel="prev" title="Debugging ADK Applications" href="debug_adk.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> HomeKit ADK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="adk_architecture.html">ADK Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adk_directory_structure.html">ADK Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Docker with ADK</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Step-by-step Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started with ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="raspi_setup.html">Raspberry Pi Setup Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bct.html">Bonjour Conformance Test (BCT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wac_on_raspberrypi.html">WAC on Raspberry Pi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_on_darwin.html">Camera on macOS</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Troubleshooting ADK</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="interact_with_applications.html">Interacting with ADK applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="writing_unit_tests.html">Writing Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="debug_adk.html">Debugging ADK Applications</a></li>
+</ul>
+<p class="caption"><span class="caption-text">ADK Development</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Accessory Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#sample-application">Sample Application</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#db-h-and-db-c">DB.h and DB.c</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#app-h-and-app-c">App.h and App.c</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#appbase-c">AppBase.c</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#accessory-logic">Accessory Logic</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#define-the-attribute-database">Define the Attribute Database</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#implement-callbacks">Implement Callbacks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#start-the-application">Start the Application</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#terminate-the-application">Terminate the Application</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#memory-requirements">Memory Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#persistent-storage">Persistent storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#firmware-updates">Firmware updates</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_pairing.html">Accessory Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_authentication.html">Accessory Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="provisioning_tools.html">Provisioning Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ADK_Memory_Usage_and_Requirements.html">Memory Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crypto.html">Cryptographic Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make_options.html">Compile Time Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coding_convention.html">Coding Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration_guide.html">ADK Migration Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">HomeKit Services</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="accessory_diagnostics.html">Accessory Diagnostics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_metrics.html">Accessory Metrics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adaptive_light.html">Adaptive Lighting Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appletv_remote.html">Apple TV Remote</a></li>
+<li class="toctree-l1"><a class="reference internal" href="firmware_update.html">Firmware Update Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="homekit_bridge.html">HomeKit Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ip_camera.html">IP Camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lock_profile.html">Lock Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stateless_programmable_switch.html">Stateless Programmable Switch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thread.html">HAP over Thread Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wifi_reconfiguration_feature.html">WiFi Reconfiguration Service</a></li>
+</ul>
+<p class="caption"><span class="caption-text">PAL APIs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_api_docs/dir_PAL.html">Directory PAL</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HomeKit ADK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Accessory Development</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/accessory_development.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="accessory-development">
+<h1>Accessory Development<a class="headerlink" href="#accessory-development" title="Permalink to this headline">¶</a></h1>
+<p>An accessory logic developer can typically start from one of the sample applications provided in the ADK and modify it
+based on development needs.</p>
+<div class="section" id="sample-application">
+<h2>Sample Application<a class="headerlink" href="#sample-application" title="Permalink to this headline">¶</a></h2>
+<p>The sample applications provided in the ADK are structured as follows:</p>
+<div class="section" id="db-h-and-db-c">
+<h3>DB.h and DB.c<a class="headerlink" href="#db-h-and-db-c" title="Permalink to this headline">¶</a></h3>
+<p>DB.c contains a declaration of the HomeKit services and characteristics that the accessory should support, called the
+accessory attribute database. It is a <em>C</em> data structure that also contains pointers to functions that will be called by
+the HAP Library when the accessory needs to perform an action. The functions themselves are implemented in the separate
+files App.h and App.c. For an overview of the Apple-defined HomeKit profiles, please review the current version of the
+<em>HomeKit Accessory Protocol Specification</em> document available on the MFi portal.</p>
+</div>
+<div class="section" id="app-h-and-app-c">
+<h3>App.h and App.c<a class="headerlink" href="#app-h-and-app-c" title="Permalink to this headline">¶</a></h3>
+<p>App.c contains the implementation of the actual accessory logic, as functions that are called by the HAP Library
+whenever the accessory needs to perform an action. For example, the <code class="docutils literal notranslate"><span class="pre">HandleThermostatTargetTemperatureWrite</span></code> function
+must be implemented for a thermostat. It switches on a heating element when the user increases the thermostat’s target
+temperature. The original DB.h / DB.c / App.c / App.h samples provided by Apple are portable across platforms. Console
+output is used to simulate the behavior of these accessories. Chipset vendors may provide additional samples that
+demonstrate vendor-specific aspects, e.g., how to access GPIOs or PWMs for controlling an LED. Accessory manufacturers
+modify these files according to the needs of their accessories.</p>
+</div>
+<div class="section" id="appbase-c">
+<h3>AppBase.c<a class="headerlink" href="#appbase-c" title="Permalink to this headline">¶</a></h3>
+<p>This <code class="docutils literal notranslate"><span class="pre">C</span></code> file contains the main function with code for initializing the accessory logic state and the PAL, possibly
+termination code, and code for controlling the HomeKit accessory server that is implemented in the HAP Library. All the
+applications share the same <code class="docutils literal notranslate"><span class="pre">AppBase.c</span></code> file using a symbolic link to <code class="docutils literal notranslate"><span class="pre">Applications/AppBase.c</span></code>.</p>
+<p>Please refer to <a class="reference internal" href="adk_directory_structure.html"><span class="doc">ADK Directory Structure</span></a> for more details on how the Application files
+are arranged.</p>
+</div>
+</div>
+<div class="section" id="accessory-logic">
+<h2>Accessory Logic<a class="headerlink" href="#accessory-logic" title="Permalink to this headline">¶</a></h2>
+<p>This section describes the steps for implementing the accessory logic for a new product. Use the <em>LightBulb</em> or
+<em>Thermostat</em> sample applications as a starting point for light bulbs or thermostats. The same samples can be used as
+starting points for other relatively simple accessories (e.g., leak sensor, switch, fan, etc.). Use the <em>Lock</em> sample
+application as a starting point for door locks. Use the <em>IPCamera</em> and <em>VideoDoorbell</em> sample applications as starting
+point for cameras and video doorbells. Use the <em>Bridge</em> sample application for HomeKit bridges.</p>
+<div class="section" id="define-the-attribute-database">
+<h3>Define the Attribute Database<a class="headerlink" href="#define-the-attribute-database" title="Permalink to this headline">¶</a></h3>
+<p>Define the accessory attribute database with the IIDs of the involved services and characteristics (e.g., in DB.c) by
+modifying the selected sample code. Definition is done in a declarative way, by setting up C data structures for
+accessories, services and characteristics. The details of these elements are described in the document <em>HomeKit
+Accessory Protocol Specification</em>, in the chapters Apple-defined Characteristics, Apple-defined Services and
+Apple-defined Profiles.</p>
+<p>In <code class="docutils literal notranslate"><span class="pre">App.c</span></code>, an accessory object is defined in this manner:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="n">HAPAccessory</span><span class="w"> </span><span class="n">accessory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">aid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">category</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kHAPAccessoryCategory_Lighting</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Acme LightBulb&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">manufacturer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Acme&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;LightBulb1,1&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">serialNumber</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;099DB48E9E28&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">firmwareVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;1&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">hardwareVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;1&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">services</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">HAPService</span><span class="w"> </span><span class="o">*</span><span class="k">const</span><span class="p">[])</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="o">&amp;</span><span class="n">accessoryInformationService</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="o">&amp;</span><span class="n">hapProtocolInformationService</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="o">&amp;</span><span class="n">pairingService</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="o">&amp;</span><span class="n">lightbulbService</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nb">NULL</span><span class="w"></span>
+<span class="w">    </span><span class="p">},</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">cameraStreamConfigurations</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">callbacks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="n">identify</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IdentifyAccessory</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The accessory instance id aid must be set to 1 for non-bridged accessories and for HomeKit bridges themselves. For
+bridged accessories, it must be a number in the range 2 to 264 - 1.</p></li>
+<li><p>The accessory object contains an array of service objects. In this case an <em>Accessory Information service</em>, a
+<em>Protocol Information service</em>, a <em>Pairing service</em>, and a <em>LightBulb service</em>. Every accessory object must provide an
+<em>Accessory Information service</em> and the <em>Protocol Information service</em>. Every <em>BLE</em> accessory must provide the
+<em>Pairing service</em>, which is ignored on <em>IP</em> accessories.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">const</span></code> keyword is used in order to enable the toolchain to put the accessory attribute database into flash memory
+on systems where RAM is scarce.</p></li>
+<li><p>After a firmware update, the field firmwareVersion must be incremented. Everything else required according to the
+<em>HomeKit Accessory Protocol specification</em> is done by the HAP Library, e.g., incrementing the config number (CN).
+Note that firmware downgrades are not allowed.</p></li>
+</ul>
+<p>To decouple the aspects of an accessory that are product-specific from those that are typically the same, or very
+similar, for all accessories of a particular HomeKit profile, the accessory attribute database is placed in the file
+<code class="docutils literal notranslate"><span class="pre">DB.c</span></code>. There, declarations of instance IDs for the supported services and their characteristics are needed:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#define kIID_AccessoryInformation                      ((uint64_t) 0x0001)</span>
+<span class="cp">#define kIID_AccessoryInformationIdentify              ((uint64_t) 0x0002)</span>
+<span class="cp">#define kIID_AccessoryInformationManufacturer          ((uint64_t) 0x0003)</span>
+<span class="cp">#define kIID_AccessoryInformationModel                 ((uint64_t) 0x0004)</span>
+<span class="cp">#define kIID_AccessoryInformationName                  ((uint64_t) 0x0005)</span>
+<span class="cp">#define kIID_AccessoryInformationSerialNumber          ((uint64_t) 0x0006)</span>
+<span class="cp">#define kIID_AccessoryInformationFirmwareRevision      ((uint64_t) 0x0007)</span>
+<span class="cp">#define kIID_AccessoryInformationHardwareRevision      ((uint64_t) 0x0008)</span>
+<span class="cp">#define kIID_AccessoryInformationADKVersion            ((uint64_t) 0x0009)</span>
+<span class="cp">#define kIID_AccessoryInformationProductData           ((uint64_t) 0x000A)</span>
+
+<span class="cp">#define kIID_HAPProtocolInformation                    ((uint64_t) 0x0010)</span>
+<span class="cp">#define kIID_HAPProtocolInformationServiceSignature    ((uint64_t) 0x0011)</span>
+<span class="cp">#define kIID_HAPProtocolInformationVersion             ((uint64_t) 0x0012)</span>
+
+<span class="cp">#define kIID_Pairing                                   ((uint64_t) 0x0020)</span>
+<span class="cp">#define kIID_PairingPairSetup                          ((uint64_t) 0x0022)</span>
+<span class="cp">#define kIID_PairingPairVerify                         ((uint64_t) 0x0023)</span>
+<span class="cp">#define kIID_PairingPairingFeatures                    ((uint64_t) 0x0024)</span>
+<span class="cp">#define kIID_PairingPairingPairings                    ((uint64_t) 0x0025)</span>
+
+<span class="cp">#define kIID_LightBulb                                 ((uint64_t) 0x0030)</span>
+<span class="cp">#define kIID_LightBulbServiceSignature                 ((uint64_t) 0x0031)</span>
+<span class="cp">#define kIID_LightBulbName                             ((uint64_t) 0x0032)</span>
+<span class="cp">#define kIID_LightBulbOn                               ((uint64_t) 0x0033)</span>
+
+<span class="n">HAP_STATIC_ASSERT</span><span class="p">(</span><span class="n">kAttributeCount</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">AttributeCount_mismatch</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>An instance ID iid must be in the range of <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">to</span> <span class="pre">2^64</span> <span class="pre">-</span> <span class="pre">1</span></code> for <em>IP</em> accessories, <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">to</span> <span class="pre">2^16</span> <span class="pre">-</span> <span class="pre">1</span></code> for <em>BLE</em>
+accessories. Once an accessory is paired with its controller, an IID must remain the same throughout the lifetime of the
+accessory pairing. This means in particular across firmware updates, and also when someone migrates an accessory from a
+non-ADK based HomeKit SDK to one that is based on the ADK. Also, an IID that is not used anymore, after a firmware
+update, must not be reused for anything else. IIDs are chosen from a single ID pool for all characteristics and services
+of an accessory, except for a HomeKit bridge where every bridged accessory has its own pool.</p></li>
+<li><p>The IIDs above are grouped by services. The sample accessory supports the Accessory Information, HAP-BLE
+<em>Protocol Information</em>, <em>Pairing</em> and <em>LightBulb services</em>. The first two are mandatory HomeKit services. The
+<em>Pairing service</em> is a HomeKit service required only for <em>BLE</em> accessories. It is recommended to define it even for
+<em>IP</em> accessories, so that adding <em>BLE</em> support later on would be simplified.</p></li>
+<li><p>The samples are structured such that their implementation of all three HomeKit system services
+(<em>Accessory Information</em>, HAP-BLE <em>Protocol Information</em>, and <em>Pairing</em>) can be reused as is, with only their IIDs
+possibly having to be modified. This is possible because accessory-specific information that is exposed particularly in
+the <em>Accessory Information</em> service, such as manufacturer and serialNumber, are already provided in the <code class="docutils literal notranslate"><span class="pre">HAPAccessory</span></code>
+object in the separate file <code class="docutils literal notranslate"><span class="pre">App.c</span></code>.</p></li>
+<li><p>The <em>Accessory Information</em> service must contain the <em>ADKVersion</em> characteristic, see the <code class="docutils literal notranslate"><span class="pre">DB.c</span></code> files of the sample
+Applications.</p></li>
+<li><p>The assertion check after the IID definitions helps detect inconsistencies, especially after changing the set of
+services or after adding characteristics. kAttributeCount is the total number of IIDs and must be correct. Both
+characteristics and services are attributes with IIDs, and therefore must be counted.</p></li>
+</ul>
+<p>A LightBulb service is defined in this manner:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="n">HAPService</span><span class="w"> </span><span class="n">lightbulbService</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">iid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kIID_LightBulb</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">serviceType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">kHAPServiceType_LightBulb</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">debugDescription</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kHAPServiceDebugDescription_LightBulb</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Light Bulb&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">properties</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="n">primaryService</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="n">hidden</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="n">ble</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="p">.</span><span class="n">supportsConfiguration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="p">},</span><span class="w"></span>
+<span class="w">    </span><span class="p">},</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">linkedServices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">characteristics</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">HAPCharacteristic</span><span class="w"> </span><span class="o">*</span><span class="k">const</span><span class="p">[])</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="o">&amp;</span><span class="n">lightbulbServiceSignatureCharacteristic</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="o">&amp;</span><span class="n">lightbulbNameCharacteristic</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="o">&amp;</span><span class="n">lightbulbOnCharacteristic</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">},</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+</pre></div>
+</div>
+<p>The service object contains an array of characteristic objects. In this case a <em>Service Signature</em> characteristic, a
+<em>Name</em> characteristic, and an <em>On</em> characteristic. The latter controls the on/off state of the light bulb.</p>
+<p>An <em>On</em> characteristic is defined in this manner:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="n">HAPBoolCharacteristic</span><span class="w"> </span><span class="n">lightbulbOnCharacteristic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kHAPCharacteristicFormat_Bool</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">iid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kIID_LightBulbOn</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">characteristicType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">kHAPCharacteristicType_On</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">debugDescription</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kHAPCharacteristicDebugDescription_On</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">manufacturerDescription</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">properties</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="n">readable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="n">writable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="n">supportsEventNotification</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="n">hidden</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="n">requiresTimedWrite</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="n">supportsAuthorizationData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="n">ip</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="p">.</span><span class="n">controlPoint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="w"></span>
+<span class="w">        </span><span class="p">},</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="n">ble</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="p">.</span><span class="n">supportsBroadcastNotification</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="p">.</span><span class="n">supportsDisconnectedNotification</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="p">.</span><span class="n">readableWithoutSecurity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="p">.</span><span class="n">writableWithoutSecurity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">},</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">callbacks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="n">handleRead</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HandleLightBulbOnRead</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="n">handleWrite</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HandleLightBulbOnWrite</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="p">};</span><span class="w"></span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>This is a Boolean characteristic, as indicated by its type HAPBoolCharacteristic, so its value at runtime will be
+either true or false. HAP.h supports a number of other types for characteristics, e.g., integer and floating point
+numbers, strings, etc.</p>
+<ul>
+<li><p>Make sure that the type matches the format, e.g., a HAPBoolCharacteristic must have
+<code class="docutils literal notranslate"><span class="pre">kHAPCharacteristicFormat_Bool</span></code>, a <code class="docutils literal notranslate"><span class="pre">HAPUInt8Characteristic</span></code> must have <code class="docutils literal notranslate"><span class="pre">kHAPCharacteristicFormat_UInt8</span></code>, etc.</p></li>
+</ul>
+</li>
+<li><p>The characteristic object contains two callbacks: <code class="docutils literal notranslate"><span class="pre">handleRead</span></code> and <code class="docutils literal notranslate"><span class="pre">handleWrite</span></code>. They are bound to the functions
+<code class="docutils literal notranslate"><span class="pre">HandleLightBulbOnRead</span></code> and <code class="docutils literal notranslate"><span class="pre">HandleLightBulbOnWrite</span></code>.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">lightbulbServiceSignatureCharacteristic</span></code> is ignored on <em>IP</em> accessories, but is required on <em>BLE</em> accessories for
+services that are linked, primary, hidden or support configuration. See HAP.h (search for “service properties”) or the
+<em>HomeKit Accessory Protocol Specification</em> for more information.</p></li>
+</ul>
+</div>
+<div class="section" id="implement-callbacks">
+<h3>Implement Callbacks<a class="headerlink" href="#implement-callbacks" title="Permalink to this headline">¶</a></h3>
+<p>Implement the callbacks that provide the actual behavior of the accessory, e.g., to change the set point of a
+thermostat (in <code class="docutils literal notranslate"><span class="pre">App.c</span></code>). Callbacks are blocking, meaning it is the accessory logic’s responsibility to immediately
+process them without waiting. This is possible because HAP is essentially a protocol for the remote reading and writing
+of variables (characteristics) over a network, which should not involve lengthy processing on the accessory.
+In the light bulb sample application, these two functions are typical examples of callback implementations:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">HAPError</span><span class="w"> </span><span class="nf">HandleLightBulbOnRead</span><span class="p">(</span><span class="w"></span>
+<span class="w">        </span><span class="n">HAPAccessoryServerRef</span><span class="o">*</span><span class="w"> </span><span class="n">server</span><span class="w"> </span><span class="n">HAP_UNUSED</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">HAPBoolCharacteristicReadRequest</span><span class="o">*</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="n">HAP_UNUSED</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="kt">bool</span><span class="o">*</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">_Nullable</span><span class="w"> </span><span class="n">context</span><span class="w"> </span><span class="n">HAP_UNUSED</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="o">*</span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">accessoryConfiguration</span><span class="p">.</span><span class="n">state</span><span class="p">.</span><span class="n">lightbulbOn</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">HAPLogInfo</span><span class="p">(</span><span class="o">&amp;</span><span class="n">kHAPLog_Default</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%s: %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">__func__</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">value</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;true&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;false&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">kHAPError_None</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>and</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span>HAPError HandleLightBulbOnWrite(
+        HAPAccessoryServerRef* server,
+        const HAPBoolCharacteristicWriteRequest* request,
+        bool value,
+        void* _Nullable context HAP_UNUSED) {
+    HAPLogInfo(&amp;kHAPLog_Default, &quot;%s: %s&quot;, __func__, value ? &quot;true&quot; : “false”);
+    if (accessoryConfiguration.state.lightbulbOn != value) {
+        accessoryConfiguration.state.lightbulbOn = value;
+        SaveAccessoryState();
+        if (value) {
+            TurnOnLightBulb();
+        } else {
+            TurnOffLightBulb();
+        }
+        HAPAccessoryServerRaiseEvent(server, request-&gt;characteristic, request-&gt;service, request-&gt;accessory);
+    }
+    return kHAPError_None;
+}
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPLogInfo</span></code> is used to produce log output that can be easily inspected during development. In a real accessory, the
+implementations of TurnOnLightBulb() and TurnOffLightBulb() would contain the code to query the platform for the state
+of the GPIO, PWM or other mechanism for controlling the light-emitting element of the light bulb. <code class="docutils literal notranslate"><span class="pre">HAPLogInfo</span></code> relies on
+the portable <code class="docutils literal notranslate"><span class="pre">HAPStringWithFormat</span></code> function for string-formatting to minimize dependencies on the <em>C</em> standard library.
+Especially on small embedded systems, the various C standard libraries do not support all possible features such as
+<code class="docutils literal notranslate"><span class="pre">%ll</span></code> or <code class="docutils literal notranslate"><span class="pre">%z</span></code> format specifiers. The <code class="docutils literal notranslate"><span class="pre">HAPStringWithFormat</span></code> function only offers a subset of the full <em>printf</em> style format
+specifiers:</p>
+<ul>
+<li><p>flags:  0, +, ‘ ‘</p></li>
+<li><p>width:  number</p></li>
+<li><p>length: l, ll, z</p></li>
+<li><p>types:  %, d, i, u, x, X, p, s, c, g</p></li>
+</ul>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Precisions as well as dynamic widths are not supported.</p>
+</div>
+<ul class="simple">
+<li><p>The variable accessoryConfiguration contains the accessory logic state, in this case the state of the light bulb
+(on/off).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPAccessoryServerRaiseEvent</span></code> tells the HAP server that this characteristic has changed, which may require sending of
+notifications. This function must always be called after the value of a characteristic was changed by the accessory
+logic.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPAccessoryServerRef</span></code> is an example of an opaque pointer. Accessory logic must access its internals only via the
+access functions provided. For custom implementations (e.g., <code class="docutils literal notranslate"><span class="pre">HAPPlatformKeyValueStoreRef</span></code> in the PAL), the ADK only
+accesses it via the access functions needed, never directly.</p></li>
+</ul>
+</div>
+<div class="section" id="start-the-application">
+<h3>Start the Application<a class="headerlink" href="#start-the-application" title="Permalink to this headline">¶</a></h3>
+<p>After setting up the accessory attribute database descriptors with their callbacks, initialize the platform and then
+call the functions <code class="docutils literal notranslate"><span class="pre">HAPAccessoryServerCreate</span></code> and <code class="docutils literal notranslate"><span class="pre">HAPAccessoryServerStart</span></code> with the descriptors as arguments. Then call
+the <code class="docutils literal notranslate"><span class="pre">HAPPlatformRunLoopRun</span></code>, which handles all protocol processing and invokes the callbacks when needed. This whole
+initialization part can be platform-specific, and therefore is placed in a separate file for the sample program
+(<code class="docutils literal notranslate"><span class="pre">AppBase.c</span></code>). Also, it may be specific to the transport being used (here: <em>IP</em> only, without <em>BLE</em>) and specific to the
+accessory category (here: light bulb).</p>
+<p>The central object is a HomeKit accessory server, declared as follows:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="n">HAPAccessoryServerRef</span><span class="w"> </span><span class="n">accessoryServer</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Accessory initialization sequence:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformSetupDrivers</span></code> - Initialize platform drivers</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformSetupInitKeyValueStore</span></code> - Initialize Key Value store</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformSetupInitBLE</span></code> or <code class="docutils literal notranslate"><span class="pre">HAPPlatformSetupInitThread</span></code> - Initialize <em>BLE</em> or <em>THREAD</em> peripheral managers.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformTCPStreamManagerCreate</span></code> - Create a TCP stream manager for an <em>IP</em> accessory. For an <em>IP</em> accessory, a TCP
+stream manager object must be provided.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformMFiTokenAuthCreate</span></code> - Initialize Software Token provider if Software Token Authentication is used.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformRunLoopCreate</span></code> - Create run loop, which manages and dispatches I/O events and drives the scheduling of
+timer events.</p></li>
+<li><p>Initialize <code class="docutils literal notranslate"><span class="pre">HAPIPAccessoryServerStorage</span></code> for an <em>IP</em> accessory with the memory required for incoming <em>IP</em> sessions
+based on the maximum number of simultaneous <em>IP</em> sessions supported by the accessory. Similarly initialize
+<code class="docutils literal notranslate"><span class="pre">HAPBLEAccessoryServerStorage</span></code> for a <em>BLE</em> accessory and <code class="docutils literal notranslate"><span class="pre">HAPThreadAccessoryServerStorage</span></code> for a <em>THREAD</em> accessory.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPAccessoryServerCreate</span></code> - Initialize accessory server</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPAccessoryServerStart</span></code> - Start the accessory server</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformRunLoopRun</span></code> - Start the platform run loop. This is a blocking call.</p></li>
+</ul>
+<p>Please note:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPAccessoryServerCreate</span></code> has a <code class="docutils literal notranslate"><span class="pre">HAPAccessoryServerOptions</span></code> parameter, which controls whether HAP over <em>IP</em>, <em>BLE</em>
+or <em>THREAD</em> is used, and for HAP over <em>IP</em>, whether or not Wi-Fi (and thus WAC2) is used.</p></li>
+<li><p>Storage needed for the Application is also provided in the <code class="docutils literal notranslate"><span class="pre">HAPAccessoryServerOptions</span></code> parameter.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPAccessoryServerCreate</span></code> has a <code class="docutils literal notranslate"><span class="pre">HAPPlatform</span></code> parameter, which must embody the PAL services to be used by the HAP
+library. In the example, the platform parameters have first been combined in a global variable to make platform
+dependencies easy to find:</p></li>
+</ul>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="k">struct</span> <span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">HAPPlatformKeyValueStore</span><span class="w"> </span><span class="n">keyValueStore</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">HAPPlatformAccessorySetup</span><span class="w"> </span><span class="n">accessorySetup</span><span class="p">;</span><span class="w"></span>
+<span class="cp">#if (HAVE_DISPLAY == 1)</span>
+<span class="w">    </span><span class="n">HAPPlatformAccessorySetupDisplay</span><span class="w"> </span><span class="n">setupDisplay</span><span class="p">;</span><span class="w"></span>
+<span class="cp">#endif</span>
+<span class="cp">#if (HAVE_NFC == 1)</span>
+<span class="w">    </span><span class="n">HAPPlatformAccessorySetupNFC</span><span class="w"> </span><span class="n">setupNFC</span><span class="p">;</span><span class="w"></span>
+<span class="cp">#endif</span>
+<span class="w">    </span><span class="n">HAPPlatformTCPStreamManager</span><span class="w"> </span><span class="n">tcpStreamManager</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">HAPPlatformServiceDiscovery</span><span class="w"> </span><span class="n">serviceDiscovery</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">HAPPlatformSoftwareAccessPoint</span><span class="w"> </span><span class="n">softwareAccessPoint</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">HAPPlatformWiFiManager</span><span class="w"> </span><span class="n">wiFiManager</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">HAPPlatformMFiHWAuth</span><span class="w"> </span><span class="n">mfiHWAuth</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">HAPPlatformMFiTokenAuth</span><span class="w"> </span><span class="n">mfiTokenAuth</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"> </span><span class="n">platform</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The platform variable contains those PAL services that need to be instantiated, and that are relevant for the given
+accessory. They are initialized individually and will be used at runtime once the server has been started. In contrast,
+the camera part of the PAL is not instantiated here, because it is not relevant for a light bulb. The random number
+generator in the PAL is an example of a service that exists only as a single instance and thus needs no explicit
+instantiation.</p></li>
+<li><p>Currently, concurrent <em>IP</em> and <em>BLE</em> operations are not supported, i.e., an accessory is either an <em>IP</em> or a <em>BLE</em>
+accessory. However, concurrent <em>THREAD</em> and <em>BLE</em> operations are supported.</p></li>
+<li><p>All memory provided through arguments to <code class="docutils literal notranslate"><span class="pre">HAPAccessoryServerCreate</span></code> must stay valid until the accessory server has
+been released (<code class="docutils literal notranslate"><span class="pre">HAPAccessoryServerRelease)</span></code>. Be careful to ensure that this condition holds if you call
+<code class="docutils literal notranslate"><span class="pre">HAPAccessoryServerCreate</span></code> from a scope in which the arguments do not automatically stay valid until the accessory
+server has been released.</p></li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Important: The HAP Library runs as a single execution context (e.g., a thread) in one loop, and all HAP.h functions
+must be called from this execution context. The blocking function <code class="docutils literal notranslate"><span class="pre">HAPPlatformRunLoopRun</span></code> implements the run loop,
+which manages and dispatches I/O events and drives the scheduling of timer events. When calling a HAP.h function
+from another execution context, it must be scheduled by calling <code class="docutils literal notranslate"><span class="pre">HAPPlatformRunLoopScheduleCallback</span></code>.</p>
+<p><strong>HAPPlatformRunLoopScheduleCallback is the function that is always safe to call from any execution context.</strong></p>
+<p>NOTE: Callbacks issued by the HAP Library, from <code class="docutils literal notranslate"><span class="pre">HAPPlatformRunLoopRun</span></code> are already on the ADK’s execution
+context.</p>
+</div>
+<p>Please refer to <code class="docutils literal notranslate"><span class="pre">__RunApplication</span></code> function in <code class="docutils literal notranslate"><span class="pre">Applications/AppBase.c</span></code> for a complete example of starting an
+ADK Application.</p>
+</div>
+<div class="section" id="terminate-the-application">
+<h3>Terminate the Application<a class="headerlink" href="#terminate-the-application" title="Permalink to this headline">¶</a></h3>
+<p>Normally, the HomeKit accessory server is never stopped as long as an accessory is powered. To stop it anyway, follow
+this sequence of steps as illustrated in the LightBulb sample Application:</p>
+<ul class="simple">
+<li><p>Make sure that you are running on the ADK execution context, see: <code class="docutils literal notranslate"><span class="pre">HAPPlatformRunLoopScheduleCallback</span></code> in
+<code class="docutils literal notranslate"><span class="pre">AdkStopApplication</span></code> in <code class="docutils literal notranslate"><span class="pre">Applications/AppBase.c</span></code>.</p></li>
+<li><p>Stop the accessory server, see: <code class="docutils literal notranslate"><span class="pre">HAPAccessoryServerStop</span></code> in <code class="docutils literal notranslate"><span class="pre">StopApplicationCallback</span></code> in <code class="docutils literal notranslate"><span class="pre">Applications/AppBase.c</span></code>.</p></li>
+<li><p>Wait for the accessory server to transition to the idle state. Then stop the run loop. See:
+<code class="docutils literal notranslate"><span class="pre">HAPPlatformRunLoopStop</span></code> in <code class="docutils literal notranslate"><span class="pre">HandleUpdatedState</span></code> in <code class="docutils literal notranslate"><span class="pre">Applications/AppBase.c</span></code>.</p></li>
+<li><p>Release the accessory server, see: <code class="docutils literal notranslate"><span class="pre">HAPAccessoryServerRelease</span></code> in <code class="docutils literal notranslate"><span class="pre">Applications/AppBase.c</span></code>.</p></li>
+<li><p>Release the run loop, see: <code class="docutils literal notranslate"><span class="pre">HAPPlatformRunLoopRelease</span></code> in <code class="docutils literal notranslate"><span class="pre">DeinitializePlatform</span></code> in <code class="docutils literal notranslate"><span class="pre">Applications/AppBase.c</span></code>.</p></li>
+</ul>
+</div>
+<div class="section" id="memory-requirements">
+<h3>Memory Requirements<a class="headerlink" href="#memory-requirements" title="Permalink to this headline">¶</a></h3>
+<p>Note that the HAP Library does not allocate any memory dynamically. Memory for the <em>BLE</em>, <em>IP</em> or <em>THREAD</em> stack is
+provided in the form of static variables. Worst-case memory requirements depend on the number and size of the
+characteristic values in the accessory database. In the case of HomeKit bridges, it also depends on the number of
+bridged accessories. It may take a few runs with the <em>HomeKit Certification Assistant (HCA)</em> to find values that are
+small but still large enough to handle all requests from a HomeKit controller.</p>
+<p>In <code class="docutils literal notranslate"><span class="pre">AppBase.c</span></code>, the samples use HAP-defined default constants for IP buffer sizes and the like. Start with these
+defaults, and then change the values as needed. These are the minimal values, appropriate for simple HomeKit accessories
+like light bulbs or sensors:</p>
+<ul class="simple">
+<li><p>Adjust <code class="docutils literal notranslate"><span class="pre">kHAPIPSessionStorage_DefaultNumElements</span></code> to reduce the number of HomeKit connections that can be open
+simultaneously.</p></li>
+<li><p>Adjust <code class="docutils literal notranslate"><span class="pre">kHAPIPSession_DefaultInboundBufferSize</span></code> to reduce the buffer space for messages coming from a HomeKit
+controller (one buffer per connection).</p></li>
+<li><p>Adjust <code class="docutils literal notranslate"><span class="pre">kHAPIPSession_DefaultOutboundBufferSize</span></code> to reduce the buffer space for messages going to a HomeKit
+controller (one buffer per connection).</p></li>
+<li><p>Adjust <code class="docutils literal notranslate"><span class="pre">kHAPIPSession_DefaultScratchBufferSize</span></code> to reduce the buffer size for various protocol operations
+(one buffer per accessory/bridge).</p></li>
+</ul>
+<p>If you replace one or more of the above values, be sure to replace all occurrences. Make sure that the number of
+parallel HomeKit sessions that is supported is correctly configured. On a PAL that is derived from the POSIX PAL,
+this means that <code class="docutils literal notranslate"><span class="pre">ipAccessoryServerStorage.numSessions</span></code> must have the same value as the option
+<code class="docutils literal notranslate"><span class="pre">HAPPlatformTCPStreamManagerOptions.maxConcurrentTCPStreams</span></code>.</p>
+</div>
+<div class="section" id="troubleshooting">
+<h3>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Make sure there is sufficient memory on the development platform—the system is built with debug logging enabled.
+For example, this is done with make <code class="docutils literal notranslate"><span class="pre">BUILD_TYPE=Debug</span></code>. Adapt the makefiles accordingly by setting the <code class="docutils literal notranslate"><span class="pre">LOG_LEVEL</span></code>
+compile time flag. The log will be written to the console.</p></li>
+<li><p>If there is an error in the log that says precondition failed, the log message also says what is expected in this
+place. A precondition failure means that a function is called with illegal arguments or that the system is in an
+erroneous state that is not acceptable for this function to run correctly. For example, a function may be called with a
+null value for a non-nullable pointer parameter. The ADK systematically checks for precondition failures, which always
+indicate programming errors (“contract violations”). If one is detected, the ADK is aborted immediately (<em>fail fast</em>)
+so that the program error is not masked.</p></li>
+<li><p>If you randomly encounter errors, e.g., leading to ADK aborts: please check that all calls to the HAP Library occur
+in the correct execution context. They must not occur from arbitrary threads.</p></li>
+<li><p>Make sure use of the Apple Authentication Coprocessor is not the cause of the failure, by disabling it
+(temporarily during early development, not for a shipping product). You can do this with the build option
+<code class="docutils literal notranslate"><span class="pre">USE_HW_AUTH=0</span></code>.</p></li>
+<li><p>If you use a PAL that is derived from the POSIX PAL and you get the Failed to allocate IP session error message in
+the HAP log, then check that the option <code class="docutils literal notranslate"><span class="pre">HAPAccessoryServerOptions.ip.accessoryServerStorage.numSessions</span></code> has the same
+value as the option <code class="docutils literal notranslate"><span class="pre">HAPPlatformTCPStreamManagerOptions.maxConcurrentTCPStreams</span></code>.</p></li>
+<li><p>If you get the Closing connection (inbound buffer too small) error message in the HAP log, increase the value of
+<code class="docutils literal notranslate"><span class="pre">kHAPIPSession_DefaultInboundBufferSize</span></code>.</p></li>
+<li><p>For every characteristic in the accessory attribute database, make sure that the characteristic format matches the
+characteristic structure, i.e., a <code class="docutils literal notranslate"><span class="pre">HAPUInt8Characteristic</span></code> must have <code class="docutils literal notranslate"><span class="pre">kHAPCharacteristicFormat_UInt8</span></code>.</p></li>
+<li><p>If there is an issue during firmware update testing, check that existing IIDs have remained the same as before the
+firmware update. This is particularly important if a firmware update now uses the ADK and the ADK samples and their
+IIDs are copied as is, without adapting them to their pre-ADK values.</p></li>
+<li><p>Pairing with HomeKit Accessory Tester tool and consulting its trace view for errors may assist with diagnostics.</p></li>
+<li><p>Make sure that the accessory attribute database is set up according to the profile definition of the latest HAP
+specification. If this is not the case, the HomeKit controller may abort pairing.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="persistent-storage">
+<h2>Persistent storage<a class="headerlink" href="#persistent-storage" title="Permalink to this headline">¶</a></h2>
+<p>Accessory logic, HAP Library and the PAL may all need to store some data in a persistent way. On Linux systems, this may
+be in a file or in a trusted platform module. On microcontrollers, this may be stored directly in on-chip flash memory.</p>
+<ul class="simple">
+<li><p>Accessory logic, e.g., for the LightBulb profile, typically needs very little persistent storage. The other
+applications such as Remote profile require several hundred KB for storing large configuration data structures. Such
+application data can be stored using the ADK’s key-value store, or outside of it.</p></li>
+<li><p>The HAP Library uses the ADK’s <a class="reference external" href="_api_docs/file_PAL_HAPPlatformKeyValueStore.h.html">KeyValue Store</a> for storing
+configuration data. The structure and storage format is not relevant for licensees and not documented in this guide.</p></li>
+<li><p>The PAL implements the key-value store. Besides the HAP Library and the accessory logic, PAL modules may also use the
+key-value store. E.g., for implementing provisioning support (see also
+<a class="reference external" href="_api_docs/file_PAL_HAPPlatformAccessorySetup.h.html">Accessory Setup</a>). Other storage mechanisms may
+also be used whenever appropriate. E.g., the POSIX PAL stores WAC configuration data in the same location where a Linux
+system stores the Wi-Fi configuration data.</p></li>
+</ul>
+<p>At least the data that the HAP Library stores persistently, but preferably also any accessory logic data and PAL data
+that may be security-critical, should be stored in secure storage - as secure as the target platform supports.</p>
+</div>
+<div class="section" id="firmware-updates">
+<h2>Firmware updates<a class="headerlink" href="#firmware-updates" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>After a firmware update, the field firmwareVersion in the <code class="docutils literal notranslate"><span class="pre">HAPAccessory</span></code> object must be incremented by the accessory
+logic. The remaining necessary state changes are automatically done by the HAP Library, e.g., incrementing the
+config number (CN).</p></li>
+<li><p>An <em>IID</em> must remain the same throughout the lifetime of the accessory pairing. This means in particular across
+firmware updates. If an <em>IID</em> is not used anymore after a firmware update, it must not be reused for anything else.</p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="accessory_pairing.html" class="btn btn-neutral float-right" title="Accessory Pairing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="debug_adk.html" class="btn btn-neutral float-left" title="Debugging ADK Applications" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright © 2021 Apple Inc. All Rights Reserved..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,108 @@
+TARGET_FLAVOR ?= macosx
+ARCH ?= arm64
+
+XCODE_SDK_macosx ?= macosx
+CFLAGS_macosx := -mmacosx-version-min=10.14
+
+XCODE_RUN := xcrun --sdk $(XCODE_SDK_$(TARGET_FLAVOR)) --toolchain XcodeDefault
+XCODE_SDK_PATH := $(shell $(XCODE_RUN) --show-sdk-path)
+BREW := $(shell which brew 2> /dev/null)
+ifdef BREW
+    HOMEBREW_INSTALL_PATH := $(or $(HOMEBREW_INSTALL_PATH),$(shell brew config | grep -i HOMEBREW_PREFIX | awk '{print $$2}'))
+else
+    HOMEBREW_INSTALL_PATH ?= /usr/local
+endif
+
+CC ?= clang
+CXX ?= clang++
+
+# Use ccache if enabled
+ifeq ($(USE_CCACHE),1)
+ifneq (,$(wildcard $(HOMEBREW_INSTALL_PATH)/bin/ccache))
+    CC := ccache clang
+    CXX := ccache clang++
+endif
+endif
+
+AR := ar
+COMPILER_TARGET := $(shell $(CC) -dumpmachine)
+COMPILER_VERSION := $(shell $(CC) --version | grep "version" | awk '{print $$1,$$2,$$3,$$4,$$5}')
+DEBUGGER := lldb
+SO_EXT := dylib
+
+COMPILER_VERSION_NUMBER := $(shell $(CC) --version | grep "version" | cut -d ' ' -f 4)
+XCODE_DEVELOPER_PATH := $(shell xcode-select -p)
+SYSTEM_INCLUDE_PATH := $(XCODE_DEVELOPER_PATH)/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/$(COMPILER_VERSION_NUMBER)/include
+
+SRC_DIRS_Darwin := PAL/Darwin Common
+CRYPTO_Darwin := PAL/Crypto/OpenSSL PAL/Crypto/MbedTLS
+
+# Override the PROTOCOLS_Darwin from the environment variable if present
+ifeq ($(PROTOCOLS),)
+    PROTOCOLS_Darwin := IP BLE
+else
+    PROTOCOLS_Darwin := $(PROTOCOLS)
+endif
+
+PROTOCOLS ?= $(PROTOCOLS_Darwin)
+
+CFLAGS_m := -fobjc-arc -Wno-ignored-attributes -Wno-unguarded-availability-new -Wno-availability -Wstrict-prototypes
+CFLAGS_Darwin := $(CFLAGS_$(TARGET_FLAVOR))
+CFLAGS_Darwin += $(foreach protocol,$(PROTOCOLS),$(CFLAGS_FEATURES_$(protocol)))
+CFLAGS_Darwin += -DDARWIN=1
+CFLAGS_Darwin += -pedantic -pedantic-errors -Wextra
+CFLAGS_Darwin += -Wno-expansion-to-defined -Wno-nullability-completeness -Wno-deprecated-declarations
+CFLAGS_Darwin += -Wno-nullability-extension -Wno-gcc-compat -Wno-gnu-zero-variadic-macro-arguments -Wno-empty-translation-unit -Wno-gnu-include-next
+CFLAGS_Darwin += $(shell pkg-config --cflags libnfc)
+CFLAGS_Darwin += -isysroot $(XCODE_SDK_PATH)
+CFLAGS_Darwin += -F$(SYSTEM_INCLUDE_PATH)
+CFLAGS_Darwin += -Wunreachable-code-aggressive -Wnullability-completeness
+CFLAGS_Darwin += -fPIC
+CFLAGS_Darwin += -IPAL/Crypto/Common
+CFLAGS_Test_Darwin += -Wno-pedantic # Disable pedantic errors for unit tests
+CFLAGS_Test_Darwin += -Wno-extra # Disable extra warnings for unit tests
+
+# Set compiler optimization level based on build type
+# Add debug information for non-release builds
+ifeq ($(BUILD_TYPE),Release)
+    CFLAGS_Darwin += -Os
+else
+    CFLAGS_Darwin += -O0 -g
+    LDFLAGS_Darwin += -rdynamic
+endif
+
+ifeq ($(USE_HW_AUTH), 1)
+    CFLAGS_Darwin += $(shell pkg-config --cflags hidapi)
+endif
+
+LDFLAGS_Darwin := $(addprefix -framework ,Foundation CoreBluetooth Network CoreGraphics ImageIO CoreServices CoreFoundation)
+
+ifeq ($(USE_HW_AUTH), 1)
+    LDFLAGS_Darwin += $(shell pkg-config --libs hidapi)
+endif
+
+ifeq ($(USE_NFC),1)
+    LDFLAGS_Darwin += $(shell pkg-config --libs libnfc)
+endif
+
+ifeq ($(BUILD_TYPE),Release)
+    LDFLAGS_Darwin += -dead_strip
+endif
+
+ifeq ($(TARGET_FLAVOR), macosx)
+OPENSSL_PATH = $(firstword $(wildcard $(HOMEBREW_INSTALL_PATH)/Cellar/openssl@1.1/*))
+CFLAGS_OpenSSL := -I$(OPENSSL_PATH)/include
+LDFLAGS_OpenSSL := -L$(OPENSSL_PATH)/lib -lcrypto
+endif
+
+MBEDTLS_PATH = $(firstword $(wildcard $(HOMEBREW_INSTALL_PATH)/Cellar/mbedtls/*))
+CFLAGS_MbedTLS := -I$(MBEDTLS_PATH)/include
+LDFLAGS_MbedTLS := -L$(MBEDTLS_PATH)/lib -lmbedcrypto
+
+EXCLUDE_Darwin := Applications/WiFiRouter
+
+SKIPPED_TESTS_Darwin := HAPExhaustiveUTF8Test
+
+CFLAGS_Darwin += -IPAL/Thread
+SRC_DIRS_Darwin += PAL/Thread/Mock
+

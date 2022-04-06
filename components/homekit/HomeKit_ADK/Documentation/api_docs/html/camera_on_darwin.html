@@ -1,0 +1,364 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Camera on macOS &mdash; HomeKit ADK  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/tabs.js"></script>
+        <script src="_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Interacting with ADK applications" href="interact_with_applications.html" />
+    <link rel="prev" title="WAC on Raspberry Pi" href="wac_on_raspberrypi.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> HomeKit ADK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="adk_architecture.html">ADK Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adk_directory_structure.html">ADK Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Docker with ADK</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Step-by-step Guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started with ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="raspi_setup.html">Raspberry Pi Setup Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bct.html">Bonjour Conformance Test (BCT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wac_on_raspberrypi.html">WAC on Raspberry Pi</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Camera on macOS</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#step-1-setting-up-a-development-platform">Step 1 - Setting up a Development Platform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-2-compiling-the-camera-application">Step 2 - Compiling the Camera Application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-3-generating-the-video-clips">Step 3 - Generating the Video Clips</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#installing-ffmpeg">Installing ffmpeg</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-raw-h264-clips">Creating Raw H264 Clips</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#step-4-running-the-camera-application">Step 4 - Running the Camera Application</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#using-pre-built-video-clips">Using Pre-built Video Clips</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-custom-video-clips">Using Custom Video Clips</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#step-5-triggering-motion-events">Step 5 - Triggering Motion Events</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Troubleshooting ADK</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="interact_with_applications.html">Interacting with ADK applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="writing_unit_tests.html">Writing Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="debug_adk.html">Debugging ADK Applications</a></li>
+</ul>
+<p class="caption"><span class="caption-text">ADK Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="accessory_development.html">Accessory Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_pairing.html">Accessory Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_authentication.html">Accessory Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="provisioning_tools.html">Provisioning Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ADK_Memory_Usage_and_Requirements.html">Memory Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crypto.html">Cryptographic Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make_options.html">Compile Time Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coding_convention.html">Coding Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration_guide.html">ADK Migration Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">HomeKit Services</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="accessory_diagnostics.html">Accessory Diagnostics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_metrics.html">Accessory Metrics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adaptive_light.html">Adaptive Lighting Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appletv_remote.html">Apple TV Remote</a></li>
+<li class="toctree-l1"><a class="reference internal" href="firmware_update.html">Firmware Update Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="homekit_bridge.html">HomeKit Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ip_camera.html">IP Camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lock_profile.html">Lock Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stateless_programmable_switch.html">Stateless Programmable Switch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thread.html">HAP over Thread Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wifi_reconfiguration_feature.html">WiFi Reconfiguration Service</a></li>
+</ul>
+<p class="caption"><span class="caption-text">PAL APIs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_api_docs/dir_PAL.html">Directory PAL</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HomeKit ADK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Camera on macOS</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/camera_on_darwin.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="camera-on-macos">
+<h1>Camera on macOS<a class="headerlink" href="#camera-on-macos" title="Permalink to this headline">¶</a></h1>
+<p>In order to easily simulate Home Accessory cameras it is possible to run the ADK on macOS and stream pre-recorded video
+clips to a resident or controller. This step by step guide describes how to create the video clips and run ADK camera
+applications and generate motion notifications for the cameras to residents.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>ADK camera application on macOS doesn’t support using live camera at this time.</p>
+</div>
+<ul class="simple">
+<li><p><a class="reference external" href="#step-1-setting-up-a-development-platform">Step 1 - Setting up a Development Platform</a></p></li>
+<li><p><a class="reference external" href="#step-2-compiling-the-camera-application">Step 2 - Compiling the Camera Application</a></p></li>
+<li><p><a class="reference external" href="#step-3-generating-the-video-clips">Step 3 - Generating the Video Clips</a></p></li>
+<li><p><a class="reference external" href="#step-4-running-the-camera-application">Step 4 - Running the Camera Application</a></p></li>
+</ul>
+<div class="section" id="step-1-setting-up-a-development-platform">
+<h2>Step 1 - Setting up a Development Platform<a class="headerlink" href="#step-1-setting-up-a-development-platform" title="Permalink to this headline">¶</a></h2>
+<p>Please follow instructions at the <a class="reference internal" href="getting_started.html"><span class="doc">Getting Started</span></a> to setup the development platform.</p>
+</div>
+<div class="section" id="step-2-compiling-the-camera-application">
+<h2>Step 2 - Compiling the Camera Application<a class="headerlink" href="#step-2-compiling-the-camera-application" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>make <span class="nv">TARGET</span><span class="o">=</span>Darwin <span class="nv">APPS</span><span class="o">=</span>VideoDoorbell
+</pre></div>
+</div>
+</div>
+<div class="section" id="step-3-generating-the-video-clips">
+<h2>Step 3 - Generating the Video Clips<a class="headerlink" href="#step-3-generating-the-video-clips" title="Permalink to this headline">¶</a></h2>
+<p>ADK comes with some pre-built video clips that are used by Camera applications. If you are planning
+on using the video clips that came with ADK then you can skip this step. However, if you want to use your own video
+clips then you will need to format the clips into raw h264 frames. Please follow the instructions below:</p>
+<div class="section" id="installing-ffmpeg">
+<h3>Installing ffmpeg<a class="headerlink" href="#installing-ffmpeg" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>brew install ffmpeg
+</pre></div>
+</div>
+</div>
+<div class="section" id="creating-raw-h264-clips">
+<h3>Creating Raw H264 Clips<a class="headerlink" href="#creating-raw-h264-clips" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ffmpeg -I &lt;video_clip_to_extract&gt; -vcodec libx264 -bf <span class="m">0</span> -b:v 800k -x264-params <span class="nv">keyint</span><span class="o">=</span><span class="m">120</span> 1920x1080.h264
+ffmpeg -I &lt;video_clip_to_extract&gt; -vcodec libx264 -bf <span class="m">0</span> -b:v 800k -x264-params <span class="nv">keyint</span><span class="o">=</span><span class="m">120</span> 1280x720.h264
+ffmpeg -I &lt;video_clip_to_extract&gt; -vcodec libx264 -bf <span class="m">0</span> -b:v 800k -x264-params <span class="nv">keyint</span><span class="o">=</span><span class="m">120</span> 640x480.h264
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="step-4-running-the-camera-application">
+<h2>Step 4 - Running the Camera Application<a class="headerlink" href="#step-4-running-the-camera-application" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="using-pre-built-video-clips">
+<h3>Using Pre-built Video Clips<a class="headerlink" href="#using-pre-built-video-clips" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>./Output/Darwin-x86_64-apple-darwin<span class="k">$(</span>uname -r<span class="k">)</span>/Debug/IP/Applications/VideoDoorbell.OpenSSL
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-custom-video-clips">
+<h3>Using Custom Video Clips<a class="headerlink" href="#using-custom-video-clips" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>./Output/Darwin-x86_64-apple-darwin<span class="k">$(</span>uname -r<span class="k">)</span>/Debug/IP/Applications/VideoDoorbell.OpenSSL -m &lt;path_to_video_clip&gt;
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-m</span></code> is to specify the path to the custom video clip generated in <em>Step 3</em> above.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="step-5-triggering-motion-events">
+<h2>Step 5 - Triggering Motion Events<a class="headerlink" href="#step-5-triggering-motion-events" title="Permalink to this headline">¶</a></h2>
+<p>HomeKit cameras can be set to allow recording of camera streams on detecting motion events. This can be enabled by
+setting <em>Stream &amp; Allow Recording</em> in <em>Recording Options</em> in <em>Home</em> application on an iOS device. The ADK camera
+application can then be forced to mimic motion events to start a video recording session. To trigger a
+motion event, do the following:</p>
+<p>To trigger a motion event with a pre-built video clip that matches the configured camera resolution:</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-bWFjT1M=" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-0-bWFjT1M=" name="bWFjT1M=" role="tab" tabindex="0">macOS</button></div><div aria-labelledby="tab-0-bWFjT1M=" class="sphinx-tabs-panel group-tab" id="panel-0-bWFjT1M=" name="bWFjT1M=" role="tabpanel" tabindex="0"><ul class="simple">
+<li><p>In Terminal window 1, launch the sample ADK application <code class="docutils literal notranslate"><span class="pre">./Output/Darwin-x86_64-apple-darwin$(uname</span> <span class="pre">-r)/Debug/IP/Applications/VideoDoorbell.OpenSSL</span></code></p></li>
+<li><p>In Terminal window 2, <code class="docutils literal notranslate"><span class="pre">echo</span> <span class="pre">triggerMotion</span> <span class="pre">&gt;</span> <span class="pre">.command.input</span></code></p></li>
+</ul>
+</div></div>
+<p>To trigger a motion event with a a custom video clip:</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-bWFjT1M=" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-1-bWFjT1M=" name="bWFjT1M=" role="tab" tabindex="0">macOS</button></div><div aria-labelledby="tab-1-bWFjT1M=" class="sphinx-tabs-panel group-tab" id="panel-1-bWFjT1M=" name="bWFjT1M=" role="tabpanel" tabindex="0"><ul class="simple">
+<li><p>In Terminal window 1, launch the sample ADK application <code class="docutils literal notranslate"><span class="pre">./Output/Darwin-x86_64-apple-darwin$(uname</span> <span class="pre">-r)/Debug/IP/Applications/VideoDoorbell.OpenSSL</span></code></p></li>
+<li><p>In Terminal window 2, <code class="docutils literal notranslate"><span class="pre">echo</span> <span class="pre">&quot;triggerMotion</span> <span class="pre">-m</span> <span class="pre">&lt;video_clip_path&gt;&quot;</span> <span class="pre">&gt;</span> <span class="pre">.command.input</span></code></p></li>
+</ul>
+</div></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Video recording session will automatically get terminated when the end of the video clip being used is reached.</p>
+</div>
+<p>For more information, please read <a class="reference external" href="interact_with_applications.html#buttons-and-unix-signals">Buttons and Unix Signals</a>.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="interact_with_applications.html" class="btn btn-neutral float-right" title="Interacting with ADK applications" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="wac_on_raspberrypi.html" class="btn btn-neutral float-left" title="WAC on Raspberry Pi" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright © 2021 Apple Inc. All Rights Reserved..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

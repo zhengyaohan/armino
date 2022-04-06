@@ -1,0 +1,660 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Full API &mdash; HomeKit ADK  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> HomeKit ADK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../adk_architecture.html">ADK Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../adk_directory_structure.html">ADK Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../docker.html">Docker with ADK</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Step-by-step Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting started with ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../raspi_setup.html">Raspberry Pi Setup Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bct.html">Bonjour Conformance Test (BCT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wac_on_raspberrypi.html">WAC on Raspberry Pi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../camera_on_darwin.html">Camera on macOS</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Troubleshooting ADK</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../interact_with_applications.html">Interacting with ADK applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../writing_unit_tests.html">Writing Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../debug_adk.html">Debugging ADK Applications</a></li>
+</ul>
+<p class="caption"><span class="caption-text">ADK Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_development.html">Accessory Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_pairing.html">Accessory Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_authentication.html">Accessory Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../provisioning_tools.html">Provisioning Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ADK_Memory_Usage_and_Requirements.html">Memory Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../crypto.html">Cryptographic Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../make_options.html">Compile Time Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../coding_convention.html">Coding Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migration_guide.html">ADK Migration Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">HomeKit Services</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_diagnostics.html">Accessory Diagnostics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accessory_metrics.html">Accessory Metrics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../adaptive_light.html">Adaptive Lighting Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../appletv_remote.html">Apple TV Remote</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../firmware_update.html">Firmware Update Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../homekit_bridge.html">HomeKit Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ip_camera.html">IP Camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lock_profile.html">Lock Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../stateless_programmable_switch.html">Stateless Programmable Switch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../thread.html">HAP over Thread Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wifi_reconfiguration_feature.html">WiFi Reconfiguration Service</a></li>
+</ul>
+<p class="caption"><span class="caption-text">PAL APIs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dir_PAL.html">Directory PAL</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">HomeKit ADK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Full API</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/_api_docs/unabridged_orphan.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="full-api">
+<h1>Full API<a class="headerlink" href="#full-api" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="directories">
+<h2>Directories<a class="headerlink" href="#directories" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dir_PAL.html">Directory PAL</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dir_PAL.html#subdirectories">Subdirectories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dir_PAL.html#files">Files</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dir_PAL_POSIX.html">Directory POSIX</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dir_PAL_POSIX.html#files">Files</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="files">
+<h2>Files<a class="headerlink" href="#files" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_HAPPlatformAbort.h.html">File HAPPlatformAbort.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformAbort.h.html#definition-pal-happlatformabort-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformAbort.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformAbort.h.html">Program Listing for File HAPPlatformAbort.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformAbort.h.html#detailed-description">Detailed Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformAbort.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformAbort.h.html#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_HAPPlatformAccessorySetup.h.html">File HAPPlatformAccessorySetup.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformAccessorySetup.h.html#definition-pal-happlatformaccessorysetup-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformAccessorySetup.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformAccessorySetup.h.html">Program Listing for File HAPPlatformAccessorySetup.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformAccessorySetup.h.html#detailed-description">Detailed Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformAccessorySetup.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformAccessorySetup.h.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformAccessorySetup.h.html#typedefs">Typedefs</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_HAPPlatformAccessorySetupDisplay.h.html">File HAPPlatformAccessorySetupDisplay.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformAccessorySetupDisplay.h.html#definition-pal-happlatformaccessorysetupdisplay-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformAccessorySetupDisplay.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformAccessorySetupDisplay.h.html">Program Listing for File HAPPlatformAccessorySetupDisplay.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformAccessorySetupDisplay.h.html#detailed-description">Detailed Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformAccessorySetupDisplay.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformAccessorySetupDisplay.h.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformAccessorySetupDisplay.h.html#typedefs">Typedefs</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_HAPPlatformAccessorySetupNFC.h.html">File HAPPlatformAccessorySetupNFC.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformAccessorySetupNFC.h.html#definition-pal-happlatformaccessorysetupnfc-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformAccessorySetupNFC.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformAccessorySetupNFC.h.html">Program Listing for File HAPPlatformAccessorySetupNFC.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformAccessorySetupNFC.h.html#detailed-description">Detailed Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformAccessorySetupNFC.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformAccessorySetupNFC.h.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformAccessorySetupNFC.h.html#typedefs">Typedefs</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_HAPPlatformBLEPeripheralManager.h.html">File HAPPlatformBLEPeripheralManager.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformBLEPeripheralManager.h.html#definition-pal-happlatformbleperipheralmanager-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformBLEPeripheralManager.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformBLEPeripheralManager.h.html">Program Listing for File HAPPlatformBLEPeripheralManager.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformBLEPeripheralManager.h.html#detailed-description">Detailed Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformBLEPeripheralManager.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformBLEPeripheralManager.h.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformBLEPeripheralManager.h.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformBLEPeripheralManager.h.html#defines">Defines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformBLEPeripheralManager.h.html#typedefs">Typedefs</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_HAPPlatformCamera.h.html">File HAPPlatformCamera.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformCamera.h.html#definition-pal-happlatformcamera-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformCamera.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformCamera.h.html">Program Listing for File HAPPlatformCamera.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformCamera.h.html#detailed-description">Detailed Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformCamera.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformCamera.h.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformCamera.h.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformCamera.h.html#defines">Defines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformCamera.h.html#typedefs">Typedefs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformCamera.h.html#variables">Variables</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_POSIX_HAPPlatformCameraInput.h.html">File HAPPlatformCameraInput.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_POSIX_HAPPlatformCameraInput.h.html#definition-pal-posix-happlatformcamerainput-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/POSIX/HAPPlatformCameraInput.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_POSIX_HAPPlatformCameraInput.h.html">Program Listing for File HAPPlatformCameraInput.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_POSIX_HAPPlatformCameraInput.h.html#detailed-description">Detailed Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_POSIX_HAPPlatformCameraInput.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_POSIX_HAPPlatformCameraInput.h.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_POSIX_HAPPlatformCameraInput.h.html#typedefs">Typedefs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_POSIX_HAPPlatformCameraInput.h.html#variables">Variables</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_HAPPlatformClock.h.html">File HAPPlatformClock.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformClock.h.html#definition-pal-happlatformclock-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformClock.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformClock.h.html">Program Listing for File HAPPlatformClock.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformClock.h.html#detailed-description">Detailed Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformClock.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformClock.h.html#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_HAPPlatformConcurrency.h.html">File HAPPlatformConcurrency.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformConcurrency.h.html#definition-pal-happlatformconcurrency-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformConcurrency.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformConcurrency.h.html">Program Listing for File HAPPlatformConcurrency.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformConcurrency.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformConcurrency.h.html#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_HAPPlatformDiagnostics.h.html">File HAPPlatformDiagnostics.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformDiagnostics.h.html#definition-pal-happlatformdiagnostics-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformDiagnostics.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformDiagnostics.h.html">Program Listing for File HAPPlatformDiagnostics.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformDiagnostics.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformDiagnostics.h.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformDiagnostics.h.html#defines">Defines</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_HAPPlatformDiagnosticsLog.h.html">File HAPPlatformDiagnosticsLog.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformDiagnosticsLog.h.html#definition-pal-happlatformdiagnosticslog-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformDiagnosticsLog.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformDiagnosticsLog.h.html">Program Listing for File HAPPlatformDiagnosticsLog.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformDiagnosticsLog.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformDiagnosticsLog.h.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformDiagnosticsLog.h.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformDiagnosticsLog.h.html#defines">Defines</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_HAPPlatformFeatures.h.html">File HAPPlatformFeatures.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformFeatures.h.html#definition-pal-happlatformfeatures-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformFeatures.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformFeatures.h.html">Program Listing for File HAPPlatformFeatures.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformFeatures.h.html#detailed-description">Detailed Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformFeatures.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformFeatures.h.html#included-by">Included By</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformFeatures.h.html#defines">Defines</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_HAPPlatformKeyValueStore.h.html">File HAPPlatformKeyValueStore.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformKeyValueStore.h.html#definition-pal-happlatformkeyvaluestore-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformKeyValueStore.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformKeyValueStore.h.html">Program Listing for File HAPPlatformKeyValueStore.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformKeyValueStore.h.html#detailed-description">Detailed Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformKeyValueStore.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformKeyValueStore.h.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformKeyValueStore.h.html#typedefs">Typedefs</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_HAPPlatformLog.h.html">File HAPPlatformLog.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformLog.h.html#definition-pal-happlatformlog-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformLog.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformLog.h.html">Program Listing for File HAPPlatformLog.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformLog.h.html#detailed-description">Detailed Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformLog.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformLog.h.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformLog.h.html#typedefs">Typedefs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformLog.h.html#variables">Variables</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_HAPPlatformMFiHWAuth.h.html">File HAPPlatformMFiHWAuth.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformMFiHWAuth.h.html#definition-pal-happlatformmfihwauth-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformMFiHWAuth.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformMFiHWAuth.h.html">Program Listing for File HAPPlatformMFiHWAuth.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformMFiHWAuth.h.html#detailed-description">Detailed Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformMFiHWAuth.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformMFiHWAuth.h.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformMFiHWAuth.h.html#typedefs">Typedefs</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_HAPPlatformMFiTokenAuth.h.html">File HAPPlatformMFiTokenAuth.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformMFiTokenAuth.h.html#definition-pal-happlatformmfitokenauth-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformMFiTokenAuth.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformMFiTokenAuth.h.html">Program Listing for File HAPPlatformMFiTokenAuth.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformMFiTokenAuth.h.html#detailed-description">Detailed Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformMFiTokenAuth.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformMFiTokenAuth.h.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformMFiTokenAuth.h.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformMFiTokenAuth.h.html#defines">Defines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformMFiTokenAuth.h.html#typedefs">Typedefs</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_HAPPlatformRandomNumber.h.html">File HAPPlatformRandomNumber.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformRandomNumber.h.html#definition-pal-happlatformrandomnumber-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformRandomNumber.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformRandomNumber.h.html">Program Listing for File HAPPlatformRandomNumber.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformRandomNumber.h.html#detailed-description">Detailed Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformRandomNumber.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformRandomNumber.h.html#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_HAPPlatformRunLoop.h.html">File HAPPlatformRunLoop.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformRunLoop.h.html#definition-pal-happlatformrunloop-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformRunLoop.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformRunLoop.h.html">Program Listing for File HAPPlatformRunLoop.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformRunLoop.h.html#detailed-description">Detailed Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformRunLoop.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformRunLoop.h.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformRunLoop.h.html#typedefs">Typedefs</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_HAPPlatformServiceDiscovery.h.html">File HAPPlatformServiceDiscovery.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformServiceDiscovery.h.html#definition-pal-happlatformservicediscovery-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformServiceDiscovery.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformServiceDiscovery.h.html">Program Listing for File HAPPlatformServiceDiscovery.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformServiceDiscovery.h.html#detailed-description">Detailed Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformServiceDiscovery.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformServiceDiscovery.h.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformServiceDiscovery.h.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformServiceDiscovery.h.html#typedefs">Typedefs</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_HAPPlatformSoftwareAccessPoint.h.html">File HAPPlatformSoftwareAccessPoint.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformSoftwareAccessPoint.h.html#definition-pal-happlatformsoftwareaccesspoint-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformSoftwareAccessPoint.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformSoftwareAccessPoint.h.html">Program Listing for File HAPPlatformSoftwareAccessPoint.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformSoftwareAccessPoint.h.html#detailed-description">Detailed Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformSoftwareAccessPoint.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformSoftwareAccessPoint.h.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformSoftwareAccessPoint.h.html#typedefs">Typedefs</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_POSIX_HAPPlatformSpeaker.h.html">File HAPPlatformSpeaker.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_POSIX_HAPPlatformSpeaker.h.html#definition-pal-posix-happlatformspeaker-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/POSIX/HAPPlatformSpeaker.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_POSIX_HAPPlatformSpeaker.h.html">Program Listing for File HAPPlatformSpeaker.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_POSIX_HAPPlatformSpeaker.h.html#detailed-description">Detailed Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_POSIX_HAPPlatformSpeaker.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_POSIX_HAPPlatformSpeaker.h.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_POSIX_HAPPlatformSpeaker.h.html#typedefs">Typedefs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_POSIX_HAPPlatformSpeaker.h.html#variables">Variables</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_POSIX_HAPPlatformSystemCommand.h.html">File HAPPlatformSystemCommand.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_POSIX_HAPPlatformSystemCommand.h.html#definition-pal-posix-happlatformsystemcommand-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/POSIX/HAPPlatformSystemCommand.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_POSIX_HAPPlatformSystemCommand.h.html">Program Listing for File HAPPlatformSystemCommand.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_POSIX_HAPPlatformSystemCommand.h.html#detailed-description">Detailed Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_POSIX_HAPPlatformSystemCommand.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_POSIX_HAPPlatformSystemCommand.h.html#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_HAPPlatformTCPStreamManager.h.html">File HAPPlatformTCPStreamManager.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformTCPStreamManager.h.html#definition-pal-happlatformtcpstreammanager-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformTCPStreamManager.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformTCPStreamManager.h.html">Program Listing for File HAPPlatformTCPStreamManager.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformTCPStreamManager.h.html#detailed-description">Detailed Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformTCPStreamManager.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformTCPStreamManager.h.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformTCPStreamManager.h.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformTCPStreamManager.h.html#typedefs">Typedefs</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_HAPPlatformTimer.h.html">File HAPPlatformTimer.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformTimer.h.html#definition-pal-happlatformtimer-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformTimer.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformTimer.h.html">Program Listing for File HAPPlatformTimer.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformTimer.h.html#detailed-description">Detailed Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformTimer.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformTimer.h.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformTimer.h.html#typedefs">Typedefs</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="file_PAL_HAPPlatformWiFiManager.h.html">File HAPPlatformWiFiManager.h</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformWiFiManager.h.html#definition-pal-happlatformwifimanager-h">Definition (<code class="docutils literal notranslate"><span class="pre">PAL/HAPPlatformWiFiManager.h</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="program_listing_file_PAL_HAPPlatformWiFiManager.h.html">Program Listing for File HAPPlatformWiFiManager.h</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformWiFiManager.h.html#detailed-description">Detailed Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformWiFiManager.h.html#includes">Includes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformWiFiManager.h.html#classes">Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformWiFiManager.h.html#functions">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformWiFiManager.h.html#defines">Defines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_PAL_HAPPlatformWiFiManager.h.html#typedefs">Typedefs</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright © 2021 Apple Inc. All Rights Reserved..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

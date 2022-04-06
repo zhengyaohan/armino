@@ -1,0 +1,5 @@
+menu "SIM_UART_CONFIG"
+	config SIM_UART
+		bool "Enable sim uart"
+		default y
+endmenu

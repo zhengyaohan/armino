@@ -1,0 +1,6 @@
+menu "HOME SYSTEM"
+
+	config MATTER
+		bool "Enable MATTER"
+		default n
+endmenu

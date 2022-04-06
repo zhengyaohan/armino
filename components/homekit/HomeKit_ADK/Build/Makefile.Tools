@@ -1,0 +1,44 @@
+# Tool source directories
+TOOLS := \
+	Tools/AccessorySetupGenerator \
+	Tools/SetupPayloadParser
+
+TOOLS_DEPENDENCIES := \
+	HAP/HAPAccessorySetup.c \
+	HAP/HAPBase36Util.c \
+	HAP/HAPVersion.c \
+	PAL/Crypto/$(CRYPTO)/HAPOpenSSL.c \
+	PAL/HAPAssert.c \
+	PAL/HAPBase+ASCII.c \
+	PAL/HAPBase+Crypto.c \
+	PAL/HAPBase+Float.c \
+	PAL/HAPBase+Int.c \
+	PAL/HAPBase+RawBuffer.c \
+	PAL/HAPBase+String.c \
+	PAL/HAPLog.c
+
+ifeq ($(TARGET), Darwin)
+TOOLS_DEPENDENCIES += \
+	PAL/Darwin/HAPPlatformAbort.m \
+	PAL/Darwin/HAPPlatformConcurrency.m \
+	PAL/Darwin/HAPPlatformLog.m \
+	PAL/Darwin/HAPPlatformMutex.m \
+	PAL/Darwin/HAPPlatformRandomNumber.m
+else
+TOOLS_DEPENDENCIES += \
+	PAL/$(PAL)/HAPPlatformAbort.c \
+	PAL/$(PAL)/HAPPlatformConcurrency.c \
+	PAL/$(PAL)/HAPPlatformLog.c \
+	PAL/$(PAL)/HAPPlatformMutex.c \
+	PAL/$(PAL)/HAPPlatformRandomNumber.c
+endif
+
+$(foreach tool,$(TOOLS),$(call build_module,$(tool),$(TOOLS_DEPENDENCIES) $(call all_sources_in,$(tool))))
+$(foreach tool,$(TOOLS),$(foreach crypto,$(CRYPTO_MODULES),$(call build_executable,$(tool),$(crypto),,$(tool))))
+
+tools: $(foreach tool,$(TOOLS),$(call to_executable,Tool,$(tool),$(CRYPTO)))
+ifneq (,$(filter Darwin Linux,$(TARGET)))
+ifneq ("$(wildcard Tools/JLINK/Makefile)","")
+	$(MAKE) OUTPUT_DIR=$(OUTPUT_DIR)/Tool/Tools/JLINK -f Tools/JLINK/Makefile
+endif
+endif

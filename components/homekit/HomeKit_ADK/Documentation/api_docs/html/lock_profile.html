@@ -1,0 +1,583 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Lock Profile &mdash; HomeKit ADK  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/tabs.js"></script>
+        <script src="_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Stateless Programmable Switch" href="stateless_programmable_switch.html" />
+    <link rel="prev" title="IP Camera" href="ip_camera.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> HomeKit ADK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="adk_architecture.html">ADK Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adk_directory_structure.html">ADK Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Docker with ADK</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Step-by-step Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started with ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="raspi_setup.html">Raspberry Pi Setup Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bct.html">Bonjour Conformance Test (BCT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wac_on_raspberrypi.html">WAC on Raspberry Pi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_on_darwin.html">Camera on macOS</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Troubleshooting ADK</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="interact_with_applications.html">Interacting with ADK applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="writing_unit_tests.html">Writing Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="debug_adk.html">Debugging ADK Applications</a></li>
+</ul>
+<p class="caption"><span class="caption-text">ADK Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="accessory_development.html">Accessory Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_pairing.html">Accessory Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_authentication.html">Accessory Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="provisioning_tools.html">Provisioning Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ADK_Memory_Usage_and_Requirements.html">Memory Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crypto.html">Cryptographic Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make_options.html">Compile Time Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coding_convention.html">Coding Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration_guide.html">ADK Migration Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">HomeKit Services</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="accessory_diagnostics.html">Accessory Diagnostics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_metrics.html">Accessory Metrics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adaptive_light.html">Adaptive Lighting Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appletv_remote.html">Apple TV Remote</a></li>
+<li class="toctree-l1"><a class="reference internal" href="firmware_update.html">Firmware Update Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="homekit_bridge.html">HomeKit Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ip_camera.html">IP Camera</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Lock Profile</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#compile">Compile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run">Run</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#implementation-details">Implementation Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#services-and-features">Services and features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#lock-mechanism-service">Lock Mechanism Service</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lock-management-service">Lock Management Service</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#access-code-service">Access Code Service</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#nfc-access-service">NFC Access Service</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#event-notification-context">Event Notification Context</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id4">Feature Flags</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#debug-commands">Debug Commands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#supported-commands">Supported Commands</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="stateless_programmable_switch.html">Stateless Programmable Switch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thread.html">HAP over Thread Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wifi_reconfiguration_feature.html">WiFi Reconfiguration Service</a></li>
+</ul>
+<p class="caption"><span class="caption-text">PAL APIs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_api_docs/dir_PAL.html">Directory PAL</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HomeKit ADK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Lock Profile</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/lock_profile.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="lock-profile">
+<h1>Lock Profile<a class="headerlink" href="#lock-profile" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>The Lock profile defines a collection of services and characteristics to enable lock support in a HomeKit accessory.
+This document describes the lock features in ADK.</p>
+<div class="section" id="compile">
+<h3>Compile<a class="headerlink" href="#compile" title="Permalink to this headline">¶</a></h3>
+<p>You must have all the <a class="reference internal" href="getting_started.html"><span class="doc">prerequisites</span></a> for your development platform to compile the ADK. Once all the
+prerequisites are installed for your platform, run the following to compile ADK with lock features:</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-bWFjT1M=" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-0-bWFjT1M=" name="bWFjT1M=" role="tab" tabindex="0">macOS</button><button aria-controls="panel-0-TGludXg=" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-0-TGludXg=" name="TGludXg=" role="tab" tabindex="-1">Linux</button><button aria-controls="panel-0-UmFzcGJlcnJ5IFBp" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-0-UmFzcGJlcnJ5IFBp" name="UmFzcGJlcnJ5IFBp" role="tab" tabindex="-1">Raspberry Pi</button><button aria-controls="panel-0-Tm9yZGljIG5SRjUy" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-0-Tm9yZGljIG5SRjUy" name="Tm9yZGljIG5SRjUy" role="tab" tabindex="-1">Nordic nRF52</button></div><div aria-labelledby="tab-0-bWFjT1M=" class="sphinx-tabs-panel group-tab" id="panel-0-bWFjT1M=" name="bWFjT1M=" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make <span class="nv">TARGET</span><span class="o">=</span>Darwin <span class="nv">PROFILE</span><span class="o">=</span>Lock
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-TGludXg=" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-0-TGludXg=" name="TGludXg=" role="tabpanel" tabindex="0"><div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This feature is currently not supported on this platform.</p>
+</div>
+</div><div aria-labelledby="tab-0-UmFzcGJlcnJ5IFBp" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-0-UmFzcGJlcnJ5IFBp" name="UmFzcGJlcnJ5IFBp" role="tabpanel" tabindex="0"><div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This feature is currently not supported on this platform.</p>
+</div>
+</div><div aria-labelledby="tab-0-Tm9yZGljIG5SRjUy" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-0-Tm9yZGljIG5SRjUy" name="Tm9yZGljIG5SRjUy" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make <span class="nv">TARGET</span><span class="o">=</span>nRF52 <span class="nv">PROFILE</span><span class="o">=</span>Lock
+</pre></div>
+</div>
+</div></div>
+</div>
+<div class="section" id="run">
+<h3>Run<a class="headerlink" href="#run" title="Permalink to this headline">¶</a></h3>
+<p>Please follow instructions at <a class="reference external" href="getting_started.html#step-5-running-an-adk-application">Running an ADK Application</a> to
+run the Lock sample application.</p>
+</div>
+</div>
+<div class="section" id="implementation-details">
+<h2>Implementation Details<a class="headerlink" href="#implementation-details" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="services-and-features">
+<h3>Services and features<a class="headerlink" href="#services-and-features" title="Permalink to this headline">¶</a></h3>
+<p>The following services and features are used by the Lock profile:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="#lock-mechanism-service">Lock Mechanism Service</a></p></li>
+<li><p><a class="reference external" href="#lock-management-service">Lock Management Service</a></p></li>
+<li><p><a class="reference external" href="#access-code-service">Access Code Service</a></p></li>
+<li><p><a class="reference external" href="#nfc-access-service">NFC Access Service</a></p></li>
+<li><p><a class="reference external" href="#event-notification-context">Event Notification Context</a></p></li>
+</ul>
+<div class="section" id="lock-mechanism-service">
+<h4>Lock Mechanism Service<a class="headerlink" href="#lock-mechanism-service" title="Permalink to this headline">¶</a></h4>
+<p>This service enables control of the physical lock mechanism.</p>
+</div>
+<div class="section" id="lock-management-service">
+<h4>Lock Management Service<a class="headerlink" href="#lock-management-service" title="Permalink to this headline">¶</a></h4>
+<p>This service enables vendor-specific actions as well as user management related functions.</p>
+</div>
+<div class="section" id="access-code-service">
+<h4>Access Code Service<a class="headerlink" href="#access-code-service" title="Permalink to this headline">¶</a></h4>
+<p>This service enables the access code feature. Using the Access Code Service, HomeKit controllers can persist access
+codes onto the accessory. Users can lock and unlock using an access code that has been persisted.</p>
+<div class="section" id="feature-flags">
+<h5>Feature Flags<a class="headerlink" href="#feature-flags" title="Permalink to this headline">¶</a></h5>
+<p>The following compile time feature flag enables the access code functionality in the Lock sample application:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_ACCESS_CODE</span></code></p></li>
+</ul>
+</div>
+<div class="section" id="app-implementation">
+<h5>App Implementation<a class="headerlink" href="#app-implementation" title="Permalink to this headline">¶</a></h5>
+<ul class="simple">
+<li><p><em>Applications/Common/Helper/AccessCodeHelper.c</em></p>
+<ul>
+<li><p>This file contains code to handle the list/read/add/update/remove operation of one or more access codes. Bulk
+operation of the same type is allowed. For example, HomeKit controller can perform read on 5 access codes in one
+request.</p></li>
+</ul>
+</li>
+<li><p><em>Applications/Lock/App.c</em></p>
+<ul>
+<li><p>This file contains source code for initializing the Access Code platform.</p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="hap-implementation">
+<h5>HAP Implementation<a class="headerlink" href="#hap-implementation" title="Permalink to this headline">¶</a></h5>
+<ul class="simple">
+<li><p><em>HAP/HAPRequestHandlers+AccessCode.c</em></p>
+<ul>
+<li><p>This file contains code to handle read and write requests of Access Code Service characteristics.</p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="keypad-disable">
+<h5>Keypad Disable<a class="headerlink" href="#keypad-disable" title="Permalink to this headline">¶</a></h5>
+<p>The Lock sample application implements a mechanism to temporarily disable the keypad if too many invalid access codes
+have been entered to lock or unlock the accessory. The <em>Active</em> characteristic is used to reflect the keypad being
+enabled or disabled. The <em>Active</em> characteristic should be Active if the keypad is enabled and Inactive if it is
+disabled.</p>
+<p>The amount of time to disable the keypad is based on a sliding window of time from the current moment and extending
+backward by either 10 minutes or 1 hour. There can be no more than 10 invalid attempts during a 10 minute window, and
+no more than 20 invalid attempts during a 1 hour window. Once the keypad is disabled, it will automatically be
+re-enabled when the sliding window no longer contains the specified maximum invalid attempts. For example:</p>
+<ul class="simple">
+<li><p>9:00 - 1st invalid attempt</p></li>
+<li><p>9:03 - 2nd invalid attempt</p></li>
+<li><p>9:06 - 3rd-10th invalid attempts -&gt; The keypad is disabled due to 10 invalid attempts in a 10 minute window</p></li>
+<li><p>9:10 - Keypad is re-enabled -&gt; There are 9 invalid attempts logged for the 10 minute window and 10 invalid attempts
+logged for the 1 hour window</p></li>
+<li><p>9:15 - Two more invalid attempts -&gt; The keypad is disabled due to 10 invalid attempts in a 10 minute window</p></li>
+<li><p>9:16 - Keypad is re-enabled -&gt; There are 2 invalid attempts logged for the 10 minute window and 12 invalid attempts
+logged for the 1 hour window</p></li>
+<li><p>9:25 - There are zero invalid attempts logged for the 10 minute window and 12 invalid attempts logged for the 1 hour
+window</p></li>
+<li><p>9:37 - Eight more invalid attempts -&gt; The keypad is disabled due to 20 invalid attempts in a 1 hour window</p></li>
+<li><p>10:00 - Keypad is re-enabled</p></li>
+</ul>
+<p>The following can re-enable the keypad (if disabled) as well as reset invalid attempt counts:</p>
+<ul class="simple">
+<li><p>Physical key usage to modify lock state</p></li>
+<li><p>HAP request to modify the value of <em>Lock Target State</em> characteristic</p></li>
+<li><p>HAP request to modify the value of <em>Active</em> characteristic from Inactive to Active</p></li>
+<li><p>Button 3 press to toggle the lock state (on a platform that supports physical buttons)</p></li>
+<li><p>Valid access code entry (if keypad is enabled)</p></li>
+</ul>
+</div>
+<div class="section" id="bulk-operation">
+<h5>Bulk Operation<a class="headerlink" href="#bulk-operation" title="Permalink to this headline">¶</a></h5>
+<p>Any <code class="docutils literal notranslate"><span class="pre">Operation</span> <span class="pre">Type</span></code> that must provide <code class="docutils literal notranslate"><span class="pre">Access</span> <span class="pre">Code</span> <span class="pre">Control</span> <span class="pre">Request</span></code> may be performed in bulk. To perform a bulk
+operation, more than one <code class="docutils literal notranslate"><span class="pre">Access</span> <span class="pre">Code</span> <span class="pre">Control</span> <span class="pre">Request</span></code> is included as part of the <em>Access Code Control Point</em>
+characteristic. Only operations of the same type can be included in the bulk operation. The response to the write
+request will include a corresponding <code class="docutils literal notranslate"><span class="pre">Access</span> <span class="pre">Code</span> <span class="pre">Control</span> <span class="pre">Response</span></code> for each request. The only exception to this is when
+attempting to add more than the maximum allowed access codes. See example below.</p>
+<p>The responses for a bulk operation may contain a mixture of success and failure status. A few examples:</p>
+<ul class="simple">
+<li><p>Bulk add: “1234”, “1111”, “1234”, “5678”, “222a” -&gt; Response includes 5 <code class="docutils literal notranslate"><span class="pre">Access</span> <span class="pre">Code</span> <span class="pre">Control</span> <span class="pre">Response</span></code> with status of
+‘Success’, ‘Success’, ‘Duplicate’, ‘Success’, ‘Invalid character’</p></li>
+<li><p>Bulk add 15 codes and the maximum allowed is 5 access codes -&gt; Response includes 6 <code class="docutils literal notranslate"><span class="pre">Access</span> <span class="pre">Code</span> <span class="pre">Control</span> <span class="pre">Response</span></code> with
+status of ‘Success’, ‘Success’, ‘Success’, ‘Success’, ‘Success’, ‘Exceeded maximum allowed access codes’</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="nfc-access-service">
+<h4>NFC Access Service<a class="headerlink" href="#nfc-access-service" title="Permalink to this headline">¶</a></h4>
+<p>This service enables the NFC Tap-To-Unlock and Tap-To-Lock features. Using the NFC Access Service, HomeKit controllers
+can provision an NFC enabled accessory with issuer key, device credential key (for expedited transactions), and reader
+key. After successful provisioning, the accessory is ready for NFC lock features.</p>
+<div class="section" id="id1">
+<h5>Feature Flags<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h5>
+<p>The following compile time feature flags enable the NFC functionality in the Lock sample application:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_NFC_ACCESS</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAP_KEY_EXPORT</span></code> - This feature flag enables exporting of HAP pairing long term public key which is used as the issuer
+key by default.</p></li>
+</ul>
+</div>
+<div class="section" id="pal-implementation">
+<h5>PAL Implementation<a class="headerlink" href="#pal-implementation" title="Permalink to this headline">¶</a></h5>
+<ul class="simple">
+<li><p><em>PAL/HAPPlatformNfcAccess.h</em></p>
+<ul>
+<li><p>This header file defines the following structures which represent the respective keys to be persisted to the NFC
+reader. Accessory vendors can modify these structures for platform specific needs:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">struct</span> <span class="pre">HAPPlatformNfcAccessIssuerKey</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">struct</span> <span class="pre">HAPPlatformNfcAccessDeviceCredentialKey</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">struct</span> <span class="pre">HAPPlatformNfcAccessReaderKey</span></code></p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>The following APIs for list/add/remove of issuer key, device credential key, and reader key must be implemented to
+support NFC Access provisioning:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformNfcAccessIssuerKeyList</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformNfcAccessIssuerKeyAdd</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformNfcAccessIssuerKeyRemove</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformNfcAccessDeviceCredentialKeyList</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformNfcAccessDeviceCredentialKeyAdd</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformNfcAccessDeviceCredentialKeyRemove</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformNfcAccessReaderKeyList</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformNfcAccessReaderKeyAdd</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HAPPlatformNfcAccessReaderKeyRemove</span></code></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h5>HAP Implementation<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h5>
+<ul class="simple">
+<li><p><em>HAP/HAPRequestHandlers+NfcAccess.c</em></p>
+<ul>
+<li><p>This file contains code to handle read and write requests of NFC Access Service characteristics.</p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="id3">
+<h5>App Implementation<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h5>
+<ul class="simple">
+<li><p><em>Applications/Lock/App.c</em></p>
+<ul>
+<li><p>This file contains source code for initializing the NFC Access platform.</p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="issuer-keys">
+<h5>Issuer Keys<a class="headerlink" href="#issuer-keys" title="Permalink to this headline">¶</a></h5>
+<p>When a Home controller is paired with a lock that supports NFC Access Service, the long term public key of that
+controller is automatically added as the issuer key for that user. When the controller is unpaired, the corresponding
+issuer key is removed. To support non-Home users, issuer keys may be added/removed by performing a write request on the
+<em>NFC Access Control Point</em> characteristic. Note that the issuer key added from a HAP pairing can only be removed by
+unpairing the controller. Both types of issuer keys are persisted under the same key value store key. This means for
+Home controllers, the same key is persisted twice, once with the HAP pairings and once with the issuer keys.</p>
+<p>When the Lock sample application is powered on, the long term public key of existing HAP pairings is read and an attempt
+is made to cache this key as an issuer key. For firmware updates where the previous version did not support NFC Access
+service, this is to ensure that the long term public key of existing HAP pairings are added to the issuer key list.
+Otherwise, this is to verify that previously added long term public keys have already been cached in the issuer key
+list.</p>
+</div>
+</div>
+</div>
+<div class="section" id="event-notification-context">
+<h3>Event Notification Context<a class="headerlink" href="#event-notification-context" title="Permalink to this headline">¶</a></h3>
+<p>The Event Notification Context feature represents the additional information that may be included as part of the event
+notification for the following characteristics:</p>
+<ul class="simple">
+<li><p>Lock Current State</p></li>
+<li><p>Lock Target State</p></li>
+</ul>
+<p>The additional information includes context identifier or the source that lead to the lock state to change. The Event
+Notification Context feature is supported on all transports.</p>
+<div class="section" id="id4">
+<h4>Feature Flags<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h4>
+<p>The following compile time feature flag enables the additional event notification context feature in the Lock sample
+application:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_LOCK_ENC</span></code></p></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="debug-commands">
+<h2>Debug Commands<a class="headerlink" href="#debug-commands" title="Permalink to this headline">¶</a></h2>
+<p>More information about Debug Commands at <a class="reference external" href="interact_with_applications.html#debug-service">Debug Service</a>.</p>
+<div class="section" id="supported-commands">
+<h3>Supported Commands<a class="headerlink" href="#supported-commands" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>setCurrentState
+    secured
+    unsecured
+    jammed
+    unknown
+toggleLockState
+toggleLockJammed
+batteryStatus
+    normal
+    low
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">setCurrentState</span> <span class="pre">[secured|unsecured|jammed|unknown]</span></code> changes the current lock state</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">toggleLockState</span></code> simulates lock/unlock</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">toggleLockJammed</span></code> simulates a lock that is unable to lock or unlock due to a physical problem</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">batteryStatus</span> <span class="pre">[normal|low]</span></code> changes the status low battery state</p></li>
+</ul>
+<p>An ADK lock application built with the access code feature enabled (<code class="docutils literal notranslate"><span class="pre">USE_ACCESS_CODE=1</span></code>) has the following additional commands available:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>accessCode
+    keypad &lt;value&gt;
+    supportedConfig
+        characterSet &lt;value&gt;
+        minimumLength &lt;value&gt;
+        maximumLength &lt;value&gt;
+        maximumAccessCodes &lt;value&gt;
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">accessCode</span> <span class="pre">keypad</span> <span class="pre">&lt;value&gt;</span></code> simulates access code entry on the keypad</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">accessCode</span> <span class="pre">supportedConfig</span> <span class="pre">characterSet</span> <span class="pre">&lt;value&gt;</span></code> changes the access code character set supported configuration value</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">accessCode</span> <span class="pre">supportedConfig</span> <span class="pre">minimumLength</span> <span class="pre">&lt;value&gt;</span></code> changes the access code minimum length supported configuration value</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">accessCode</span> <span class="pre">supportedConfig</span> <span class="pre">maximumLength</span> <span class="pre">&lt;value&gt;</span></code> changes the access code maximum length supported configuration value</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">accessCode</span> <span class="pre">supportedConfig</span> <span class="pre">maximumAccessCodes</span> <span class="pre">&lt;value&gt;</span></code> changes the access code maximum access codes supported configuration value</p></li>
+</ul>
+<p>An ADK lock application built with the NFC feature enabled (<code class="docutils literal notranslate"><span class="pre">USE_NFC_ACCESS=1</span></code>) has the following additional commands available:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>nfcAccess
+    addDeviceCredential &lt;key&gt; &lt;key_index&gt; &lt;issuer_key_identifier&gt;
+    supportedConfig
+        maximumIssuerKeys &lt;value&gt;
+        maximumSuspendedDeviceCredentialKeys &lt;value&gt;
+        maximumActiveDeviceCredentialKeys &lt;value&gt;
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">nfcAccess</span> <span class="pre">addDeviceCredential</span> <span class="pre">&lt;key&gt;</span> <span class="pre">&lt;key_index&gt;</span> <span class="pre">&lt;issuer_key_identifier&gt;</span></code> adds a device credential key to the cache.  The associated issuer key must already exist in the cache. The key_index is the expected index the key should have been added as, e.g. if the key is the third key added, the index is expected to be 2.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nfcAccess</span> <span class="pre">supportedConfig</span> <span class="pre">maximumIssuerKeys</span> <span class="pre">&lt;value&gt;</span></code> changes the maximum issuer keys supported configuration value</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nfcAccess</span> <span class="pre">supportedConfig</span> <span class="pre">maximumSuspendedDeviceCredentialKeys</span> <span class="pre">&lt;value&gt;</span></code> changes the maximum suspended device credential keys supported configuration value</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nfcAccess</span> <span class="pre">supportedConfig</span> <span class="pre">maximumActiveDeviceCredentialKeys</span> <span class="pre">&lt;value&gt;</span></code> changes the maximum active device credential keys supported configuration value</p></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="stateless_programmable_switch.html" class="btn btn-neutral float-right" title="Stateless Programmable Switch" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="ip_camera.html" class="btn btn-neutral float-left" title="IP Camera" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright © 2021 Apple Inc. All Rights Reserved..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

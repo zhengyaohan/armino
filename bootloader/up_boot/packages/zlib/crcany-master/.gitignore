@@ -1,0 +1,8 @@
+*.o
+crctest
+crcall
+mincrc
+crcany
+crcadd
+src/
+.DS_Store

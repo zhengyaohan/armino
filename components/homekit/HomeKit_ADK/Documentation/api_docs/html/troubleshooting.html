@@ -1,0 +1,328 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Troubleshooting ADK &mdash; HomeKit ADK  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="_static/collapsible-lists/css/tree_view.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/tabs.js"></script>
+        <script src="_static/collapsible-lists/js/CollapsibleLists.compressed.js"></script>
+        <script src="_static/collapsible-lists/js/apply-collapsible-lists.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Writing Unit Tests" href="writing_unit_tests.html" />
+    <link rel="prev" title="Interacting with ADK applications" href="interact_with_applications.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> HomeKit ADK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="adk_architecture.html">ADK Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adk_directory_structure.html">ADK Directory Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Docker with ADK</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Step-by-step Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started with ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="raspi_setup.html">Raspberry Pi Setup Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bct.html">Bonjour Conformance Test (BCT)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wac_on_raspberrypi.html">WAC on Raspberry Pi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="camera_on_darwin.html">Camera on macOS</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Troubleshooting ADK</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="interact_with_applications.html">Interacting with ADK applications</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Troubleshooting ADK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="writing_unit_tests.html">Writing Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="debug_adk.html">Debugging ADK Applications</a></li>
+</ul>
+<p class="caption"><span class="caption-text">ADK Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="accessory_development.html">Accessory Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_pairing.html">Accessory Pairing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_authentication.html">Accessory Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="provisioning_tools.html">Provisioning Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ADK_Memory_Usage_and_Requirements.html">Memory Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crypto.html">Cryptographic Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="make_options.html">Compile Time Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coding_convention.html">Coding Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration_guide.html">ADK Migration Guide</a></li>
+</ul>
+<p class="caption"><span class="caption-text">HomeKit Services</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="accessory_diagnostics.html">Accessory Diagnostics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accessory_metrics.html">Accessory Metrics Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adaptive_light.html">Adaptive Lighting Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appletv_remote.html">Apple TV Remote</a></li>
+<li class="toctree-l1"><a class="reference internal" href="firmware_update.html">Firmware Update Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="homekit_bridge.html">HomeKit Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ip_camera.html">IP Camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lock_profile.html">Lock Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stateless_programmable_switch.html">Stateless Programmable Switch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thread.html">HAP over Thread Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wifi_reconfiguration_feature.html">WiFi Reconfiguration Service</a></li>
+</ul>
+<p class="caption"><span class="caption-text">PAL APIs</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_api_docs/dir_PAL.html">Directory PAL</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">HomeKit ADK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Troubleshooting ADK</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/troubleshooting.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="troubleshooting-adk">
+<h1>Troubleshooting ADK<a class="headerlink" href="#troubleshooting-adk" title="Permalink to this headline">¶</a></h1>
+<details>
+  <summary>Homebrew Installation Error</summary>
+  <br><p>Homebrew requires Xcode Command Line Tools to be installed in <code class="docutils literal notranslate"><span class="pre">/Library/Developer/CommandLineTools</span></code>, which requires
+installing the CLT from the <a class="reference external" href="https://developer.apple.com/download/more/">Apple developer website</a>. If Homebrew
+attempts to install the CLT and fails with a <code class="docutils literal notranslate"><span class="pre">Can't</span> <span class="pre">install</span> <span class="pre">the</span> <span class="pre">software</span> <span class="pre">because</span> <span class="pre">it</span> <span class="pre">is</span> <span class="pre">not</span> <span class="pre">currently</span> <span class="pre">available</span> <span class="pre">from</span> <span class="pre">the</span> <span class="pre">Software</span> <span class="pre">Update</span> <span class="pre">server</span></code> error, it may indicate CLT is already installed but not in the expected location.</p>
+<p><strong>Solution:</strong></p>
+<ul class="simple">
+<li><p>Reinstall the Command Line Tools from the link above and verify it is installed to
+<code class="docutils literal notranslate"><span class="pre">/Library/Developer/CommandLineTools</span></code>.</p></li>
+<li><p>If that fails, make a temporary symbolic link from <code class="docutils literal notranslate"><span class="pre">/Library/Developer/CommandLineTools</span></code> to your Xcode installation
+(check <code class="docutils literal notranslate"><span class="pre">xcode-select</span> <span class="pre">-p</span></code>) for the duration of the Homebrew installation.</p></li>
+<li><p>If all else fails, download the Homebrew install script and modify it to skip CLT installation.</p></li>
+</ul>
+</details>
+<br><details>
+  <summary>Build/Makefile: Operation not permitted</summary>
+  <br><p>MacOS enabled new user privacy protections since version 10.15 that doesn’t permit access to <code class="docutils literal notranslate"><span class="pre">~/Documents</span></code>, <code class="docutils literal notranslate"><span class="pre">~/Desktop</span></code>
+and <code class="docutils literal notranslate"><span class="pre">~/Downloads</span></code> directories. More details can be found at
+<a class="reference external" href="https://eclecticlight.co/2020/01/16/a-guide-to-catalinas-privacy-protection-3-new-protected-locations/">A Guide to Catalina’s Privacy Protection</a>.</p>
+<p><strong>Solution:</strong>
+Move ADK code out of <code class="docutils literal notranslate"><span class="pre">~/Documents</span></code>, <code class="docutils literal notranslate"><span class="pre">~/Desktop</span></code>, or <code class="docutils literal notranslate"><span class="pre">~/Downloads</span></code> directories and try again.</p>
+</details>
+<br><details>
+  <summary>Make command seems to hang</summary>
+  <br><p>On macOS, sometimes the ADK builds that use Docker (Linux/Raspi/nRF52) seem to stall as they are starting.</p>
+<p><strong>Solution:</strong>
+Go to Docker Preferences -&gt; General and enable the option to <code class="docutils literal notranslate"><span class="pre">Use</span> <span class="pre">gRPC</span> <span class="pre">FUSE</span> <span class="pre">for</span> <span class="pre">file</span> <span class="pre">sharing</span></code>.</p>
+</details>
+<br><details>
+  <summary>Failed to pair an accessory on macOS</summary>
+  <br><p>If the ADK log doesn’t show any activity after you have entered the pairing code in the Home app then check to make
+sure that the ADK is <em>not located</em> in either <code class="docutils literal notranslate"><span class="pre">~/Documents</span></code>, <code class="docutils literal notranslate"><span class="pre">~/Desktop</span></code>, or <code class="docutils literal notranslate"><span class="pre">~/Downloads</span></code> directories.</p>
+<p><strong>Solution:</strong>
+Move ADK code out of <code class="docutils literal notranslate"><span class="pre">~/Documents</span></code>, <code class="docutils literal notranslate"><span class="pre">~/Desktop</span></code>, or <code class="docutils literal notranslate"><span class="pre">~/Downloads</span></code> directories and try again.</p>
+</details>
+<br><details>
+  <summary>Accessory not available for pairing in Home App</summary>
+  <br><p>Checks To Perform:</p>
+<ul class="simple">
+<li><p>All devices on the same network? -&gt; iOS/tvOS/Raspberry Pi</p></li>
+<li><p>Accessory unpaired? -&gt; In ADK logs, look for “sf” value (1 = unpaired, 0 = paired). See below:</p></li>
+</ul>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="m">2020</span>-12-21<span class="s1">&#39;T&#39;</span><span class="m">23</span>:58:33.086506    Debug   <span class="o">[</span>com.apple.mfi.HomeKit.Platform:ServiceDiscovery<span class="o">]</span> txtRecord<span class="o">[</span><span class="m">6</span><span class="o">]</span>: <span class="s2">&quot;sf&quot;</span>
+  <span class="m">0000</span>  <span class="m">31</span>                                                                         <span class="m">1</span>
+</pre></div>
+</div>
+<p><strong>Solution:</strong></p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-bWFjT1M=" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-0-bWFjT1M=" name="bWFjT1M=" role="tab" tabindex="0">macOS</button><button aria-controls="panel-0-UmFzcGJlcnJ5IFBp" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-0-UmFzcGJlcnJ5IFBp" name="UmFzcGJlcnJ5IFBp" role="tab" tabindex="-1">Raspberry Pi</button></div><div aria-labelledby="tab-0-bWFjT1M=" class="sphinx-tabs-panel group-tab" id="panel-0-bWFjT1M=" name="bWFjT1M=" role="tabpanel" tabindex="0"><ul class="simple">
+<li><p>In Terminal window 1, launch the sample ADK application <code class="docutils literal notranslate"><span class="pre">./Output/Darwin-x86_64-apple-darwin$(uname</span> <span class="pre">-r)/Debug/IP/Applications/Lightbulb.OpenSSL</span></code></p></li>
+<li><p>In Terminal window 2, run <code class="docutils literal notranslate"><span class="pre">killall</span> <span class="pre">-SIGUSR1</span> <span class="pre">Lightbulb.OpenSSL</span></code></p></li>
+</ul>
+</div><div aria-labelledby="tab-0-UmFzcGJlcnJ5IFBp" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-0-UmFzcGJlcnJ5IFBp" name="UmFzcGJlcnJ5IFBp" role="tabpanel" tabindex="0"><ul class="simple">
+<li><p>In Terminal window 1, SSH into the Raspberry Pi and launch the sample ADK application <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">./Lightbulb.OpenSSL</span></code></p></li>
+<li><p>In Terminal window 2, run <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">kill</span> <span class="pre">-SIGUSR1</span> <span class="pre">`pidof</span> <span class="pre">Lightbulb.OpenSSL`</span></code></p></li>
+</ul>
+</div></div>
+</details>
+<br><details>
+  <summary>ADK application crashes with Abort trap: 6 on macOS</summary>
+  <br><p><strong>Solution:</strong></p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-bWFjT1M=" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-1-bWFjT1M=" name="bWFjT1M=" role="tab" tabindex="0">macOS</button></div><div aria-labelledby="tab-1-bWFjT1M=" class="sphinx-tabs-panel group-tab" id="panel-1-bWFjT1M=" name="bWFjT1M=" role="tabpanel" tabindex="0"><p>Please make sure that your terminal application has <em>Bluetooth</em> access under
+<em>System Preferences</em> -&gt; <em>Security &amp; Privacy</em> -&gt; <em>Privacy</em></p>
+</div></div>
+</details>
+<br></div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="writing_unit_tests.html" class="btn btn-neutral float-right" title="Writing Unit Tests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="interact_with_applications.html" class="btn btn-neutral float-left" title="Interacting with ADK applications" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright © 2021 Apple Inc. All Rights Reserved..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
