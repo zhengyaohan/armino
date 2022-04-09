@@ -42,7 +42,7 @@
 #endif
 
 #if CONFIG_BLE
-#include "bk_ble.h"
+#include <modules/bk_ble.h>
 #endif
 
 typedef struct _dd_init_s_ {

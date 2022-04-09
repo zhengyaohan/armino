@@ -7,7 +7,7 @@
 #if (CONFIG_AT_CMD)
 #if (CONFIG_BLE_5_X)
 #include "ble_api_5_x.h"
-#include "bk_ble.h"
+#include <modules/bk_ble.h>
 #endif
 
 #include "at_common.h"
