@@ -104,6 +104,7 @@ int cli_uvc_init(void);
 #endif
 int cli_aud_cp0_init(void);
 int cli_calendar_init(void);
+int cli_jpegdec_init(void);
 
 extern int hexstr2bin(const char *hex, u8 *buf, size_t len);
 

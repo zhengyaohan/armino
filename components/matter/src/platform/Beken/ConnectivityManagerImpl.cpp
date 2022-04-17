@@ -136,6 +136,7 @@ void ConnectivityManagerImpl::_OnPlatformEvent(const ChipDeviceEvent * event)
         ChipLogProgress(DeviceLayer, "_OnPlatformEvent WIFI_EVENT_STA_CONNECTED");
         if (mWiFiStationState == kWiFiStationState_Connecting)
         {
+            NetworkCommissioning::BekenWiFiDriver::GetInstance().OnConnectWiFiNetwork();
             ChangeWiFiStationState(kWiFiStationState_Connecting_Succeeded);
         }
         DriveStationState();
@@ -289,7 +290,7 @@ int ConnectivityManagerImpl::netif_event_cb(void *arg, event_module_t event_modu
     case EVENT_NETIF_GOT_IP4:
         stationConnected = true;
         WiFiStationConnectedHandler();
-        ChipLogProgress(DeviceLayer, "RW_EVT_STA_GOT_IP");
+        ChipLogProgress(DeviceLayer, "netif_event_cb EVENT_NETIF_GOT_IP4");
         break;
     default:
         ChipLogProgress(DeviceLayer, "unSupported netif status:%d", event_id);
@@ -304,12 +305,11 @@ int ConnectivityManagerImpl::wlan_event_cb(void *arg, event_module_t event_modul
 {
     switch(event_id){
     case EVENT_WIFI_STA_CONNECTED:
-        ChipLogProgress(DeviceLayer, "RW_EVT_STA_CONNECTED");
-        NetworkCommissioning::BekenWiFiDriver::GetInstance().OnConnectWiFiNetwork();
+        ChipLogProgress(DeviceLayer, "wlan_event_cb EVENT_WIFI_STA_CONNECTED");
         break;
     case EVENT_WIFI_STA_DISCONNECTED:
         stationConnected = false;
-        ChipLogProgress(DeviceLayer, "RW_EVT_STA_DISCONNECTED");
+        ChipLogProgress(DeviceLayer, "wlan_event_cb EVENT_WIFI_STA_DISCONNECTED");
         break;
     default:
         ChipLogProgress(DeviceLayer, "unSupported wifi status:%d", event_id);
@@ -334,22 +334,6 @@ void ConnectivityManagerImpl::DriveStationState()
             mLastStationConnectFailTime = System::Clock::kZero;
             OnStationConnected();
             IpConnectedEventNotify();
-        }
-
-        // If the WiFi station interface is no longer enabled, or no longer provisioned,
-        // disconnect the station from the AP, unless the WiFi station mode is currently
-        // under application control.
-        if (mWiFiStationMode != kWiFiStationMode_ApplicationControlled &&
-            (mWiFiStationMode != kWiFiStationMode_Enabled || !IsWiFiStationProvisioned()))
-        {
-            ChipLogProgress(DeviceLayer, "Disconnecting WiFi station interface");
-            if(0 != bk_wifi_sta_stop())
-            {
-                ChipLogError(DeviceLayer, "wifi_disconnect() failed!");
-                return;
-            }
-
-            ChangeWiFiStationState(kWiFiStationState_Disconnecting);
         }
     }
 
@@ -399,6 +383,7 @@ void ConnectivityManagerImpl::DriveStationState()
                 BK_LOG_ON_ERR(bk_wifi_sta_start());
                 BK_LOG_ON_ERR(bk_event_register_cb(EVENT_MOD_WIFI, EVENT_ID_ALL, ConnectivityManagerImpl().wlan_event_cb, NULL));
                 BK_LOG_ON_ERR(bk_event_register_cb(EVENT_MOD_NETIF, EVENT_ID_ALL, ConnectivityManagerImpl().netif_event_cb, NULL));
+                BK_LOG_ON_ERR(bk_wifi_sta_connect());
                 ChangeWiFiStationState(kWiFiStationState_Connecting);
             }
 

@@ -67,6 +67,16 @@ void cli_wifi_stop_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 		CLI_LOGI("bad parameters\r\n");
 }
 
+void cli_wifi_iplog_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	char *iplog_mode = NULL;
+
+	if (argc == 2)
+		iplog_mode = argv[1];
+
+	if (iplog_mode)
+		demo_wifi_iplog_init(iplog_mode);
+}
 typedef struct {
 	uint8_t channel;
 	uint32_t rx_cnt_mgmt;
@@ -715,6 +725,8 @@ static const struct cli_command s_wifi_commands[] = {
 	{"channel", "channel {1~13} - set monitor channel", cli_wifi_monitor_channel_cmd},
 	{"net", "net {sta/ap} ... - wifi net config", cli_wifi_net_cmd},
 	{"get", "get wifi status", cli_wifi_get_cmd},
+	
+	{"iplog", "iplog [modle]", cli_wifi_iplog_cmd},
 
 #ifdef CONFIG_WPA_TWT_TEST
 	{"twt", "twt {setup|teardown}", cli_wifi_twt_cmd},

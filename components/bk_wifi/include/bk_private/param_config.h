@@ -6,6 +6,7 @@
 // 2. Optimize this file
 
 #include <common/bk_include.h>
+#include "modules/wifi_types.h"
 
 #define CONFIG_ROLE_NULL        0
 #define CONFIG_ROLE_AP          1
@@ -60,6 +61,10 @@ typedef struct ap_param {
 	uint8_t cipher_suite;
 	uint8_t key[65];
 	uint8_t key_len;
+#if CONFIG_AP_VSIE
+	uint8_t vsie[255];
+	uint8_t vsie_len;
+#endif
 } ap_param_t;
 
 typedef struct sta_param {
@@ -70,6 +75,13 @@ typedef struct sta_param {
 	uint8_t key_len;
 	uint8_t fast_connect_set;
 	fast_connect_param_t fast_connect;
+
+#if CONFIG_STA_VSIE
+	struct {
+		uint8_t len;
+		uint8_t buf[255];
+	} vsies[NUM_WIFI_VENDOR_ELEM_FRAMES];
+#endif
 
 #if CONFIG_WPA2_ENTERPRISE
 	/* starts of WPA2-Enterprise/WPA3-Enterprise EAP-TLS configuration */

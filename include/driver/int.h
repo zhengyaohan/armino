@@ -19,8 +19,6 @@ extern "C" {
 #endif
 #include <common/bk_err.h>
 #include <driver/int_types.h>
-#include "icu_types.h"
-#include "arch_interrupt.h"
 
 /* @brief Overview about this API header
  *
@@ -132,32 +130,6 @@ bk_err_t bk_int_set_priority(icu_int_src_t src, uint32_t int_priority);
  *    - others: other errors.
  */
 bk_err_t bk_int_set_group(void);
-
-
-
-/**
- * @brief     get every unit int numbers form ICU driver after congifg CONFIG_INT_STATIS
- *
- * This API get every unit's int numbers
- *
- * @return
- *    - int_statis_t: an int_statis_t pointer which including all uints' int numbers
- *    - others: other errors.
- */
-int_statis_t * bk_get_int_statis(void);
-
-/**
- * @brief     dunmp all units' int numbers form ICU driver
- *
- * This API dunmp all unit's int numbers
- *
- * @return
- *    - BK_OK: succeed
- *    - others: other errors.
- */
-bk_err_t bk_dump_int_statis(int_statis_t *int_statistic);
-
-
 
 #ifdef __cplusplus
 

@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include <common/bk_include.h>
+#include "driver/lcd_disp_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,293 +22,231 @@ extern "C" {
 
 
 
+/* @brief Overview about this API header
+ *
+ */
+
 /**
  * @brief LCD API
- * @defgroup bk_api_lcd LCD API group
  * @{
  */
 
-
-
-#if(0)
-/**
- * @brief  rgb lcd io selected
- * @param  none
- * @return BK_OK:succeed; others: other errors.
+ /**
+ * @brief    This API select LCD module clk source
+ *          - config lcd freq div
+ *          - config video power
+ *          - open lcd sys interrupt enable
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
  */
-bk_err_t bk_lcd_8080_gpio_init(void);
-
-/**
- * @brief  8080 lcd io selected
- * @param  none
- * @return BK_OK:succeed; others: other errors.
- */
-bk_err_t bk_lcd_rgb_gpio_init(void);
-
-/**
- * @brief  lcd sys init and reg init
- * @param  clk_src_sel 0:340,  1:480
- * @param  clk_div_l Frequency division : F/(1+clkdiv_disp_l+clkdiv_disp_h*2)
- * @param  clk_div_h
- * @return BK_OK:succeed; others: other errors.
- */
-bk_err_t bk_lcd_init(uint8_t clk_src_sel, uint8_t clk_div_l, uint8_t clk_div_h);
+bk_err_t bk_lcd_driver_init(lcd_clk_t clk);
 
 
 /**
- * @brief  lcd 8080 interface need delay 131ms before send cmd
- * @param  none
- * @return BK_OK:succeed; others: other errors.
+ * @brief This API init the 8080 lcd interface
+ *    - Set lcd display mode is 8080 interface
+ *    - init 8080 lcd gpio 
+ *    - enable 8080 display
+ *    -enable 8080 end of frame interrupt
+ *    - if you want enable start of frame interrupt, please use API bk_lcd_8080_int_enable
+ *
+ * @param
+ *     - x_pixel defult by 320, user can set by any value.
+ *     - y_pixel defult by 480, user can set by any value.
+ *
+ * @attention 1. int the next version, the xpixel and ypixel deside the transfer number of lcd display
+ *               will config with another two register x offset and y offset.
+ * @attention 2. in this sdk version x_pixel/y_pixel only set once in 8080_init,if you want set twice,should
+ *               set bk_lcd_8080_display_enable(0).
+ *
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
  */
-void bk_lcd_8080_reset(void);
-
-/**
- * @brief  lcd sys init and reg init
- * @param  clk_src_sel 0:340,  1:480
- * @param  clk_div_l Frequency division : F/(1+clkdiv_disp_l+clkdiv_disp_h*2)
- * @param  clk_div_h
- * @return BK_OK:succeed; others: other errors.
- */
-bk_err_t bk_lcd_sysclk_init(uint8_t clk_src_sel, uint8_t clk_div_l, uint8_t clk_div_h);
-
-
-#endif
-/**
-  * @brief	lcd_disp  system config
-  * param1: clk source sel 0:clk_320M	   1:clk_480M,
-  * param2: clk_div_l  F/(1+clkdiv_disp_l+clkdiv_disp_h*2)
-  * param2: clk_div_h  F/(1+clkdiv_disp_l+clkdiv_disp_h*2)
-  * return  BK_OK:succeed; others: other errors.
-  */
-bk_err_t bk_lcd_sysclk_init(uint8_t clk_src_sel, uint8_t clk_div_l, uint8_t clk_div_h);
-
-/**
- * @brief  lcd reg deinit
- * @return BK_OK:succeed; others: other errors.
- */
-bk_err_t bk_lcd_deinit(void);
-
-/**
- * @brief  lcd 8080 interface init
- * @param1  x_pixel 320
- * @param2  y_pixel 480
- * @return none.
- */
-void bk_lcd_8080_init(DISPLAY_PIXEL_FORMAT x_pixel, DISPLAY_PIXEL_FORMAT y_pixel);
-
-/**
- * @brief  lcd 8080 interface cmd send
- * @param  cmd bit[15:0]
- * @return none.
- */
-#define bk_lcd_8080_write_cmd(value)   lcd_hal_8080_write_cmd(value)
-
-/**
- * @brief  lcd 8080 interface data send
- * @param  dat bit[15:0]
- * @return none.
- */
-#define bk_lcd_8080_write_data(value)  lcd_hal_8080_write_data(value)
+bk_err_t bk_lcd_8080_init(display_pixel_format_t x_pixel, display_pixel_format_t y_pixel);
 
 
 /**
- * @brief  lcd int config
- * @param  is_sof_en 1:enable; 0:disable
- * @param  is_eof_en 1:enable; 0:disable
- * @return none.
- */
-#define bk_lcd_8080_int_enable(is_sof_en, is_eof_en) lcd_hal_8080_int_enable(is_sof_en, is_eof_en)
-
-#if(0)
-
-/**
- * @brief  bk_lcd_thrd_config
- * @param  wr_threshold_val,when data fifo beyond wr_threshold_val, will not receive dma tx data
- * @param  rd_threshold_val,
- * @return BK_OK:succeed; others: other errors.
- */
-#define bk_lcd_8080_set_dat_fifo_thrd(wr_threshold_val, rd_threshold_val) lcd_hal_8080_set_fifo_data_thrd(wr_threshold_val, rd_threshold_val)
-
+* @brief 8080 lcd interface reg deinit
+*     - This API reset all lcd reg include power 
+*     - close 8080/rgb lcd enable and display
+*     - reset x pixel and y pixel zero
+*     - unregister lcd isr
+*
+* @return
+*	  - BK_OK: succeed
+*	  - others: other errors.
+*/
+bk_err_t bk_lcd_8080_deinit(void);
 
 /**
- * @brief  only used lcd 8080 interface data transfer clk adjust, need debug later,
- * @param  tik_cnt, select 0/1/2/3
- * @return BK_OK:succeed; others: other errors.
+ * @brief This API config lcd display x size and y size
+ *
+ * @param
+ *     - width lcd display width
+ *     - height lcd display height
+ *
+ * @attention 1. int the next version, the width and height deside the transfer number of lcd display.
+ *              will config with another two register x offset and y offset.
+ * @attention 2. in this sdk version width/height only set once in 8080_init,if you want set twice,should 
+ *               set bk_lcd_8080_display_enable(0).
+ *
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
  */
-#define bk_lcd_8080_set_tik(tik_cnt)   lcd_hal_8080_set_tik(tik_cnt)
-
-/**
- * @brief  bk_lcd_display_enable, usage reference lcd exampel
- * @param  en 1:enable; 0:disable
- * @return BK_OK:succeed; others: other errors.
- */
-#define bk_lcd_8080_display_enable(value)    lcd_hal_8080_display_enable(value)
-
-/**
- * @brief  enable rgb interface data discontinue transfer, used in rgb clk beyond 20Mhz clk 
- * @param  en 1:enable; 0:disable
- * @return BK_OK:succeed; others: other errors.
- */
-#define bk_lcd_disconti_mode(en)    lcd_hal_disconti_mode(en)
-
-/* @brief config fifo mode, used only in 8080
- * @paramfifo_mode  0 : when bk_lcd_disp_enable(0), invalid write fifo,
-                    1: valid whenever time
- */
-#define bk_lcd_8080_fifo_mode(mode)  lcd_hal_8080_fifo_mode(mode)
-
-/**
- * @brief  bk_lcd_int_status_clear
- * @param  int_type
- * @return BK_OK:succeed; others: other errors.
- */
-#define bk_lcd_int_status_clear(int_type)     lcd_hal_int_status_clear(int_type)
-
-#endif
+bk_err_t bk_lcd_pixel_config(uint16_t x_pixel, uint16_t y_pixel);
 
 
 /**
- * @brief  transfer start, only used in 8080
- * @param  start_transfer 1:data start transfer to lcd display on; 0:stop
- * @return none.
+ * @brief write 8080 lcd cmd
+ *
+ * @param lcd cmd date, rang bit[15:0]
+ *
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
  */
-#define bk_lcd_8080_start_transfer(start_transfer)    lcd_hal_8080_start_transfer(start_transfer)
+bk_err_t  bk_lcd_8080_write_cmd(uint32_t cmd);
+
 
 /**
- * @brief  bk_lcd_display_enable, usage reference lcd exampel
- * @param  en 1:enable; 0:disable
- * @return BK_OK:succeed; others: other errors.
+ * @brief write 8080 lcd data 
+ *
+ * @param lcd date, rang bit[15:0]
+ *
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
  */
-#define bk_lcd_8080_display_enable(value)    lcd_hal_8080_display_enable(value)
+bk_err_t bk_lcd_8080_write_data(uint32_t data);
 
 /**
- * @brief  display pixel_config
- * @param  x_pixel the lcd support pixel
- * @param  y_pixel  the lcd support pixel
- * @return none.
+ * @brief This API config 8080 lcd interrupt
+
+ * @param
+ *     - is_sof_en enable start of frame interrupt
+ *     - is_eof_en enable end of frame interrupt
+ *
+ * @attention 8080 end of frame int is open in API bk_lcd_8080_init
+ *
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
  */
-#define bk_lcd_pixel_config(x_pixel, y_pixel) lcd_hal_pixel_config(x_pixel, y_pixel)
+bk_err_t bk_lcd_8080_int_enable(bool is_sof_en, bool is_eof_en);
+
+
+/**
+ * @brief This API start 8080 lcd transfer data to display
+ *
+ * @param start_transfer 
+ *      - 1:data start transfer to lcd display on; 
+ *      - 0:stop  transfer
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
+ */
+bk_err_t bk_lcd_8080_start_transfer(bool start);
+
+
+/**
+ * @brief  8080 lcd display enable
+ *
+ * @param   1 enable 8080 interface display
+ *        - 0 disable 8080 interface display
+ *
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
+ */
+bk_err_t bk_lcd_8080_display_enable(bool en);
 
 
 
 /**
- * @brief  lcd int isr register
- * @param  lcd isr
- * @return BK_OK:succeed; others: other errors.
+ * @brief This API init the rgb lcd interface
+ *    - Set lcd display mode is rgb interface
+ *    - init rgb lcd gpio 
+ *    - enable rgb display
+ *    - enable rgb end of frame interrupt
+ *
+ * @param
+ *     - clk_div: value rang bit[0~4]: 0~0x1f
+ *     - x_pixel: defult by 320, user can set by any value
+ *     - y_pixel: defult by 480, user can set by any value
+ *     - input_data_format: select from RGB_DATA_FORMAT enum:rgb565, yuyv etc.
+ *
+ * Usage example:
+ *
+ *            if rgb_clk_div = 5,the rgb lcd clk is 96/(div+1)=16Mhz
+ *
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
  */
-bk_err_t bk_lcd_isr_register(int_isr_t lcd_isr);
+bk_err_t bk_lcd_rgb_init(uint32_t rgb_clk_div, display_pixel_format_t x_pixel, display_pixel_format_t y_pixel, rgb_input_data_format_t input_data_format);
 
 
 /**
- * @brief  lcd int isr unregister
- * @param  lcd isr
- * @return BK_OK:succeed; others: other errors.
+ * @brief     rgb lcd interface reg deinit
+ *           - This API reset all lcd reg include power 
+ *           - close 8080/rgb lcd enable and display
+ *           - reset x pixel and y pixel zero
+ *           - unregister lcd isr
+ *
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
  */
-bk_err_t bk_lcd_isr_unregister(void);
-
-
-/**
- * @brief  bk_lcd_int_status_get
- * @param  none
- * @return return int status, return value & enum LCD_STATUS.
- */
-#define bk_lcd_int_status_get()                    lcd_hal_int_status_get()
-
-
-/**
- * @brief  clear 8080 lcd end of frame int status
- * @param  none
- * @return none.
- */
-#define bk_lcd_8080_eof_int_clear()  lcd_hal_eof_int_status_clear()
-
-/**
- * @brief  clear 8080 lcd start of frame int status
- * @param  none
- * @return BK_OK:succeed; others: other errors.
- */
-#define bk_lcd_8080_sof_int_clear()  lcd_hal_sof_int_status_clear()
-
-/**
- * @brief  clear rgb lcd end of frame int status
- * @param  none
- * @return none.
- */
-#define bk_lcd_rgb_eof_int_clear()  lcd_hal_rgb_eof_int_status_clear()
-
-/**
- * @brief  clear rgb lcd start of frame int status
- * @param  none
- * @return none.
- */
-#define bk_lcd_rgb_sof_int_clear()  lcd_hal_rgb_sof_int_status_clear()
-
-#if(0)
-/**
- * @brief  bk_lcd_clk_div， usedin rgb interface
- * @param  clk_div rang is 0~0xf
- * @return BK_OK:succeed; others: other errors.
- */
-#define bk_lcd_rgb_clk_div(clk_div)  lcd_hal_set_rgb_clk_div(clk_div)
-
-/**
- * @brief  config rgb data receive edge
- * @param  edge posedge/negedge
- * @return BK_OK:succeed; others: other errors.
- */
-#define bk_lcd_rgb_dclk_rev_edge(edge)  lcd_hal_set_rgb_clk_rev_edge(edge)
-
-#define bk_lcd_rgb_disp_sel(en)    lcd_hal_rgb_display_sel(en)
-
-/**
- * @brief  config rgb interface hsync and vsync
- * @param  hsync_back_porch
- * @param  hsync_front_porch
- * @param  vsync_back_porch
- * @param  vsync_front_porch
- * @return BK_OK:succeed; others: other errors.
- */
-#define bk_lcd_sync_config(hsync_back_porch, hsync_front_porch, vsync_back_porch, vsync_front_porch) \
-            lcd_hal_rgb_sync_config(hsync_back_porch, hsync_front_porch, vsync_back_porch, vsync_front_porch)
-
-
-/**
- * @brief  set rgb format
- * @param  data_format  0:rgb; 1:yuv
- * @return BK_OK:succeed; others: other errors.
- */
-#define bk_lcd_rgb_input_data_format(RGB_DATA_FORMAT  data_format)  lcd_hal_rgb_yuv_sel(RGB_DATA_FORMAT data_format) 
-
-#define bk_lcd_rgb_display_sel() lcd_hal_rgb_display_sel()
-#define bk_lcd_rgb_fifo_thrd_set(wr_threshold_val, rd_threshold_val) lcd_hal_rgb_set_thrd(wr_threshold_val, rd_threshold_val)
-#define bk_lcd_fifo_clr()   lcd_hal_mem_clr()
-void bk_lcd_debug(void);
-
-#endif
-
-/**
- * @brief  rb lcd init
- * @param1  clk_div , the rgb clk = sys clk/(div+1)
- * @param2  x_pixel 480
- * @param3  y_pixel 272
- * @param4  input_data_format select from RGB_DATA_FORMAT enum
- * @return none.
- */
-void bk_lcd_rgb_init(uint32_t clk_div, DISPLAY_PIXEL_FORMAT x_pixel, DISPLAY_PIXEL_FORMAT y_pixel, uint8_t input_data_format);
+bk_err_t bk_lcd_rgb_deinit(void);
 
 /**
  * @brief  enable rgb lcd enable
- * @param  none
- * @return none.
+ * @param  bool en
+ *       - 1: enable rgb display
+ *       - 0: disable rgb display
+ *
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
  */
-#define bk_lcd_rgb_display_en(en) lcd_hal_rgb_display_en(en)
+bk_err_t bk_lcd_rgb_display_en(bool en);
+
 
 /**
- * @brief  rgb lcd int config
- * @param  none
- * @return none.
+* @brief This API config rgb lcd interrupt
+
+ * @param
+ *     - is_sof_en enable start of frame interrupt
+ *     - is_eof_en enable end of frame interrupt
+ *
+ * @attention rgb end of frame int is open in API bk_lcd_rgb_init
+ *
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
  */
-#define bk_lcd_rgb_int_enable(is_sof_en, is_eof_en) lcd_hal_rgb_int_enable(is_sof_en, is_eof_en)
+bk_err_t bk_lcd_rgb_int_enable(bool is_sof_en, bool is_eof_en);
+
+
+/**
+ * @brief This API register  8080/rgb lcd int isr
+ * 
+ * @param
+ *     - int_type  include  8080/rgb  end of frame int and  8080/rgb  start of frame int
+ *     - isr: isr function
+ *
+ * Usage example:
+ *
+ *       bk_lcd_isr_register(I8080_OUTPUT_EOF, lcd_i8080_isr); //register 8080 end of frame isr
+ *
+  * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
+ */
+bk_err_t bk_lcd_isr_register(lcd_int_type_t int_type, lcd_isr_t isr);
 
 /**
   * @}

@@ -22,16 +22,6 @@
 extern "C" {
 #endif
 
-/* @brief Overview about this API header
- *
- */
-
-/**
- * @brief DMA API
- * @defgroup bk_api_dma DMA API group
- * @{
- */
-
 /**
  * @brief     Init the DMA driver
  *
@@ -223,6 +213,18 @@ bk_err_t bk_dma_set_transfer_len(dma_id_t id, uint32_t tran_len);
 bk_err_t bk_dma_set_src_addr(dma_id_t id, uint32_t start_addr, uint32_t end_addr);
 
 /**
+ * @brief     Set DMA source start address
+ *
+ * @param id DMA channel
+ * @param start_addr DMA source start address
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_dma_set_src_start_addr(dma_id_t id, uint32_t start_addr);
+
+/**
  * @brief     Set DMA dest address
  *
  * @attention 1. address should be zero when there is no value, e.g. bk_dma_set_dest_addr(1, 0x80210C, 0)
@@ -238,6 +240,106 @@ bk_err_t bk_dma_set_src_addr(dma_id_t id, uint32_t start_addr, uint32_t end_addr
 bk_err_t bk_dma_set_dest_addr(dma_id_t id, uint32_t start_addr, uint32_t end_addr);
 
 /**
+ * @brief     Set DMA dest start address
+ *
+ * @param id DMA channel
+ * @param start_addr DMA dest start address
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_dma_set_dest_start_addr(dma_id_t id, uint32_t start_addr);
+
+/**
+ * @brief     Enable DMA source address increase
+ *
+ * @param id DMA channel
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_dma_enable_src_addr_increase(dma_id_t id);
+
+/**
+ * @brief     Disable DMA source address increase
+ *
+ * @param id DMA channel
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_dma_disable_src_addr_increase(dma_id_t id);
+
+/**
+ * @brief     Enable DMA source address loop
+ *
+ * @param id DMA channel
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_dma_enable_src_addr_loop(dma_id_t id);
+
+/**
+ * @brief     Disable DMA source address loop
+ *
+ * @param id DMA channel
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_dma_disable_src_addr_loop(dma_id_t id);
+
+/**
+ * @brief     Enable DMA dest address increase
+ *
+ * @param id DMA channel
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_dma_enable_dest_addr_increase(dma_id_t id);
+
+/**
+ * @brief     Disable DMA dest address increase
+ *
+ * @param id DMA channel
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_dma_disable_dest_addr_increase(dma_id_t id);
+
+/**
+ * @brief     Enable DMA dest address loop
+ *
+ * @param id DMA channel
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_dma_enable_dest_addr_loop(dma_id_t id);
+
+/**
+ * @brief     Disable DMA dest address loop
+ *
+ * @param id DMA channel
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_dma_disable_dest_addr_loop(dma_id_t id);
+
+/**
  * @brief     Get DMA transfer remain length
  *
  * @param id DMA channel
@@ -245,10 +347,6 @@ bk_err_t bk_dma_set_dest_addr(dma_id_t id, uint32_t start_addr, uint32_t end_add
  * @return DMA transfer remain length
  */
 uint32_t bk_dma_get_remain_len(dma_id_t id);
-
-/**
- * @}
- */
 
 #ifdef __cplusplus
 }

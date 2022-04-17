@@ -60,7 +60,7 @@ macro(armino_component_register)
     set(single_value KCONFIG KCONFIG_PROJBUILD)
     set(multi_value SRCS SRC_DIRS EXCLUDE_SRCS
                     INCLUDE_DIRS PRIV_INCLUDE_DIRS LDFRAGMENTS REQUIRES
-                    PRIV_REQUIRES REQUIRED_BDK_SOCS EMBED_FILES EMBED_TXTFILES)
+                    PRIV_REQUIRES REQUIRED_ARMINO_SOCS EMBED_FILES EMBED_TXTFILES)
     cmake_parse_arguments(_ "${options}" "${single_value}" "${multi_value}" "${ARGN}")
     set(__component_priv_requires "${__PRIV_REQUIRES}")
     set(__component_requires "${__REQUIRES}")

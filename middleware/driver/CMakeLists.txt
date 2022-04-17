@@ -1,4 +1,4 @@
-armino_build_get_property(target BDK_SOC)
+armino_build_get_property(target ARMINO_SOC)
 
 # TODO
 # 0. Too big components and makefile, need optimize it
@@ -27,6 +27,9 @@ set(incs
 	touch
 	sbc
 	rtc
+	i2s
+	fft
+	../compal/common_io/include
 	)
 
 set(srcs
@@ -34,8 +37,6 @@ set(srcs
 	sys_ctrl/sys_driver.c
 	common/dd.c
 	common/drv_model.c
-	#i2s/i2s.c
-	pwm/pwm_driver.c
 	icu/icu_driver.c
 	icu/interrupt_base.c
 	timer/timer_driver.c
@@ -43,7 +44,6 @@ set(srcs
 	wdt/wdt_driver.c
 	spi/spi_driver.c
 	spi/spi_statis.c
-	pwm/mcu_ps_timer.c
 	sys_ctrl/sys_ctrl.c
 	pmu/aon_pmu_driver.c
 	)
@@ -68,19 +68,37 @@ set(srcs
 		i2c/i2c_statis.c
 	)
 
+if (CONFIG_PWM)
+	list(APPEND srcs
+		pwm/mcu_ps_timer.c
+		pwm/pwm_driver.c
+		)
+endif()  #if (CONFIG_PWM)
+
 if ((NOT CONFIG_SOC_BK7256XX) AND (NOT CONFIG_SOC_BK7256_CP1))
+if (CONFIG_I2S)
 	list(APPEND srcs
 		i2s/i2s.c
 		)
+endif()  #if (CONFIG_I2S)
 endif()
 
 if ((NOT CONFIG_SOC_BK7256XX) AND (NOT CONFIG_SOC_BK7256_CP1))
+if (CONFIG_FFT)
 	list(APPEND srcs
 		fft/fft.c
 		)
 endif()
+endif()
 
 if (CONFIG_SOC_BK7256XX OR CONFIG_SOC_BK7256_CP1)
+	list(APPEND srcs
+		"flash/flash_bypass.c"
+		)
+endif()
+
+if (CONFIG_SOC_BK7256XX OR CONFIG_SOC_BK7256_CP1)
+if (CONFIG_FFT)
 	list(APPEND incs
 		"fft"
 	)
@@ -89,8 +107,10 @@ if (CONFIG_SOC_BK7256XX OR CONFIG_SOC_BK7256_CP1)
 		fft/fft_driver.c
 		)
 endif()
+endif()
 
 if (CONFIG_SOC_BK7256XX OR CONFIG_SOC_BK7256_CP1)
+if (CONFIG_I2S)
 	list(APPEND incs
 		"i2s"
 	)
@@ -98,6 +118,8 @@ if (CONFIG_SOC_BK7256XX OR CONFIG_SOC_BK7256_CP1)
 	list(APPEND srcs
 		i2s/i2s_driver.c
 	)
+endif()
+
 	if (CONFIG_LCD)
 	list(APPEND srcs
 		"lcd_display/lcd_disp_driver.c"
@@ -123,6 +145,13 @@ if (CONFIG_TRNG_SUPPORT)
 		)
 endif() #if (CONFIG_TRNG_SUPPORT)
 
+if (CONFIG_FLASH)
+	list(APPEND srcs
+		"flash/flash_driver.c"
+		"flash/flash_partition.c"
+		)
+endif() #if (CONFIG_FLASH)
+
 if (CONFIG_QSPI)
 	list(APPEND srcs
 		"qspi/qspi_driver.c"
@@ -131,12 +160,12 @@ if (CONFIG_QSPI)
 		)
 endif() #if (CONFIG_QSPI)
 
-if (CONFIG_JPEG)
+if (CONFIG_JPEG_ENCODE)
 	list(APPEND srcs
-		"jpeg/jpeg_driver.c"
-		"jpeg/jpeg_statis.c"
+		"jpeg_enc/jpeg_driver.c"
+		"jpeg_enc/jpeg_statis.c"
 		)
-endif() #if (CONFIG_JPEG)
+endif() #if (CONFIG_JPEG_ENCODE)
 
 if (CONFIG_PSRAM)
 	list(APPEND srcs
@@ -195,12 +224,6 @@ if (CONFIG_AUDIO_RISCV_IP_V1_0)
 		)
 endif()
 
-if (CONFIG_SOC_BK7256XX OR CONFIG_SOC_BK7256_CP1)
-	list(APPEND srcs
-		"flash/flash_bypass.c"
-		)
-endif()
-
 if (CONFIG_SBC)
 if (CONFIG_SOC_BK7256XX OR CONFIG_SOC_BK7256_CP1)
 	list(APPEND srcs
@@ -231,7 +254,7 @@ if (NOT CONFIG_FULLY_HOSTED)
 
 	list(APPEND incs
 		"spi"
-		"jpeg"
+		"jpeg_enc"
 		"sdcard"
 		)
 
@@ -239,13 +262,26 @@ if (NOT CONFIG_FULLY_HOSTED)
 		"dsp/dsp.c"
 		)
 
+if (CONFIG_SOC_BK7271)
+	list(APPEND srcs
+		"bk7271/mailbox_driver.c"
+		)
+endif()
+endif() #if (NOT CONFIG_FULLY_HOSTED)
+
 if (CONFIG_SOC_BK7256XX OR CONFIG_SOC_BK7256_CP1)
+	list(APPEND srcs
+		"bk7256/mailbox_driver.c"
+		)
+
+endif()
+
+if (CONFIG_MAILBOX)
 	list(APPEND incs
 		"spinlock"
 		)
 	list(APPEND srcs
 		"mailbox/mailbox_driver_base.c"
-		"bk7256/mailbox_driver.c"
 		"spinlock/spinlock.c"
 		)
 	if (CONFIG_DUAL_CORE)
@@ -261,17 +297,6 @@ if (CONFIG_SOC_BK7251)
 		"spi"
 		)
 endif()
-
-if (CONFIG_SOC_BK7271)
-	list(APPEND incs
-		)
-
-	list(APPEND srcs
-		"mailbox/mailbox_driver_base.c"
-		"bk7271/mailbox_driver.c"
-		)
-endif()
-endif() #if (NOT CONFIG_FULLY_HOSTED)
 
 if (CONFIG_SOC_BK7256XX)
 	list(APPEND incs
@@ -500,5 +525,5 @@ endif()
 armino_component_register(SRCS "${srcs}"
 	INCLUDE_DIRS "${incs}"
 	REQUIRES app arm9 bk_wifi bk_usb riscv
-	PRIV_REQUIRES music_player bk_common bk_log bk_ble bk_ps bk_ate bk_init video_transfer
+	PRIV_REQUIRES music_player bk_common bk_log bk_ble bk_ps bk_ate bk_init
 )

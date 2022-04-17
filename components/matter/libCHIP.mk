@@ -8,8 +8,8 @@ ifeq ($(CROSS_COMPILE_CHOICE),1)
 ARM_GCC_TOOLCHAIN = ${FREERTOS_EXEC_PATH}
 CROSS_COMPILE = $(ARM_GCC_TOOLCHAIN)arm-none-eabi-
 else
-ARM_GCC_TOOLCHAIN = ${RISC_V_PATH}
-CROSS_COMPILE = $(RISC_V_PATH)riscv32-elf-
+RISC_GCC_TOOLCHAIN = /opt/risc-v/nds32le-elf-mculib-v5/bin/
+CROSS_COMPILE = $(RISC_GCC_TOOLCHAIN)riscv32-elf-
 endif
 
 
@@ -44,8 +44,8 @@ endif
 # Include folder list
 # -------------------------------------------------------------------
 INCLUDES =
-INCLUDES += -I$(BASEDIR)/build/bk7231n/config
-INCLUDES += -I$(BASEDIR)/build/bk7235/config
+#INCLUDES += -I$(BASEDIR)/build/bk7231n/config
+#INCLUDES += -I$(BASEDIR)/build/bk7235/config
 INCLUDES += -I$(BASEDIR)/middleware/arch/bk7256/soc
 
 ifeq ($(CROSS_COMPILE_CHOICE),1)
@@ -62,6 +62,7 @@ endif
 
 INCLUDES += -I$(BASEDIR)/include
 INCLUDES += -I$(BASEDIR)/include/modules
+INCLUDES += -I$(BASEDIR)/include/arch/compiler
 INCLUDES += -I$(BASEDIR)/components/bk_ps/include/bk_private
 INCLUDES += -I$(BASEDIR)/components/bk_common/include
 INCLUDES += -I$(BASEDIR)/components/bk_common/include/bk_private
@@ -72,6 +73,7 @@ INCLUDES += -I$(BASEDIR)/components/bk_rtos/include
 INCLUDES += -I$(BASEDIR)/components/bk_rtos/include/bk_private
 INCLUDES += -I$(BASEDIR)/components/bk_rtos/freertos
 INCLUDES += -I$(BASEDIR)/components/bk_system/include
+INCLUDES += -I$(BASEDIR)/components/bk_cli/include
 
 INCLUDES += -I$(BASEDIR)/components/at/include
 #INCLUDES += -I$(BASEDIR)/components/bk_ble/ble_v5/include
@@ -138,6 +140,7 @@ INCLUDES += -I$(CHIP_DIR)/src/lib
 #out incluede
 #INCLUDES += -I$(CHIP_DIR)/config/beken/components/chip/out/7231n/gen/include
 #INCLUDES += -I$(CHIP_DIR)/gen/include
+INCLUDES += -I$(CHIP_DIR)/bk7235
 INCLUDES += -I$(OUTPUT_DIR)/out/7231n/gen/include
 INCLUDES += -I$(CHIP_DIR)/src/include
 
@@ -299,6 +302,8 @@ CHIP_CXXFLAGS += $(INCLUDES)
 
 # Define the Rules to build the core targets
 all: CHIP_CORE APP
+	@cp $(OUTPUT_DIR)/out/7231n/lib/*  $(BASEDIR)/components/bk_libs/common/
+
 CHIP_CORE:
 	if [ ! -d $(OUTPUT_DIR) ]; then \
 		rm -rf $(OUTPUT_DIR);mkdir -p $(OUTPUT_DIR); mkdir -p $(OUTPUT_DIR)/app_obj;\

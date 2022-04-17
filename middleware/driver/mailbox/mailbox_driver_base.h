@@ -68,12 +68,12 @@ typedef struct {
 	mailbox_implement_t imp;
 }mailbox_info_t;
 
-bk_err_t mailbox_init(void);
-bk_err_t mailbox_deinit(void);
-bk_err_t mailbox_set_param(mailbox_data_t *data, uint32_t p0, uint32_t p1, uint32_t p2, uint32_t p3);
-bk_err_t mailbox_recv_callback_register(mailbox_endpoint_t src, mailbox_endpoint_t dst, mailbox_callback_t callback);
-bk_err_t mailbox_recv_callback_unregister(mailbox_endpoint_t src, mailbox_endpoint_t dst);
-bk_err_t mailbox_send(mailbox_data_t *data, mailbox_endpoint_t src, mailbox_endpoint_t dst, void *arg);
+bk_err_t bk_mailbox_init(void);
+bk_err_t bk_mailbox_deinit(void);
+bk_err_t bk_mailbox_set_param(mailbox_data_t *data, uint32_t p0, uint32_t p1, uint32_t p2, uint32_t p3);
+bk_err_t bk_mailbox_recv_callback_register(mailbox_endpoint_t src, mailbox_endpoint_t dst, mailbox_callback_t callback);
+bk_err_t bk_mailbox_recv_callback_unregister(mailbox_endpoint_t src, mailbox_endpoint_t dst);
+bk_err_t bk_mailbox_send(mailbox_data_t *data, mailbox_endpoint_t src, mailbox_endpoint_t dst, void *arg);
 
 void mailbox_driver_init(void);
 void mailbox_driver_deinit(void);

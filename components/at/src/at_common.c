@@ -1,7 +1,16 @@
 #include "at_common.h"
-#if (CONFIG_BLE_5_X || CONFIG_BTDM_5_2)
+//#if (CONFIG_BLE_5_X || CONFIG_BTDM_5_2)
 const at_command_t *lookup_ble_at_command(char *str1)
 {
+    uint8_t type = bk_ble_get_controller_stack_type();
+
+    if(type != BK_BLE_CONTROLLER_STACK_TYPE_BLE_5_X &&
+        type != BK_BLE_CONTROLLER_STACK_TYPE_BTDM_5_2)
+    {
+        os_printf("%s stack type %d not support\n", __func__, type);
+        return NULL;
+    }
+
     for (int i = 0; i < ble_at_cmd_cnt(); i++)
     {
         if (ble_at_cmd_table[i].name == NULL) {
@@ -39,7 +48,7 @@ int get_addr_from_param(bd_addr_t *bdaddr, char *input_param)
     uint8_t j = 1;
     uint8_t k = 0;
 
-    if ( addr_len != (GAP_BD_ADDR_LEN * 2 + 5))
+    if ( addr_len != (BK_BLE_GAP_BD_ADDR_LEN * 2 + 5))
     {
         err = kParamErr;
         return err;
@@ -65,7 +74,7 @@ int get_addr_from_param(bd_addr_t *bdaddr, char *input_param)
         else if (input_param[i] == ':')
         {
             temp[k] = '\0';
-            bdaddr->addr[GAP_BD_ADDR_LEN - j] = os_strtoul(temp, NULL, 16) & 0xFF;
+            bdaddr->addr[BK_BLE_GAP_BD_ADDR_LEN - j] = os_strtoul(temp, NULL, 16) & 0xFF;
             k = 0;
             j++;
         }
@@ -78,7 +87,7 @@ int get_addr_from_param(bd_addr_t *bdaddr, char *input_param)
         if (i == (addr_len - 1))
         {
             temp[k] = '\0';
-            bdaddr->addr[GAP_BD_ADDR_LEN - j] = os_strtoul(temp, NULL, 16) & 0xFF;
+            bdaddr->addr[BK_BLE_GAP_BD_ADDR_LEN - j] = os_strtoul(temp, NULL, 16) & 0xFF;
             k = 0;
         }
     }
@@ -86,7 +95,7 @@ int get_addr_from_param(bd_addr_t *bdaddr, char *input_param)
     return kNoErr;
 }
 
-#endif
+//#endif
 
 const at_command_t *lookup_video_at_command(char *str1)
 {

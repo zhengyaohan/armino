@@ -37,6 +37,9 @@
 #if CONFIG_CALENDAR
 #include "calendar_hal.h"
 #endif
+#if CONFIG_FLASH
+#include "flash_hal.h"
+#endif
 
 static int hex2num(char c)
 {
@@ -86,7 +89,7 @@ static int cli_hexstr2bin(const char *hex, u8 *buf, size_t len)
 	return 0;
 }
 
-#if CONFIG_JPEG
+#if CONFIG_JPEG_ENCODE
 #include "jpeg_hal.h"
 #endif
 
@@ -224,7 +227,7 @@ static void cli_reg_dump_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc,
 		aon_rtc_struct_dump();
 	}
 #endif
-#if CONFIG_JPEG
+#if CONFIG_JPEG_ENCODE
 	else if (os_strcmp(argv[1], "jpeg") == 0) {
 		jpeg_struct_dump();
 	}
@@ -232,6 +235,11 @@ static void cli_reg_dump_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc,
 #if CONFIG_CALENDAR
 	else if (os_strcmp(argv[1], "calendar") == 0) {
 		calendar_struct_dump();
+	}
+#endif
+#if CONFIG_FLASH
+	else if (os_strcmp(argv[1], "flash") == 0) {
+		flash_struct_dump();
 	}
 #endif
 	else {

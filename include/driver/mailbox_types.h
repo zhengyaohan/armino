@@ -39,6 +39,7 @@ extern "C" {
 #define BK_ERR_MAILBOX_CALLBACK          (BK_ERR_MAILBOX_BASE - 4) /**< MAILBOX callback function error */
 #define BK_ERR_MAILBOX_TIMEOUT           (BK_ERR_MAILBOX_BASE - 5) /**< MAILBOX waite timeout */
 #define BK_ERR_MAILBOX_NOT_INIT          (BK_ERR_MAILBOX_BASE - 6) /**< MAILBOX isnt init */
+#define BK_ERR_MAILBOX_REPEAT_INIT       (BK_ERR_MAILBOX_BASE - 7) /**< MAILBOX repeat init */
 
 
 /**

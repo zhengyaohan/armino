@@ -344,10 +344,10 @@ bk_err_t beken_time_set_time(beken_time_t* time_ptr)
 
 bk_err_t rtos_init_semaphore(beken_semaphore_t *semaphore, int max_count )
 {
-    return rtos_init_semaphore_adv(semaphore, max_count, 0);
+    return rtos_init_semaphore_ex(semaphore, max_count, 0);
 }
 
-bk_err_t rtos_init_semaphore_adv(beken_semaphore_t *semaphore, int max_count, int init_count)
+bk_err_t rtos_init_semaphore_ex(beken_semaphore_t *semaphore, int max_count, int init_count)
 {
     UINT32 uwRet;
     UINT32 uwSemId;
@@ -407,7 +407,7 @@ bk_err_t rtos_get_semaphore(beken_semaphore_t *semaphore, uint32_t timeout_ms )
     } 
 }
 
-int rtos_get_sema_count(beken_semaphore_t *semaphore )
+int rtos_get_semaphore_count(beken_semaphore_t *semaphore )
 {
     uint32_t uwIntSave;
     uint32_t uwCount;

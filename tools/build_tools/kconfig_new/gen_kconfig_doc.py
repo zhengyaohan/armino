@@ -31,7 +31,7 @@ MAX_HEADING_LEVEL = len(HEADING_SYMBOLS) - 1
 
 class ConfigTargetVisibility(object):
     """
-    Determine the visibility of Kconfig options based on BDK targets. Note that other environment variables should not
+    Determine the visibility of Kconfig options based on ARMINO targets. Note that other environment variables should not
     imply invisibility and neither dependencies on visible options with default disabled state. This difference makes
     it necessary to implement our own visibility and cannot use the visibility defined inside Kconfiglib.
     """
@@ -40,7 +40,7 @@ class ConfigTargetVisibility(object):
         self.config = config
         self.visibility = dict()  # node name to (x, y) mapping where x is the visibility (True/False) and y is the
         # name of the config which implies the visibility
-        self.target_env_var = 'BDK_SOC'
+        self.target_env_var = 'ARMINO_SOC'
         self.direct_eval_set = frozenset([kconfiglib.EQUAL, kconfiglib.UNEQUAL, kconfiglib.LESS, kconfiglib.LESS_EQUAL,
                                          kconfiglib.GREATER, kconfiglib.GREATER_EQUAL])
 

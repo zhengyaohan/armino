@@ -14,7 +14,7 @@
 #include <lwip/sockets.h>
 #include "ethernetif.h"
 
-#include "bk_api_mac.h"
+#include <components/system.h>
 #include "bk_drv_model.h"
 #include <os/mem.h>
 #include "bk_wifi_netif.h" //TODO use standard EVENT instead!!!
@@ -138,17 +138,6 @@ void net_ipv6stack_init(struct netif *netif)
 {
 	bk_get_mac(netif->hwaddr, MAC_TYPE_STA);
 	netif->hwaddr_len = 6;
-	netif_create_ip6_linklocal_address(netif, 1);
-
-	u8 *ipv6_addr;
-    ipv6_addr = (u8*)(ip_2_ip6(&netif->ip6_addr[0]))->addr;
-    bk_printf("ipv6_linklocal_addr[%d] %02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x\r\n", 0,
-                        ipv6_addr[0], ipv6_addr[1], ipv6_addr[2], ipv6_addr[3],
-                        ipv6_addr[4], ipv6_addr[5], ipv6_addr[6], ipv6_addr[7],
-                        ipv6_addr[8], ipv6_addr[9], ipv6_addr[10], ipv6_addr[11],
-                        ipv6_addr[12], ipv6_addr[13], ipv6_addr[14], ipv6_addr[15]);
-    bk_printf("ipv6_linklocal_state[%d] 0x%x\r\n",0, netif->ip6_addr_state[0]);
-
 }
 #endif /* CONFIG_IPV6 */
 
@@ -234,6 +223,7 @@ static void wm_netif_status_callback(struct netif *n)
                         ipv6_addr[4], ipv6_addr[5], ipv6_addr[6], ipv6_addr[7],
                         ipv6_addr[8], ipv6_addr[9], ipv6_addr[10], ipv6_addr[11],
                         ipv6_addr[12], ipv6_addr[13], ipv6_addr[14], ipv6_addr[15]);
+                    bk_printf("ipv6_type[%d] :0x%x\r\n", i, n->ip6_addr[i].type);
                     bk_printf("ipv6_state[%d] :0x%x\r\n", i, n->ip6_addr_state[i]);
                 }
             }
@@ -683,6 +673,12 @@ int net_wlan_add_netif(uint8_t *mac)
 		return err;
 	} else {
 		wifi_netif_set_vif_private_data(vif, &wlan_if->netif);
+		#if CONFIG_IPV6
+		if(netif_if == NETIF_IF_STA) {
+			netif_create_ip6_linklocal_address(&wlan_if->netif, 1);
+			netif_set_ip6_autoconfig_enabled(&wlan_if->netif, 1);
+		}
+		#endif        
 	}
 
 	LWIP_LOGI("add vif%d\n", vifid);

@@ -1,6 +1,6 @@
 # armino extensions
 Python modules (subdirectories and files) in this directory named `[your_extension]_ext` will be loaded as armino extensions.
-If you want to provide extra extensions just provide `;` separated list of directories with extensions in  `BDK_EXTRA_ACTIONS_PATH`. Extensions will be loaded in alphanumeric order.
+If you want to provide extra extensions just provide `;` separated list of directories with extensions in  `ARMINO_EXTRA_ACTIONS_PATH`. Extensions will be loaded in alphanumeric order.
 Command line arguments parsing and extension mechanism is implemented on top of [Click](https://click.palletsprojects.com/en/5.x/) (versions >=5.0 are supported).
 
 They should define a function `action_extensions(base_actions, project_path)` where:

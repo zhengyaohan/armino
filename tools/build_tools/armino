@@ -29,15 +29,15 @@ PYTHON = sys.executable
 os.environ['PYTHON'] = sys.executable
 
 # Name of the program, normally 'armino'.
-# Can be overridden from armino.bat using BDK_PY_PROGRAM_NAME
-PROG = os.getenv('BDK_PY_PROGRAM_NAME', 'armino')
+# Can be overridden from armino.bat using ARMINO_PY_PROGRAM_NAME
+PROG = os.getenv('ARMINO_PY_PROGRAM_NAME', 'armino')
 
 
 # function prints warning when autocompletion is not being performed
 # set argument stream to sys.stderr for errors and exceptions
 def print_warning(message, stream=None):
     stream = stream or sys.stderr
-    if not os.getenv('_BDK.PY_COMPLETE'):
+    if not os.getenv('_ARMINO.PY_COMPLETE'):
         print(message, file=stream)
 
 
@@ -67,7 +67,7 @@ def check_environment():
             print_warning('Changing ARMINO_PATH environment variable to: %s' % detected_armino_path)
             os.environ['ARMINO_PATH'] = detected_armino_path
             #print_warning(
-            #    'WARNING: ARMINO_PATH environment variable is set to %s but %s path indicates BDK directory %s. '
+            #    'WARNING: ARMINO_PATH environment variable is set to %s but %s path indicates ARMINO directory %s. '
             #    'Using the detect armino directory, but results may be unexpected...' %
             #    (set_armino_path, PROG, detected_armino_path))
     else:
@@ -114,9 +114,9 @@ def _safe_relpath(path, start=None):
 def debug_print_armino_version():
     version = armino_version()
     if version:
-        print_warning('BEKEN-BDK %s' % version)
+        print_warning('BEKEN-ARMINO %s' % version)
     else:
-        print_warning('BEKEN-BDK version unknown')
+        print_warning('BEKEN-ARMINO version unknown')
 
 
 class PropertyDict(dict):
@@ -643,13 +643,13 @@ def init_cli(verbose_output=None):
     def parse_project_dir(project_dir):
         return realpath(project_dir)
     # Set `complete_var` to not existing environment variable name to prevent early cmd completion
-    project_dir = parse_project_dir(standalone_mode=False, complete_var='_BDK.PY_COMPLETE_NOT_EXISTING')
+    project_dir = parse_project_dir(standalone_mode=False, complete_var='_ARMINO.PY_COMPLETE_NOT_EXISTING')
 
     all_actions = {}
     # Load extensions from components dir
     armino_extensions_path = os.path.join(os.environ['ARMINO_PATH'], 'tools/build_tools', 'armino_actions')
     extension_dirs = [realpath(armino_extensions_path)]
-    extra_paths = os.environ.get('BDK_EXTRA_ACTIONS_PATH')
+    extra_paths = os.environ.get('ARMINO_EXTRA_ACTIONS_PATH')
     if extra_paths is not None:
         for path in extra_paths.split(';'):
             path = realpath(path)
@@ -668,12 +668,12 @@ def init_cli(verbose_output=None):
                 extensions.append((name, import_module(name)))
 
     # Load component manager if available and not explicitly disabled
-    if os.getenv('BDK_COMPONENT_MANAGER', None) != '0':
+    if os.getenv('ARMINO_COMPONENT_MANAGER', None) != '0':
         try:
             from armino_component_manager import armino_extensions
 
             extensions.append(('component_manager_ext', armino_extensions))
-            os.environ['BDK_COMPONENT_MANAGER'] = '1'
+            os.environ['ARMINO_COMPONENT_MANAGER'] = '1'
 
         except ImportError:
             pass
@@ -699,7 +699,7 @@ def init_cli(verbose_output=None):
             pass
 
     cli_help = (
-        'BEKEN-BDK CLI build management tool. '
+        'BEKEN-ARMINO CLI build management tool. '
         'For commands that are not known to armino an attempt to execute it as a build system target will be made.')
 
     return CLI(help=cli_help, verbose_output=verbose_output, all_actions=all_actions)
@@ -718,7 +718,7 @@ def main():
     checks_output = check_environment()
     cli = init_cli(verbose_output=checks_output)
     # the argument `prog_name` must contain name of the file - not the absolute path to it!
-    cli(sys.argv[1:], prog_name=PROG, complete_var='_BDK.PY_COMPLETE')
+    cli(sys.argv[1:], prog_name=PROG, complete_var='_ARMINO.PY_COMPLETE')
 
 
 def _valid_unicode_config():

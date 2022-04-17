@@ -15,7 +15,6 @@
 #pragma once
 
 #include <common/bk_err.h>
-#include "aud_hw.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -55,6 +55,8 @@ extern int video_demo_register_cmd(void);
 #define BKREG_MIN_LEN                     3
 #endif
 
+#define SHELL_TASK_PRIORITY               1
+
 /* Find the command 'name' in the cli commands table.
 * If len is 0 then full match will be performed else upto len bytes.
 * Returns: a pointer to the corresponding cli_command struct or NULL.
@@ -1224,7 +1226,7 @@ int bk_cli_init(void)
 	cli_i2c_init();
 #endif
 
-#if (CLI_CFG_JPEG == 1)
+#if (CLI_CFG_JPEGENC == 1)
 	cli_jpeg_init();
 #endif
 
@@ -1323,10 +1325,8 @@ int bk_cli_init(void)
 	cli_sbc_init();
 #endif
 
-#if (CONFIG_I2S)
 #if (CLI_CFG_I2S == 1)
 	cli_i2s_init();
-#endif
 #endif
 
 #if (CONFIG_TOUCH)
@@ -1356,12 +1356,16 @@ int bk_cli_init(void)
     cli_at_init();
 #endif
 
+#if (CLI_CFG_JPEGDEC == 1)
+	cli_jpegdec_init();
+#endif
+
 	/* sort cmds after registered all cmds. */
 	cli_sort_command(NULL, 0, 0, NULL);
 
 #if CONFIG_SHELL_ASYNCLOG
 	ret = rtos_create_thread(&cli_thread_handle,
-							 BEKEN_DEFAULT_WORKER_PRIORITY,
+							 SHELL_TASK_PRIORITY,
 							 "cli",
 							 (beken_thread_function_t)shell_task /*cli_main*/,
 							 4096,

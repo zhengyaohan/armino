@@ -13,8 +13,8 @@ else()
     function(git_submodule_check root_path)
         # for internal use:
         # skip submodule check if running on Gitlab CI and job is configured as not clone submodules
-        if($ENV{BDK_SKIP_CHECK_SUBMODULES})
-            if($ENV{BDK_SKIP_CHECK_SUBMODULES} EQUAL 1)
+        if($ENV{ARMINO_SKIP_CHECK_SUBMODULES})
+            if($ENV{ARMINO_SKIP_CHECK_SUBMODULES} EQUAL 1)
                 LOGI("skip submodule check on internal CI")
                 return()
             endif()

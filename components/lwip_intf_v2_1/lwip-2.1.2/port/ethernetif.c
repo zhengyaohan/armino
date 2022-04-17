@@ -125,6 +125,9 @@ static void low_level_init(struct netif *netif)
  #ifdef LWIP_IGMP
     netif->flags |= NETIF_FLAG_IGMP;
  #endif
+ #if defined (LWIP_IPV6_MLD) && (LWIP_IPV6_MLD == 1)
+    netif->flags |= NETIF_FLAG_MLD6;
+ #endif
     LWIP_LOGI("leave low level!\r\n");
 }
 
@@ -191,6 +194,13 @@ ethernetif_input(int iface, struct pbuf *p)
         
     /* points to packet payload, which starts with an Ethernet header */
     ethhdr = p->payload;
+    
+    if( (memcmp(netif->hwaddr,ethhdr->src.addr,NETIF_MAX_HWADDR_LEN)==0) && (htons(ethhdr->type) !=ETHTYPE_ARP) )
+    {
+        LWIP_DEBUGF(ETHARP_DEBUG ,("ethernet_input frame is my send,drop it\r\n"));
+        pbuf_free(p);
+        return;
+    }
 
     switch (htons(ethhdr->type))
     {

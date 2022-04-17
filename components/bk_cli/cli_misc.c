@@ -5,7 +5,7 @@
 #include "bk_drv_model.h"
 #include "release.h"
 #include <driver/efuse.h>
-#include "bk_api_mac.h"
+#include <components/system.h>
 #include <modules/wifi.h>
 #include "sys_driver.h"
 
@@ -14,7 +14,7 @@ static void efuse_cmd_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, c
 static void efuse_mac_cmd_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
 #endif //#if (CONFIG_EFUSE)
 
-volatile const uint8_t build_version[] = __DATE__ " " __TIME__;
+extern volatile const uint8_t build_version[];
 
 void get_version(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
@@ -189,6 +189,16 @@ void set_jtag_mode(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **ar
 	os_printf("set_jtag_mode end.\r\n");
 }
 
+#if CONFIG_COMMON_IO
+extern int common_io_test_main(int argc, const char * argv[]);
+void test_common_io(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	os_printf("common io test begin.===================.\r\n");
+	common_io_test_main(0, NULL);
+	os_printf("common io test end.====================.\r\n");
+}
+#endif
+
 #define MISC_CMD_CNT (sizeof(s_misc_commands) / sizeof(struct cli_command))
 static const struct cli_command s_misc_commands[] = {
 	{"version", NULL, get_version},
@@ -210,6 +220,9 @@ static const struct cli_command s_misc_commands[] = {
 #endif
 	{"jtagmode", "get jtag mode", get_jtag_mode},
 	{"setjtagmode", "reboot system", set_jtag_mode},
+#if CONFIG_COMMON_IO
+	{"testcommonio", "test common io", test_common_io},
+#endif
 };
 
 int cli_misc_init(void)

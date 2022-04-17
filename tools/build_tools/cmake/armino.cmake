@@ -1,4 +1,4 @@
-get_property(__armino_env_set GLOBAL PROPERTY __BDK_ENV_SET)
+get_property(__armino_env_set GLOBAL PROPERTY __ARMINO_ENV_SET)
 if(NOT __armino_env_set)
     # Infer an ARMINO_PATH relative to the tools/cmake directory
     get_filename_component(_armino_path "${CMAKE_CURRENT_LIST_DIR}/../../../" REALPATH)
@@ -34,6 +34,12 @@ if(NOT __armino_env_set)
     include(build)
 
     set(ARMINO_PATH ${armino_path})
+    if (SOC_PATH)
+        set(SOC_PATH ${armino_path}/${SOC_PATH})
+    else()
+        set(SOC_PATH ${armino_path}/middleware/soc)
+    endif()
+
     include(colors)
     define_colors()
     include(GetGitRevisionDescription)
@@ -49,5 +55,5 @@ if(NOT __armino_env_set)
 
     __build_init("${armino_path}")
 
-    set_property(GLOBAL PROPERTY __BDK_ENV_SET 1)
+    set_property(GLOBAL PROPERTY __ARMINO_ENV_SET 1)
 endif()

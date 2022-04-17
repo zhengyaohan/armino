@@ -1,5 +1,4 @@
 #include <os/os.h>
-
 #include "cli.h"
 #include <driver/int.h>
 #include <common/bk_err.h>
@@ -14,18 +13,20 @@
 
 static volatile uint32_t transferErrorDetected = 0;    /**< Set to 1 if an error transfer is detected */
 static volatile uint32_t transferCompleteDetected = 0; /**< Set to 1 if the DMA2D transfer complete is detected */
-static uint32_t   offset_address_area_blended_image_in_lcd_buffer =  0;
+static uint32_t          offset_address_area_blended_image_in_lcd_buffer =  0;
 static volatile uint32_t     dma_int_cnt = 0;
 static volatile uint32_t     dma_int_flag = 0;
-extern const uint16_t rgb_565_green[640];
-extern volatile uint32_t *sm1_addr;
-extern volatile uint32_t *sm2_addr;
-static volatile uint32_t PSRAM_BASEADDR =   0x60000000;
+
+extern const uint16_t        rgb_565_green[640];
+extern volatile uint32_t     *sm1_addr;
+extern volatile uint32_t     *sm2_addr;
 
 #if (USE_HAL_DMA2D_REGISTER_CALLBACKS == 1)
-static void mda2d_r2m_transfer_error(DMA2D_HandleTypeDef *dma2d);
-static void mda2d_r2m_transfer_complete(DMA2D_HandleTypeDef *dma2d);
+static void mda2d_r2m_transfer_error(dma2d_config_t *dma2d);
+static void mda2d_r2m_transfer_complete(dma2d_config_t *dma2d);
 #endif
+
+
 
 static void dma_fill_finish_isr(dma_id_t id)
 {
@@ -35,14 +36,11 @@ static void dma_fill_finish_isr(dma_id_t id)
 	{
 		dma_int_cnt = 0;
 		dma_int_flag = 1;
-		addGENER_DMA_Reg0x2 =(uint32)PSRAM_BASEADDR;
-		//addGENER_DMA_Reg0x2 =(uint32)&RGB565_320x480[0];
-		//bk_dma_start(0);
+		bk_dma_set_src_start_addr(DMA_ID_0, (uint32_t)LCD_FRAMEADDR);
+		//addGENER_DMA_Reg0x2 = (uint32_t)LCD_FRAMEADDR;
 	}
 	else {
-		
-		//addGENER_DMA_Reg0x2 = (uint32)&RGB565_320x480[0] + (uint32_t)(61440 * dma_int_cnt);
-		addGENER_DMA_Reg0x2 = (uint32)PSRAM_BASEADDR + (uint32_t)(61440 * dma_int_cnt);
+		bk_dma_set_src_start_addr(DMA_ID_0, (uint32)(LCD_FRAMEADDR + (61440 * dma_int_cnt)));
 		BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(0));
 		bk_dma_start(0);
 	}
@@ -51,15 +49,13 @@ static void dma_fill_finish_isr(dma_id_t id)
 
 void dma2d_isr()
 {
-
 	uint32_t int_status;
 	int_status = bk_dma2d_int_status_get();
-	//os_printf("int_status = %x \r\n", int_status);
 	//addAON_GPIO_Reg0x3 = 0x2;
 
 	if (int_status & DMA2D_CFG_ERROR) {
 		bk_dma2d_int_status_clear(DMA2D_CFG_ERROR_STATUS);
-		bk_dma2d_int_config(DMA2D_CFG_ERROR, 0);
+		bk_dma2d_int_enable(DMA2D_CFG_ERROR, 0);
 		os_printf("transferErrorDetected \r\n");
 	}
 
@@ -67,15 +63,14 @@ void dma2d_isr()
 	if (int_status & DMA2D_TRANS_ERROR_STATUS) {
 		transferErrorDetected = 1;
 		bk_dma2d_int_status_clear(DMA2D_TRANS_ERROR_STATUS);
-		bk_dma2d_int_config(DMA2D_TRANS_ERROR, 0);
+		bk_dma2d_int_enable(DMA2D_TRANS_ERROR, 0);
 		os_printf("transferErrorDetected \r\n");
 	}
 
 	if (int_status & DMA2D_TRANS_COMPLETE_STATUS) {
 		transferCompleteDetected = 1;
 		bk_dma2d_int_status_clear(DMA2D_TRANS_COMPLETE_STATUS);
-		bk_dma2d_int_config(DMA2D_TRANS_COMPLETE, 0);
-		//os_printf("transferCompleteDetected \r\n");
+		bk_dma2d_int_enable(DMA2D_TRANS_COMPLETE, 0);
 	}
 	//addAON_GPIO_Reg0x3 = 0x0;
 }
@@ -107,9 +102,9 @@ static void  dma_start_transfer(void)
 	dma_config.chan_prio = 0;
 	dma_config.src.dev = DMA_DEV_DTCM;
 	dma_config.src.width = DMA_DATA_WIDTH_32BITS;
-	dma_config.src.start_addr = (uint32) PSRAM_BASEADDR;
-	dma_config.src.end_addr = (uint32_t) PSRAM_BASEADDR + 61440;
-	dma_config.dst.start_addr = (uint32_t) &REG_DISP_DAT_FIFO;
+	dma_config.src.start_addr = (uint32) LCD_FRAMEADDR;
+	dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
+	dma_config.dst.start_addr = (uint32_t) REG_DISP_DAT_FIFO;
 	dma_config.dst.dev = DMA_DEV_LCD_DATA;
 	dma_config.dst.width = DMA_DATA_WIDTH_16BITS;
 	
@@ -118,6 +113,149 @@ static void  dma_start_transfer(void)
 	BK_LOG_ON_ERR(bk_dma_register_isr(0, NULL, dma_fill_finish_isr));
 	BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(0));
 	BK_LOG_ON_ERR(bk_dma_start(0));
+}
+
+/**
+  * @brief dma2d reg to mem mode,dma2d fill function
+           attention: data format is rgb565
+  * @param1  the display framebuffer base addr, by defult psram 0x60000000
+  * @param2  the lcd_x 
+  * @param3  the lcd_y 
+  * @param4  the display width , width <= lcd_x - x
+  * @param5  the display high , high <= lcd_y - y
+  * @param6  color the fill color
+  * @return none
+  */
+void dma2d_fill(uint32_t frameaddr, uint16_t x, uint16_t y, uint16_t width, uint16_t high, uint16_t color)
+{
+	void *pDiSt=&(((uint16_t *)frameaddr)[y*320+x]);
+
+	dma2d_config_t dma2d_config = {0};
+
+	dma2d_config.init.mode   = DMA2D_R2M; 			 /**< Mode Register to Memory */
+	dma2d_config.init.color_mode	   = DMA2D_OUTPUT_RGB565;  /**< DMA2D Output color mode is ARGB4444 (16 bpp) */
+	dma2d_config.init.output_offset  = 320 - width;					 /**< No offset in output */
+	dma2d_config.init.red_blue_swap   = DMA2D_RB_REGULAR;		 /**< No R&B swap for the output image */
+	dma2d_config.init.alpha_inverted = DMA2D_REGULAR_ALPHA;	 /**< No alpha inversion for the output image */
+	bk_dma2d_driver_init(&dma2d_config);
+
+	///bk_dma2d_int_config(DMA2D_TRANS_ERROR | DMA2D_TRANS_COMPLETE ,1);
+	///bk_dma2d_isr_register(dma2d_isr);
+	bk_dma2d_start_transfer(&dma2d_config, color, (uint32_t)pDiSt, width, high); 
+
+	//	while (transferCompleteDetected == 0) {;}
+	//	transferCompleteDetected = 0;
+	while (bk_dma2d_is_transfer_busy()) {
+	}
+}
+
+/**
+  * @brief dma2d mem to mem mode, dma2d memcpy function
+           attention: data format is rgb565
+  * @param1  input pixelformat, copy data format
+  * @param2  Psrc, source data addr
+  * @param3  Pdst, destination data addr
+  * @param4  xsize the display mem x size
+  * @param5  ysize the display mem y size
+  * @param6  src_offline. copy src mem data from offsetline addr,offsetline is calculate by pixel
+  * @param6  dest_offline. src mem data copy to destination offsetline addr, offsetline is calculate by pixel
+  * @return none
+  */
+
+void dma2d_memcpy(uint32_t pixelformat, void *Psrc, void *Pdst, uint32_t xsize, uint32_t ysize, uint32_t src_offline, uint32_t dest_offline)
+{
+	dma2d_config_t dma2d_config = {0};
+
+	/*##-1- Configure the DMA2D Mode, Output Color Mode and output offset #############*/
+	dma2d_config.init.mode         = DMA2D_M2M;             /**< Mode Memory To Memory */
+	dma2d_config.init.color_mode    = DMA2D_OUTPUT_RGB565; /**< Output color mode is ARGB4444 : 16 bpp */
+	dma2d_config.init.output_offset = dest_offline;                   /**< No offset on output */
+	dma2d_config.init.red_blue_swap   = DMA2D_RB_REGULAR;     /**< No R&B swap for the output image */
+	dma2d_config.init.alpha_inverted = DMA2D_REGULAR_ALPHA;  /**< No alpha inversion for the output image */
+
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].alpha_mode = DMA2D_NO_MODIF_ALPHA;      /**< Keep original Alpha from ARGB4444 input */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_alpha = 0xFF;                     /**< Fully opaque */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_color_mode = pixelformat; /**< Input color is ARGB4444 : 16 bpp */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_offset = src_offline;                     /**< No offset in input */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].red_blue_swap   = DMA2D_RB_REGULAR;      /**< No R&B swap for the input image */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].alpha_inverted = DMA2D_REGULAR_ALPHA;   /**< No alpha inversion for the input image */
+
+	bk_dma2d_driver_init(&dma2d_config);
+	bk_dma2d_layer_config(&dma2d_config, DMA2D_FOREGROUND_LAYER);
+/*
+	bk_dma2d_int_config(DMA2D_CFG_ERROR | DMA2D_TRANS_ERROR | DMA2D_TRANS_COMPLETE ,1);
+#if (USE_HAL_DMA2D_REGISTER_CALLBACKS == 1)
+	bk_dma2d_register_int_callback_isr(DMA2D_TRANS_ERROR_ISR, mda2d_r2m_transfer_error);
+	bk_dma2d_register_int_callback_isr(DMA2D_TRANS_COMPLETE_ISR, mda2d_r2m_transfer_complete);
+#else
+	bk_dma2d_isr_register(dma2d_isr);
+#endif
+*/
+	bk_dma2d_start_transfer(&dma2d_config, (uint32_t)Psrc, (uint32_t)Pdst, xsize, ysize); 
+	while (bk_dma2d_is_transfer_busy()) {}
+}
+
+/**
+  * @brief dma2d mem to mem with blending mode
+           attention: data format is rgb565
+  * @param1  pFgaddr, foreground layer data addr
+  * @param2  pBgaddr, background layer data addr
+  * @param3  Pdst, blend destination data addr
+  * @param4  fg_offline foreground layer blend from fg_offline addr, offsetline is calculate by pixel
+  * @param5  bg_offline bg_offline layer blend from fg_offline addr,offsetline is calculate by pixel
+  * @param6  dest_offline. blend complete,and display on dest addr edst_offline
+  * @param7  xsize the display lcd x size
+  * @param8  ysize the display lcd y size
+  * @param9  alpha_value  foreground layer alpha_value
+  * @return none
+  */
+
+void dma2d_mix_colors(void *pFgaddr, void *pBgaddr, void *pDst,
+							uint32_t fg_offline, uint32_t bg_offline, uint32_t dest_offline,
+							uint16_t xsize, uint16_t ysize, int8_t alpha_value)
+{
+	dma2d_config_t dma2d_config = {0};
+
+	/*##-1- Configure the DMA2D Mode, Output Color Mode and output offset #############*/
+	dma2d_config.init.mode         = DMA2D_M2M_BLEND;                  /**< Mode Memory To Memory */
+	dma2d_config.init.color_mode    = DMA2D_OUTPUT_RGB565;            /**< output format of DMA2D */
+	dma2d_config.init.output_offset= dest_offline;   /**< output offset */
+	dma2d_config.init.red_blue_swap   = DMA2D_RB_REGULAR;                /**< No R&B swap for the output image */
+	dma2d_config.init.alpha_inverted = DMA2D_REGULAR_ALPHA;             /**< No alpha inversion for the output image */
+
+	/**< Foreground layer Configuration */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].alpha_mode = DMA2D_REPLACE_ALPHA;    /**< Keep original Alpha from ARGB4444 input */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_alpha = alpha_value;                   /**< 127 : semi-transparent */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_color_mode = DMA2D_INPUT_RGB565; /**< Foreground color is RGB565 : 16 bpp */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_offset = fg_offline;                   /**< No offset in input */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].red_blue_swap   = DMA2D_RB_REGULAR;    /**< No R&B swap for the input image */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].alpha_inverted = DMA2D_REGULAR_ALPHA; /**< No alpha inversion for the input image */
+
+	/**< Background layer Configuration */
+	dma2d_config.layer_cfg[DMA2D_BACKGROUND_LAYER].alpha_mode  = DMA2D_REPLACE_ALPHA;
+	dma2d_config.layer_cfg[DMA2D_BACKGROUND_LAYER].input_alpha   = 0x80;                            /**< 255 : fully opaque */
+	dma2d_config.layer_cfg[DMA2D_BACKGROUND_LAYER].input_color_mode = DMA2D_INPUT_RGB565;          /**< Background format is ARGB8888*/
+	dma2d_config.layer_cfg[DMA2D_BACKGROUND_LAYER].input_offset    = bg_offline;/**< Background input offset*/
+	dma2d_config.layer_cfg[DMA2D_BACKGROUND_LAYER].red_blue_swap    = DMA2D_RB_REGULAR;              /**< No R&B swap for the input background image */
+	dma2d_config.layer_cfg[DMA2D_BACKGROUND_LAYER].alpha_inverted  = DMA2D_REGULAR_ALPHA;           /**< No alpha inversion for the input background image */
+
+	bk_dma2d_driver_init(&dma2d_config);
+	bk_dma2d_layer_config(&dma2d_config, DMA2D_FOREGROUND_LAYER);
+	bk_dma2d_layer_config(&dma2d_config, DMA2D_BACKGROUND_LAYER);
+
+//	bk_dma2d_int_config(DMA2D_TRANS_ERROR | DMA2D_TRANS_COMPLETE ,1);
+//	bk_dma2d_isr_register(dma2d_isr);
+	
+	/*## RGB565_240x130_1[] is the foreground layer and LCD_FRAME_BUFFER is the background layer */
+	bk_dma2d_start_blending(&dma2d_config,
+                                  (uint32_t)pFgaddr,                                                      /**< Foreground image */
+                                  (uint32_t)pBgaddr,   /**< Background image */
+                                  (uint32_t)pDst,  /**< Destination address */
+                                  xsize ,                                                                    /**< width in pixels   */
+                                  ysize);                                                                    /**< height in pixels   */
+
+
+	while (bk_dma2d_is_transfer_busy()) {}
 }
 
 static void lcd_fill(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -147,15 +285,15 @@ static void lcd_fill(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **
 
 
 #if (USE_HAL_DMA2D_REGISTER_CALLBACKS == 1)
-static void mda2d_r2m_transfer_error(DMA2D_HandleTypeDef *dma2d)
+static void mda2d_r2m_transfer_error(dma2d_config_t *dma2d)
 {
 	bk_dma2d_int_status_clear(DMA2D_TRANS_ERROR_STATUS);
-	bk_dma2d_int_config(DMA2D_TRANS_ERROR, DISABLE);
+	bk_dma2d_int_enable(DMA2D_TRANS_ERROR, DISABLE);
 }
-static void mda2d_r2m_transfer_complete(DMA2D_HandleTypeDef *dma2d)
+static void mda2d_r2m_transfer_complete(dma2d_config_t *dma2d)
 {
 	bk_dma2d_int_status_clear(DMA2D_TRANS_COMPLETE_STATUS);
-	bk_dma2d_int_config(DMA2D_TRANS_COMPLETE, DISABLE);
+	bk_dma2d_int_enable(DMA2D_TRANS_COMPLETE, DISABLE);
 }
 #endif
 
@@ -193,35 +331,35 @@ static void dma2d_memcpy_display(char *pcWriteBuffer, int xWriteBufferLen, int a
 static void bk_example_dma2d_mem_to_mem(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 	os_printf("test start: dma2d_mem_to_mem \r\n");
-	DMA2D_HandleTypeDef Dma2dHandle = {0};
+	dma2d_config_t dma2d_config = {0};
 
 	/*##-1- Configure the DMA2D Mode, Output Color Mode and output offset #############*/
-	Dma2dHandle.init.Mode         = DMA2D_M2M;             /**< Mode Memory To Memory */
-	Dma2dHandle.init.ColorMode    = DMA2D_OUTPUT_ARGB4444; /**< Output color mode is ARGB4444 : 16 bpp */
-	Dma2dHandle.init.OutputOffset = 0x0;                   /**< No offset on output */
-	Dma2dHandle.init.RedBlueSwap   = DMA2D_RB_REGULAR;     /**< No R&B swap for the output image */
-	Dma2dHandle.init.AlphaInverted = DMA2D_REGULAR_ALPHA;  /**< No alpha inversion for the output image */
+	dma2d_config.init.mode         = DMA2D_M2M;             /**< Mode Memory To Memory */
+	dma2d_config.init.color_mode    = DMA2D_OUTPUT_ARGB4444; /**< Output color mode is ARGB4444 : 16 bpp */
+	dma2d_config.init.output_offset = 0x0;                   /**< No offset on output */
+	dma2d_config.init.red_blue_swap   = DMA2D_RB_REGULAR;     /**< No R&B swap for the output image */
+	dma2d_config.init.alpha_inverted = DMA2D_REGULAR_ALPHA;  /**< No alpha inversion for the output image */
 
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].AlphaMode = DMA2D_NO_MODIF_ALPHA;      /**< Keep original Alpha from ARGB4444 input */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].InputAlpha = 0xFF;                     /**< Fully opaque */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].InputColorMode = DMA2D_INPUT_ARGB4444; /**< Input color is ARGB4444 : 16 bpp */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].InputOffset = 0x0;                     /**< No offset in input */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].RedBlueSwap   = DMA2D_RB_REGULAR;      /**< No R&B swap for the input image */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].AlphaInverted = DMA2D_REGULAR_ALPHA;   /**< No alpha inversion for the input image */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].alpha_mode = DMA2D_NO_MODIF_ALPHA;      /**< Keep original Alpha from ARGB4444 input */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_alpha = 0xFF;                     /**< Fully opaque */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_color_mode = DMA2D_INPUT_ARGB4444; /**< Input color is ARGB4444 : 16 bpp */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_offset = 0x0;                     /**< No offset in input */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].red_blue_swap   = DMA2D_RB_REGULAR;      /**< No R&B swap for the input image */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].alpha_inverted = DMA2D_REGULAR_ALPHA;   /**< No alpha inversion for the input image */
 
-	bk_dma2d_driver_init(&Dma2dHandle);
-	bk_dma2d_driver_layer_config(&Dma2dHandle, DMA2D_FOREGROUND_LAYER);
+	bk_dma2d_driver_init(&dma2d_config);
+	bk_dma2d_layer_config(&dma2d_config, DMA2D_FOREGROUND_LAYER);
 
-	bk_dma2d_int_config(DMA2D_CFG_ERROR | DMA2D_TRANS_ERROR | DMA2D_TRANS_COMPLETE ,1);
+	bk_dma2d_int_enable(DMA2D_CFG_ERROR | DMA2D_TRANS_ERROR | DMA2D_TRANS_COMPLETE ,1);
 	bk_dma2d_isr_register(dma2d_isr);
 
-	bk_dma2d_driver_start_transfer(&Dma2dHandle,
+	bk_dma2d_start_transfer(&dma2d_config,
                         (uint32_t)&MemToMemInputBuff,  /**< Source memory buffer	   */ 
                         (uint32_t)&MemToMemOutputBuff, /**< Destination memory buffer */
                         M2M_LAYER_SIZE_X,              /**< width of buffer in pixels */
                         M2M_LAYER_SIZE_Y);             /**< height of buffer in lines */
 
-	while (bk_dma2d_wait_transfer_done()) {
+	while (bk_dma2d_is_transfer_busy()) {
 	}
 
 	while ((transferCompleteDetected == 0) && (transferErrorDetected == 0)) {
@@ -256,40 +394,40 @@ static void bk_example_dma2d_rgb565_to_argb8888pixel(char *pcWriteBuffer, int xW
 	//psram_mode = 0x00054043;
 	//bk_psram_init(psram_mode);
 
-	DMA2D_HandleTypeDef Dma2dHandle = {0};
+	dma2d_config_t dma2d_config = {0};
 
 	/*##-1- Configure the DMA2D Mode, Output Color Mode and output offset #############*/
-	Dma2dHandle.init.Mode         = DMA2D_M2M_PFC;                  /**< DMA2D Mode memory to memory  with PFC*/
-	Dma2dHandle.init.ColorMode    = DMA2D_OUTPUT_ARGB8888;          /**< output format of DMA2D */
+	dma2d_config.init.mode         = DMA2D_M2M_PFC;                  /**< DMA2D Mode memory to memory  with PFC*/
+	dma2d_config.init.color_mode    = DMA2D_OUTPUT_ARGB8888;          /**< output format of DMA2D */
 
 	/**< Configure the output OutputOffset to (LCD width - image width) */
 	/**< Output offset in pixels == nb of pixels to be added at end of line to come to the  */
 	/**< first pixel of the next line : on the output side of the DMA2D computation  */
-	Dma2dHandle.init.OutputOffset = 0; 
-	Dma2dHandle.init.RedBlueSwap   = DMA2D_RB_REGULAR;               /**< No R&B swap for the output image */
-	Dma2dHandle.init.AlphaInverted = DMA2D_REGULAR_ALPHA;            /**< No alpha inversion for the output image */
+	dma2d_config.init.output_offset = 0; 
+	dma2d_config.init.red_blue_swap   = DMA2D_RB_REGULAR;               /**< No R&B swap for the output image */
+	dma2d_config.init.alpha_inverted = DMA2D_REGULAR_ALPHA;            /**< No alpha inversion for the output image */
 
 	/**< Foreground layer Configuration */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].AlphaMode = DMA2D_NO_MODIF_ALPHA;    /**< Keep original Alpha from ARGB4444 input */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].InputAlpha = 0xFF;                   /**< Fully opaque */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].InputColorMode = DMA2D_INPUT_RGB565; /**< Input color is RGB565 : 16 bpp */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].InputOffset = 0x0;                   /**< No offset in input */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].RedBlueSwap   = RedBlueSwapConfig;   /**< No R&B swap for the input image */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].AlphaInverted = DMA2D_REGULAR_ALPHA; /**< No alpha inversion for the input image */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].alpha_mode = DMA2D_NO_MODIF_ALPHA;    /**< Keep original Alpha from ARGB4444 input */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_alpha = 0xFF;                   /**< Fully opaque */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_color_mode = DMA2D_INPUT_RGB565; /**< Input color is RGB565 : 16 bpp */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_offset = 0x0;                   /**< No offset in input */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].red_blue_swap   = RedBlueSwapConfig;   /**< No R&B swap for the input image */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].alpha_inverted = DMA2D_REGULAR_ALPHA; /**< No alpha inversion for the input image */
 
-	bk_dma2d_driver_init(&Dma2dHandle);
-	bk_dma2d_driver_layer_config(&Dma2dHandle, DMA2D_FOREGROUND_LAYER);
+	bk_dma2d_driver_init(&dma2d_config);
+	bk_dma2d_layer_config(&dma2d_config, DMA2D_FOREGROUND_LAYER);
 
 	//bk_dma2d_int_config(DMA2D_TRANS_ERROR | DMA2D_TRANS_COMPLETE ,1);
 	//bk_dma2d_isr_register(dma2d_isr);
 
-	bk_dma2d_driver_start_transfer(&Dma2dHandle,
-                                  (uint32_t)PSRAM_BASEADDR, /**< Source buffer in format RGB565 and size 320x240      */
+	bk_dma2d_start_transfer(&dma2d_config,
+                                  (uint32_t)LCD_FRAMEADDR, /**< Source buffer in format RGB565 and size 320x240      */
                                   (uint32_t)0X60050000,/**< framebuf+2*(LCD_X_SIZE*sy+sx)*/
                                   IMAGE_SIZE_X,           /**< width in pixels  */
                                   IMAGE_SIZE_Y);        /**< height in pixels */
 
-	while (bk_dma2d_wait_transfer_done()) {}
+	while (bk_dma2d_is_transfer_busy()) {}
 }
 
 static void bk_example_dma2d_argb8888_to_rgb565pixel(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -304,39 +442,39 @@ static void bk_example_dma2d_argb8888_to_rgb565pixel(char *pcWriteBuffer, int xW
 	//psram_mode = 0x00054043;
 	//bk_psram_init(psram_mode);
 
-	DMA2D_HandleTypeDef Dma2dHandle = {0};
+	dma2d_config_t dma2d_config = {0};
 
 	/*##-1- Configure the DMA2D Mode, Output Color Mode and output offset #############*/
-	Dma2dHandle.init.Mode         = DMA2D_M2M_PFC;                  /**< DMA2D Mode memory to memory  with PFC*/
-	Dma2dHandle.init.ColorMode    = DMA2D_OUTPUT_RGB565;          /**< output format of DMA2D */
+	dma2d_config.init.mode         = DMA2D_M2M_PFC;                  /**< DMA2D Mode memory to memory  with PFC*/
+	dma2d_config.init.color_mode    = DMA2D_OUTPUT_RGB565;          /**< output format of DMA2D */
 
 	/**< Configure the output OutputOffset to (LCD width - image width) */
 	/**< Output offset in pixels == nb of pixels to be added at end of line to come to the  */
 	/**< first pixel of the next line : on the output side of the DMA2D computation  */
-	Dma2dHandle.init.OutputOffset = 0; 
-	Dma2dHandle.init.RedBlueSwap   = DMA2D_RB_REGULAR;               /**< No R&B swap for the output image */
-	Dma2dHandle.init.AlphaInverted = DMA2D_REGULAR_ALPHA;            /**< No alpha inversion for the output image */
+	dma2d_config.init.output_offset = 0; 
+	dma2d_config.init.red_blue_swap   = DMA2D_RB_REGULAR;               /**< No R&B swap for the output image */
+	dma2d_config.init.alpha_inverted = DMA2D_REGULAR_ALPHA;            /**< No alpha inversion for the output image */
 
 	/**< Foreground layer Configuration */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].AlphaMode = DMA2D_NO_MODIF_ALPHA;    /**< Keep original Alpha from ARGB4444 input */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].InputAlpha = 0xFF;                   /**< Fully opaque */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].InputColorMode = DMA2D_INPUT_ARGB8888; /**< Input color is RGB565 : 16 bpp */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].InputOffset = 0x0;                   /**< No offset in input */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].RedBlueSwap   = RedBlueSwapConfig;   /**< No R&B swap for the input image */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].AlphaInverted = DMA2D_REGULAR_ALPHA; /**< No alpha inversion for the input image */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].alpha_mode = DMA2D_NO_MODIF_ALPHA;    /**< Keep original Alpha from ARGB4444 input */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_alpha = 0xFF;                   /**< Fully opaque */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_color_mode = DMA2D_INPUT_ARGB8888; /**< Input color is RGB565 : 16 bpp */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_offset = 0x0;                   /**< No offset in input */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].red_blue_swap   = RedBlueSwapConfig;   /**< No R&B swap for the input image */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].alpha_inverted = DMA2D_REGULAR_ALPHA; /**< No alpha inversion for the input image */
 
-	bk_dma2d_driver_init(&Dma2dHandle);
-	bk_dma2d_driver_layer_config(&Dma2dHandle, DMA2D_FOREGROUND_LAYER);
+	bk_dma2d_driver_init(&dma2d_config);
+	bk_dma2d_layer_config(&dma2d_config, DMA2D_FOREGROUND_LAYER);
 
 	//bk_dma2d_int_config(DMA2D_TRANS_ERROR | DMA2D_TRANS_COMPLETE ,1);
 	//bk_dma2d_isr_register(dma2d_isr);
 
-	bk_dma2d_driver_start_transfer(&Dma2dHandle,
+	bk_dma2d_start_transfer(&dma2d_config,
                                   (uint32_t)0X60050000, /**< Source buffer in format RGB565 and size 320x240      */
-                                  (uint32_t)PSRAM_BASEADDR,/**< framebuf+2*(LCD_X_SIZE*sy+sx)*/
+                                  (uint32_t)LCD_FRAMEADDR,/**< framebuf+2*(LCD_X_SIZE*sy+sx)*/
                                   IMAGE_SIZE_X,           /**< width in pixels  */
                                   IMAGE_SIZE_Y);        /**< height in pixels */
-	while (bk_dma2d_wait_transfer_done()) {}
+	while (bk_dma2d_is_transfer_busy()) {}
 	dma_start_transfer();
 }
 
@@ -353,40 +491,40 @@ static void bk_example_dma2d_rgb565_to_rgb888pixel(char *pcWriteBuffer, int xWri
 	//psram_mode = 0x00054043;
 	//bk_psram_init(psram_mode);
 
-	DMA2D_HandleTypeDef Dma2dHandle = {0};
+	dma2d_config_t dma2d_config = {0};
 
 	/*##-1- Configure the DMA2D Mode, Output Color Mode and output offset #############*/
-	Dma2dHandle.init.Mode         = DMA2D_M2M_PFC;                  /**< DMA2D Mode memory to memory  with PFC*/
-	Dma2dHandle.init.ColorMode    = DMA2D_OUTPUT_RGB888;          /**< output format of DMA2D */
+	dma2d_config.init.mode         = DMA2D_M2M_PFC;                  /**< DMA2D Mode memory to memory  with PFC*/
+	dma2d_config.init.color_mode    = DMA2D_OUTPUT_RGB888;          /**< output format of DMA2D */
 
 	/**< Configure the output OutputOffset to (LCD width - image width) */
 	/**< Output offset in pixels == nb of pixels to be added at end of line to come to the  */
 	/**< first pixel of the next line : on the output side of the DMA2D computation  */
-	Dma2dHandle.init.OutputOffset = 0; 
-	Dma2dHandle.init.RedBlueSwap   = DMA2D_RB_REGULAR;               /**< No R&B swap for the output image */
-	Dma2dHandle.init.AlphaInverted = DMA2D_REGULAR_ALPHA;            /**< No alpha inversion for the output image */
+	dma2d_config.init.output_offset = 0; 
+	dma2d_config.init.red_blue_swap   = DMA2D_RB_REGULAR;               /**< No R&B swap for the output image */
+	dma2d_config.init.alpha_inverted = DMA2D_REGULAR_ALPHA;            /**< No alpha inversion for the output image */
 
 	/**< Foreground layer Configuration */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].AlphaMode = DMA2D_NO_MODIF_ALPHA;    /**< Keep original Alpha from ARGB4444 input */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].InputAlpha = 0xFF;                   /**< Fully opaque */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].InputColorMode = DMA2D_INPUT_RGB565; /**< Input color is RGB565 : 16 bpp */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].InputOffset = 0x0;                   /**< No offset in input */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].RedBlueSwap   = RedBlueSwapConfig;   /**< No R&B swap for the input image */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].AlphaInverted = DMA2D_REGULAR_ALPHA; /**< No alpha inversion for the input image */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].alpha_mode = DMA2D_NO_MODIF_ALPHA;    /**< Keep original Alpha from ARGB4444 input */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_alpha = 0xFF;                   /**< Fully opaque */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_color_mode = DMA2D_INPUT_RGB565; /**< Input color is RGB565 : 16 bpp */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_offset = 0x0;                   /**< No offset in input */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].red_blue_swap   = RedBlueSwapConfig;   /**< No R&B swap for the input image */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].alpha_inverted = DMA2D_REGULAR_ALPHA; /**< No alpha inversion for the input image */
 
-	bk_dma2d_driver_init(&Dma2dHandle);
-	bk_dma2d_driver_layer_config(&Dma2dHandle, DMA2D_FOREGROUND_LAYER);
+	bk_dma2d_driver_init(&dma2d_config);
+	bk_dma2d_layer_config(&dma2d_config, DMA2D_FOREGROUND_LAYER);
 
 	//bk_dma2d_int_config(DMA2D_TRANS_ERROR | DMA2D_TRANS_COMPLETE ,1);
 	//bk_dma2d_isr_register(dma2d_isr);
 
-	bk_dma2d_driver_start_transfer(&Dma2dHandle,
-                                  (uint32_t)PSRAM_BASEADDR, /**< Source buffer in format RGB565 and size 320x240      */
+	bk_dma2d_start_transfer(&dma2d_config,
+                                  (uint32_t)LCD_FRAMEADDR, /**< Source buffer in format RGB565 and size 320x240      */
                                   (uint32_t)0X60050000,/**< framebuf+2*(LCD_X_SIZE*sy+sx)*/
                                   IMAGE_SIZE_X,           /**< width in pixels  */
                                   IMAGE_SIZE_Y);        /**< height in pixels */
 
-	while (bk_dma2d_wait_transfer_done()) {}
+	while (bk_dma2d_is_transfer_busy()) {}
 }
 
 static void bk_example_dma2d_rgb888_to_rgb565pixel(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -401,39 +539,39 @@ static void bk_example_dma2d_rgb888_to_rgb565pixel(char *pcWriteBuffer, int xWri
 	//psram_mode = 0x00054043;
 	//bk_psram_init(psram_mode);
 
-	DMA2D_HandleTypeDef Dma2dHandle = {0};
+	dma2d_config_t dma2d_config = {0};
 
 	/*##-1- Configure the DMA2D Mode, Output Color Mode and output offset #############*/
-	Dma2dHandle.init.Mode         = DMA2D_M2M_PFC;                  /**< DMA2D Mode memory to memory  with PFC*/
-	Dma2dHandle.init.ColorMode    = DMA2D_OUTPUT_RGB565;          /**< output format of DMA2D */
+	dma2d_config.init.mode         = DMA2D_M2M_PFC;                  /**< DMA2D Mode memory to memory  with PFC*/
+	dma2d_config.init.color_mode    = DMA2D_OUTPUT_RGB565;          /**< output format of DMA2D */
 
 	/**< Configure the output OutputOffset to (LCD width - image width) */
 	/**< Output offset in pixels == nb of pixels to be added at end of line to come to the  */
 	/**< first pixel of the next line : on the output side of the DMA2D computation  */
-	Dma2dHandle.init.OutputOffset = 0; 
-	Dma2dHandle.init.RedBlueSwap   = DMA2D_RB_REGULAR;               /**< No R&B swap for the output image */
-	Dma2dHandle.init.AlphaInverted = DMA2D_REGULAR_ALPHA;            /**< No alpha inversion for the output image */
+	dma2d_config.init.output_offset = 0; 
+	dma2d_config.init.red_blue_swap   = DMA2D_RB_REGULAR;               /**< No R&B swap for the output image */
+	dma2d_config.init.alpha_inverted = DMA2D_REGULAR_ALPHA;            /**< No alpha inversion for the output image */
 
 	/**< Foreground layer Configuration */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].AlphaMode = DMA2D_NO_MODIF_ALPHA;    /**< Keep original Alpha from ARGB4444 input */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].InputAlpha = 0xFF;                   /**< Fully opaque */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].InputColorMode = DMA2D_INPUT_RGB888; /**< Input color is RGB565 : 16 bpp */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].InputOffset = 0x0;                   /**< No offset in input */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].RedBlueSwap   = RedBlueSwapConfig;   /**< No R&B swap for the input image */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].AlphaInverted = DMA2D_REGULAR_ALPHA; /**< No alpha inversion for the input image */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].alpha_mode = DMA2D_NO_MODIF_ALPHA;    /**< Keep original Alpha from ARGB4444 input */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_alpha = 0xFF;                   /**< Fully opaque */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_color_mode = DMA2D_INPUT_RGB888; /**< Input color is RGB565 : 16 bpp */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_offset = 0x0;                   /**< No offset in input */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].red_blue_swap   = RedBlueSwapConfig;   /**< No R&B swap for the input image */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].alpha_inverted = DMA2D_REGULAR_ALPHA; /**< No alpha inversion for the input image */
 
-	bk_dma2d_driver_init(&Dma2dHandle);
-	bk_dma2d_driver_layer_config(&Dma2dHandle, DMA2D_FOREGROUND_LAYER);
+	bk_dma2d_driver_init(&dma2d_config);
+	bk_dma2d_layer_config(&dma2d_config, DMA2D_FOREGROUND_LAYER);
 
 	//bk_dma2d_int_config(DMA2D_TRANS_ERROR | DMA2D_TRANS_COMPLETE ,1);
 	//bk_dma2d_isr_register(dma2d_isr);
 
-	bk_dma2d_driver_start_transfer(&Dma2dHandle,
+	bk_dma2d_start_transfer(&dma2d_config,
                                   (uint32_t)0X60050000, /**< Source buffer in format RGB565 and size 320x240      */
-                                  (uint32_t)PSRAM_BASEADDR,/**< framebuf+2*(LCD_X_SIZE*sy+sx)*/
+                                  (uint32_t)LCD_FRAMEADDR,/**< framebuf+2*(LCD_X_SIZE*sy+sx)*/
                                   IMAGE_SIZE_X,           /**< width in pixels  */
                                   IMAGE_SIZE_Y);        /**< height in pixels */
-	while (bk_dma2d_wait_transfer_done()) {}
+	while (bk_dma2d_is_transfer_busy()) {}
 	dma_start_transfer();
 }
 
@@ -486,18 +624,18 @@ static void bk_example_alpha_blend(char *pcWriteBuffer, int xWriteBufferLen, int
 
 static void dma2d_fill_to_blend(void * pDiSt, uint16_t width, uint16_t high, uint16_t color)
 {
-	DMA2D_HandleTypeDef Dma2dHandle = {0};
+	dma2d_config_t dma2d_init = {0};
 	
-	Dma2dHandle.init.Mode		   = DMA2D_R2M; 			 /**< Mode Register to Memory */
-	Dma2dHandle.init.ColorMode	   = DMA2D_OUTPUT_RGB565;  /**< DMA2D Output color mode is ARGB4444 (16 bpp) */
-	Dma2dHandle.init.OutputOffset  = 0;					 /**< No offset in output */
-	Dma2dHandle.init.RedBlueSwap   = DMA2D_RB_REGULAR;		 /**< No R&B swap for the output image */
-	Dma2dHandle.init.AlphaInverted = DMA2D_REGULAR_ALPHA;	 /**< No alpha inversion for the output image */
-	bk_dma2d_driver_init(&Dma2dHandle);
+	dma2d_init.init.mode		   = DMA2D_R2M; 			 /**< Mode Register to Memory */
+	dma2d_init.init.color_mode	   = DMA2D_OUTPUT_RGB565;  /**< DMA2D Output color mode is ARGB4444 (16 bpp) */
+	dma2d_init.init.output_offset  = 0;					 /**< No offset in output */
+	dma2d_init.init.red_blue_swap   = DMA2D_RB_REGULAR;		 /**< No R&B swap for the output image */
+	dma2d_init.init.alpha_inverted = DMA2D_REGULAR_ALPHA;	 /**< No alpha inversion for the output image */
+	bk_dma2d_driver_init(&dma2d_init);
 
-	bk_dma2d_int_config(DMA2D_TRANS_ERROR | DMA2D_TRANS_COMPLETE ,1);
+	bk_dma2d_int_enable(DMA2D_TRANS_ERROR | DMA2D_TRANS_COMPLETE ,1);
 	bk_dma2d_isr_register(dma2d_isr);
-	bk_dma2d_driver_start_transfer(&Dma2dHandle,
+	bk_dma2d_start_transfer(&dma2d_init,
 							color,						  /**< Color value is entered in ARGB8888 format: 0x00FFFF00 will yield a combination of Red and Green, that is yellow. */
 							(uint32_t)pDiSt,	  /**< DMA2D output buffer */
 							width, 					 /**< width of buffer in pixels */
@@ -519,7 +657,7 @@ static void bk_example_fill_alpha_blend(char *pcWriteBuffer, int xWriteBufferLen
 
 	uint16_t distx = (LCD_X_SIZE - image_x) / 2;
 	uint16_t disty = (LCD_Y_SIZE - image_y)/ 2;
-	uint16_t *pDiSt = (void *)PSRAM_BASEADDR + (distx + disty * LCD_X_SIZE) *2 ;
+	uint16_t *pDiSt = (void *)LCD_FRAMEADDR + (distx + disty * LCD_X_SIZE) *2 ;
 
 	dma2d_fill_to_blend((void *)0x60050000, image_x, image_y, image1_color);
 	dma2d_fill_to_blend((void *)0x60100000, image_x, image_y, image2_color);
@@ -574,7 +712,7 @@ static void bk_example_fill_2p_alpha_blend(char *pcWriteBuffer, int xWriteBuffer
 	void * pFgaddr = 0;
 	void * pBgaddr = 0;
 	dma_int_flag = 0;
-	uint16_t *pDiSt = (void *)PSRAM_BASEADDR;
+	uint16_t *pDiSt = (void *)LCD_FRAMEADDR;
 
 	dma2d_fill(0x60050000, 0, 0, 320, 480, 0xffff);
 	dma2d_fill(0x60050000, 20, 20, 280, 440, 0xffe0);
@@ -625,7 +763,7 @@ static void bk_example_fill_3p_alpha_blend(char *pcWriteBuffer, int xWriteBuffer
 	void * pFgaddr = 0;
 	void * pBgaddr = 0;
 	dma_int_flag = 0;
-	uint16_t *pDiSt = (void *)PSRAM_BASEADDR;
+	uint16_t *pDiSt = (void *)LCD_FRAMEADDR;
 	
 	dma2d_fill(0x60050000, 0, 0, 320, 480, 0xffff);
 	dma2d_fill(0x60050000, 20, 20, 280, 440, 0xffe0);

@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include "cli.h"
 #include <os/os.h>
-#include "bk_api_tick.h"
+#include <components/system.h>
 #include "bk_rtos_debug.h"
 
 void cli_memory_free_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)

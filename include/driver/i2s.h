@@ -66,9 +66,35 @@ bk_err_t bk_i2s_driver_deinit(void);
  *  - Init gpios i2s used
  *  - Configure the i2s parameters
  *
- * @param
- *    - id: gpio config "GPIO6, GPIO7, GPIO8, GPIO9"/"GPIO40, GPIO41, GPIO42, GPIO43"
- *    - config: i2s parameters include work role, work mode and so on
+ * Usage example:
+ *
+ *     //init i2s driver
+ *     bk_i2s_driver_init();
+ *
+ *     //init i2s configure
+ *     i2s_config_t i2s_config;
+ *     i2s_config.i2s_en = I2S_DISABLE;
+ *     i2s_config.role = I2S_ROLE_MASTER;
+ *     i2s_config.work_mode = I2S_WORK_MODE_I2S;
+ *     i2s_config.lrck_invert = I2S_LRCK_INVERT_DISABLE;
+ *     i2s_config.sck_invert = I2S_SCK_INVERT_DISABLE;
+ *     i2s_config.lsb_first_en = I2S_LSB_FIRST_DISABLE;
+ *     i2s_config.sync_length = 0;
+ *     i2s_config.data_length = 15;
+ *     i2s_config.pcm_dlength = 0;
+ *     i2s_config.sample_ratio = 0;
+ *     i2s_config.sck_ratio = 0;
+ *     i2s_config.parallel_en = I2S_PARALLEL_DISABLE;
+ *     i2s_config.store_mode = I2S_LRCOM_STORE_16R16L;
+ *     i2s_config.sck_ratio_h4b = 0;
+ *     i2s_config.sample_ratio_h2b = 0;
+ *     i2s_config.txint_level = I2S_TXINT_LEVEL_1;
+ *     i2s_config.rxint_level = I2S_RXINT_LEVEL_1;
+ *     bk_i2s_init(I2S_GPIO_GROUP_0, &i2s_config);
+ *     CLI_LOGI("init i2s driver and config successful \r\n");
+ *
+ * @param id gpio config "GPIO6, GPIO7, GPIO8, GPIO9"/"GPIO40, GPIO41, GPIO42, GPIO43"
+ * @param config i2s parameters include work role, work mode and so on
  *
  * @return
  *    - BK_OK: succeed
@@ -95,8 +121,7 @@ bk_err_t bk_i2s_deinit(void);
  *
  * This API get the i2s Rx fifo status that check whether the fifo data can be read
  *
- * @param
- *    - read_flag: save Rx fifo status
+ * @param read_flag save Rx fifo status
  *
  * @return
  *    - BK_OK: succeed
@@ -110,8 +135,7 @@ bk_err_t bk_i2s_get_read_ready(uint32_t *read_flag);
  *
  * This API get the i2s Tx fifo status that check whether the fifo data can be write
  *
- * @param
- *    - read_flag: save Tx fifo status
+ * @param read_flag save Tx fifo status
  *
  * @return
  *    - BK_OK: succeed
@@ -125,6 +149,8 @@ bk_err_t bk_i2s_get_write_ready(uint32_t *write_flag);
  *
  * This API enable i2s
  *
+ * @param en_value disable/enable i2s
+ *
  * @return
  *    - BK_OK: succeed
  *    - BK_ERR_AUD_NOT_INIT: i2s driver is not init
@@ -137,9 +163,8 @@ bk_err_t bk_i2s_enable(i2s_en_t en_value);
  *
  * This API config i2s interrupt
  *
- * @param
- *    - int_id: save Tx fifo status
- *    - value: save Tx fifo status
+ * @param int_id interrupt id
+ * @param value 0:disable 1:enable
  *
  * @return
  *    - BK_OK: succeed
@@ -153,8 +178,7 @@ bk_err_t bk_i2s_int_enable(i2s_isr_id_t int_id, uint32_t value);
  *
  * This API config i2s work role
  *
- * @param
- *    - role: work role slave/master
+ * @param role work role slave/master
  *
  * @return
  *    - BK_OK: succeed
@@ -168,8 +192,7 @@ bk_err_t bk_i2s_set_role(i2s_role_t role);
  *
  * This API config i2s work mode
  *
- * @param
- *    - work_mode: i2s work mode
+ * @param work_mode i2s work mode
  *
  * @return
  *    - BK_OK: succeed
@@ -183,8 +206,7 @@ bk_err_t bk_i2s_set_work_mode(i2s_work_mode_t work_mode);
  *
  * This API config i2s lrck invert
  *
- * @param
- *    - lrckrp: i2s lrck invert enable/disable
+ * @param lrckrp i2s lrck invert enable/disable
  *
  * @return
  *    - BK_OK: succeed
@@ -198,8 +220,7 @@ bk_err_t bk_i2s_set_lrck_invert(i2s_lrck_invert_en_t lrckrp);
  *
  * This API config i2s sck invert
  *
- * @param
- *    - sck_invert: i2s sck invert enable/disable
+ * @param sck_invert i2s sck invert enable/disable
  *
  * @return
  *    - BK_OK: succeed
@@ -213,8 +234,7 @@ bk_err_t bk_i2s_set_sck_invert(i2s_sck_invert_en_t sck_invert);
  *
  * This API config i2s lsb first
  *
- * @param
- *    - lsb_first: i2s lsb first enable/disable
+ * @param lsb_first i2s lsb first enable/disable
  *
  * @return
  *    - BK_OK: succeed
@@ -228,8 +248,7 @@ bk_err_t bk_i2s_set_lsb_first(i2s_lsb_first_en_t lsb_first);
  *
  * This API config i2s sync length
  *
- * @param
- *    - sync_len: i2s sync length
+ * @param sync_len i2s sync length
  *
  * @return
  *    - BK_OK: succeed
@@ -243,8 +262,7 @@ bk_err_t bk_i2s_set_sync_len(uint32_t sync_len);
  *
  * This API config i2s data length
  *
- * @param
- *    - data_len: i2s data length
+ * @param data_len i2s data length
  *
  * @return
  *    - BK_OK: succeed
@@ -258,8 +276,7 @@ bk_err_t bk_i2s_set_data_len(uint32_t data_len);
  *
  * This API config i2s pcm D length of 2B+D
  *
- * @param
- *    - pcm_dlen: pcm D length
+ * @param pcm_dlen pcm D length
  *
  * @return
  *    - BK_OK: succeed
@@ -273,8 +290,11 @@ bk_err_t bk_i2s_set_pcm_dlen(uint32_t pcm_dlen);
  *
  * This API config i2s store mode
  *
- * @param
- *    - store_mode: lrcom store mode LRLR/16R16L
+ * @param store_mode lrcom store mode LRLR/16R16L
+ *
+ * @attention 1. LRLR mode: left and right channel data are written alternately in chronological order(L->R->L->R->......)
+ * @attention 2. 16R16L mode: left and right channel data are written to FIFO in 32 bits, in which the lower 16 bits 
+                 correspond to the left channel and the higher 16 bits correspond to the right channel({R,L}->{R,L}->......)
  *
  * @return
  *    - BK_OK: succeed
@@ -308,33 +328,11 @@ bk_err_t bk_i2s_clear_rxfifo(void);
 bk_err_t bk_i2s_clear_txfifo(void);
 
 /**
- * @brief     clear i2s tx_udf interrupt flag
- *
- * This API clear i2s tx_udf interrupt flag
- *
- * @return
- *    - BK_OK: succeed
- *    - BK_ERR_AUD_NOT_INIT: i2s driver is not init
- *    - others: other errors.
- */
-bk_err_t bk_i2s_clear_txudf_int(void);
-
-/**
- * @brief     clear i2s rx_ovf interrupt flag
- *
- * This API clear i2s rx_ovf interrupt flag
- *
- * @return
- *    - BK_OK: succeed
- *    - BK_ERR_AUD_NOT_INIT: i2s driver is not init
- *    - others: other errors.
- */
-bk_err_t bk_i2s_clear_rxovf_int(void);
-
-/**
  * @brief     config i2s tx interrupt level
  *
  * This API config i2s tx interrupt level
+ *
+ * @param txint_level tx interrupt trigger level
  *
  * @return
  *    - BK_OK: succeed
@@ -348,6 +346,8 @@ bk_err_t bk_i2s_set_txint_level(i2s_txint_level_t txint_level);
  *
  * This API config i2s rx interrupt level
  *
+ * @param rxint_level rx interrupt trigger level
+ *
  * @return
  *    - BK_OK: succeed
  *    - BK_ERR_AUD_NOT_INIT: i2s driver is not init
@@ -360,10 +360,89 @@ bk_err_t bk_i2s_set_rxint_level(i2s_rxint_level_t rxint_level);
  *
  * This API write data to i2s tx fifo
  *
- * @param
- *    - channel_id: i2s channel 1/2/3/4
- *    - data_buf: data to write
- *    - data_len: data length to write
+ * Usage example:
+ *
+ *     //init i2s driver
+ *     bk_i2s_driver_init();
+ *
+ *     //init i2s configure
+ *     i2s_config.i2s_en = I2S_DISABLE;
+ *     i2s_config.role = I2S_ROLE_MASTER;
+ *     i2s_config.work_mode = I2S_WORK_MODE_I2S;
+ *     i2s_config.lrck_invert = I2S_LRCK_INVERT_DISABLE;
+ *     i2s_config.sck_invert = I2S_SCK_INVERT_DISABLE;
+ *     i2s_config.lsb_first_en = I2S_LSB_FIRST_DISABLE;
+ *     i2s_config.sync_length = 0;
+ *     i2s_config.data_length = 15;
+ *     i2s_config.pcm_dlength = 0;
+ *     i2s_config.sample_ratio = 0;
+ *     i2s_config.sck_ratio = 0;
+ *     i2s_config.parallel_en = I2S_PARALLEL_DISABLE;
+ *     i2s_config.store_mode = I2S_LRCOM_STORE_16R16L;
+ *     i2s_config.sck_ratio_h4b = 0;
+ *     i2s_config.sample_ratio_h2b = 0;
+ *     i2s_config.txint_level = I2S_TXINT_LEVEL_1;
+ *     i2s_config.rxint_level = I2S_RXINT_LEVEL_1;
+ *     bk_i2s_init(I2S_GPIO_GROUP_0, &i2s_config);
+ *     CLI_LOGI("init i2s driver and config successful \r\n");
+ *
+ *     //set sample and bitclk ratio
+ *     rate.datawidth = i2s_rate_table[i].datawidth;
+ *     rate.samp_rate = i2s_rate_table[i].samp_rate;
+ *     bk_i2s_set_ratio(&rate);
+ *
+ *     //enable i2s
+ *     bk_i2s_enable(I2S_ENABLE);
+ *     CLI_LOGI("enable i2s successful \r\n");
+ *
+ *     bk_i2s_get_write_ready(&write_flag);
+ *     if (write_flag) 
+ *         bk_i2s_write_data(1, &data_buf_rl, 1);
+ *
+ * Usage example:
+ *
+ *     //init i2s driver
+ *     bk_i2s_driver_init();
+ *
+ *     //init i2s configure
+ *     i2s_config_t i2s_config;
+ *     i2s_config.i2s_en = I2S_DISABLE;
+ *     i2s_config.role = I2S_ROLE_MASTER;
+ *     i2s_config.work_mode = I2S_WORK_MODE_I2S;
+ *     i2s_config.lrck_invert = I2S_LRCK_INVERT_DISABLE;
+ *     i2s_config.sck_invert = I2S_SCK_INVERT_DISABLE;
+ *     i2s_config.lsb_first_en = I2S_LSB_FIRST_DISABLE;
+ *     i2s_config.sync_length = 0;
+ *     i2s_config.data_length = 15;
+ *     i2s_config.pcm_dlength = 0;
+ *     i2s_config.sample_ratio = 0;
+ *     i2s_config.sck_ratio = 0;
+ *     i2s_config.parallel_en = I2S_PARALLEL_DISABLE;
+ *     i2s_config.store_mode = I2S_LRCOM_STORE_16R16L;
+ *     i2s_config.sck_ratio_h4b = 0;
+ *     i2s_config.sample_ratio_h2b = 0;
+ *     i2s_config.txint_level = I2S_TXINT_LEVEL_1;
+ *     i2s_config.rxint_level = I2S_RXINT_LEVEL_1;
+ *     bk_i2s_init(I2S_GPIO_GROUP_0, &i2s_config);
+ *     CLI_LOGI("init i2s driver and config successful \r\n");
+ *
+ *     //set sample and bitclk ratio
+ *     rate.datawidth = i2s_rate_table[i].datawidth;
+ *     rate.samp_rate = i2s_rate_table[i].samp_rate;
+ *     bk_i2s_set_ratio(&rate);
+ *
+ *     //enable i2s
+ *     bk_i2s_enable(I2S_ENABLE);
+ *     CLI_LOGI("enable i2s successful \r\n");
+ *
+ *     //get write ready status and write data
+ *     bk_i2s_get_write_ready(&write_flag);
+ *     if (write_flag) 
+ *         bk_i2s_write_data(1, &data_buf_rl, 1);
+ *
+ * @param channel_id i2s channel 1/2/3/4
+ * @param data_buf data to write
+ * @param data_len data length to write
  *
  * @return
  *    - BK_OK: succeed
@@ -377,9 +456,49 @@ bk_err_t bk_i2s_write_data(uint32_t channel_id, uint32_t *data_buf, uint32_t dat
  *
  * This API read data from i2s rx fifo
  *
- * @param
- *    - data_buf: save data read from rx fifo
- *    - data_len: data length to read
+ * Usage example:
+ *
+ *     //init i2s driver
+ *     bk_i2s_driver_init();
+ *
+ *     //init i2s configure
+ *     i2s_config_t i2s_config;
+ *     i2s_config.i2s_en = I2S_DISABLE;
+ *     i2s_config.role = I2S_ROLE_MASTER;
+ *     i2s_config.work_mode = I2S_WORK_MODE_I2S;
+ *     i2s_config.lrck_invert = I2S_LRCK_INVERT_DISABLE;
+ *     i2s_config.sck_invert = I2S_SCK_INVERT_DISABLE;
+ *     i2s_config.lsb_first_en = I2S_LSB_FIRST_DISABLE;
+ *     i2s_config.sync_length = 0;
+ *     i2s_config.data_length = 15;
+ *     i2s_config.pcm_dlength = 0;
+ *     i2s_config.sample_ratio = 0;
+ *     i2s_config.sck_ratio = 0;
+ *     i2s_config.parallel_en = I2S_PARALLEL_DISABLE;
+ *     i2s_config.store_mode = I2S_LRCOM_STORE_16R16L;
+ *     i2s_config.sck_ratio_h4b = 0;
+ *     i2s_config.sample_ratio_h2b = 0;
+ *     i2s_config.txint_level = I2S_TXINT_LEVEL_1;
+ *     i2s_config.rxint_level = I2S_RXINT_LEVEL_1;
+ *     bk_i2s_init(I2S_GPIO_GROUP_0, &i2s_config);
+ *     CLI_LOGI("init i2s driver and config successful \r\n");
+ *
+ *     //set sample and bitclk ratio
+ *     rate.datawidth = i2s_rate_table[i].datawidth;
+ *     rate.samp_rate = i2s_rate_table[i].samp_rate;
+ *     bk_i2s_set_ratio(&rate);
+ *
+ *     //enable i2s
+ *     bk_i2s_enable(I2S_ENABLE);
+ *     CLI_LOGI("enable i2s successful \r\n");
+ *
+ *     //get read ready status and read data
+ *     bk_i2s_get_read_ready(&read_flag);
+ *     if (read_flag) 
+ *         bk_i2s_read_data(&data_buf, 1);
+ *
+ * @param data_buf save data read from rx fifo
+ * @param data_len: data length to read
  *
  * @return
  *    - BK_OK: succeed
@@ -393,8 +512,7 @@ bk_err_t bk_i2s_read_data(uint32_t *data_buf, uint32_t data_len);
  *
  * This API get i2s data address
  *
- * @param
- *    - i2s_data_addr: save i2s data address
+ * @param i2s_data_addr save i2s data address
  *
  * @return
  *    - BK_OK: succeed
@@ -408,8 +526,7 @@ bk_err_t bk_i2s_get_data_addr(uint32_t *i2s_data_addr);
  *
  * This API config i2s sample rate
  *
- * @param
- *    - rate: sample rate and data width 
+ * @param rate sample rate and data width
  *
  * @return
  *    - BK_OK: succeed
@@ -423,10 +540,24 @@ bk_err_t bk_i2s_set_ratio(i2s_rate_t *rate);
  *
  * This API config register i2s isr
  *
- * @param
- *    - isr_id: i2s isr id
- *    - isr: isr function
- *    - param: isr parameters
+ * Usage example:
+ *
+ *     void cli_i2s_master_txudf_isr(void *param)
+ *     {
+ *         CLI_LOGI("enter cli_i2s_txudf_isr \r\n");
+ *     }
+ *
+ *     //register isr
+ *     bk_i2s_register_i2s_isr(I2S_ISR_CHL1_TXUDF, cli_i2s_master_txudf_isr, NULL);
+ *     CLI_LOGI("register i2s isr successful \r\n");
+ *
+ *     //enable i2s rxovf interrupt
+ *     bk_i2s_int_enable(I2S_ISR_CHL1_TXUDF, I2S_INT_ENABLE);
+ *     CLI_LOGI("enable i2s interrupt successful \r\n");
+ *
+ * @param isr_id i2s isr id
+ * @param isr isr function
+ * @param param isr parameters
  *
  * @return
  *    - BK_OK: succeed

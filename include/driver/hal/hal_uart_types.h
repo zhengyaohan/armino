@@ -15,7 +15,6 @@
 #pragma once
 
 #include <common/bk_err.h>
-#include "uart_hw.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,34 +47,12 @@ extern "C" {
 #define UART_TX_FIFO_THRESHOLD       (0x20)
 #define UART_RX_FIFO_THRESHOLD       (0x40)
 
-#ifndef CONFIG_KFIFO_SIZE
-#define CONFIG_KFIFO_SIZE            (128)
-#endif
-
-/**
- * @brief UART defines
- * @addtogroup bk_api_uart_defs UART API group
- * @{
- */
-
 typedef uint8_t uart_unit_t; /**< uart uint id */
 
-/**
- * @}
- */
-
-
-/**
- * @brief UART enum defines
- * @defgroup bk_api_uart_enum UART enums
- * @ingroup bk_api_uart
- * @{
- */
-
 typedef enum {
-	UART_ID_1 = 0, /**< UART id 1 */
+	UART_ID_0 = 0, /**< UART id 0 */
+	UART_ID_1,     /**< UART id 1 */
 	UART_ID_2,     /**< UART id 2 */
-	UART_ID_3,     /**< UART id 3 */
 	UART_ID_MAX    /**< UART id max */
 } uart_id_t;
 
@@ -114,22 +91,11 @@ typedef enum {
 } uart_flow_control_t;
 
 typedef enum {
-	UART_RX_STOP_DETECT_TIME_32 = 0, /**< UART rx stop time 32 */
-	UART_RX_STOP_DETECT_TIME_64,     /**< UART rx stop time 64 */
-	UART_RX_STOP_DETECT_TIME_128,    /**< UART rx stop time 128 */
-	UART_RX_STOP_DETECT_TIME_256     /**< UART rx stop time 256 */
+	UART_RX_STOP_DETECT_TIME_32_BITS = 0, /**< UART rx stop time 32 bits */
+	UART_RX_STOP_DETECT_TIME_64_BITS,     /**< UART rx stop time 64 bits  */
+	UART_RX_STOP_DETECT_TIME_128_BITS,    /**< UART rx stop time 128 bits */
+	UART_RX_STOP_DETECT_TIME_256_BITS     /**< UART rx stop time 256 bits */
 } uart_rx_stop_detect_time_t;
-
-/**
- * @}
- */
-
-/**
- * @brief UART struct defines
- * @defgroup bk_api_uart_structs structs in UART
- * @ingroup bk_api_uart
- * @{
- */
 
 typedef struct {
 	uint32_t baud_rate;            /**< UART baud rate */
@@ -139,11 +105,6 @@ typedef struct {
 	uart_flow_control_t flow_ctrl; /**< UART flow control  */
 	uart_src_clk_t src_clk;        /**< UART source clock */
 } uart_config_t;
-
-/**
- * @}
- */
-
 
 #ifdef __cplusplus
 }

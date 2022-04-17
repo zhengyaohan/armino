@@ -128,8 +128,8 @@ extern "C" {
  *=============================================================================*/
 #define LOSCFG_PLATFORM_EXC                                 0
 #define LOSCFG_BASE_CORE_TSK_MONITOR              1
-#define LOSCFG_BACKTRACE_TYPE                     2
-#define LOSCFG_MEM_LEAKCHECK                      1
+#define LOSCFG_BACKTRACE_TYPE                     0
+#define LOSCFG_MEM_LEAKCHECK                      0
 
 extern void uart_putc(char c);
 

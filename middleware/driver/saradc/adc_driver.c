@@ -28,6 +28,7 @@
 #include "bk_drv_model.h"
 #include "bk_sys_ctrl.h"
 #include "sys_driver.h"
+#include "iot_adc.h"
 
 static void adc_isr(void) __SECTION(".itcm");
 static bk_err_t adc_read_fifo(void) __SECTION(".itcm");
@@ -37,6 +38,8 @@ typedef struct
 {
 	adc_isr_t callback;
 	uint32_t param;
+    IotAdcCallback_t     iot_callback;
+    void *               p_iot_context; 
 } adc_callback_t;
 
 typedef struct {
@@ -62,6 +65,9 @@ static adc_dev_t s_adc_dev = {NULL};
 static adc_buf_t s_adc_buf = {0};
 static adc_callback_t s_adc_read_isr = {NULL};
 static adc_statis_t* s_adc_statis = NULL;
+
+adc_config_t g_adc_cfg[10] = {0};
+
 
 //TODO - by Frank
 //1. ADC id range confirm
@@ -147,9 +153,11 @@ static void adc_deinit_gpio(adc_chan_t chan)
 
 static void adc_enable_block(void)
 {
+#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7256XX)
 	//TODO - optimize it after sysctrl driver optimized!
 	uint32_t param = BLK_BIT_SARADC;
 	sddev_control(DD_DEV_TYPE_SCTRL, CMD_SCTRL_BLK_ENABLE, &param);
+#endif
 }
 
 static bk_err_t adc_chan_init_common(adc_chan_t chan)
@@ -218,12 +226,14 @@ static void adc_flush(void)
 bk_err_t bk_adc_driver_init(void)
 {
 	int ret;
+    uint32_t i;
 
 	if (s_adc_driver_is_init) {
 		return BK_OK;
 	}
 
 	os_memset(&s_adc, 0, sizeof(s_adc));
+    os_memset(&g_adc_cfg, 0, sizeof(g_adc_cfg));
 
 	if (s_adc_buf.buf) {
 		os_free(s_adc_buf.buf);
@@ -256,6 +266,21 @@ bk_err_t bk_adc_driver_init(void)
 
 	adc_statis_init();
 	s_adc_statis = adc_statis_get_statis();
+
+    for(i = 0; i < (sizeof(g_adc_cfg)/sizeof(g_adc_cfg[0])); i++)
+    {
+        g_adc_cfg[i].clk = DEFAULT_ADC_CLK;
+        g_adc_cfg[i].sample_rate = DEFAULT_ADC_SAMPLE_RATE;
+        g_adc_cfg[i].adc_filter = 0;
+        g_adc_cfg[i].steady_ctrl = DEFAULT_ADC_STEADY_TIME;
+        g_adc_cfg[i].adc_mode = DEFAULT_ADC_MODE;
+        g_adc_cfg[i].chan = i;
+        g_adc_cfg[i].src_clk = DEFAULT_ADC_SCLK;
+        g_adc_cfg[i].saturate_mode = DEFAULT_SATURATE_MODE;
+        g_adc_cfg[i].output_buf = NULL;
+        g_adc_cfg[i].output_buf_len = 0;
+        g_adc_cfg[i].is_open = 0;
+    }
 
 	s_adc_driver_is_init = true;
 
@@ -292,6 +317,8 @@ bk_err_t bk_adc_driver_deinit(void)
 	os_free(s_adc_buf.buf);
 	s_adc_buf.buf = NULL;
 	s_adc_buf.size = 0;
+
+    os_memset(&g_adc_cfg, 0, sizeof(g_adc_cfg));
 
 	s_adc_driver_is_init = false;
 
@@ -418,6 +445,8 @@ bk_err_t bk_adc_set_channel(adc_chan_t   adc_chan)
 
 	adc_hal_sel_channel(&s_adc.hal, adc_chan);
 
+	adc_deinit_gpio(adc_chan);
+
 	return BK_OK;
 }
 
@@ -459,8 +488,7 @@ bk_err_t bk_adc_set_sample_cnt(uint32_t cnt)
 
 bk_err_t bk_adc_set_saturate_mode(adc_saturate_mode_t mode)
 {
-	adc_hal_set_saturate_mode(&s_adc.hal, mode);
-	return BK_OK;
+	return adc_hal_set_saturate_mode(&s_adc.hal, mode);
 }
 
 bk_err_t bk_adc_enable_bypass_clalibration(void)
@@ -485,9 +513,7 @@ bk_err_t bk_adc_set_mode(adc_mode_t adc_mode)
 {
 	ADC_RETURN_ON_INVALID_MODE(adc_mode);
 
-	adc_hal_set_mode(&s_adc.hal, adc_mode);
-
-	return BK_OK;
+	return adc_hal_set_mode(&s_adc.hal, adc_mode);
 }
 
 adc_mode_t bk_adc_get_mode(void)
@@ -508,12 +534,21 @@ bk_err_t bk_adc_set_config(adc_config_t *config)
 	adc_hal_set_steady_ctrl(&s_adc.hal, config->steady_ctrl);
 	adc_hal_set_saturate_mode(&s_adc.hal, config->saturate_mode);
 
+	bk_adc_set_channel(config->chan);
+
 	if(config->adc_mode == ADC_CONTINUOUS_MODE) {
 		adc_hal_set_sample_rate(&s_adc.hal, config->sample_rate);
 		adc_hal_set_adc_filter(&s_adc.hal, config->adc_filter);
 	}
 	return BK_OK;
 }
+
+bk_err_t bk_adc_get_config(uint32 adc_ch, adc_config_t **config)
+{
+    *config = &g_adc_cfg[adc_ch];
+    return BK_OK;
+}
+
 
 #if SARADC_AUTOTEST
 int saradc_hal_is_fifo_empty(void)
@@ -608,4 +643,55 @@ static void adc_isr(void)
 	if (s_adc_read_isr.callback) {
 		s_adc_read_isr.callback(s_adc_read_isr.param);
 	}
+
+    if (s_adc_read_isr.iot_callback) {
+		s_adc_read_isr.iot_callback(s_adc_buf.buf, s_adc_read_isr.p_iot_context);
+	}
 }
+
+bk_err_t bk_adc_is_valid_ch(uint32_t ch)
+{
+    if (!adc_hal_is_valid_channel(&s_adc.hal, ch)) 
+    {
+        ADC_LOGE("ADC id number(%d) is invalid\r\n", (ch));
+        return BK_ERR_ADC_INVALID_CHAN;
+    }
+
+    return BK_OK;
+}
+
+bk_err_t bk_adc_register_isr_iot_callback(    void* iot_callback, void      * p_iot_context)
+{
+	ADC_RETURN_ON_NOT_INIT();
+
+	GLOBAL_INT_DECLARATION();
+	GLOBAL_INT_DISABLE();
+	s_adc_read_isr.iot_callback = (IotAdcCallback_t)iot_callback;
+	s_adc_read_isr.p_iot_context = p_iot_context;
+	GLOBAL_INT_RESTORE();
+
+	return BK_OK;
+}
+
+bk_err_t bk_adc_en(void)
+{
+	if(adc_hal_check_adc_busy(&s_adc.hal))
+    {   
+        os_printf("adc_start:adc busy\n");
+		return BK_ERR_ADC_BUSY;
+    }
+
+	adc_hal_start_commom(&s_adc.hal);
+
+	int ret = rtos_get_semaphore(&(s_adc_dev.adc_read_sema), 1000);
+	if(ret != kNoErr)
+    {   
+        os_printf("adc_start:rtos_get_semaphore fail\n");
+		return BK_ERR_ADC_GET_READ_SEMA;
+    }
+
+	return BK_OK;
+}
+
+
+

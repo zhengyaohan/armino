@@ -403,10 +403,13 @@ static void cli_aud_cp0_sdcard_to_dac_test_cmd(char *pcWriteBuffer, int xWriteBu
 			CLI_LOGE("get dac fifo address failed\r\n");
 			return;
 		} else {
+			dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE;
+			dma_config.dst.addr_loop_en = DMA_ADDR_LOOP_ENABLE;
 			dma_config.dst.start_addr = dac_fifo_addr;
 			dma_config.dst.end_addr = dac_fifo_addr + 4;
 		}
 
+		dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
 		dma_config.src.start_addr = (uint32_t)data_buffer;
 		dma_config.src.end_addr = (uint32_t)data_buffer + 0x10000;
 

@@ -16,7 +16,7 @@
 
 #include <stdio.h>
 #include <driver/hal/hal_uart_types.h>
-#include "bk_api_printf.h"
+#include <components/system.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,7 +29,7 @@ extern "C" {
 void uart0_isr(void);
 void uart1_isr(void);
 void uart2_isr(void);
-void print_hex_dump(const char *prefix, void *b, int len);
+void print_hex_dump(const char *prefix, const void *b, int len);
 uint32_t uart_get_length_in_buffer(uart_id_t id);
 bk_err_t uart_write_ready(uart_id_t id);
 bk_err_t uart_write_byte(uart_id_t id, uint8_t data);

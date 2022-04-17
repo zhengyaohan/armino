@@ -53,7 +53,6 @@ extern "C" {
 #define CLI_CFG_GPIO        1
 #define CLI_CFG_OS          1
 #define CLI_CFG_OTA         1
-#define CLI_CFG_FLASH       1
 #if(CONFIG_KEYVALUE)
 #define CLI_CFG_KEYVALUE    1
 #else
@@ -71,7 +70,18 @@ extern "C" {
 #define CLI_CFG_REG         1
 #define CLI_CFG_DMA         1
 #define CLI_CFG_EXCEPTION   1
+
+#if(CONFIG_PWM)
 #define CLI_CFG_PWM         1
+#else
+#define CLI_CFG_PWM         0
+#endif
+
+#if(CONFIG_FLASH)
+#define CLI_CFG_FLASH       1
+#else
+#define CLI_CFG_FLASH       0
+#endif
 
 #if(CONFIG_ICU)
 #define CLI_CFG_ICU         1
@@ -93,10 +103,16 @@ extern "C" {
 #define CLI_CFG_AON_RTC     0
 #endif
 
-#if CONFIG_JPEG
-#define CLI_CFG_JPEG        1
+#if CONFIG_JPEG_ENCODE
+#define CLI_CFG_JPEGENC        1
 #else
-#define CLI_CFG_JPEG        0
+#define CLI_CFG_JPEGENC        0
+#endif
+
+#if CONFIG_JPEG_DECODE
+#define CLI_CFG_JPEGDEC     1
+#else
+#define CLI_CFG_JPEGDEC     0
 #endif
 
 #if CONFIG_CALENDAR
@@ -144,6 +160,12 @@ extern "C" {
 #define CLI_CFG_IPERF       0
 #endif
 
+#if (CONFIG_I2S)
+#define CLI_CFG_I2S         1
+#else
+#define CLI_CFG_I2S         0
+#endif
+
 #if (CONFIG_SOC_BK7256XX || CONFIG_SOC_BK7256_CP1)
 
 #if (CONFIG_DMA2D_TEST)
@@ -166,8 +188,11 @@ extern "C" {
 #define CLI_CFG_AUD_CP0     1
 #endif
 
+#if (CONFIG_FFT_TEST)
+#define CLI_CFG_FFT         1
+#else
 #define CLI_CFG_FFT         0
-#define CLI_CFG_I2S         1
+#endif
 #endif
 
 #if (CONFIG_SOC_BK7256XX)

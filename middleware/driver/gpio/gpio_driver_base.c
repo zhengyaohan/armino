@@ -82,63 +82,50 @@ bk_err_t bk_gpio_enable_output(gpio_id_t gpio_id)
 {
 	GPIO_RETURN_ON_INVALID_ID(gpio_id);
 
-	gpio_hal_output_enable(&s_gpio.hal, gpio_id, 1);
-	return BK_OK;
+	return gpio_hal_output_enable(&s_gpio.hal, gpio_id, 1);
 }
 
 bk_err_t bk_gpio_disable_output(gpio_id_t gpio_id)
 {
 	GPIO_RETURN_ON_INVALID_ID(gpio_id);
 
-	gpio_hal_output_enable(&s_gpio.hal, gpio_id, 0);
-	return BK_OK;
+	return gpio_hal_output_enable(&s_gpio.hal, gpio_id, 0);
 }
-
-
 
 bk_err_t bk_gpio_enable_input(gpio_id_t gpio_id)
 {
 	GPIO_RETURN_ON_INVALID_ID(gpio_id);
 
-	gpio_hal_input_enable(&s_gpio.hal, gpio_id, 1);
-	return BK_OK;
+	return gpio_hal_input_enable(&s_gpio.hal, gpio_id, 1);
 }
 
 bk_err_t bk_gpio_disable_input(gpio_id_t gpio_id)
 {
 	GPIO_RETURN_ON_INVALID_ID(gpio_id);
 
-	gpio_hal_input_enable(&s_gpio.hal, gpio_id, 0);
-	return BK_OK;
+	return gpio_hal_input_enable(&s_gpio.hal, gpio_id, 0);
 }
-
-
 
 bk_err_t bk_gpio_enable_pull(gpio_id_t gpio_id )
 {
 	GPIO_RETURN_ON_INVALID_ID(gpio_id);
 
-	gpio_hal_pull_enable(&s_gpio.hal, gpio_id, 1);
-	return BK_OK;
+	return gpio_hal_pull_enable(&s_gpio.hal, gpio_id, 1);
 }
 
 bk_err_t bk_gpio_disable_pull(gpio_id_t gpio_id )
 {
 	GPIO_RETURN_ON_INVALID_ID(gpio_id);
 
-	gpio_hal_pull_enable(&s_gpio.hal, gpio_id, 0);
-	return BK_OK;
+	return gpio_hal_pull_enable(&s_gpio.hal, gpio_id, 0);
 }
-
-
 
 bk_err_t bk_gpio_pull_up(gpio_id_t gpio_id)
 {
 	GPIO_RETURN_ON_INVALID_ID(gpio_id);
 
 	gpio_hal_pull_enable(&s_gpio.hal, gpio_id, 1);
-	gpio_hal_pull_up_enable(&s_gpio.hal, gpio_id, 1);
-	return BK_OK;
+	return gpio_hal_pull_up_enable(&s_gpio.hal, gpio_id, 1);
 }
 
 bk_err_t bk_gpio_pull_down(gpio_id_t gpio_id)
@@ -146,8 +133,7 @@ bk_err_t bk_gpio_pull_down(gpio_id_t gpio_id)
 	GPIO_RETURN_ON_INVALID_ID(gpio_id);
 
 	gpio_hal_pull_enable(&s_gpio.hal, gpio_id, 1);
-	gpio_hal_pull_up_enable(&s_gpio.hal, gpio_id, 0);
-	return BK_OK;
+	return gpio_hal_pull_up_enable(&s_gpio.hal, gpio_id, 0);
 }
 
 
@@ -156,18 +142,14 @@ bk_err_t bk_gpio_set_output_high(gpio_id_t gpio_id)
 {
 	GPIO_RETURN_ON_INVALID_ID(gpio_id);
 
-	gpio_hal_set_output_value(&s_gpio.hal, gpio_id, 1);
-
-	return BK_OK;
+	return gpio_hal_set_output_value(&s_gpio.hal, gpio_id, 1);
 }
 
 bk_err_t bk_gpio_set_output_low(gpio_id_t gpio_id)
 {
 	GPIO_RETURN_ON_INVALID_ID(gpio_id);
 
-	gpio_hal_set_output_value(&s_gpio.hal, gpio_id, 0);
-
-	return BK_OK;
+	return gpio_hal_set_output_value(&s_gpio.hal, gpio_id, 0);
 }
 
 bool bk_gpio_get_input(gpio_id_t gpio_id)
@@ -191,9 +173,7 @@ bk_err_t bk_gpio_set_config(gpio_id_t gpio_id, const gpio_config_t *config)
 	GPIO_RETURN_ON_INVALID_IO_MODE(config->io_mode);
 	GPIO_RETURN_ON_INVALID_PULL_MODE(config->pull_mode);
 
-	gpio_hal_set_config(&s_gpio.hal, gpio_id, config);
-
-	return BK_OK;
+	return gpio_hal_set_config(&s_gpio.hal, gpio_id, config);
 }
 
 
@@ -268,25 +248,25 @@ static void gpio_isr(void)
 	}
 
 }
+
 bk_err_t bk_gpio_reg_save(uint32_t*  gpio_cfg)
 {
-    gpio_hal_reg_save(gpio_cfg);
-	return BK_OK;
+    return gpio_hal_reg_save(gpio_cfg);
 }
+
 bk_err_t bk_gpio_reg_restore(uint32_t*  gpio_cfg)
 {
-    gpio_hal_reg_restore(gpio_cfg);
-	return BK_OK;
+    return gpio_hal_reg_restore(gpio_cfg);
 }
+
 bk_err_t bk_gpio_wakeup_enable(int64_t index, uint64_t type_l, uint64_t type_h)
 {
-    gpio_hal_wakeup_enable( index, type_l, type_h);
-	return BK_OK;
+    return gpio_hal_wakeup_enable( index, type_l, type_h);
 }
+
 bk_err_t bk_gpio_wakeup_interrupt_clear()
 {
-    gpio_hal_wakeup_interrupt_clear();
-	return BK_OK;
+    return gpio_hal_wakeup_interrupt_clear();
 }
 
 

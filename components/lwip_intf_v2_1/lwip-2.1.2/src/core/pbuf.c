@@ -800,6 +800,46 @@ pbuf_free(struct pbuf *p)
 }
 
 /**
+ * pbuf_length_get
+ *
+ * @param pbuf_length_get
+ * @return 1=success ;0=fail
+ */
+u8_t
+pbuf_length_get(void *p,u32_t *size)
+{
+  u32_t len;
+  u8_t alloc_src;
+  
+  if ( (p == NULL) || (size == NULL) )
+  {
+    LWIP_DEBUGF(PBUF_DEBUG,("pbuf = NULL or size = NULL \n"));
+    return 0;
+  }
+
+  alloc_src = pbuf_get_allocsrc((struct pbuf *)p);
+  if (alloc_src == PBUF_TYPE_ALLOC_SRC_MASK_STD_MEMP_PBUF_POOL) 
+  {
+    *size = PBUF_POOL_BUFSIZE_ALIGNED;
+  } 
+  else if (alloc_src == PBUF_TYPE_ALLOC_SRC_MASK_STD_MEMP_PBUF)
+  {
+    len = get_mem_size(p);
+    if(len > SIZEOF_STRUCT_PBUF)
+      *size = len - SIZEOF_STRUCT_PBUF;
+    else
+      return 0;
+  }
+  else
+  {
+    LWIP_ASSERT("invalid pbuf type", 0);
+    return 0;
+  }
+  return 1;
+}
+
+
+/**
  * Count number of pbufs in a chain
  *
  * @param p first pbuf of chain

@@ -83,10 +83,10 @@
 #include "task.h"
 
 #include <common/bk_include.h>
-#include "bk_api_tick.h"
+#include <components/system.h>
 #include "osk_revision.h"
 #include <components/log.h>
-#include "bk_api_tick.h"
+#include <components/system.h>
 
 #define TAG "os"
 

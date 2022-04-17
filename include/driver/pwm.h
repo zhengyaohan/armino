@@ -503,9 +503,20 @@ bk_err_t bk_pwm_capture_stop(pwm_chan_t chan);
  */
 uint32_t bk_pwm_capture_get_value(pwm_chan_t chan);
 
+/**
+ * @brief     Set pwm channel as timer mode
+ *
+ * @attention The caller need to make sure the parameter chan is correct!
+ *
+ * @param chan PWM channel
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - BK_ERR_PWM_CHAN_ID: invalid PWM channel
+ *    - others: other errors.
+ */
 bk_err_t bk_pwm_set_mode_timer(pwm_chan_t chan);
 
-bk_err_t bk_pwm_clear_interrupt_status(pwm_chan_t chan);
 
 /**
  * @}

@@ -3,4 +3,9 @@ menu "HOME SYSTEM"
 	config MATTER
 		bool "Enable MATTER"
 		default n
+
+	config COMMON_IO
+		depends on FREERTOS_V10
+		bool "Amazon Common IO"
+		default y
 endmenu

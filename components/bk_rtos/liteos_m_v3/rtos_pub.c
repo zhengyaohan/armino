@@ -345,10 +345,10 @@ bk_err_t beken_time_set_time(beken_time_t* time_ptr)
 
 bk_err_t rtos_init_semaphore(beken_semaphore_t *semaphore, int max_count )
 {
-    return rtos_init_semaphore_adv(semaphore, max_count, 0);
+    return rtos_init_semaphore_ex(semaphore, max_count, 0);
 }
 
-bk_err_t rtos_init_semaphore_adv(beken_semaphore_t *semaphore, int max_count, int init_count)
+bk_err_t rtos_init_semaphore_ex(beken_semaphore_t *semaphore, int max_count, int init_count)
 {
     UINT32 uwRet;
     UINT32 uwSemId;
@@ -408,7 +408,7 @@ bk_err_t rtos_get_semaphore(beken_semaphore_t *semaphore, uint32_t timeout_ms )
     } 
 }
 
-int rtos_get_sema_count(beken_semaphore_t *semaphore )
+int rtos_get_semaphore_count(beken_semaphore_t *semaphore )
 {
     uint32_t uwIntSave;
     uint32_t uwCount;
@@ -505,9 +505,11 @@ bk_err_t rtos_init_mutex(beken_mutex_t *mutex)
 init_exit:
     if ( *mutex == NULL )
     {
+        RTOS_LOGI("rtos_init_mutex:failed,mutex = %p\r\n", *mutex);
         return kGeneralErr;
     }
 
+    RTOS_LOGD("rtos_init_mutex:success,mutex = %p\r\n", *mutex);
     return kNoErr;
 }
 
@@ -578,21 +580,28 @@ bk_err_t rtos_deinit_mutex(beken_mutex_t *mutex)
     UINT32 uwRet;
 
     if (OS_INT_ACTIVE) {
+        RTOS_LOGI("rtos_deinit_mutex:failed(int active), mutex = %p\r\n", *mutex);
         return kStateErr;
     }
 
 	BK_ASSERT(mutex);
 
     if (*mutex == NULL) {
+        RTOS_LOGI("rtos_deinit_mutex:failed(mutex is null).\r\n");
         return kParamErr;
     }
 
+    rtos_unlock_mutex(mutex);
+
     uwRet = LOS_MuxDelete(((LosMuxCB *)*mutex)->muxID);
     if (uwRet == LOS_OK) {
+        RTOS_LOGD("rtos_deinit_mutex:success, mutex = %p\r\n", *mutex);
         return kNoErr;
     } else if (uwRet == LOS_ERRNO_MUX_INVALID) {
+        RTOS_LOGI("rtos_deinit_mutex:failed(invalid mux), mutex = %p\r\n", *mutex);
         return kParamErr;
     } else {
+        RTOS_LOGI("rtos_deinit_mutex:failed(other), mutex = %p\r\n", *mutex);
         return kGeneralErr;
     }
 }
@@ -679,7 +688,7 @@ bk_err_t rtos_push_to_queue_front( beken_queue_t *queue, void *msg_ptr, uint32_t
         return kParamErr;
     }
     uwBufferSize = (uint32_t)(pstQueue->queueSize - sizeof(uint32_t));
-    uwRet = LOS_QueueWriteHead((uint32_t)pstQueue->queueID, (void *)msg_ptr, uwBufferSize, timeout);
+    uwRet = LOS_QueueWriteHeadCopy((uint32_t)pstQueue->queueID, (void *)msg_ptr, uwBufferSize, timeout);
     if (uwRet == LOS_OK) {
         return kNoErr;
     } else if (uwRet == LOS_ERRNO_QUEUE_INVALID || uwRet == LOS_ERRNO_QUEUE_NOT_CREATE) {

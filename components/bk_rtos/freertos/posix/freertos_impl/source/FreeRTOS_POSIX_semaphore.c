@@ -33,9 +33,9 @@
 
 /* FreeRTOS+POSIX includes. */
 #include "FreeRTOS_POSIX.h"
-#include "FreeRTOS_POSIX/errno.h"
-#include "FreeRTOS_POSIX/semaphore.h"
-#include "FreeRTOS_POSIX/utils.h"
+#include "posix/errno.h"
+#include "posix/semaphore.h"
+#include "posix/utils.h"
 
 #include "atomic.h"
 

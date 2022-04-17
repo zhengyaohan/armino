@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #pragma once
-//#include <common/bk_include.h>
+#include "driver/jpeg_dec_types.h"
 
 
 #ifdef __cplusplus
@@ -21,101 +21,59 @@ extern "C" {
 #endif
 
 
-/**
- * @brief  bk_jpegenc_off
- * @param  none
- * @return none.
+ /**
+ * @brief     this api open the jpeg decode clk
+ *
  */
-void bk_jpegenc_off(void);
-
-/**
- * @brief  bk_jpeg_dec_sys_init
- * @param  none
- * @return none.
- */
-void bk_jpeg_dec_sys_init(void);
-
-/**
- * @brief  bk_Jpegdec_config
- * @param1  jdec
- * @param2  xpixel, assign the mem size according x pixel
- * @param3  dec_src_addr decode data src addr
- * @param4  dec_dest_addr decode data dest addr
- * @return none.
- */
-void bk_jpegdec_config(JDEC* jdec, uint8_t xpixel, uint32_t* dec_src_addr, uint32_t* dec_dest_addr);
-
-/**
- * @brief  bk_Jpegdec_config
- * @param1 jdec
- * @return none.
- */
-	void bk_jpegdec_init(JDEC* jdec, uint32_t * dec_src_addr);
-
-/**
- * @brief  enable JPEG DEC 
- * @param1 NONE
- * @return none.
- */
-void bk_jpegenc_en(void);
-
-/**
- * @brief  bk_jpegdec_get_mcuy
- * @param1 NONE
- * @return mcuy value.
- */
-uint32_t bk_jpegdec_get_mcuy(void);
-
-/**
- * @brief  bk_jpegdec_set_mcuy
- * @param1  mcuy value
- * @return  none 
- */
-void bk_jpegdec_set_mcuy(uint32_t value);
-
-/**
- * @brief  bk_jpegdec_set_mcux
- * @param1  mcux value
- * @return  none .
- */
-void bk_jpegdec_set_mcux(uint32_t value);
-
-/**
- * @brief  bk_jpegdec_set_dcuv
- * @param1  deuv value
- * @return  none .
- */
-void bk_jpegdec_set_dcuv(uint32_t value);
+bk_err_t bk_jpeg_dec_driver_init(void);
 
 
 /**
- * @brief  bk_jpegdec_close
- * @param1  deuv value
- * @return  none .
- */
-void bk_jpegdec_close(void);
+* @brief	 this api close the jpeg decode clk
+*          - disable jpeg decode
+*/
+void bk_jpeg_dec_driver_deinit(void);
 
 
 /**
- * @brief  bk_jpegdec_start
- * @param1  deuv value
- * @return  none .
+ * @brief    This API startjpeg dec
+ *
+ * @param
+ *     - dec_src_addr: decode data src addr
+ *     - dec_dest_addr: decode data dest addr
+ *
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
  */
-void bk_jpegdec_start(void);
+bk_err_t bk_jpeg_dec_start_dec(uint32_t * dec_src_addr,  uint32_t *dec_dest_addr);
+
+
+#if (USE_JPEG_DEC_COMPLETE_CALLBACKS == 1)
 
 /**
- * @brief  bk_jpeg_dec_isr_unregister
- * @param1  none
- * @return  none .
+ * @brief    This API is jpeg dec complete callback
+ *
+ * @param   isr: isr function
+ *         - param isr parameters
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
  */
-void bk_jpeg_dec_isr_unregister(void);
+bk_err_t bk_jpeg_dec_complete_cb(jpeg_dec_isr_t isr, void *param);
+#else
 
 /**
- * @brief  bk_jpeg_dec_isr_register
- * @param1  jpeg_dec_isr
- * @return  none .
+ * @brief    This API is direct registerjpeg  dec cpu isr
+ *
+ * @param   isr: isr function
+ *
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
  */
-void bk_jpeg_dec_isr_register(int_isr_t jpeg_dec_isr);
+bk_err_t  bk_jpeg_dec_isr_register(jpeg_dec_isr_t jpeg_dec_isr);
+#endif
 
 
 #ifdef __cplusplus

@@ -34,9 +34,9 @@
 
 /* FreeRTOS+POSIX includes. */
 #include "FreeRTOS_POSIX.h"
-#include "FreeRTOS_POSIX/errno.h"
-#include "FreeRTOS_POSIX/pthread.h"
-#include "FreeRTOS_POSIX/utils.h"
+#include "posix/errno.h"
+#include "posix/pthread.h"
+#include "posix/utils.h"
 
 /**
  * @brief Initialize a PTHREAD_MUTEX_INITIALIZER mutex.

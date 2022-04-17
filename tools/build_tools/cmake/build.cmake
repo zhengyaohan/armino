@@ -1,6 +1,6 @@
 # armino_build_get_property
 #
-# @brief Retrieve the value of the specified property related to BEKEN-BDK build.
+# @brief Retrieve the value of the specified property related to BEKEN-ARMINO build.
 #
 # @param[out] var the variable to store the value in
 # @param[in] property the property to get the value of
@@ -19,7 +19,7 @@ endfunction()
 
 # armino_build_set_property
 #
-# @brief Set the value of the specified property related to BEKEN-BDK build. The property is
+# @brief Set the value of the specified property related to BEKEN-ARMINO build. The property is
 #        also added to the internal list of build properties if it isn't there already.
 #
 # @param[in] property the property to set the value of
@@ -49,7 +49,7 @@ endfunction()
 
 # armino_build_unset_property
 #
-# @brief Unset the value of the specified property related to BEKEN-BDK build. Equivalent
+# @brief Unset the value of the specified property related to BEKEN-ARMINO build. Equivalent
 #        to setting the property to an empty string; though it also removes the property
 #        from the internal list of build properties.
 #
@@ -63,7 +63,7 @@ endfunction()
 
 #
 # Retrieve the ARMINO_PATH repository's version, either using a version
-# file or Git revision. Sets the BDK_VER build property.
+# file or Git revision. Sets the ARMINO_VER build property.
 #
 function(__build_get_armino_git_revision)
     armino_build_get_property(armino_path ARMINO_PATH)
@@ -74,17 +74,17 @@ function(__build_get_armino_git_revision)
     else()
         set(armino_ver_t ${armino_ver_git})
     endif()
-    # cut BDK_VER to required 32 characters.
+    # cut ARMINO_VER to required 32 characters.
     string(SUBSTRING "${armino_ver_t}" 0 31 armino_ver)
-    armino_build_set_property(COMPILE_DEFINITIONS "-DBDK_VER=\"${armino_ver}\"" APPEND)
-    armino_build_set_property(COMPILE_DEFINITIONS "-DBDK_INTERNAL_LIB_VER=\"${armino_ver}\"" APPEND)
+    armino_build_set_property(COMPILE_DEFINITIONS "-DARMINO_VER=\"${armino_ver}\"" APPEND)
+    armino_build_set_property(COMPILE_DEFINITIONS "-DARMINO_INTERNAL_LIB_VER=\"${armino_ver}\"" APPEND)
     git_submodule_check("${armino_path}")
-    armino_build_set_property(BDK_VER ${armino_ver})
+    armino_build_set_property(ARMINO_VER ${armino_ver})
 endfunction()
 
 #
 # Sets initial list of build specifications (compile options, definitions, etc.) common across
-# all library targets built under the BEKEN-BDK build system. These build specifications are added
+# all library targets built under the BEKEN-ARMINO build system. These build specifications are added
 # privately using the directory-level CMake commands (add_compile_options, include_directories, etc.)
 # during component registration.
 #
@@ -94,13 +94,13 @@ function(__build_set_default_build_specifications)
     unset(c_compile_options)
     unset(cxx_compile_options)
 
-    set(armino_target $ENV{BDK_SOC})
+    set(armino_target $ENV{ARMINO_SOC})
     if(NOT armino_target)
-        if(BDK_SOC)
-            set(armino_target ${BDK_SOC})
+        if(ARMINO_SOC)
+            set(armino_target ${ARMINO_SOC})
         else()
             set(armino_target bk7231n)
-            LOGI("BDK_SOC not set, using default target: ${armino_target}")
+            LOGI("ARMINO_SOC not set, using default target: ${armino_target}")
         endif()
     endif()
 
@@ -138,14 +138,15 @@ function(__build_set_default_build_specifications)
                                     "-nostdlib"
                                      )
 
-	if (EXISTS ${armino_path}/middleware/arch/${armino_target}/compile-options.cmake)
-		include (${armino_path}/middleware/arch/${armino_target}/compile-options.cmake)
+    armino_build_get_property(soc_path SOC_PATH)
+    if (EXISTS ${soc_path}/${armino_target}/compile-options.cmake)
+        include (${soc_path}/${armino_target}/compile-options.cmake)
 
-		if (DEFINED OVERRIDE_COMPILE_OPTIONS)
-			list(APPEND compile_options ${OVERRIDE_COMPILE_OPTIONS})
-		endif()
+        if (DEFINED OVERRIDE_COMPILE_OPTIONS)
+            list(APPEND compile_options ${OVERRIDE_COMPILE_OPTIONS})
+        endif()
 
-	endif()
+    endif()
 
     armino_build_set_property(COMPILE_DEFINITIONS "${compile_definitions}" APPEND)
     armino_build_set_property(COMPILE_OPTIONS "${compile_options}" APPEND)
@@ -154,6 +155,7 @@ function(__build_set_default_build_specifications)
 endfunction()
 
 function(__build_add_components components_path)
+    armino_build_get_property(prefix __PREFIX)
     file(GLOB property_dirs ${components_path}/*)
     foreach(property_dir ${property_dirs})
         get_filename_component(property_dir ${property_dir} ABSOLUTE)
@@ -174,8 +176,6 @@ function(__build_add_components components_path)
             endforeach()
 	endif()
     endforeach()
-
- 
 endfunction()
 
 #
@@ -183,7 +183,7 @@ endfunction()
 # properties used for the processing phase of the build.
 #
 function(__build_init armino_path)
-    # Create the build target, to which the BEKEN-BDK build properties, dependencies are attached to.
+    # Create the build target, to which the BEKEN-ARMINO build properties, dependencies are attached to.
     # Must be global so as to be accessible from any subdirectory in custom projects.
     add_library(__armino_build_target STATIC IMPORTED GLOBAL)
 
@@ -195,25 +195,22 @@ function(__build_init armino_path)
     armino_build_set_property(__PREFIX armino)
     armino_build_set_property(__INCLUDE_PREFIX inc)
     armino_build_set_property(__CHECK_PYTHON 1)
+    armino_build_set_property(SOC_PATH ${SOC_PATH})
 
     __build_set_default_build_specifications()
 
     # Add internal components to the build
     armino_build_get_property(armino_path ARMINO_PATH)
     armino_build_get_property(prefix __PREFIX)
-    __build_add_components(${armino_path}/properties/modules)
     __build_add_components(${armino_path}/components)
     __build_add_components(${armino_path}/middleware)
     __component_add(${armino_path}/include ${prefix})
 
     # Set components required by all other components in the build
-    #
-    # - lwip is here so that #include <sys/socket.h> works without any special provisions
-    # TODO fix me
-    # Temporarily set the requires_common to empty list for private components build
-    # rollback after all private components move to different repository!!!
     set(requires_common include bk_common bk_log bk_event driver bk_rtos common)
     armino_build_set_property(__COMPONENT_REQUIRES_COMMON "${requires_common}")
+
+    armino_build_set_property(COMPILE_DEFINITIONS "-DAPP_VERSION=\"$ENV{APP_VERSION}\"" APPEND)
 
     #__build_get_armino_git_revision()
     __kconfig_init()
@@ -403,10 +400,10 @@ endfunction()
 
 # armino_build_process
 #
-# @brief Main processing step for BEKEN-BDK build: config generation, adding components to the build,
+# @brief Main processing step for BEKEN-ARMINO build: config generation, adding components to the build,
 #        dependency resolution, etc.
 #
-# @param[in] target BEKEN-BDK target
+# @param[in] target BEKEN-ARMINO target
 #
 # @param[in, optional] PROJECT_DIR (single value) directory of the main project the buildsystem
 #                      is processed for; defaults to CMAKE_SOURCE_DIR
@@ -443,7 +440,7 @@ macro(armino_build_process target)
         LOGE("Build target not specified.")
     endif()
 
-    armino_build_set_property(BDK_SOC ${target})
+    armino_build_set_property(ARMINO_SOC ${target})
 
     __build_set_default(PROJECT_DIR ${CMAKE_SOURCE_DIR})
     __build_set_default(PROJECT_NAME ${CMAKE_PROJECT_NAME})
@@ -505,7 +502,7 @@ macro(armino_build_process target)
     __kconfig_generate_config("${sdkconfig}" "${sdkconfig_defaults}" "${sdkconfig_default_soc}")
     __build_import_configs()
 
-    # All targets built under this scope is with the BEKEN-BDK build system
+    # All targets built under this scope is with the BEKEN-ARMINO build system
     set(BEKEN_PLATFORM 1)
     armino_build_set_property(COMPILE_DEFINITIONS "-DBEKEN_PLATFORM" APPEND)
 
@@ -548,34 +545,32 @@ function(armino_build_executable bin)
     # Add dependency of the build target to the executable
     add_dependencies(${bin} __armino_build_target)
  
-    if (EXISTS "$ENV{ARMINO_PATH}/middleware/boards/${BDK_SOC}/${BDK_SOC}.wrapper")
-		set(armino_pack "$ENV{ARMINO_PATH}/middleware/boards/${BDK_SOC}/${BDK_SOC}.wrapper")
-	else()
-		set(armino_pack "$ENV{ARMINO_PATH}/tools/env_tools/beken_packager/cmake_packager_wrapper")
-	endif()
+    if (EXISTS "$ENV{ARMINO_PATH}/middleware/boards/${ARMINO_SOC}/${ARMINO_SOC}.wrapper")
+        set(armino_pack "$ENV{ARMINO_PATH}/middleware/boards/${ARMINO_SOC}/${ARMINO_SOC}.wrapper")
+    else()
+        set(armino_pack "$ENV{ARMINO_PATH}/tools/env_tools/beken_packager/cmake_packager_wrapper")
+    endif()
 
-    set(target  ${BDK_SOC})
-       add_custom_command(OUTPUT "${bin_dir}/bin_tmp"
+    set(target  ${ARMINO_SOC})
+    add_custom_command(OUTPUT "${bin_dir}/bin_tmp"
         COMMAND "${armino_objcopy}" -O binary "${bin_dir}/${bin}" "${bin_dir}/${bin_name}.bin"
         COMMAND "${armino_readelf}" -a -h -l -S -g -s "${bin_dir}/${bin}" > "${bin_dir}/${bin_name}.txt"
         COMMAND "${armino_nm}" -n -l -C -a -A -g "${bin_dir}/${bin}" > "${bin_dir}/${bin_name}.nm"
         COMMAND "${armino_objdump}" -d "${bin_dir}/${bin}" > "${bin_dir}/${bin_name}.lst"
-        COMMAND python "${armino_pack}" -n "all-${bin_name}.bin" -f "${bin_name}.bin" -c "${BDK_SOC}"
+        COMMAND python "${armino_pack}" -n "all-${bin_name}.bin" -f "${bin_name}.bin" -c "${ARMINO_SOC}"
         DEPENDS ${bin}
         VERBATIM
         WORKING_DIRECTORY ${bin_dir}
         COMMENT "Generating binary image from built executable"
     )
 
-	set(armino_size_statistic ${python} ${armino_path}/tools/build_tools/armino_size_statistic.py)
-
-
+    set(armino_size_statistic ${python} ${armino_path}/tools/build_tools/armino_size_statistic.py)
     add_custom_target(gen_project_binary DEPENDS "${bin_dir}/bin_tmp")
     add_custom_target(app ALL DEPENDS gen_project_binary)
 
-	armino_build_get_property(armino_target BDK_SOC)
+    armino_build_get_property(armino_target ARMINO_SOC)
 
-	add_custom_target(size-statistic ALL DEPENDS gen_project_binary
+    add_custom_target(size-statistic ALL DEPENDS gen_project_binary
         COMMAND ${armino_size_statistic} --size "${armino_toolchain_size}" --dirs "${armino_path}/components/bk_libs/${armino_target}" --outfile "${build_dir}/size_map.txt"
     )
 
@@ -593,4 +588,89 @@ function(armino_build_get_config var config)
         get_property(val TARGET __armino_build_target PROPERTY ${config})
     endif()
     set(${var} ${val} PARENT_SCOPE)
+endfunction()
+
+function(armino_build_parse_config_file_list)
+    set(_sdkconfig_defaults "$ENV{SDKCONFIG_DEFAULTS}")
+
+    armino_build_get_property(armino_path ARMINO_PATH)
+    armino_build_get_property(soc_path SOC_PATH)
+
+    if(NOT _sdkconfig_defaults)
+        set(_sdkconfig_defaults "")
+
+        if(EXISTS "${CMAKE_SOURCE_DIR}/config/common.config")
+            list(APPEND _sdkconfig_defaults "${CMAKE_SOURCE_DIR}/config/common.config")
+        endif()
+
+        if(EXISTS "${CMAKE_SOURCE_DIR}/config/${ARMINO_SOC}.config")
+            list(APPEND _sdkconfig_defaults "${CMAKE_SOURCE_DIR}/config/${ARMINO_SOC}.config")
+        endif()
+
+        if(EXISTS "${soc_path}/${ARMINO_SOC}/${ARMINO_SOC}.defconfig")
+            set(_sdkconfig_default_soc "${soc_path}/${ARMINO_SOC}/${ARMINO_SOC}.defconfig")
+            get_filename_component(sdkconfig_default_soc "${_sdkconfig_default_soc}" ABSOLUTE)
+        else()
+            set(sdkconfig_default_soc "")
+        endif()
+    endif()
+
+    if(SDKCONFIG_DEFAULTS)
+        set(_sdkconfig_defaults "${SDKCONFIG_DEFAULTS}")
+        set(_sdkconfig_defaults_soc "")
+    endif()
+
+    foreach(sdkconfig_default ${_sdkconfig_defaults})
+        get_filename_component(sdkconfig_default "${sdkconfig_default}" ABSOLUTE)
+        if(NOT EXISTS "${sdkconfig_default}")
+            LOGE("SDKCONFIG_DEFAULTS '${sdkconfig_default}' does not exist.")
+        endif()
+        list(APPEND sdkconfig_defaults ${sdkconfig_default})
+    endforeach()
+
+    if(SDKCONFIG)
+        get_filename_component(sdkconfig "${SDKCONFIG}" ABSOLUTE)
+    else()
+        set(sdkconfig "${CMAKE_BINARY_DIR}/sdkconfig")
+    endif()
+
+    armino_build_set_property(SDKCONFIG_DEFAULTS "${sdkconfig_defaults}")
+    armino_build_set_property(SDKCONFIG_DEFAULT_SOC "${sdkconfig_default_soc}")
+    armino_build_set_property(SDKCONFIG "${sdkconfig}")
+endfunction()
+
+function(armino_build_parse_toolchain_dir)
+    set(default_toolchain_dir "/opt/gcc-arm-none-eabi-5_4-2016q3/bin")
+    armino_build_get_property(sdkconfig_defaults SDKCONFIG_DEFAULTS)
+    armino_build_get_property(sdkconfig_default_soc SDKCONFIG_DEFAULT_SOC)
+    set(user_configed_toolchain_dir "")
+    foreach(config_file ${sdkconfig_default_soc})
+        file(STRINGS ${config_file} toolchain_dir_line REGEX ^CONFIG_TOOLCHAIN_PATH=)
+        if(NOT "${toolchain_dir_line}" STREQUAL "")
+            set(user_configed_toolchain_dir ${toolchain_dir_line})
+        endif()
+    endforeach()
+
+    foreach(config_file ${sdkconfig_defaults})
+        file(STRINGS ${config_file} toolchain_dir_line REGEX ^CONFIG_TOOLCHAIN_PATH=)
+        if(NOT "${toolchain_dir_line}" STREQUAL "")
+            set(user_configed_toolchain_dir ${toolchain_dir_line})
+        endif()
+    endforeach()
+
+    if("${user_configed_toolchain_dir}" STREQUAL "")
+        set(toolchain_dir ${default_toolchain_dir})
+        LOGI("use default toolchain path: ${toolchain_dir}")
+    else()
+        string(REPLACE "CONFIG_TOOLCHAIN_PATH=" "" toolchain_dir_temp ${user_configed_toolchain_dir})
+        string(REPLACE "\"" "" toolchain_dir ${toolchain_dir_temp})
+        LOGI("use configured toolchain path: ${toolchain_dir}")
+    endif()
+
+    if(NOT EXISTS ${toolchain_dir})
+        LOGE("toolchain PATH ${toolchain_dir} doesn't exist!")
+    endif()
+
+    armino_build_set_property(TOOLCHAIN_DIR ${toolchain_dir})
+    set(ENV{TOOLCHAIN_DIR} ${toolchain_dir})
 endfunction()

@@ -27,6 +27,13 @@ void c_startup(void)
 #ifdef CFG_XIP
 	extern char _data_lmastart, _data_start;
 
+	extern char _itcm_lma_start, _itcm_ema_start, _itcm_lma_end;
+	size = &_itcm_lma_end - &_itcm_lma_start;
+	if(size!=0)
+	{
+		MEMCPY(&_itcm_ema_start, &_itcm_lma_start, size);
+	}
+
 	/* Copy data section from LMA to VMA */
 	size = &_edata - &_data_start;
 	MEMCPY(&_data_start, &_data_lmastart, size);

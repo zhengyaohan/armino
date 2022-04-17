@@ -424,22 +424,6 @@ typedef struct wlan_ap_config {
 	} u;
 } wlan_ap_config_t;
 
-/**
- * @brief Wlan station information definition
- */
-typedef struct wlan_ap_sta {
-	uint8_t addr[6];
-} wlan_ap_sta_t;
-
-/**
- * @brief Wlan connected stations information definition
- */
-typedef struct wlan_ap_stas {
-	wlan_ap_sta_t *sta;
-	int size;
-	int num;
-} wlan_ap_stas_t;
-
 struct wlan_p2p_connect_param {
 	uint8_t addr[6];
 	int method;

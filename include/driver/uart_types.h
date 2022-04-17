@@ -21,12 +21,6 @@
 extern "C" {
 #endif
 
-/**
- * @brief UART defines
- * @defgroup bk_api_uart_defs macos
- * @ingroup bk_api_uart
- * @{
- */
 #define BK_ERR_UART_NOT_INIT              (BK_ERR_UART_BASE - 1) /**< UART driver not init */
 #define BK_ERR_UART_INVALID_ID            (BK_ERR_UART_BASE - 2) /**< UART id number is invalid */
 #define BK_ERR_UART_INVALID_SIZE          (BK_ERR_UART_BASE - 3) /**< UART read bytes length is more than fifo length */
@@ -38,11 +32,7 @@ extern "C" {
 /**
  * @brief UART interrupt service routine
  */
-typedef void (*uart_isr_t)(uart_id_t id, void  *param);
-
-/**
- * @}
- */
+typedef void (*uart_isr_t)(uart_id_t id, void *param);
 
 #ifdef __cplusplus
 }

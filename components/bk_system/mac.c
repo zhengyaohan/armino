@@ -23,7 +23,7 @@
 #include <driver/efuse.h>
 #include <os/mem.h>
 #include "bk_phy.h"
-#include "bk_api_mac.h"
+#include <components/system.h>
 #include <components/log.h>
 #if (CONFIG_RANDOM_MAC_ADDR)
 #include <driver/trng.h>

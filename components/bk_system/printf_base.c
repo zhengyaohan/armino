@@ -28,7 +28,9 @@ bool printf_is_init(void)
 
 bk_err_t bk_printf_deinit(void)
 {
+#if (!CONFIG_SLAVE_CORE)
 	bk_uart_deinit(CONFIG_UART_PRINT_PORT);
+#endif
 	printf_lock_deinit();
 	return BK_OK;
 }
@@ -37,6 +39,7 @@ bk_err_t bk_printf_init(void)
 {
 	int ret;
 
+#if (!CONFIG_SLAVE_CORE)
         const uart_config_t config = {
                 .baud_rate = UART_BAUD_RATE,
                 .data_bits = UART_DATA_8_BITS,
@@ -45,12 +48,14 @@ bk_err_t bk_printf_init(void)
                 .flow_ctrl = UART_FLOWCTRL_DISABLE,
                 .src_clk = UART_SCLK_XTAL_26M
         };
+#endif
 
 	ret = printf_lock_init();
         if (BK_OK != ret) {
                 return ret;
         }
 
+#if (!CONFIG_SLAVE_CORE)
         ret = bk_uart_init(CONFIG_UART_PRINT_PORT, &config);
         if (BK_OK != ret)
 		goto _bk_printf_init_fail;
@@ -59,13 +64,16 @@ bk_err_t bk_printf_init(void)
         if (BK_OK != ret)
 		goto _bk_printf_init_fail;
 
+#endif
 	s_printf_init = true;
 
 	return BK_OK;
 
+#if (!CONFIG_SLAVE_CORE)
 _bk_printf_init_fail:
 	bk_printf_deinit();
 	return ret;
+#endif
 }
 
 void bk_null_printf(const char *fmt, ...)

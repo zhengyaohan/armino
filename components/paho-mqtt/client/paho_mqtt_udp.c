@@ -12,7 +12,7 @@
 #include "paho_mqtt_udp.h"
 #include "bk_fake_clock.h"
 #include <os/str.h>
-#include "bk_api_tick.h"
+#include <components/system.h>
 
 static beken_thread_t mqtt_udp_thd_tid = NULL;
 static uint16_t pub_port = 7000;

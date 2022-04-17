@@ -11,7 +11,7 @@
 #include "saradc_intf.h"
 #include <os/mem.h>
 #include "bk_fake_clock.h"
-#include "bk_api_tick.h"
+#include <components/system.h>
 #include "bk_sys_ctrl.h"
 
 #define TURING_ADC_TAG                      "saradc_intf"

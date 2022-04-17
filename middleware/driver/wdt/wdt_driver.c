@@ -23,7 +23,7 @@
 #include "icu_driver.h"
 #include "power_driver.h"
 #include "bk_rtos_debug.h"
-#include "bk_api_tick.h"
+#include <components/system.h>
 #include "sys_driver.h"
 
 typedef struct {

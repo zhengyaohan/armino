@@ -1,0 +1,3289 @@
+[
+    {
+        "children": [
+            {
+                "children": [
+                    {
+                        "children": [],
+                        "depends_on": "<choice SOC>",
+                        "help": null,
+                        "id": "SOC_BK7231N",
+                        "name": "SOC_BK7231N",
+                        "range": null,
+                        "title": "BK7231N",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "<choice SOC>",
+                        "help": null,
+                        "id": "SOC_BK7231U",
+                        "name": "SOC_BK7231U",
+                        "range": null,
+                        "title": "BK7231U",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "<choice SOC>",
+                        "help": null,
+                        "id": "SOC_BK7251",
+                        "name": "SOC_BK7251",
+                        "range": null,
+                        "title": "BK7251",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "<choice SOC>",
+                        "help": null,
+                        "id": "SOC_BK7271",
+                        "name": "SOC_BK7271",
+                        "range": null,
+                        "title": "BK7271",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "<choice SOC>",
+                        "help": null,
+                        "id": "SOC_BK7236",
+                        "name": "SOC_BK7236",
+                        "range": null,
+                        "title": "BK7236",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "<choice SOC>",
+                        "help": null,
+                        "id": "SOC_BK7256",
+                        "name": "SOC_BK7256",
+                        "range": null,
+                        "title": "BK7256",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "<choice SOC>",
+                        "help": null,
+                        "id": "SOC_BK7256_CP1",
+                        "name": "SOC_BK7256_CP1",
+                        "range": null,
+                        "title": "BK7256_CP1",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "<choice SOC>",
+                        "help": null,
+                        "id": "SOC_BK7235",
+                        "name": "SOC_BK7235",
+                        "range": null,
+                        "title": "BK7235",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "<choice SOC>",
+                        "help": null,
+                        "id": "SOC_BK7237",
+                        "name": "SOC_BK7237",
+                        "range": null,
+                        "title": "BK7237",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": null,
+                "help": null,
+                "id": "soc_config-armino-soc",
+                "name": "SOC",
+                "title": "ARMINO SoC",
+                "type": "choice"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": null,
+                "id": "SOC_STR",
+                "name": "SOC_STR",
+                "range": null,
+                "title": "SoC string",
+                "type": "string"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": null,
+                "id": "SOC_ARCH",
+                "name": "SOC_ARCH",
+                "range": null,
+                "title": "Soc arch",
+                "type": "string"
+            },
+            {
+                "children": [],
+                "depends_on": null,
+                "help": null,
+                "id": "SOC_BK7256XX",
+                "name": "SOC_BK7256XX",
+                "range": null,
+                "title": "workaround for bk7256",
+                "type": "bool"
+            }
+        ],
+        "depends_on": null,
+        "id": "soc_config",
+        "title": "SOC_CONFIG",
+        "type": "menu"
+    },
+    {
+        "children": [
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "TOOLCHAIN_PATH",
+                                "name": "TOOLCHAIN_PATH",
+                                "range": null,
+                                "title": "Toolchain absolute path",
+                                "type": "string"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-common-configuration-compile-build",
+                        "title": "Compile/Build",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "DEBUG_FIRMWARE",
+                                "name": "DEBUG_FIRMWARE",
+                                "range": null,
+                                "title": "Enable building debug firmware",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": "<choice ASSERT>",
+                                        "help": null,
+                                        "id": "ASSERT_IGNORE",
+                                        "name": "ASSERT_IGNORE",
+                                        "range": null,
+                                        "title": "Ignore Assert",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "<choice ASSERT>",
+                                        "help": null,
+                                        "id": "ASSERT_HALT",
+                                        "name": "ASSERT_HALT",
+                                        "range": null,
+                                        "title": "Assert halts the system",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "<choice ASSERT>",
+                                        "help": null,
+                                        "id": "ASSERT_REBOOT",
+                                        "name": "ASSERT_REBOOT",
+                                        "range": null,
+                                        "title": "Assert reboots the system",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "armino-configuration-common-configuration-debug-assert-options",
+                                "name": "ASSERT",
+                                "title": "Assert options",
+                                "type": "choice"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "JTAG",
+                                "name": "JTAG",
+                                "range": null,
+                                "title": "Enable JTAG",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-common-configuration-debug",
+                        "title": "Debug",
+                        "type": "menu"
+                    }
+                ],
+                "depends_on": null,
+                "id": "armino-configuration-common-configuration",
+                "title": "Common Configuration",
+                "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": "LWIP && <choice LWIP>",
+                                        "help": null,
+                                        "id": "LWIP_V2_0",
+                                        "name": "LWIP_V2_0",
+                                        "range": null,
+                                        "title": "LWIP 2.0.2",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "LWIP && <choice LWIP>",
+                                        "help": null,
+                                        "id": "LWIP_V2_1",
+                                        "name": "LWIP_V2_1",
+                                        "range": null,
+                                        "title": "LWIP 2.1.2",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": "LWIP",
+                                "help": null,
+                                "id": "armino-configuration-features-configuration-enable-lwip-lwip-version",
+                                "name": "LWIP",
+                                "title": "LWIP Version",
+                                "type": "choice"
+                            }
+                        ],
+                        "depends_on": null,
+                        "help": null,
+                        "id": "LWIP",
+                        "name": "LWIP",
+                        "range": null,
+                        "title": "Enable LWIP",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": "<choice HOST>",
+                                "help": null,
+                                "id": "NO_HOSTED",
+                                "name": "NO_HOSTED",
+                                "range": null,
+                                "title": "Disable Hosted",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "<choice HOST>",
+                                "help": null,
+                                "id": "SEMI_HOSTED",
+                                "name": "SEMI_HOSTED",
+                                "range": null,
+                                "title": "Semi Hosted",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "<choice HOST>",
+                                "help": null,
+                                "id": "FULLY_HOSTED",
+                                "name": "FULLY_HOSTED",
+                                "range": null,
+                                "title": "Fully Hosted",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "help": null,
+                        "id": "armino-configuration-features-configuration-hosted-mode",
+                        "name": "HOST",
+                        "title": "Hosted Mode",
+                        "type": "choice"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": null,
+                        "help": null,
+                        "id": "WIFI_SENSOR",
+                        "name": "WIFI_SENSOR",
+                        "range": null,
+                        "title": "Enable WiFi sensor",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": null,
+                        "help": null,
+                        "id": "BLUETOOTH",
+                        "name": "BLUETOOTH",
+                        "range": null,
+                        "title": "Enable Bluetooth",
+                        "type": "bool"
+                    }
+                ],
+                "depends_on": null,
+                "id": "armino-configuration-features-configuration",
+                "title": "Features Configuration",
+                "type": "menu"
+            },
+            {
+                "children": [
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "DEMO_TEST",
+                                "name": "DEMO_TEST",
+                                "range": null,
+                                "title": "Enable demo test",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "FTPD_UPGRADE",
+                                "name": "FTPD_UPGRADE",
+                                "range": null,
+                                "title": "Enable FTPD upgrade",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "OTA_HTTP",
+                                "name": "OTA_HTTP",
+                                "range": null,
+                                "title": "Enable HTTP OTA",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "OTA_TFTP",
+                                "name": "OTA_TFTP",
+                                "range": null,
+                                "title": "Enable TFTP OTA",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "USE_APP_DEMO_VIDEO_TRANSSER",
+                                "name": "USE_APP_DEMO_VIDEO_TRANSSER",
+                                "range": null,
+                                "title": "Enable USE APP DEMO VIDEO TRANSSER",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "APP_DEMO_VIDEO_TRANSFER",
+                                "name": "APP_DEMO_VIDEO_TRANSFER",
+                                "range": null,
+                                "title": "Enable APP DEMO VIDEO TRANSSER",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "NET_WORK_VIDEO_TRANSFER",
+                                "name": "NET_WORK_VIDEO_TRANSFER",
+                                "range": null,
+                                "title": "Enable NET_WORK VIDEO TRANSFER",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-application",
+                        "title": "Application",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": null,
+                        "help": null,
+                        "id": "AT_CMD",
+                        "name": "AT_CMD",
+                        "range": null,
+                        "title": "Enable AT_CMD",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": null,
+                        "help": null,
+                        "id": "AT",
+                        "name": "AT",
+                        "range": null,
+                        "title": "Enable AT",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": "AUDIO",
+                                        "help": null,
+                                        "id": "AUDIO_ADC",
+                                        "name": "AUDIO_ADC",
+                                        "range": null,
+                                        "title": "Enable Audio ADC",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "AUDIO",
+                                        "help": null,
+                                        "id": "AUDIO_DAC",
+                                        "name": "AUDIO_DAC",
+                                        "range": null,
+                                        "title": "Enable Audio DAC",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "AUDIO",
+                                "name": "AUDIO",
+                                "range": null,
+                                "title": "Enable Audio",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-audio",
+                        "title": "Audio",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": "ATE",
+                                        "help": null,
+                                        "id": "ATE_GPIO_ID",
+                                        "name": "ATE_GPIO_ID",
+                                        "range": null,
+                                        "title": "ATE GPIO ID",
+                                        "type": "int"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "ATE",
+                                        "help": null,
+                                        "id": "ATE_GPIO_PULL_UP",
+                                        "name": "ATE_GPIO_PULL_UP",
+                                        "range": null,
+                                        "title": "Set ATE GPIO Pull Up",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "ATE",
+                                "name": "ATE",
+                                "range": null,
+                                "title": "Enable Automatic Test",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-ate",
+                        "title": "ATE",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": "BLUETOOTH",
+                                "help": null,
+                                "id": "BT",
+                                "name": "BT",
+                                "range": null,
+                                "title": "Enable Bluetooth Classic",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [],
+                                                "depends_on": "<choice BLE_STACK>",
+                                                "help": null,
+                                                "id": "BLE_5_X",
+                                                "name": "BLE_5_X",
+                                                "range": null,
+                                                "title": "BLE 5.X",
+                                                "type": "bool"
+                                            },
+                                            {
+                                                "children": [],
+                                                "depends_on": "<choice BLE_STACK>",
+                                                "help": null,
+                                                "id": "BLE_4_2",
+                                                "name": "BLE_4_2",
+                                                "range": null,
+                                                "title": "BLE 4.2",
+                                                "type": "bool"
+                                            },
+                                            {
+                                                "children": [],
+                                                "depends_on": "<choice BLE_STACK>",
+                                                "help": null,
+                                                "id": "BTDM_5_2",
+                                                "name": "BTDM_5_2",
+                                                "range": null,
+                                                "title": "BTDM 5.2",
+                                                "type": "bool"
+                                            }
+                                        ],
+                                        "depends_on": "BLE",
+                                        "help": null,
+                                        "id": "armino-configuration-components-configuration-ble-enable-bluetooth-low-energy-ble-version",
+                                        "name": "BLE_STACK",
+                                        "title": "BLE Version",
+                                        "type": "choice"
+                                    }
+                                ],
+                                "depends_on": "BLUETOOTH",
+                                "help": null,
+                                "id": "BLE",
+                                "name": "BLE",
+                                "range": null,
+                                "title": "Enable Bluetooth Low Energy",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-ble",
+                        "title": "BLE",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": "CLI",
+                                        "help": null,
+                                        "id": "BKREG",
+                                        "name": "BKREG",
+                                        "range": null,
+                                        "title": "Enable BK Reg read/write",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "CLI",
+                                        "help": null,
+                                        "id": "IPERF_TEST",
+                                        "name": "IPERF_TEST",
+                                        "range": null,
+                                        "title": "Enable Iperf Test",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "CLI",
+                                        "help": null,
+                                        "id": "TCP_SERVER_TEST",
+                                        "name": "TCP_SERVER_TEST",
+                                        "range": null,
+                                        "title": "Enable TCP server Test",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "CLI",
+                                        "help": null,
+                                        "id": "AIRKISS_TEST",
+                                        "name": "AIRKISS_TEST",
+                                        "range": null,
+                                        "title": "Enable Airkiss Test",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "CLI",
+                                        "help": null,
+                                        "id": "WIFI_RAW_TX_TEST",
+                                        "name": "WIFI_RAW_TX_TEST",
+                                        "range": null,
+                                        "title": "Enable WiFi Raw TX",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "CLI",
+                                        "help": null,
+                                        "id": "I2C1_TEST",
+                                        "name": "I2C1_TEST",
+                                        "range": null,
+                                        "title": "Enable I2C1 Test",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "CLI",
+                                        "help": null,
+                                        "id": "I2C2_TEST",
+                                        "name": "I2C2_TEST",
+                                        "range": null,
+                                        "title": "Enable I2C2 Test",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "CLI",
+                                        "help": null,
+                                        "id": "UART_TEST",
+                                        "name": "UART_TEST",
+                                        "range": null,
+                                        "title": "Enable Uart Test",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "CLI",
+                                        "help": null,
+                                        "id": "SPI_TEST",
+                                        "name": "SPI_TEST",
+                                        "range": null,
+                                        "title": "Enable SPI Test",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "CLI",
+                                        "help": null,
+                                        "id": "PERI_TEST",
+                                        "name": "PERI_TEST",
+                                        "range": null,
+                                        "title": "Enable Periperal Test",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "CLI",
+                                        "help": null,
+                                        "id": "RF_OTA_TEST",
+                                        "name": "RF_OTA_TEST",
+                                        "range": null,
+                                        "title": "Enable RF OTA Test",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "CLI",
+                                        "help": null,
+                                        "id": "SHELL_ASYNCLOG",
+                                        "name": "SHELL_ASYNCLOG",
+                                        "range": null,
+                                        "title": "Enable Shell and Async log optimize",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "CLI",
+                                        "help": null,
+                                        "id": "AUDIO_TEST",
+                                        "name": "AUDIO_TEST",
+                                        "range": null,
+                                        "title": "Enable AUDIO Test",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "CLI",
+                                        "help": null,
+                                        "id": "TOUCH",
+                                        "name": "TOUCH",
+                                        "range": null,
+                                        "title": "Enable TOUCH Test",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "CLI",
+                                        "help": null,
+                                        "id": "SBC_TEST",
+                                        "name": "SBC_TEST",
+                                        "range": null,
+                                        "title": "Enable SBC Test",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "CLI",
+                                        "help": null,
+                                        "id": "AUDIO",
+                                        "name": "AUDIO",
+                                        "range": null,
+                                        "title": "Enable AUDIO",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "CLI",
+                                        "help": null,
+                                        "id": "FFT_TEST",
+                                        "name": "FFT_TEST",
+                                        "range": null,
+                                        "title": "Enable FFT Test",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "CLI",
+                                        "help": null,
+                                        "id": "I2S_TEST",
+                                        "name": "I2S_TEST",
+                                        "range": null,
+                                        "title": "Enable I2S Test",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "CLI",
+                                "name": "CLI",
+                                "range": null,
+                                "title": "Enable BK Cli",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "EFUSE",
+                                "name": "EFUSE",
+                                "range": null,
+                                "title": "Enable Efuse",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "ICU",
+                                "name": "ICU",
+                                "range": null,
+                                "title": "Enable ICU",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "MATTER_NAMEKEY",
+                                "name": "MATTER_NAMEKEY",
+                                "range": null,
+                                "title": "Enable MATTER_NAMEKEY",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "KEYVALUE",
+                                "name": "KEYVALUE",
+                                "range": null,
+                                "title": "Enable KEYVALUE",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "NET_CTL",
+                                "name": "NET_CTL",
+                                "range": null,
+                                "title": "Enable NET_CTL",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-cli",
+                        "title": "Cli",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": "DUAL_CORE",
+                                        "help": null,
+                                        "id": "MASTER_CORE",
+                                        "name": "MASTER_CORE",
+                                        "range": null,
+                                        "title": "Dual cpu core run as master core",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "DUAL_CORE",
+                                        "help": null,
+                                        "id": "SLAVE_CORE",
+                                        "name": "SLAVE_CORE",
+                                        "range": null,
+                                        "title": "Dual cpu core run as slave core",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "DUAL_CORE",
+                                "name": "DUAL_CORE",
+                                "range": null,
+                                "title": "Dual cpu core run as master core",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "MASTER_CORE",
+                                "help": null,
+                                "id": "SLAVE_CORE_OFFSET",
+                                "name": "SLAVE_CORE_OFFSET",
+                                "range": null,
+                                "title": "Slave core offset address default 0x2e0000",
+                                "type": "int"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "MASTER_CORE",
+                                "help": null,
+                                "id": "SLAVE_CORE_RESET_VALUE",
+                                "name": "SLAVE_CORE_RESET_VALUE",
+                                "range": null,
+                                "title": "Slave core reset value",
+                                "type": "int"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "EFUSE",
+                                "name": "EFUSE",
+                                "range": null,
+                                "title": "Enable Efuse",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "ICU",
+                                "name": "ICU",
+                                "range": null,
+                                "title": "Enable ICU",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "CLI",
+                                "help": null,
+                                "id": "LCD_TEST",
+                                "name": "LCD_TEST",
+                                "range": null,
+                                "title": "Enable LCD Test",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "DMA2D_TEST",
+                                "name": "DMA2D_TEST",
+                                "range": null,
+                                "title": "Enable dma2d Test",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-dual_core",
+                        "title": "DUAL_CORE",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "MCU_PS",
+                                "name": "MCU_PS",
+                                "range": null,
+                                "title": "Enable MCU Sleep",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "DEEP_PS",
+                                "name": "DEEP_PS",
+                                "range": null,
+                                "title": "Enable Deep Sleep",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "TICK_CALI",
+                                "name": "TICK_CALI",
+                                "range": null,
+                                "title": "Enable tick time caliration",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "STA_PS",
+                                "name": "STA_PS",
+                                "range": null,
+                                "title": "Enable STA PS",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-internal-kconfig",
+                        "title": "Internal Kconfig",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "BK_NETIF",
+                                "name": "BK_NETIF",
+                                "range": null,
+                                "title": "Enable bk netif",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-bk_netif_config",
+                        "title": "BK_NETIF_CONFIG",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [],
+                                                "depends_on": "<choice FREERTOS_VER>",
+                                                "help": null,
+                                                "id": "FREERTOS_V9",
+                                                "name": "FREERTOS_V9",
+                                                "range": null,
+                                                "title": "FreeRTOS v9.0.0",
+                                                "type": "bool"
+                                            },
+                                            {
+                                                "children": [],
+                                                "depends_on": "<choice FREERTOS_VER>",
+                                                "help": null,
+                                                "id": "FREERTOS_V10",
+                                                "name": "FREERTOS_V10",
+                                                "range": null,
+                                                "title": "FreeRTOS v10",
+                                                "type": "bool"
+                                            }
+                                        ],
+                                        "depends_on": "FREERTOS",
+                                        "help": null,
+                                        "id": "armino-configuration-components-configuration-freertos-enable-freertos-freertos-version",
+                                        "name": "FREERTOS_VER",
+                                        "title": "FreeRTOS Version",
+                                        "type": "choice"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "FREERTOS",
+                                "name": "FREERTOS",
+                                "range": null,
+                                "title": "Enable FreeRTOS",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "FREERTOS_V10",
+                                "help": null,
+                                "id": "FREERTOS_POSIX",
+                                "name": "FREERTOS_POSIX",
+                                "range": null,
+                                "title": "FreeRTOS POSIX",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "MALLOC_STATIS",
+                                        "name": "MALLOC_STATIS",
+                                        "range": null,
+                                        "title": "Enable malloc statistics",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [],
+                                                        "depends_on": "MEM_DEBUG_FUNC_NAME",
+                                                        "help": null,
+                                                        "id": "MEM_DEBUG_FUNC_NAME_LEN",
+                                                        "name": "MEM_DEBUG_FUNC_NAME_LEN",
+                                                        "range": null,
+                                                        "title": "Function name length",
+                                                        "type": "int"
+                                                    }
+                                                ],
+                                                "depends_on": "MEM_DEBUG",
+                                                "help": null,
+                                                "id": "MEM_DEBUG_FUNC_NAME",
+                                                "name": "MEM_DEBUG_FUNC_NAME",
+                                                "range": null,
+                                                "title": "Enable memory debug",
+                                                "type": "bool"
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [],
+                                                        "depends_on": "MEM_DEBUG_TASK_NAME",
+                                                        "help": null,
+                                                        "id": "MEM_DEBUG_TASK_NAME_LEN",
+                                                        "name": "MEM_DEBUG_TASK_NAME_LEN",
+                                                        "range": null,
+                                                        "title": "Task name length",
+                                                        "type": "int"
+                                                    }
+                                                ],
+                                                "depends_on": "MEM_DEBUG",
+                                                "help": null,
+                                                "id": "MEM_DEBUG_TASK_NAME",
+                                                "name": "MEM_DEBUG_TASK_NAME",
+                                                "range": null,
+                                                "title": "Enable memory debug",
+                                                "type": "bool"
+                                            }
+                                        ],
+                                        "depends_on": null,
+                                        "help": "When this option is enable, more memory will be consumed because\na fixed length debug block will be appended to every memory allocated\nfrom heap.\n\nMoreover, suggest disable task/watchdog when this option is enabled\nin case os_dump_memory_stats() triggers watchdog.",
+                                        "id": "MEM_DEBUG",
+                                        "name": "MEM_DEBUG",
+                                        "range": null,
+                                        "title": "Enable memory debug",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-freertos-memory-debug",
+                                "title": "Memory Debug",
+                                "type": "menu"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-freertos",
+                        "title": "FreeRTOS",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "LITEOS_M",
+                                "name": "LITEOS_M",
+                                "range": null,
+                                "title": "liteos_m",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": "LITEOS_M_V3",
+                                        "help": null,
+                                        "id": "LITEOS_M_BK",
+                                        "name": "LITEOS_M_BK",
+                                        "range": null,
+                                        "title": "liteos_m bk adapter",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "LITEOS_M_V3",
+                                "name": "LITEOS_M_V3",
+                                "range": null,
+                                "title": "liteos_m v3.0.1-LTS",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-liteos_m",
+                        "title": "LITEOS_M",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "APP_MAIN_TASK_PRIO",
+                                "name": "APP_MAIN_TASK_PRIO",
+                                "range": [
+                                    1,
+                                    10
+                                ],
+                                "title": "Priority of application main task",
+                                "type": "int"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "APP_MAIN_TASK_STACK_SIZE",
+                                "name": "APP_MAIN_TASK_STACK_SIZE",
+                                "range": null,
+                                "title": "Stack size of application main task",
+                                "type": "int"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "MATTER_START",
+                                "name": "MATTER_START",
+                                "range": null,
+                                "title": "enable matter auto start",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-startup",
+                        "title": "Startup",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": "<choice BASE_MAC_SRC>",
+                                        "help": null,
+                                        "id": "BASE_MAC_FROM_EFUSE",
+                                        "name": "BASE_MAC_FROM_EFUSE",
+                                        "range": null,
+                                        "title": "Base mac from efuse",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "<choice BASE_MAC_SRC>",
+                                        "help": null,
+                                        "id": "BASE_MAC_FROM_RF_OTP_FLASH",
+                                        "name": "BASE_MAC_FROM_RF_OTP_FLASH",
+                                        "range": null,
+                                        "title": "Base mac from RF OTP flash",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "<choice BASE_MAC_SRC>",
+                                        "help": null,
+                                        "id": "BASE_MAC_FROM_NVS",
+                                        "name": "BASE_MAC_FROM_NVS",
+                                        "range": null,
+                                        "title": "Base mac from NVS",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "armino-configuration-components-configuration-system-base-mac-source",
+                                "name": "BASE_MAC_SRC",
+                                "title": "Base mac source",
+                                "type": "choice"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "RANDOM_MAC_ADDR",
+                                "name": "RANDOM_MAC_ADDR",
+                                "range": null,
+                                "title": "Enable RANDOM MAC ADDR",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-system",
+                        "title": "System",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [],
+                                                        "depends_on": "<choice USB_MODE>",
+                                                        "help": null,
+                                                        "id": "USB_HOST",
+                                                        "name": "USB_HOST",
+                                                        "range": null,
+                                                        "title": "USB Host Mode",
+                                                        "type": "bool"
+                                                    },
+                                                    {
+                                                        "children": [],
+                                                        "depends_on": "<choice USB_MODE>",
+                                                        "help": null,
+                                                        "id": "USB_DEVICE",
+                                                        "name": "USB_DEVICE",
+                                                        "range": null,
+                                                        "title": "USB Device Mode",
+                                                        "type": "bool"
+                                                    }
+                                                ],
+                                                "depends_on": "USB",
+                                                "help": null,
+                                                "id": "armino-configuration-components-configuration-usb-configuration-enable-usb-usb-enable-usb-host-mode",
+                                                "name": "USB_MODE",
+                                                "title": "Enable USB HOST mode",
+                                                "type": "choice"
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [],
+                                                        "depends_on": "<choice USB_PORT>",
+                                                        "help": null,
+                                                        "id": "USB1_PORT",
+                                                        "name": "USB1_PORT",
+                                                        "range": null,
+                                                        "title": "USB1 port",
+                                                        "type": "bool"
+                                                    },
+                                                    {
+                                                        "children": [],
+                                                        "depends_on": "<choice USB_PORT>",
+                                                        "help": null,
+                                                        "id": "USB2_PORT",
+                                                        "name": "USB2_PORT",
+                                                        "range": null,
+                                                        "title": "USB2 port",
+                                                        "type": "bool"
+                                                    }
+                                                ],
+                                                "depends_on": "USB",
+                                                "help": null,
+                                                "id": "armino-configuration-components-configuration-usb-configuration-enable-usb-usb-select-usb-port",
+                                                "name": "USB_PORT",
+                                                "title": "Select USB Port",
+                                                "type": "choice"
+                                            },
+                                            {
+                                                "children": [],
+                                                "depends_on": "USB",
+                                                "help": null,
+                                                "id": "TASK_USB_PRIO",
+                                                "name": "TASK_USB_PRIO",
+                                                "range": null,
+                                                "title": "Priority of USB task",
+                                                "type": "int"
+                                            },
+                                            {
+                                                "children": [],
+                                                "depends_on": "USB",
+                                                "help": null,
+                                                "id": "USB_MSD",
+                                                "name": "USB_MSD",
+                                                "range": null,
+                                                "title": "Enable USB MSD",
+                                                "type": "bool"
+                                            },
+                                            {
+                                                "children": [],
+                                                "depends_on": "USB",
+                                                "help": null,
+                                                "id": "USB_HID",
+                                                "name": "USB_HID",
+                                                "range": null,
+                                                "title": "Enable USB HID",
+                                                "type": "bool"
+                                            },
+                                            {
+                                                "children": [],
+                                                "depends_on": "USB",
+                                                "help": null,
+                                                "id": "USB_CCD",
+                                                "name": "USB_CCD",
+                                                "range": null,
+                                                "title": "Enable USB CCD",
+                                                "type": "bool"
+                                            },
+                                            {
+                                                "children": [],
+                                                "depends_on": "USB",
+                                                "help": null,
+                                                "id": "USB_UVC",
+                                                "name": "USB_UVC",
+                                                "range": null,
+                                                "title": "Enable USB UVC",
+                                                "type": "bool"
+                                            },
+                                            {
+                                                "children": [],
+                                                "depends_on": "USB",
+                                                "help": null,
+                                                "id": "USB_CHARGE",
+                                                "name": "USB_CHARGE",
+                                                "range": null,
+                                                "title": "Enable USB Charge",
+                                                "type": "bool"
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [],
+                                                        "depends_on": "USB",
+                                                        "help": null,
+                                                        "id": "DSP",
+                                                        "name": "DSP",
+                                                        "range": null,
+                                                        "title": "Enable DSP",
+                                                        "type": "bool"
+                                                    },
+                                                    {
+                                                        "children": [],
+                                                        "depends_on": "USB",
+                                                        "help": null,
+                                                        "id": "DSP_SRC_ADD",
+                                                        "name": "DSP_SRC_ADD",
+                                                        "range": null,
+                                                        "title": "DSP srouce address",
+                                                        "type": "hex"
+                                                    }
+                                                ],
+                                                "depends_on": "USB",
+                                                "id": "armino-configuration-components-configuration-usb-configuration-enable-usb-usb-dsp",
+                                                "title": "DSP",
+                                                "type": "menu"
+                                            }
+                                        ],
+                                        "depends_on": "USB",
+                                        "id": "armino-configuration-components-configuration-usb-configuration-enable-usb-usb",
+                                        "title": "USB",
+                                        "type": "menu"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "USB",
+                                "name": "USB",
+                                "range": null,
+                                "title": "Enable USB",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-usb-configuration",
+                        "title": "USB configuration",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "WIFI_ENABLE",
+                                "name": "WIFI_ENABLE",
+                                "range": null,
+                                "title": "Enable WiFi",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": "WIFI6_CODE_STACK",
+                                        "help": null,
+                                        "id": "WIFI6",
+                                        "name": "WIFI6",
+                                        "range": null,
+                                        "title": "Enable WiFi 6",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "WIFI6_CODE_STACK",
+                                "name": "WIFI6_CODE_STACK",
+                                "range": null,
+                                "title": "Use WiFi-6 Code Stack",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": "Don't disable it when WiFi-6 is enabled.",
+                                "id": "WIFI4",
+                                "name": "WIFI4",
+                                "range": null,
+                                "title": "Enable WiFi 4",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "MSDU_RESV_HEAD_LEN",
+                                "name": "MSDU_RESV_HEAD_LEN",
+                                "range": [
+                                    1,
+                                    1500
+                                ],
+                                "title": "MSDU reserved header length",
+                                "type": "int"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "MSDU_RESV_TAIL_LEN",
+                                "name": "MSDU_RESV_TAIL_LEN",
+                                "range": [
+                                    1,
+                                    1500
+                                ],
+                                "title": "MSDU reserved tail length",
+                                "type": "int"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "TASK_RECONNECT_PRIO",
+                                "name": "TASK_RECONNECT_PRIO",
+                                "range": [
+                                    1,
+                                    10
+                                ],
+                                "title": "Priority of WiFi reconnect task",
+                                "type": "int"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "AP_MONITOR_COEXIST",
+                                "name": "AP_MONITOR_COEXIST",
+                                "range": null,
+                                "title": "Enable AP and monitor coexist",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "WIFI_FAST_CONNECT",
+                                "name": "WIFI_FAST_CONNECT",
+                                "range": null,
+                                "title": "Enable WiFi fast connect",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "BSSID_CONNECT",
+                                "name": "BSSID_CONNECT",
+                                "range": null,
+                                "title": "Enable WiFi BSSI connect",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "WFA_CERT",
+                                "name": "WFA_CERT",
+                                "range": null,
+                                "title": "Enable WiFi WFA Certification",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "LESS_MEMERY_IN_RWNX",
+                                "name": "LESS_MEMERY_IN_RWNX",
+                                "range": null,
+                                "title": "Less memory in RWNX",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "AP_PROBEREQ_CB",
+                                "name": "AP_PROBEREQ_CB",
+                                "range": null,
+                                "title": "Enable AP probe request callback",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "WIFI6_IP_DEBUG",
+                                "name": "WIFI6_IP_DEBUG",
+                                "range": null,
+                                "title": "Enable WiFi6 IP debug",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "STA_PS",
+                                "name": "STA_PS",
+                                "range": null,
+                                "title": "Enable STA PS",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "MAC_BSSID",
+                                "name": "MAC_BSSID",
+                                "range": null,
+                                "title": "Enable Mac bssid",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-wifi",
+                        "title": "WiFi",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "DEMOS",
+                                "name": "DEMOS",
+                                "range": null,
+                                "title": "Enable demos",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-demos_config",
+                        "title": "DEMOS_CONFIG",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": null,
+                        "help": null,
+                        "id": "EASY_FLASH",
+                        "name": "EASY_FLASH",
+                        "range": null,
+                        "title": "Enable Easy Flash",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "HOMEKIT",
+                                "name": "HOMEKIT",
+                                "range": null,
+                                "title": "Enable HOMEKIT",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-homekit-config",
+                        "title": "HOMEKIT CONFIG",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "HTTP",
+                                "name": "HTTP",
+                                "range": null,
+                                "title": "Enable http",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-http_config",
+                        "title": "HTTP_CONFIG",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": "LWIP",
+                                        "help": null,
+                                        "id": "DHCP",
+                                        "name": "DHCP",
+                                        "range": null,
+                                        "title": "Enable DHCP",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "LWIP",
+                                        "help": null,
+                                        "id": "AUTOIP",
+                                        "name": "AUTOIP",
+                                        "range": null,
+                                        "title": "Enable AUTOIP",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "LWIP",
+                                        "help": null,
+                                        "id": "MDNS",
+                                        "name": "MDNS",
+                                        "range": null,
+                                        "title": "Enable MDNS",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "LWIP",
+                                        "help": null,
+                                        "id": "TASK_LWIP_PRIO",
+                                        "name": "TASK_LWIP_PRIO",
+                                        "range": [
+                                            1,
+                                            10
+                                        ],
+                                        "title": "Priority of LwIP task",
+                                        "type": "int"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "LWIP",
+                                "name": "LWIP",
+                                "range": null,
+                                "title": "Enable LWIP",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "MOBILE_CONNECT_SAP_STATISTICS",
+                                "name": "MOBILE_CONNECT_SAP_STATISTICS",
+                                "range": null,
+                                "title": "Statistics mobile connect sap time",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": "<choice LWIP_MEM>",
+                                        "help": null,
+                                        "id": "LWIP_MEM_DEFAULT",
+                                        "name": "LWIP_MEM_DEFAULT",
+                                        "range": null,
+                                        "title": "Default Memory Policy",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "<choice LWIP_MEM>",
+                                        "help": null,
+                                        "id": "LWIP_MEM_REDUCE",
+                                        "name": "LWIP_MEM_REDUCE",
+                                        "range": null,
+                                        "title": "Reduced Memory Policy",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": "LWIP",
+                                "help": null,
+                                "id": "armino-configuration-components-configuration-lwip-2-0-2-lwip-memory-policy",
+                                "name": "LWIP_MEM",
+                                "title": "LWIP Memory Policy",
+                                "type": "choice"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-lwip-2-0-2",
+                        "title": "LwIP 2.0.2",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "LWIP",
+                                "name": "LWIP",
+                                "range": null,
+                                "title": "Enable LWIP",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "IPV6",
+                                "name": "IPV6",
+                                "range": null,
+                                "title": "Enable IPV6",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "LWIP",
+                                "help": null,
+                                "id": "DHCP",
+                                "name": "DHCP",
+                                "range": null,
+                                "title": "Enable DHCP",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "LWIP",
+                                "help": null,
+                                "id": "TASK_LWIP_PRIO",
+                                "name": "TASK_LWIP_PRIO",
+                                "range": [
+                                    1,
+                                    10
+                                ],
+                                "title": "Priority of LwIP task",
+                                "type": "int"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": "<choice LWIP_MEM>",
+                                        "help": null,
+                                        "id": "LWIP_MEM_DEFAULT",
+                                        "name": "LWIP_MEM_DEFAULT",
+                                        "range": null,
+                                        "title": "Default Memory Policy",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "<choice LWIP_MEM>",
+                                        "help": null,
+                                        "id": "LWIP_MEM_REDUCE",
+                                        "name": "LWIP_MEM_REDUCE",
+                                        "range": null,
+                                        "title": "Reduced Memory Policy",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": "LWIP",
+                                "help": null,
+                                "id": "armino-configuration-components-configuration-lwip-2-1-2-lwip-memory-policy",
+                                "name": "LWIP_MEM",
+                                "title": "LWIP Memory Policy",
+                                "type": "choice"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-lwip-2-1-2",
+                        "title": "LwIP 2.1.2",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "MBEDTLS",
+                                "name": "MBEDTLS",
+                                "range": null,
+                                "title": "Enable MBEDTLS",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-mbedtls-config",
+                        "title": "MBEDTLS CONFIG",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": "MP3PLAYER",
+                                        "help": null,
+                                        "id": "TASK_MEDIA_PRIO",
+                                        "name": "TASK_MEDIA_PRIO",
+                                        "range": null,
+                                        "title": "Priority of Media task",
+                                        "type": "int"
+                                    }
+                                ],
+                                "depends_on": "MP3PLAYER",
+                                "id": "armino-configuration-components-configuration-enable-mp3-player-mp3-player",
+                                "title": "MP3 Player",
+                                "type": "menu"
+                            }
+                        ],
+                        "depends_on": null,
+                        "help": null,
+                        "id": "MP3PLAYER",
+                        "name": "MP3PLAYER",
+                        "range": null,
+                        "title": "Enable MP3 Player",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "PAHO_MQTT",
+                                "name": "PAHO_MQTT",
+                                "range": null,
+                                "title": "Enable paho-mqtt",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-paho_mqtt_config",
+                        "title": "PAHO_MQTT_CONFIG",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": null,
+                        "help": null,
+                        "id": "SARADC_CALI",
+                        "name": "SARADC_CALI",
+                        "range": null,
+                        "title": "Enable SAR ADC Calibration",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": null,
+                        "help": null,
+                        "id": "SECURITY",
+                        "name": "SECURITY",
+                        "range": null,
+                        "title": "Enable Security",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "SIM_UART",
+                                "name": "SIM_UART",
+                                "range": null,
+                                "title": "Enable sim uart",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-sim_uart_config",
+                        "title": "SIM_UART_CONFIG",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": null,
+                        "help": null,
+                        "id": "TEMP_DETECT",
+                        "name": "TEMP_DETECT",
+                        "range": null,
+                        "title": "Enable temperature detect",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": "UDISK_MP3",
+                                        "help": null,
+                                        "id": "TASK_UMP3_PRIO",
+                                        "name": "TASK_UMP3_PRIO",
+                                        "range": null,
+                                        "title": "Priority of USB MP3 task",
+                                        "type": "int"
+                                    }
+                                ],
+                                "depends_on": "UDISK_MP3",
+                                "id": "armino-configuration-components-configuration-enable-usb-disk-mp3-usb-disk-mp3",
+                                "title": "USB Disk MP3",
+                                "type": "menu"
+                            }
+                        ],
+                        "depends_on": null,
+                        "help": null,
+                        "id": "UDISK_MP3",
+                        "name": "UDISK_MP3",
+                        "range": null,
+                        "title": "Enable USB Disk MP3",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": "USB",
+                        "help": null,
+                        "id": "USB_PLUG_IN_OUT",
+                        "name": "USB_PLUG_IN_OUT",
+                        "range": null,
+                        "title": "Enable USB Plug In Out",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "FLASH_SIZE_4M",
+                                "name": "FLASH_SIZE_4M",
+                                "range": null,
+                                "title": "Enable FLASH_SIZE_4M",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-flash-size",
+                        "title": "FLASH SIZE",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "CAMERA",
+                                "name": "CAMERA",
+                                "range": null,
+                                "title": "Enable camera interface",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": "<choice CAMERA_I2C_ID>",
+                                        "help": null,
+                                        "id": "CAMERA_USE_I2C0",
+                                        "name": "CAMERA_USE_I2C0",
+                                        "range": null,
+                                        "title": "I2C0",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "<choice CAMERA_I2C_ID>",
+                                        "help": null,
+                                        "id": "CAMERA_USE_I2C1",
+                                        "name": "CAMERA_USE_I2C1",
+                                        "range": null,
+                                        "title": "I2C1",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "<choice CAMERA_I2C_ID>",
+                                        "help": null,
+                                        "id": "CAMERA_USE_I2C2",
+                                        "name": "CAMERA_USE_I2C2",
+                                        "range": null,
+                                        "title": "I2C2",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "armino-configuration-components-configuration-camera-camera-use-i2c-id",
+                                "name": "CAMERA_I2C_ID",
+                                "title": "Camera use i2c id",
+                                "type": "choice"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "CAMERA_I2C_ID",
+                                "name": "CAMERA_I2C_ID",
+                                "range": null,
+                                "title": null,
+                                "type": "int"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-camera",
+                        "title": "CAMERA",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": null,
+                        "help": null,
+                        "id": "JPEG_DECODE",
+                        "name": "JPEG_DECODE",
+                        "range": null,
+                        "title": "Enable jpeg_dec interface",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [],
+                        "depends_on": null,
+                        "help": null,
+                        "id": "SPIDMA",
+                        "name": "SPIDMA",
+                        "range": null,
+                        "title": "Enable SPI DMA",
+                        "type": "bool"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": "ARCH_RISCV",
+                                        "help": null,
+                                        "id": "NEST_INT_SUPPORT",
+                                        "name": "NEST_INT_SUPPORT",
+                                        "range": null,
+                                        "title": "Support nest interrupt",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": "ARCH_RISCV",
+                                        "help": null,
+                                        "id": "MEMDUMP_ALL",
+                                        "name": "MEMDUMP_ALL",
+                                        "range": null,
+                                        "title": "Dump all memory when exception happen",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "ARCH_RISCV",
+                                "name": "ARCH_RISCV",
+                                "range": null,
+                                "title": "Enable RISCV",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-arch_riscv",
+                        "title": "ARCH_RISCV",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "MATTER",
+                                "name": "MATTER",
+                                "range": null,
+                                "title": "Enable MATTER",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": "FREERTOS_V10",
+                                "help": null,
+                                "id": "COMMON_IO",
+                                "name": "COMMON_IO",
+                                "range": null,
+                                "title": "Amazon Common IO",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-home-system",
+                        "title": "HOME SYSTEM",
+                        "type": "menu"
+                    },
+                    {
+                        "children": [
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "INT_WDT",
+                                        "name": "INT_WDT",
+                                        "range": null,
+                                        "title": "Enable Interrupt Watchdog",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "INT_WDT_PERIOD_MS",
+                                        "name": "INT_WDT_PERIOD_MS",
+                                        "range": null,
+                                        "title": "Interrupt Watchdog Period(ms)",
+                                        "type": "int"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "TASK_WDT",
+                                        "name": "TASK_WDT",
+                                        "range": null,
+                                        "title": "Enable Task Watchdog",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "TASK_WDT_PERIOD_MS",
+                                        "name": "TASK_WDT_PERIOD_MS",
+                                        "range": null,
+                                        "title": "Interrupt Watchdog Period(ms)",
+                                        "type": "int"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-driver-watchdog",
+                                "title": "Watchdog",
+                                "type": "menu"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "UART1",
+                                        "name": "UART1",
+                                        "range": null,
+                                        "title": "Enable UART1",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "UART1_FLOW_CTRL",
+                                        "name": "UART1_FLOW_CTRL",
+                                        "range": null,
+                                        "title": "Uart1 Flow Ctrl",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "UART2",
+                                        "name": "UART2",
+                                        "range": null,
+                                        "title": "Enable UART2",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "UART3",
+                                        "name": "UART3",
+                                        "range": null,
+                                        "title": "Enable UART3",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [],
+                                                "depends_on": "<choice UART_PRINT_PORT>",
+                                                "help": null,
+                                                "id": "PRINT_PORT_UART1",
+                                                "name": "PRINT_PORT_UART1",
+                                                "range": null,
+                                                "title": "UART1",
+                                                "type": "bool"
+                                            },
+                                            {
+                                                "children": [],
+                                                "depends_on": "<choice UART_PRINT_PORT>",
+                                                "help": null,
+                                                "id": "PRINT_PORT_UART2",
+                                                "name": "PRINT_PORT_UART2",
+                                                "range": null,
+                                                "title": "UART2",
+                                                "type": "bool"
+                                            },
+                                            {
+                                                "children": [],
+                                                "depends_on": "<choice UART_PRINT_PORT>",
+                                                "help": null,
+                                                "id": "PRINT_PORT_UART3",
+                                                "name": "PRINT_PORT_UART3",
+                                                "range": null,
+                                                "title": "UART3",
+                                                "type": "bool"
+                                            }
+                                        ],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "armino-configuration-components-configuration-driver-uart-debug-port",
+                                        "name": "UART_PRINT_PORT",
+                                        "title": "Debug port",
+                                        "type": "choice"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "UART_PRINT_PORT",
+                                        "name": "UART_PRINT_PORT",
+                                        "range": null,
+                                        "title": null,
+                                        "type": "int"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": "Default 1 mean use UART2",
+                                        "id": "UART_ATE_PORT",
+                                        "name": "UART_ATE_PORT",
+                                        "range": [
+                                            0,
+                                            2
+                                        ],
+                                        "title": "Config Uart ATE Port",
+                                        "type": "int"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": "The value should be changed if print size is more than 128",
+                                        "id": "PRINTF_BUF_SIZE",
+                                        "name": "PRINTF_BUF_SIZE",
+                                        "range": [
+                                            1,
+                                            4096
+                                        ],
+                                        "title": "Print Buffer Size",
+                                        "type": "int"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "BACKGROUND_PRINT",
+                                        "name": "BACKGROUND_PRINT",
+                                        "range": null,
+                                        "title": "Enable background print",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": "This will set kfifo size when software uses kfifo to cache data receiving.",
+                                        "id": "KFIFO_SIZE",
+                                        "name": "KFIFO_SIZE",
+                                        "range": [
+                                            1,
+                                            4096
+                                        ],
+                                        "title": "Kfifo Size",
+                                        "type": "int"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "UART_STATIS",
+                                        "name": "UART_STATIS",
+                                        "range": null,
+                                        "title": "Enable UART Statis",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-driver-uart",
+                                "title": "UART",
+                                "type": "menu"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "TRNG_SUPPORT",
+                                        "name": "TRNG_SUPPORT",
+                                        "range": null,
+                                        "title": "Support hardware TRNG",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-driver-trng",
+                                "title": "TRNG",
+                                "type": "menu"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [],
+                                                        "depends_on": "<choice SD_HOST_INTF>",
+                                                        "help": null,
+                                                        "id": "SD_HOST_INTF",
+                                                        "name": "SD_HOST_INTF",
+                                                        "range": null,
+                                                        "title": "SD Host Interface",
+                                                        "type": "bool"
+                                                    },
+                                                    {
+                                                        "children": [],
+                                                        "depends_on": "<choice SD_HOST_INTF>",
+                                                        "help": null,
+                                                        "id": "SD1_HOST_INTF",
+                                                        "name": "SD1_HOST_INTF",
+                                                        "range": null,
+                                                        "title": "SD1 Host Interface",
+                                                        "type": "bool"
+                                                    }
+                                                ],
+                                                "depends_on": "SDCARD_HOST",
+                                                "help": null,
+                                                "id": "armino-configuration-components-configuration-driver-sdcard-enable-sdcard-host-sd-host-interface",
+                                                "name": "SD_HOST_INTF",
+                                                "title": "SD Host Interface",
+                                                "type": "choice"
+                                            }
+                                        ],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "SDCARD_HOST",
+                                        "name": "SDCARD_HOST",
+                                        "range": null,
+                                        "title": "Enable SDCARD Host",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "SDCARD_BUSWIDTH_4LINE",
+                                        "name": "SDCARD_BUSWIDTH_4LINE",
+                                        "range": null,
+                                        "title": "Support SDCARD 4 Data Wires",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-driver-sdcard",
+                                "title": "SDCARD",
+                                "type": "menu"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "FATFS",
+                                        "name": "FATFS",
+                                        "range": null,
+                                        "title": "Support FATFS",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-driver-fatfs",
+                                "title": "FATFS",
+                                "type": "menu"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "MAC_PHY_BYPASS",
+                                "name": "MAC_PHY_BYPASS",
+                                "range": null,
+                                "title": "Enable MAC/PHY by pass mode",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [],
+                                                "depends_on": "SDIO",
+                                                "help": null,
+                                                "id": "SDIO_TRANS",
+                                                "name": "SDIO_TRANS",
+                                                "range": null,
+                                                "title": "Enable SDIO Trans",
+                                                "type": "bool"
+                                            },
+                                            {
+                                                "children": [
+                                                    {
+                                                        "children": [],
+                                                        "depends_on": "REAL_SDIO",
+                                                        "help": null,
+                                                        "id": "SDIO_BLOCK_512",
+                                                        "name": "SDIO_BLOCK_512",
+                                                        "range": null,
+                                                        "title": "Enable SDIO 512 Bytes Block",
+                                                        "type": "bool"
+                                                    }
+                                                ],
+                                                "depends_on": "SDIO",
+                                                "help": null,
+                                                "id": "REAL_SDIO",
+                                                "name": "REAL_SDIO",
+                                                "range": null,
+                                                "title": "Enable Real SDIO",
+                                                "type": "bool"
+                                            }
+                                        ],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "SDIO",
+                                        "name": "SDIO",
+                                        "range": null,
+                                        "title": "Enable SDIO",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-driver-sdio",
+                                "title": "SDIO",
+                                "type": "menu"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "SPI_DMA",
+                                        "name": "SPI_DMA",
+                                        "range": null,
+                                        "title": "Enable SPI DMA",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "SPI_SLAVE",
+                                        "name": "SPI_SLAVE",
+                                        "range": null,
+                                        "title": "Enable SPI Slave",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "SPI_MASTER",
+                                        "name": "SPI_MASTER",
+                                        "range": null,
+                                        "title": "Enable SPI Master",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "SPI_STATIS",
+                                        "name": "SPI_STATIS",
+                                        "range": null,
+                                        "title": "Enable SPI Statis",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "SPI_SUPPORT_TX_FIFO_WR_READY",
+                                        "name": "SPI_SUPPORT_TX_FIFO_WR_READY",
+                                        "range": null,
+                                        "title": "Support TX FIFO Write Ready",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "HSLAVE_SPI",
+                                        "name": "HSLAVE_SPI",
+                                        "range": null,
+                                        "title": "Enable HSlave SPI",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "SPI_MST_FLASH",
+                                        "name": "SPI_MST_FLASH",
+                                        "range": null,
+                                        "title": "SPI MST Flash",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "SPI_MST_PSRAM",
+                                        "name": "SPI_MST_PSRAM",
+                                        "range": null,
+                                        "title": "SPI MST PSRAM",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-driver-spi",
+                                "title": "SPI",
+                                "type": "menu"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "QSPI",
+                                        "name": "QSPI",
+                                        "range": null,
+                                        "title": "Enable QSPI",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "QSPI_STATIS",
+                                        "name": "QSPI_STATIS",
+                                        "range": null,
+                                        "title": "Enable QSPI Statis",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-driver-qspi",
+                                "title": "QSPI",
+                                "type": "menu"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "AON_RTC",
+                                        "name": "AON_RTC",
+                                        "range": null,
+                                        "title": "Enable AON_RTC",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "AON_RTC_STATIS",
+                                        "name": "AON_RTC_STATIS",
+                                        "range": null,
+                                        "title": "Enable AON_RTC Statis",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-driver-aon_rtc",
+                                "title": "AON_RTC",
+                                "type": "menu"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "AON_PMU",
+                                        "name": "AON_PMU",
+                                        "range": null,
+                                        "title": "Enable AON_PMU",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-driver-aon_pmu",
+                                "title": "AON_PMU",
+                                "type": "menu"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "GENERAL_DMA",
+                                        "name": "GENERAL_DMA",
+                                        "range": null,
+                                        "title": "Enable General DMA",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-driver-dma",
+                                "title": "DMA",
+                                "type": "menu"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "TOUCH",
+                                        "name": "TOUCH",
+                                        "range": null,
+                                        "title": "Enable TOUCH",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-driver-touch",
+                                "title": "TOUCH",
+                                "type": "menu"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "SBC",
+                                        "name": "SBC",
+                                        "range": null,
+                                        "title": "Enable SBC",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-driver-sbc",
+                                "title": "SBC",
+                                "type": "menu"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "JPEG_ENCODE",
+                                        "name": "JPEG_ENCODE",
+                                        "range": null,
+                                        "title": "Enable JPEG_ENCODE",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-driver-jpeg_encode",
+                                "title": "JPEG_ENCODE",
+                                "type": "menu"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "PSRAM",
+                                        "name": "PSRAM",
+                                        "range": null,
+                                        "title": "Enable PSRAM",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-driver-psram",
+                                "title": "PSRAM",
+                                "type": "menu"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "CALENDAR",
+                                        "name": "CALENDAR",
+                                        "range": null,
+                                        "title": "Enable CALENDAR",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-driver-calendar",
+                                "title": "CALENDAR",
+                                "type": "menu"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "SYS_REDUCE_NORMAL_POWER",
+                                        "name": "SYS_REDUCE_NORMAL_POWER",
+                                        "range": null,
+                                        "title": "Reduce system normal power",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [
+                                            {
+                                                "children": [],
+                                                "depends_on": "<choice XTAL_FREQ>",
+                                                "help": null,
+                                                "id": "XTAL_FREQ_40M",
+                                                "name": "XTAL_FREQ_40M",
+                                                "range": null,
+                                                "title": "XTAL frequency 40M",
+                                                "type": "bool"
+                                            },
+                                            {
+                                                "children": [],
+                                                "depends_on": "<choice XTAL_FREQ>",
+                                                "help": null,
+                                                "id": "XTAL_FREQ_26M",
+                                                "name": "XTAL_FREQ_26M",
+                                                "range": null,
+                                                "title": "XTAL frequency 26M",
+                                                "type": "bool"
+                                            }
+                                        ],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "armino-configuration-components-configuration-driver-system-control-xtal-frequence",
+                                        "name": "XTAL_FREQ",
+                                        "title": "Xtal frequence",
+                                        "type": "choice"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "XTAL_FREQ",
+                                        "name": "XTAL_FREQ",
+                                        "range": null,
+                                        "title": "26000000",
+                                        "type": "int"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "DCO_FREQ",
+                                        "name": "DCO_FREQ",
+                                        "range": null,
+                                        "title": "DCO frequency",
+                                        "type": "int"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "APLL_FREQ",
+                                        "name": "APLL_FREQ",
+                                        "range": null,
+                                        "title": "APLL frequency",
+                                        "type": "int"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "SYSTEM_CTRL",
+                                        "name": "SYSTEM_CTRL",
+                                        "range": null,
+                                        "title": "Enable system_ctrl",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "POWER_CLOCK_RF",
+                                        "name": "POWER_CLOCK_RF",
+                                        "range": null,
+                                        "title": "Enable rf power clock",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-driver-system-control",
+                                "title": "System control",
+                                "type": "menu"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "PTA",
+                                        "name": "PTA",
+                                        "range": null,
+                                        "title": "Enable PTA",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-driver-phy",
+                                "title": "PHY",
+                                "type": "menu"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "I2S",
+                                        "name": "I2S",
+                                        "range": null,
+                                        "title": "Enable I2S",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-driver-i2s",
+                                "title": "I2S",
+                                "type": "menu"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "I2C",
+                                        "name": "I2C",
+                                        "range": null,
+                                        "title": "Enable I2C",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": "The value should be changed if need to change i2c id",
+                                        "id": "I2C_SUPPORT_ID_BITS",
+                                        "name": "I2C_SUPPORT_ID_BITS",
+                                        "range": [
+                                            1,
+                                            255
+                                        ],
+                                        "title": "i2c support id bits",
+                                        "type": "int"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "FM_I2C",
+                                        "name": "FM_I2C",
+                                        "range": null,
+                                        "title": "Enable FM I2C",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-driver-i2c",
+                                "title": "I2C",
+                                "type": "menu"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "PWM",
+                                        "name": "PWM",
+                                        "range": null,
+                                        "title": "Enable pwm",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "PWM_HAS_TWO_INT",
+                                        "name": "PWM_HAS_TWO_INT",
+                                        "range": null,
+                                        "title": "Enable pwm has two int",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-driver-pwm",
+                                "title": "PWM",
+                                "type": "menu"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "ICU_GPIO",
+                                        "name": "ICU_GPIO",
+                                        "range": null,
+                                        "title": "Enable icu gpio",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-driver-icu",
+                                "title": "ICU",
+                                "type": "menu"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "TIMER_COUNTER",
+                                        "name": "TIMER_COUNTER",
+                                        "range": null,
+                                        "title": "Enable timer counter",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "TIMER",
+                                        "name": "TIMER",
+                                        "range": null,
+                                        "title": "Enable TIMER",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": "The value should be changed if need to change timer id",
+                                        "id": "TIMER_SUPPORT_ID_BITS",
+                                        "name": "TIMER_SUPPORT_ID_BITS",
+                                        "range": [
+                                            1,
+                                            255
+                                        ],
+                                        "title": "timer support id bits",
+                                        "type": "int"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-driver-timer",
+                                "title": "TIMER",
+                                "type": "menu"
+                            },
+                            {
+                                "children": [
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "SARADC",
+                                        "name": "SARADC",
+                                        "range": null,
+                                        "title": "Enable saradc",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "SARADC_NEED_FLUSH",
+                                        "name": "SARADC_NEED_FLUSH",
+                                        "range": null,
+                                        "title": "SARADC whether need flush data",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "children": [],
+                                        "depends_on": null,
+                                        "help": null,
+                                        "id": "SARADC_RANGE_DIVIDE",
+                                        "name": "SARADC_RANGE_DIVIDE",
+                                        "range": null,
+                                        "title": "Enable saradc measure range divide",
+                                        "type": "bool"
+                                    }
+                                ],
+                                "depends_on": null,
+                                "id": "armino-configuration-components-configuration-driver-saradc",
+                                "title": "SARADC",
+                                "type": "menu"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "SUPPORT_IRDA",
+                                "name": "SUPPORT_IRDA",
+                                "range": null,
+                                "title": "Enable IRDA",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "MAILBOX",
+                                "name": "MAILBOX",
+                                "range": null,
+                                "title": "Enable mail_box",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "VAULT",
+                                "name": "VAULT",
+                                "range": null,
+                                "title": "Enable secure vault",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "LCD",
+                                "name": "LCD",
+                                "range": null,
+                                "title": "Enable LCD Display",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "DMA2D",
+                                "name": "DMA2D",
+                                "range": null,
+                                "title": "Enable LCD Display",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "JPEG_DEC",
+                                "name": "JPEG_DEC",
+                                "range": null,
+                                "title": "Enable LCD Display",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "FLASH",
+                                "name": "FLASH",
+                                "range": null,
+                                "title": "Enable flash",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "FLASH_QUAD_ENABLE",
+                                "name": "FLASH_QUAD_ENABLE",
+                                "range": null,
+                                "title": "Enable flash quad enable",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "FLASH_SRC_CLK_60M",
+                                "name": "FLASH_SRC_CLK_60M",
+                                "range": null,
+                                "title": "Enable flash source clock 60M",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "TIMER_INIT_EN",
+                                "name": "TIMER_INIT_EN",
+                                "range": null,
+                                "title": "Enable timer init",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "EFUSE",
+                                "name": "EFUSE",
+                                "range": null,
+                                "title": "Enable efuse",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "FFT",
+                                "name": "FFT",
+                                "range": null,
+                                "title": "Enable fft",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "AUDIO_RISCV_IP_V1_0",
+                                "name": "AUDIO_RISCV_IP_V1_0",
+                                "range": null,
+                                "title": "Enable audio riscv driver",
+                                "type": "bool"
+                            },
+                            {
+                                "children": [],
+                                "depends_on": null,
+                                "help": null,
+                                "id": "AUDIO_DSP_IP_V1_0",
+                                "name": "AUDIO_DSP_IP_V1_0",
+                                "range": null,
+                                "title": "Enable audio dsp driver",
+                                "type": "bool"
+                            }
+                        ],
+                        "depends_on": null,
+                        "id": "armino-configuration-components-configuration-driver",
+                        "title": "Driver",
+                        "type": "menu"
+                    }
+                ],
+                "depends_on": null,
+                "id": "armino-configuration-components-configuration",
+                "title": "Components Configuration",
+                "type": "menu"
+            }
+        ],
+        "depends_on": null,
+        "id": "armino-configuration",
+        "title": "ARMINO Configuration",
+        "type": "menu"
+    }
+]

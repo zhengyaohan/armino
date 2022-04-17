@@ -21,7 +21,7 @@
 #include "BkDriverFlash.h"
 #include "bk_flash.h"
 #include <os/os.h>
-#include "bk_api_tick.h"
+#include <components/system.h>
 
 int mcu_suppress_and_sleep(uint32_t sleep_ticks)
 {
@@ -171,7 +171,7 @@ bool bk_is_audio_dac_en(void)
 }
 
 #if CONFIG_RTT
-//TODO optimize it, BDK components should be OS-independent!!!
+//TODO optimize it, ARMINO components should be OS-independent!!!
 #include "rtdef.h"
 #include "rthw.h"
 

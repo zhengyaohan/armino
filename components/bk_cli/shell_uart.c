@@ -63,7 +63,7 @@ static u16        shell_uart_write_echo(shell_dev_t * shell_dev, u8 * pBuf, u16 
 static bool_t     shell_uart_ctrl(shell_dev_t * shell_dev, u8 cmd, void *param);
 static bool_t     shell_uart_close(shell_dev_t * shell_dev);
 
-static const shell_dev_drv_t shell_uart_drv = 
+static const shell_dev_drv_t shell_uart_drv =
 	{
 		.init    = shell_uart_init,
 		.open    = shell_uart_open,
@@ -75,24 +75,24 @@ static const shell_dev_drv_t shell_uart_drv =
 		.close   = shell_uart_close
 	};
 
-static shell_uart_ext_t uart1_ext = 
+static shell_uart_ext_t uart1_ext =
 	{
 		.uart_id = CONFIG_UART_PRINT_PORT
 	};
 
-shell_dev_t     shell_uart = 
+shell_dev_t     shell_uart =
 	{
 		.dev_drv = (struct _shell_dev_drv *)&shell_uart_drv,
 		.dev_type = SHELL_DEV_UART,
 		.dev_ext = &uart1_ext
 	};
 
-static shell_uart_ext_t uart3_ext = 
+static shell_uart_ext_t uart3_ext =
 	{
-		.uart_id = UART_ID_3
+		.uart_id = UART_ID_2
 	};
 
-shell_dev_t     shell_uart3 = 
+shell_dev_t     shell_uart3 =
 	{
 		.dev_drv = (struct _shell_dev_drv *)&shell_uart_drv,
 		.dev_type = SHELL_DEV_UART,
@@ -158,16 +158,16 @@ static void shell_uart_tx_isr(int uartn, shell_uart_ext_t *uart_ext)
 		ret = uart_write_ready(uart_ext->uart_id);
 		if(ret != 0)
 			break;
-		
+
 		/* previous packet tx complete, check ECHO before new packet. */
 		if((uart_ext->cur_packet == NULL) || (uart_ext->packet_len == 0))
 		{
 			if(uart_ext->echo_rd_idx != uart_ext->echo_wr_idx) /* tx echo firstly. */
 			{
 				uart_write_byte(uart_ext->uart_id, uart_ext->echo_buff[uart_ext->echo_rd_idx]);
-				
+
 				uart_ext->echo_rd_idx = (uart_ext->echo_rd_idx + 1) % ECHO_BUFF_SIZE;
-				
+
 				continue;  /* continue to ECHO next byte to tx-FIFO. */
 			}
 			else
@@ -184,7 +184,7 @@ static void shell_uart_tx_isr(int uartn, shell_uart_ext_t *uart_ext)
 					/* all packets tx complete. */
 					/* disable tx interrupt ? */  // disable TX firstly, then set tx_stopped to 1.
 					bk_uart_disable_tx_interrupt(uart_ext->uart_id);
-                    
+
 					uart_ext->tx_stopped = 1; /* bTRUE;*/  /* all data tranferred, tx stopped.*/
 					break;
 				}
@@ -278,7 +278,7 @@ static bool_t shell_uart_open(shell_dev_t * shell_dev, tx_complete_t tx_callback
 	uart_ext->rx_indicate_callback = rx_callback;
 
 	bk_uart_disable_sw_fifo(uart_ext->uart_id);
-	
+
 	// call uart driver to register isr callback;
 	bk_uart_register_rx_isr(uart_ext->uart_id, (uart_isr_t)shell_uart_rx_isr, uart_ext);
 	bk_uart_register_tx_isr(uart_ext->uart_id, (uart_isr_t)shell_uart_tx_isr, uart_ext);
@@ -351,7 +351,7 @@ static u16 shell_uart_read(shell_dev_t * shell_dev, u8 * pBuf, u16 BufLen)
 	}
 
 	if((uart_ext->rx_stopped == 1) && (read_cnt > 0))
-	{	
+	{
 		uart_ext->rx_stopped = 0;  // set rx_stopped to 0 firstly, then enable RX.
 	}
 
@@ -444,7 +444,7 @@ static bool_t shell_uart_ctrl(shell_dev_t * shell_dev, u8 cmd, void *param)
 		case SHELL_IO_CTRL_GET_STATUS:
 			if(param == NULL)
 				return bFALSE;
-			
+
 			u16   free_items;
 
 			if(uart_ext->list_out_idx > uart_ext->list_in_idx)
@@ -456,7 +456,7 @@ static bool_t shell_uart_ctrl(shell_dev_t * shell_dev, u8 cmd, void *param)
 				*((u16 *)param) = free_items - 1;
 			else
 				*((u16 *)param) = 0;
-			
+
 			break;
 
 		case SHELL_IO_CTRL_RX_RESET:
@@ -476,7 +476,7 @@ static bool_t shell_uart_ctrl(shell_dev_t * shell_dev, u8 cmd, void *param)
 
 		case SHELL_IO_CTRL_FLUSH:
 			shell_uart_flush(uart_ext);
-			break;			
+			break;
 
 		default:
 			return bFALSE;

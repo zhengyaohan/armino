@@ -20,12 +20,14 @@ extern "C" {
 #endif
 
 #include <common/bk_typedef.h>
+#include <driver/mailbox_types.h>
 
+/* the bigger the value, the lower the channel priority. */
 enum
 {
 	MB_CHNL_HW_CTRL = 0,
-	MB_CHNL_LOG     = 1,
-	MB_CHNL_AUD     = 2,
+	MB_CHNL_AUD     = 1,
+	MB_CHNL_LOG     = 2,   /* log chnl should be the LAST one. LOWEST priority. */
 	MB_LOG_CHNL_NUM,
 };
 

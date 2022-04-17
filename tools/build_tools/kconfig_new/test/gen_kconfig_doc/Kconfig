@@ -1,14 +1,14 @@
-config BDK_SOC
+config ARMINO_SOC
     string
-    default "$BDK_SOC"
+    default "$ARMINO_SOC"
 
-config BDK_SOC_CHIPA
+config ARMINO_SOC_CHIPA
     bool
-    default "y" if BDK_SOC="chipa"
+    default "y" if ARMINO_SOC="chipa"
 
-config BDK_SOC_CHIPB
+config ARMINO_SOC_CHIPB
     bool
-    default "y" if BDK_SOC="chipb"
+    default "y" if ARMINO_SOC="chipb"
 
 config ALWAYS_VISIBLE
     bool "Always visible option"
@@ -26,17 +26,17 @@ endchoice
 
 config CONFIG_FOR_CHIPA
     bool "Config for chip A"
-    depends on BDK_SOC_CHIPA
+    depends on ARMINO_SOC_CHIPA
     default n
 
 config CONFIG_FOR_CHIPB
     bool "Config for chip B"
-    depends on BDK_SOC_CHIPB
+    depends on ARMINO_SOC_CHIPB
 
 choice CHOICE_FOR_CHIPA
     prompt "Always visible choice"
     default CHOICE_FOR_CHIPA_OP1
-    depends on BDK_SOC_CHIPA
+    depends on ARMINO_SOC_CHIPA
 
     config CHOICE_FOR_CHIPA_OP1
         bool "op1"
@@ -48,7 +48,7 @@ endchoice
 choice CHOICE_FOR_CHIPB
     prompt "Always visible choice"
     default CHOICE_FOR_CHIPB_OP1
-    depends on BDK_SOC_CHIPB
+    depends on ARMINO_SOC_CHIPB
 
     config CHOICE_FOR_CHIPB_OP1
         bool "op1"
@@ -82,31 +82,31 @@ endchoice
 
 config INVISIBLE1
     bool "depends on cannot be satified at the same time"
-    depends on CONFIG_FOR_CHIPA && BDK_SOC_CHIPB
+    depends on CONFIG_FOR_CHIPA && ARMINO_SOC_CHIPB
 
 config VISIBLE1
     bool "makes no sense, just for testing OR dependencies"
-    depends on CONFIG_FOR_CHIPA || BDK_SOC_CHIPB
+    depends on CONFIG_FOR_CHIPA || ARMINO_SOC_CHIPB
 
 config CONFIG_FOR_CHIPA_DEPENDS_VAR1
     bool "redundant AND in depends on"
-    depends on CONFIG_FOR_CHIPA && BDK_SOC_CHIPA
+    depends on CONFIG_FOR_CHIPA && ARMINO_SOC_CHIPA
 
 config CONFIG_FOR_CHIPA_DEPENDS_VAR2
     bool "test AND + NOT"
-    depends on CONFIG_FOR_CHIPA && !BDK_SOC_CHIPB
+    depends on CONFIG_FOR_CHIPA && !ARMINO_SOC_CHIPB
 
 config CONFIG_FOR_CHIPA_DEPENDS_VAR3
     bool "test NOT"
-    depends on !BDK_SOC_CHIPB
+    depends on !ARMINO_SOC_CHIPB
 
 config CONFIG_DEPENDS_ENV_VAR1
-    bool "test other environment variable (should be visible because only BDK_SOC should make something invisible)"
-    depends on BDK_XYZ
+    bool "test other environment variable (should be visible because only ARMINO_SOC should make something invisible)"
+    depends on ARMINO_XYZ
 
 config CONFIG_DEPENDS_ENV_VAR2
-    bool "test other environment variable (should be visible because only BDK_SOC should make something invisible)"
-    depends on !BDK_XYZ
+    bool "test other environment variable (should be visible because only ARMINO_SOC should make something invisible)"
+    depends on !ARMINO_XYZ
 
 choice CHIPA_VERSION
     prompt "CHIPA version"

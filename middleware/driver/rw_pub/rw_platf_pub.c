@@ -2,7 +2,7 @@
 #include <common/sys_config.h>
 #include "bk_mcu_ps.h"
 #include "bk_wifi_rw.h"
-#include <arch/soc.h>
+#include <soc/soc.h>
 
 extern void rwnxl_violence_reset_patch(void);
 UINT32 mcu_ps_machw_reset(void);

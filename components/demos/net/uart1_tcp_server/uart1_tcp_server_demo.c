@@ -71,7 +71,7 @@ void uart1_rxdata_sender(void)
         return;
     }
 
-    len = uart_get_length_in_buffer(UART_ID_1);
+    len = uart_get_length_in_buffer(UART_ID_0);
 
     u1Rxmsg.type = UART1_RX_MSG;
     u1Rxmsg.len = len;
@@ -140,7 +140,7 @@ void uart1_rxdata_handler(uart1_tcp_msg_T u1rxmsg)
 
         if(Rxbuf)
         {
-            if (bk_uart_read_bytes(UART_ID_1, Rxbuf, len, BEKEN_NO_WAIT) < BK_OK)
+            if (bk_uart_read_bytes(UART_ID_0, Rxbuf, len, BEKEN_NO_WAIT) < BK_OK)
             {
                 goto exit;
             }

@@ -13,7 +13,7 @@ import gen_kconfig_doc
 
 class ConfigTargetVisibilityTestCase(unittest.TestCase):
     def setUp(self):
-        self.target = os.environ['BDK_SOC']
+        self.target = os.environ['ARMINO_SOC']
         self.config = kconfiglib.Kconfig('Kconfig')
         self.v = gen_kconfig_doc.ConfigTargetVisibility(self.config, self.target)
 
@@ -36,11 +36,11 @@ class ConfigTargetVisibilityTestCase(unittest.TestCase):
 class ConfigTargetVisibilityChipA(ConfigTargetVisibilityTestCase):
     @classmethod
     def setUpClass(cls):
-        os.environ['BDK_SOC'] = 'chipa'
+        os.environ['ARMINO_SOC'] = 'chipa'
 
     def test_config_visibility(self):
-        self.invisible('BDK_SOC')
-        self.invisible('BDK_SOC_CHIPA')
+        self.invisible('ARMINO_SOC')
+        self.invisible('ARMINO_SOC_CHIPA')
         self.visible('ALWAYS_VISIBLE')
         self.visible('ALWAYS_VISIBLE_CHOICE')
         self.visible('CONFIG_FOR_CHIPA')
@@ -73,11 +73,11 @@ class ConfigTargetVisibilityChipA(ConfigTargetVisibilityTestCase):
 class ConfigTargetVisibilityChipB(ConfigTargetVisibilityTestCase):
     @classmethod
     def setUpClass(cls):
-        os.environ['BDK_SOC'] = 'chipb'
+        os.environ['ARMINO_SOC'] = 'chipb'
 
     def test_config_visibility(self):
-        self.invisible('BDK_SOC')
-        self.invisible('BDK_SOC_CHIPA')
+        self.invisible('ARMINO_SOC')
+        self.invisible('ARMINO_SOC_CHIPA')
         self.visible('ALWAYS_VISIBLE')
         self.visible('ALWAYS_VISIBLE_CHOICE')
         self.invisible('CONFIG_FOR_CHIPA')

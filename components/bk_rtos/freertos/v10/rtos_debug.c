@@ -26,6 +26,7 @@
 #include "rtos_impl.h"
 #include <components/log.h>
 #include "bk_api_cli.h"
+#include <common/bk_assert.h>
 
 #define TAG "os"
 
@@ -58,7 +59,7 @@ void stack_thread_show(uint32_t *total_cnt, uint32_t *used_cnt)
 	TaskStatus_t *pxTaskStatusArray, *pxTaskItem;
 	unsigned portBASE_TYPE uxCurrentNumberOfTasks = uxTaskGetNumberOfTasks();
 
-	os_printf("%-16s   %-10s   %-22s   %-10s   %-13s   %-11s\n", "task", "stack_size", "address", "peak_used", "current_used", "available");
+	BK_DUMP_OUT("%-16s   %-10s   %-22s   %-10s   %-13s   %-11s\r\n", "task", "stack_size", "address", "peak_used", "current_used", "available");
 
 	pxTaskStatusArray = (TaskStatus_t *)os_malloc(uxCurrentNumberOfTasks * sizeof(TaskStatus_t));
 	if (NULL == pxTaskStatusArray)
@@ -72,7 +73,7 @@ void stack_thread_show(uint32_t *total_cnt, uint32_t *used_cnt)
 		all += (uint32_t)pxTaskItem->uxStackSize;
 		used += (uint32_t)pxTaskItem->ptrTopOfStack - (uint32_t)pxTaskItem->pxStackBase;
 
-		os_printf("%-16s   %-10d   0x%-08x- 0x%-08x   0x%-8x   0x%-11x   0x%-9x\n",
+		BK_DUMP_OUT("%-16s   %-10d   0x%-08x- 0x%-08x   0x%-8x   0x%-11x   0x%-9x\r\n",
 				  pxTaskItem->pcTaskName,
 				  pxTaskItem->uxStackSize, pxTaskItem->pxStackBase,
 				  (StackType_t *)((StackType_t)pxTaskItem->pxStackBase + pxTaskItem->uxStackSize),
@@ -100,7 +101,7 @@ tshow_exit:
 		if(posi_stack)\
 		{\
 			used += boot_stack_base_##MOD + boot_stack_len_##MOD - posi_stack;\
-			os_printf("%-16s   %-10d   0x%-08x, 0x%-08x   %-10x   0x%-11x   0x%-9x\n",\
+			BK_DUMP_OUT("%-16s   %-10d   0x%-08x, 0x%-08x   %-10x   0x%-11x   0x%-9x\r\n",\
 					  #MOD, boot_stack_len_##MOD,\
 					  boot_stack_base_##MOD, boot_stack_base_##MOD + boot_stack_len_##MOD,\
 					  boot_stack_len_##MOD - cnt, boot_stack_base_##MOD + boot_stack_len_##MOD - posi_stack,\
@@ -110,7 +111,7 @@ tshow_exit:
 		{\
 			posi_stack = boot_stack_base_##MOD + cnt;\
 			used += boot_stack_base_##MOD + boot_stack_len_##MOD - posi_stack;\
-			os_printf("%-16s   %-10d   0x%-08x- 0x%-08x   0x%-8x   ?0x%-10x   ?0x%-8x\n",\
+			BK_DUMP_OUT("%-16s   %-10d   0x%-08x- 0x%-08x   0x%-8x   ?0x%-10x   ?0x%-8x\r\n",\
 					  #MOD, boot_stack_len_##MOD,\
 					  boot_stack_base_##MOD, boot_stack_base_##MOD + boot_stack_len_##MOD,\
 					  boot_stack_len_##MOD - cnt, boot_stack_base_##MOD + boot_stack_len_##MOD - posi_stack,\
@@ -136,7 +137,7 @@ void stack_arm_mode_show(uint32_t *total_cnt, uint32_t *used_cnt)
 	all = 0;
 	used = 0;
 
-	os_printf("%-16s   %-10s   %-22s   %-10s   %-13s   %-11s\n",
+	BK_DUMP_OUT("%-16s   %-10s   %-22s   %-10s   %-13s   %-11s\r\n",
 		"arm_mode", "stack_size", "address", "peak_used", "current_used", "available");
 	STACK_ARM_MOD_SHOW(all, cnt, SVC);
 	STACK_ARM_MOD_SHOW(all, cnt, IRQ);
@@ -155,10 +156,10 @@ void rtos_dump_stack_memory_usage(void)
 	uint32_t used1 = 0, used2 = 0;
 
 	stack_thread_show(&total1, &used1);
-	os_printf("thread_stack:%, used:%d, the rest:%d\r\n\n", total1, used1, total1 - used1);
+	BK_DUMP_OUT("thread_stack:%, used:%d, the rest:%d\r\n\r\n", total1, used1, total1 - used1);
 	stack_arm_mode_show(&total2, &used2);
-	os_printf("\narm_mode_stack:%, used:%d, the rest:%d\r\n", total2, used2, total2 - used2);
-	os_printf("total_stack_space:%, used:%d, the rest:%d\r\n", total1 + total2, used1 + used2,
+	BK_DUMP_OUT("\r\narm_mode_stack:%, used:%d, the rest:%d\r\n", total2, used2, total2 - used2);
+	BK_DUMP_OUT("total_stack_space:%, used:%d, the rest:%d\r\n", total1 + total2, used1 + used2,
 			  total1 + total2 - (used1 + used2));
 }
 
@@ -186,94 +187,89 @@ void rtos_dump_backtrace(void)
 {
 	uint32_t int_level = rtos_disable_int();
 	
-	os_printf(">>>>dump task backtrace begin.\n");
-	os_printf("%-16s   %-21s   %-8s   %-4s   %-8s   %-s\n",
+	BK_DUMP_OUT(">>>>dump task backtrace begin.\r\n");
+	BK_DUMP_OUT("%-16s   %-21s   %-8s   %-4s   %-8s   %-s\r\n",
 		"task", "stack_addr", "top", "size", "overflow", "backtrace");
 	vTaskDumpAllThreadStack();
-	os_printf("<<<<dump task backtrace end.\n");
-	os_printf("\r\n");
+	BK_DUMP_OUT("<<<<dump task backtrace end.\r\n");
+	BK_DUMP_OUT("\r\n");
 	
 	rtos_enable_int(int_level);
 }
 
 void rtos_dump_task_runtime_stats(void)
 {
-#if ( ( configGENERATE_RUN_TIME_STATS == 1 ) && ( configUSE_STATS_FORMATTING_FUNCTIONS > 0 ) )
+#if 0 //( ( configGENERATE_RUN_TIME_STATS == 1 ) && ( configUSE_STATS_FORMATTING_FUNCTIONS > 0 ) )
 	int num_of_tasks = 0;
-	int buf_len = 0;
+	int buf_len = 0, info_len = 0;
 	char *buf = NULL;
 	uint32_t int_level = rtos_disable_int();
 
-	os_printf(">>>>dump task runtime begin.\n");
+	BK_DUMP_OUT(">>>>dump task runtime begin.\r\n");
 	//TODO optimize it
 	//malloc a big enough memory
 	num_of_tasks = uxTaskGetNumberOfTasks();
 	buf_len = (num_of_tasks + 5) * 100;
 	buf = (char*)os_malloc(buf_len);
 	if (!buf) {
-		os_printf("dump runtime status oom.\n");
+		BK_DUMP_OUT("dump runtime status oom.\r\n");
 		return;
 	}
 
 	vTaskGetRunTimeStats(buf);
 	
 	buf[buf_len - 1] = '\0';
-	bk_buf_printf_sync(buf, buf_len);
+	info_len = strlen(buf);
+	BK_DUMP_RAW_OUT(buf, info_len);
 	
 	os_free(buf);
 
-	os_printf("<<<<dump task runtime end.\n");
-	os_printf("\r\n");
+	BK_DUMP_OUT("<<<<dump task runtime end.\r\n");
+	BK_DUMP_OUT("\r\n");
 	rtos_enable_int(int_level);
 #else
-	os_printf("dump runtime stats not supported!\n");
+	BK_DUMP_OUT("dump runtime stats not supported!\r\n");
 #endif
 }
 
 void rtos_dump_task_list(void)
 {
+#if 0
 	int num_of_tasks = 0;
-	int buf_len = 0;
+	int buf_len = 0, info_len = 0;
 	char *buf = NULL;
-	uint32_t int_level = rtos_disable_int();
-	
-	os_printf(">>>>dump task list begin.\n");
+
+	BK_DUMP_OUT(">>>>dump task list begin.\r\n");
 	num_of_tasks = uxTaskGetNumberOfTasks();
 	if(num_of_tasks == 0) {
-		os_printf("no task running.\n");
+		BK_DUMP_OUT("no task running.\r\n");
 		return;
 	}
 	buf_len = (num_of_tasks + 5) * 100;
 	buf = (char*)os_malloc(buf_len);
 	if (!buf) {
-		os_printf("dump task list oom.\n");
+		BK_DUMP_OUT("dump task list oom.\r\n");
 		return;
 	}
-	os_printf("%-12s   %-5s   %-5s   %-5s   %-5s\n",
+	BK_DUMP_OUT("%-12s   %-5s   %-5s   %-5s   %-5s\r\n",
 		"task", "state", "pri", "water", "no");
 	vTaskList(buf);
 
 	buf[buf_len - 1] = '\0';
-	bk_buf_printf_sync(buf, buf_len);
+	info_len = strlen(buf);
+	BK_DUMP_RAW_OUT(buf, info_len);
 
 	os_free(buf);
 
-	os_printf("<<<<dump task list end.\n");
-	os_printf("\r\n");
-	rtos_enable_int(int_level);
+	BK_DUMP_OUT("<<<<dump task list end.\r\n");
+	BK_DUMP_OUT("\r\n");
+#endif
 }
 
 void rtos_stack_overflow(char *taskname)
 {
-	os_printf("stack overflow: %s\r\n", taskname);
-	//trap_entry();
+	BK_DUMP_OUT("stack overflow: %s\r\n", taskname);
+	BK_ASSERT(false);
 	while(1);
 }
 
-void rtos_assert_error(const char *condition, const char *file, int line)
-{
-	uint32_t int_level = rtos_disable_int();
-	BK_ASSERT_HALT("ASSERT(%s), at file(%s), line(%d).\r\n", condition, file, line);
-	//trap_entry();
-	rtos_enable_int(int_level);
-}

@@ -21,10 +21,9 @@ extern "C" {
 #include <common/sys_config.h>
 #include <common/bk_typedef.h>
 #include <common/bk_generic.h>
+#include <compiler.h>
 
-//TODO fix!!
-#include "compiler.h"
-#include <arch/soc.h>
+#include <soc/soc.h>
 
 #ifdef __cplusplus
 }

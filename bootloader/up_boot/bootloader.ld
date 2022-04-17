@@ -8,128 +8,310 @@ SECTIONS
 	.nds_vector 	: { *(.nds_vector ) }
 	. = ALIGN(8);
 	. = ALIGN(ALIGNOF(.nds32_init));
-	.nds32_init 	: { KEEP(*(.nds32_init )) } = 0x9200
+	.nds32_init 	: { KEEP(*(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).nds32_init )) } = 0x9200
 	. = ALIGN(ALIGNOF(.interp));
-	.interp 	: { *(.interp ) }
+	.interp 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).interp ) }
 	. = ALIGN(ALIGNOF(.note.gnu.build-id));
-	.note.gnu.build-id 	: { *(.note.gnu.build-id ) }
+	.note.gnu.build-id 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).note.gnu.build-id ) }
 	. = ALIGN(ALIGNOF(.note.ABI-tag));
-	.note.ABI-tag 	: { *(.note.ABI-tag ) }
+	.note.ABI-tag 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).note.ABI-tag ) }
 	. = ALIGN(ALIGNOF(.hash));
-	.hash 	: { *(.hash ) }
+	.hash 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).hash ) }
 	. = ALIGN(ALIGNOF(.gnu.hash));
-	.gnu.hash 	: { *(.gnu.hash ) }
+	.gnu.hash 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).gnu.hash ) }
 	. = ALIGN(ALIGNOF(.dynsym));
-	.dynsym 	: { *(.dynsym ) }
+	.dynsym 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).dynsym ) }
 	. = ALIGN(ALIGNOF(.dynstr));
-	.dynstr 	: { *(.dynstr ) }
+	.dynstr 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).dynstr ) }
 	. = ALIGN(ALIGNOF(.gnu.version));
-	.gnu.version 	: { *(.gnu.version ) }
+	.gnu.version 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).gnu.version ) }
 	. = ALIGN(ALIGNOF(.gnu.version_d));
-	.gnu.version_d 	: { *(.gnu.version_d ) }
+	.gnu.version_d 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).gnu.version_d ) }
 	. = ALIGN(ALIGNOF(.gnu.version_r));
-	.gnu.version_r 	: { *(.gnu.version_r ) }
+	.gnu.version_r 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).gnu.version_r ) }
 	. = ALIGN(ALIGNOF(.rel.init));
-	.rel.init 	: { *(.rel.init ) }
+	.rel.init 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.init ) }
 	. = ALIGN(ALIGNOF(.rela.init));
-	.rela.init 	: { *(.rela.init ) }
+	.rela.init 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.init ) }
 	. = ALIGN(ALIGNOF(.rel.text));
-	.rel.text 	: { *(.rel.text .rel.text.* .rel.gnu.linkonce.t.* ) }
+	.rel.text 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.text EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.text.* EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.gnu.linkonce.t.* ) }
 	. = ALIGN(ALIGNOF(.rela.text));
-	.rela.text 	: { *(.rela.text .rela.text.* .rela.gnu.linkonce.t.* ) }
+	.rela.text 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.text EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.text.* EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.gnu.linkonce.t.* ) }
 	. = ALIGN(ALIGNOF(.rel.fini));
-	.rel.fini 	: { *(.rel.fini ) }
+	.rel.fini 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.fini ) }
 	. = ALIGN(ALIGNOF(.rela.fini));
-	.rela.fini 	: { *(.rela.fini ) }
+	.rela.fini 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.fini ) }
 	. = ALIGN(ALIGNOF(.rel.rodata));
-	.rel.rodata 	: { *(.rel.rodata .rel.rodata.* .rel.gnu.linkonce.r.* ) }
+	.rel.rodata 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.rodata EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.rodata.* EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.gnu.linkonce.r.* ) }
 	. = ALIGN(ALIGNOF(.rela.rodata));
-	.rela.rodata 	: { *(.rela.rodata .rela.rodata.* .rela.gnu.linkonce.r.* ) }
+	.rela.rodata 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.rodata EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.rodata.* EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.gnu.linkonce.r.* ) }
 	. = ALIGN(ALIGNOF(.rel.data.rel.ro));
-	.rel.data.rel.ro 	: { *(.rel.data.rel.ro* ) }
+	.rel.data.rel.ro 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.data.rel.ro* ) }
 	. = ALIGN(ALIGNOF(.rela.data.rel.ro));
-	.rela.data.rel.ro 	: { *(.rel.data.rel.ro* ) }
+	.rela.data.rel.ro 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.data.rel.ro* ) }
 	. = ALIGN(ALIGNOF(.rel.data));
-	.rel.data 	: { *(.rel.data .rel.data.* .rel.gnu.linkonce.d.* ) }
+	.rel.data 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.data EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.data.* EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.gnu.linkonce.d.* ) }
 	. = ALIGN(ALIGNOF(.rela.data));
-	.rela.data 	: { *(.rela.data .rela.data.* .rela.gnu.linkonce.d.* ) }
+	.rela.data 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.data EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.data.* EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.gnu.linkonce.d.* ) }
 	. = ALIGN(ALIGNOF(.rel.tdata));
-	.rel.tdata 	: { *(.rel.tdata .rel.tdata.* .rel.gnu.linkonce.td.* ) }
+	.rel.tdata 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.tdata EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.tdata.* EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.gnu.linkonce.td.* ) }
 	. = ALIGN(ALIGNOF(.rela.tdata));
-	.rela.tdata 	: { *(.rela.tdata .rela.tdata.* .rela.gnu.linkonce.td.* ) }
+	.rela.tdata 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.tdata EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.tdata.* EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.gnu.linkonce.td.* ) }
 	. = ALIGN(ALIGNOF(.rel.tbss));
-	.rel.tbss 	: { *(.rel.tbss .rel.tbss.* .rel.gnu.linkonce.tb.* ) }
+	.rel.tbss 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.tbss EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.tbss.* EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.gnu.linkonce.tb.* ) }
 	. = ALIGN(ALIGNOF(.rela.tbss));
-	.rela.tbss 	: { *(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.* ) }
+	.rela.tbss 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.tbss EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.tbss.* EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.gnu.linkonce.tb.* ) }
 	. = ALIGN(ALIGNOF(.rel.ctors));
-	.rel.ctors 	: { *(.rel.ctors ) }
+	.rel.ctors 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.ctors ) }
 	. = ALIGN(ALIGNOF(.rela.ctors));
-	.rela.ctors 	: { *(.rela.ctors ) }
+	.rela.ctors 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.ctors ) }
 	. = ALIGN(ALIGNOF(.rel.dtors));
-	.rel.dtors 	: { *(.rel.dtors ) }
+	.rel.dtors 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.dtors ) }
 	. = ALIGN(ALIGNOF(.rela.dtors));
-	.rela.dtors 	: { *(.rela.dtors ) }
+	.rela.dtors 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.dtors ) }
 	. = ALIGN(ALIGNOF(.rela.dyn));
-	.rela.dyn 	: { *(rela.dyn ) *(.rela__libc_subfreeres ) *(.rela__libc_atexit ) *(.rela__libc_thread_subfreeres ) *(.rela.init_array ) *(.rela.fini_array ) }
+	.rela.dyn 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o )rela.dyn ) *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela__libc_subfreeres ) *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela__libc_atexit ) *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela__libc_thread_subfreeres ) *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.init_array ) *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.fini_array ) }
 	. = ALIGN(ALIGNOF(.rel.got));
-	.rel.got 	: { *(.rel.got ) }
+	.rel.got 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.got ) }
 	. = ALIGN(ALIGNOF(.rela.got));
-	.rela.got 	: { *(.rela.got ) }
+	.rela.got 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.got ) }
 	. = ALIGN(ALIGNOF(.rel.sdata));
-	.rel.sdata 	: { *(.rel.sdata .rel.sdata.* .rel.gnu.linkonce.s.* ) }
+	.rel.sdata 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.sdata EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.sdata.* EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.gnu.linkonce.s.* ) }
 	. = ALIGN(ALIGNOF(.rela.sdata));
-	.rela.sdata 	: { *(.rela.sdata .rela.sdata.* .rela.gnu.linkonce.s.* ) }
+	.rela.sdata 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.sdata EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.sdata.* EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.gnu.linkonce.s.* ) }
 	. = ALIGN(ALIGNOF(.rel.sbss));
-	.rel.sbss 	: { *(.rel.sbss .rel.sbss.* .rel.gnu.linkonce.sb.* ) }
+	.rel.sbss 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.sbss EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.sbss.* EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.gnu.linkonce.sb.* ) }
 	. = ALIGN(ALIGNOF(.rela.sbss));
-	.rela.sbss 	: { *(.rela.sbss .rela.sbss.* .rela.gnu.linkonce.sb.* ) }
+	.rela.sbss 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.sbss EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.sbss.* EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.gnu.linkonce.sb.* ) }
 	. = ALIGN(ALIGNOF(.rel.sdata2));
-	.rel.sdata2 	: { *(.rel.sdata2 .rel.sdata2.* .rel.gnu.linkonce.s2.* ) }
+	.rel.sdata2 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.sdata2 EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.sdata2.* EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.gnu.linkonce.s2.* ) }
 	. = ALIGN(ALIGNOF(.rela.sdata2));
-	.rela.sdata2 	: { *(.rela.sdata2 .rela.sdata2.* .rela.gnu.linkonce.s2.* ) }
+	.rela.sdata2 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.sdata2 EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.sdata2.* EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.gnu.linkonce.s2.* ) }
 	. = ALIGN(ALIGNOF(.rel.sbss2));
-	.rel.sbss2 	: { *(.rel.sbss2 .rel.sbss2.* .rel.gnu.linkonce.sb2.* ) }
+	.rel.sbss2 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.sbss2 EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.sbss2.* EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.gnu.linkonce.sb2.* ) }
 	. = ALIGN(ALIGNOF(.rela.sbss2));
-	.rela.sbss2 	: { *(.rela.sbss2 .rela.sbss2.* .rela.gnu.linkonce.sb2.* ) }
+	.rela.sbss2 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.sbss2 EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.sbss2.* EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.gnu.linkonce.sb2.* ) }
 	. = ALIGN(ALIGNOF(.rel.bss));
-	.rel.bss 	: { *(.rel.bss .rel.bss.* .rel.gnu.linkonce.b.* ) }
+	.rel.bss 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.bss EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.bss.* EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.gnu.linkonce.b.* ) }
 	. = ALIGN(ALIGNOF(.rela.bss));
-	.rela.bss 	: { *(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.* ) }
+	.rela.bss 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.bss EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.bss.* EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.gnu.linkonce.b.* ) }
 	. = ALIGN(ALIGNOF(.rel.plt));
-	.rel.plt 	: { *(.rel.plt ) }
+	.rel.plt 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rel.plt ) }
 	. = ALIGN(ALIGNOF(.rela.plt));
-	.rela.plt 	: { *(.rela.plt ) }
+	.rela.plt 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rela.plt ) }
 	. = ALIGN(ALIGNOF(.init));
-	.init 	: { KEEP(*(.init )) }
+	.init 	: { KEEP(*(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).init )) }
 	. = ALIGN(ALIGNOF(.plt));
-	.plt 	: { *(.plt ) }
+	.plt 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).plt ) }
 	. = ALIGN(ALIGNOF(.text));
-	.text 	: { *(.text .stub .text.* .gnu.linkonce.t.* ) KEEP(*(.text.*personality* )) *(.gnu.warning ) . = ALIGN(4); } = 0x9200
+	.text 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).text EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).stub EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).text.* EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).gnu.linkonce.t.* ) KEEP(*(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).text.*personality* )) *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).gnu.warning ) . = ALIGN(4); } = 0x9200
 	. = ALIGN(ALIGNOF(.fini));
-	.fini 	: { KEEP(*(.fini )) }
+	.fini 	: { KEEP(*(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).fini )) }
 	. = ALIGN(ALIGNOF(.ex9.itable));
-	.ex9.itable 	: { *(.ex9.itable ) }
+	.ex9.itable 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).ex9.itable ) }
 	PROVIDE (__etext = .);
 	PROVIDE (_etext = .);
 	PROVIDE (etext = .);
 	. = ALIGN(ALIGNOF(.rodata));
-	.rodata 	: { *(.rodata .rodata.* .gnu.linkonce.r.* ) }
+	.rodata 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rodata EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rodata.* EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).gnu.linkonce.r.* ) }
 	. = ALIGN(ALIGNOF(.rodata1));
-	.rodata1 	: { *(.rodata1 ) }
+	.rodata1 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).rodata1 ) }
 	. = ALIGN(ALIGNOF(.sdata2));
-	.sdata2 	: { *(.sdata2 .sdata2.* .gnu.linkonce.s2.* ) }
+	.sdata2 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).sdata2 EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).sdata2.* EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).gnu.linkonce.s2.* ) }
 	. = ALIGN(ALIGNOF(.sbss2));
-	.sbss2 	: { *(.sbss2 .sbss2.* .gnu.linkonce.sb2.* ) }
+	.sbss2 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).sbss2 EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).sbss2.* EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).gnu.linkonce.sb2.* ) }
 	. = ALIGN(ALIGNOF(.eh_frame_hdr));
-	.eh_frame_hdr 	: { *(.eh_frame_hdr ) }
+	.eh_frame_hdr 	: { *(EXCLUDE_FILE (*driver_flash.o *drv_uart.o *driver_uart2.o *fal_flash.o *fal_partition.o *data_move.o *inflate.o ).eh_frame_hdr ) }
+	. = ALIGN(8);
+	. = 0x10000000;
+	ITCM_BEGIN = .;
+	. = ALIGN(8);
+	. = ALIGN(ALIGNOF(".nds32_init_*driver_flash.o"));
+	".nds32_init_*driver_flash.o" 	: AT(ALIGN(ALIGN(LOADADDR (.eh_frame_hdr) + SIZEOF (.eh_frame_hdr), ALIGNOF(".nds32_init_*driver_flash.o")), 8))
+		{ KEEP(*driver_flash.o(.nds32_init )) KEEP(*drv_uart.o(.nds32_init )) KEEP(*driver_uart2.o(.nds32_init )) KEEP(*fal_flash.o(.nds32_init )) KEEP(*fal_partition.o(.nds32_init )) KEEP(*data_move.o(.nds32_init )) KEEP(*inflate.o(.nds32_init )) } = 0x9200
+	_itcm_lma_start =  LOADADDR (".nds32_init_*driver_flash.o");
+	_itcm_ema_start = ADDR(".nds32_init_*driver_flash.o");
+	. = ALIGN(ALIGNOF(".interp_*driver_flash.o"));
+	".interp_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".nds32_init_*driver_flash.o") + SIZEOF (".nds32_init_*driver_flash.o"), ALIGNOF(".interp_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.interp )) KEEP(*drv_uart.o(.interp )) KEEP(*driver_uart2.o(.interp )) KEEP(*fal_flash.o(.interp )) KEEP(*fal_partition.o(.interp )) KEEP(*data_move.o(.interp )) KEEP(*inflate.o(.interp )) }
+	. = ALIGN(ALIGNOF(".note.gnu.build-id_*driver_flash.o"));
+	".note.gnu.build-id_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".interp_*driver_flash.o") + SIZEOF (".interp_*driver_flash.o"), ALIGNOF(".note.gnu.build-id_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.note.gnu.build-id )) KEEP(*drv_uart.o(.note.gnu.build-id )) KEEP(*driver_uart2.o(.note.gnu.build-id )) KEEP(*fal_flash.o(.note.gnu.build-id )) KEEP(*fal_partition.o(.note.gnu.build-id )) KEEP(*data_move.o(.note.gnu.build-id )) KEEP(*inflate.o(.note.gnu.build-id )) }
+	. = ALIGN(ALIGNOF(".note.ABI-tag_*driver_flash.o"));
+	".note.ABI-tag_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".note.gnu.build-id_*driver_flash.o") + SIZEOF (".note.gnu.build-id_*driver_flash.o"), ALIGNOF(".note.ABI-tag_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.note.ABI-tag )) KEEP(*drv_uart.o(.note.ABI-tag )) KEEP(*driver_uart2.o(.note.ABI-tag )) KEEP(*fal_flash.o(.note.ABI-tag )) KEEP(*fal_partition.o(.note.ABI-tag )) KEEP(*data_move.o(.note.ABI-tag )) KEEP(*inflate.o(.note.ABI-tag )) }
+	. = ALIGN(ALIGNOF(".hash_*driver_flash.o"));
+	".hash_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".note.ABI-tag_*driver_flash.o") + SIZEOF (".note.ABI-tag_*driver_flash.o"), ALIGNOF(".hash_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.hash )) KEEP(*drv_uart.o(.hash )) KEEP(*driver_uart2.o(.hash )) KEEP(*fal_flash.o(.hash )) KEEP(*fal_partition.o(.hash )) KEEP(*data_move.o(.hash )) KEEP(*inflate.o(.hash )) }
+	. = ALIGN(ALIGNOF(".gnu.hash_*driver_flash.o"));
+	".gnu.hash_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".hash_*driver_flash.o") + SIZEOF (".hash_*driver_flash.o"), ALIGNOF(".gnu.hash_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.gnu.hash )) KEEP(*drv_uart.o(.gnu.hash )) KEEP(*driver_uart2.o(.gnu.hash )) KEEP(*fal_flash.o(.gnu.hash )) KEEP(*fal_partition.o(.gnu.hash )) KEEP(*data_move.o(.gnu.hash )) KEEP(*inflate.o(.gnu.hash )) }
+	. = ALIGN(ALIGNOF(".dynsym_*driver_flash.o"));
+	".dynsym_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".gnu.hash_*driver_flash.o") + SIZEOF (".gnu.hash_*driver_flash.o"), ALIGNOF(".dynsym_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.dynsym )) KEEP(*drv_uart.o(.dynsym )) KEEP(*driver_uart2.o(.dynsym )) KEEP(*fal_flash.o(.dynsym )) KEEP(*fal_partition.o(.dynsym )) KEEP(*data_move.o(.dynsym )) KEEP(*inflate.o(.dynsym )) }
+	. = ALIGN(ALIGNOF(".dynstr_*driver_flash.o"));
+	".dynstr_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".dynsym_*driver_flash.o") + SIZEOF (".dynsym_*driver_flash.o"), ALIGNOF(".dynstr_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.dynstr )) KEEP(*drv_uart.o(.dynstr )) KEEP(*driver_uart2.o(.dynstr )) KEEP(*fal_flash.o(.dynstr )) KEEP(*fal_partition.o(.dynstr )) KEEP(*data_move.o(.dynstr )) KEEP(*inflate.o(.dynstr )) }
+	. = ALIGN(ALIGNOF(".gnu.version_*driver_flash.o"));
+	".gnu.version_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".dynstr_*driver_flash.o") + SIZEOF (".dynstr_*driver_flash.o"), ALIGNOF(".gnu.version_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.gnu.version )) KEEP(*drv_uart.o(.gnu.version )) KEEP(*driver_uart2.o(.gnu.version )) KEEP(*fal_flash.o(.gnu.version )) KEEP(*fal_partition.o(.gnu.version )) KEEP(*data_move.o(.gnu.version )) KEEP(*inflate.o(.gnu.version )) }
+	. = ALIGN(ALIGNOF(".gnu.version_d_*driver_flash.o"));
+	".gnu.version_d_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".gnu.version_*driver_flash.o") + SIZEOF (".gnu.version_*driver_flash.o"), ALIGNOF(".gnu.version_d_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.gnu.version_d )) KEEP(*drv_uart.o(.gnu.version_d )) KEEP(*driver_uart2.o(.gnu.version_d )) KEEP(*fal_flash.o(.gnu.version_d )) KEEP(*fal_partition.o(.gnu.version_d )) KEEP(*data_move.o(.gnu.version_d )) KEEP(*inflate.o(.gnu.version_d )) }
+	. = ALIGN(ALIGNOF(".gnu.version_r_*driver_flash.o"));
+	".gnu.version_r_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".gnu.version_d_*driver_flash.o") + SIZEOF (".gnu.version_d_*driver_flash.o"), ALIGNOF(".gnu.version_r_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.gnu.version_r )) KEEP(*drv_uart.o(.gnu.version_r )) KEEP(*driver_uart2.o(.gnu.version_r )) KEEP(*fal_flash.o(.gnu.version_r )) KEEP(*fal_partition.o(.gnu.version_r )) KEEP(*data_move.o(.gnu.version_r )) KEEP(*inflate.o(.gnu.version_r )) }
+	. = ALIGN(ALIGNOF(".rel.init_*driver_flash.o"));
+	".rel.init_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".gnu.version_r_*driver_flash.o") + SIZEOF (".gnu.version_r_*driver_flash.o"), ALIGNOF(".rel.init_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rel.init )) KEEP(*drv_uart.o(.rel.init )) KEEP(*driver_uart2.o(.rel.init )) KEEP(*fal_flash.o(.rel.init )) KEEP(*fal_partition.o(.rel.init )) KEEP(*data_move.o(.rel.init )) KEEP(*inflate.o(.rel.init )) }
+	. = ALIGN(ALIGNOF(".rela.init_*driver_flash.o"));
+	".rela.init_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rel.init_*driver_flash.o") + SIZEOF (".rel.init_*driver_flash.o"), ALIGNOF(".rela.init_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rela.init )) KEEP(*drv_uart.o(.rela.init )) KEEP(*driver_uart2.o(.rela.init )) KEEP(*fal_flash.o(.rela.init )) KEEP(*fal_partition.o(.rela.init )) KEEP(*data_move.o(.rela.init )) KEEP(*inflate.o(.rela.init )) }
+	. = ALIGN(ALIGNOF(".rel.text_*driver_flash.o"));
+	".rel.text_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rela.init_*driver_flash.o") + SIZEOF (".rela.init_*driver_flash.o"), ALIGNOF(".rel.text_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rel.text .rel.text.* .rel.gnu.linkonce.t.* )) KEEP(*drv_uart.o(.rel.text .rel.text.* .rel.gnu.linkonce.t.* )) KEEP(*driver_uart2.o(.rel.text .rel.text.* .rel.gnu.linkonce.t.* )) KEEP(*fal_flash.o(.rel.text .rel.text.* .rel.gnu.linkonce.t.* )) KEEP(*fal_partition.o(.rel.text .rel.text.* .rel.gnu.linkonce.t.* )) KEEP(*data_move.o(.rel.text .rel.text.* .rel.gnu.linkonce.t.* )) KEEP(*inflate.o(.rel.text .rel.text.* .rel.gnu.linkonce.t.* )) }
+	. = ALIGN(ALIGNOF(".rela.text_*driver_flash.o"));
+	".rela.text_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rel.text_*driver_flash.o") + SIZEOF (".rel.text_*driver_flash.o"), ALIGNOF(".rela.text_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rela.text .rela.text.* .rela.gnu.linkonce.t.* )) KEEP(*drv_uart.o(.rela.text .rela.text.* .rela.gnu.linkonce.t.* )) KEEP(*driver_uart2.o(.rela.text .rela.text.* .rela.gnu.linkonce.t.* )) KEEP(*fal_flash.o(.rela.text .rela.text.* .rela.gnu.linkonce.t.* )) KEEP(*fal_partition.o(.rela.text .rela.text.* .rela.gnu.linkonce.t.* )) KEEP(*data_move.o(.rela.text .rela.text.* .rela.gnu.linkonce.t.* )) KEEP(*inflate.o(.rela.text .rela.text.* .rela.gnu.linkonce.t.* )) }
+	. = ALIGN(ALIGNOF(".rel.fini_*driver_flash.o"));
+	".rel.fini_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rela.text_*driver_flash.o") + SIZEOF (".rela.text_*driver_flash.o"), ALIGNOF(".rel.fini_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rel.fini )) KEEP(*drv_uart.o(.rel.fini )) KEEP(*driver_uart2.o(.rel.fini )) KEEP(*fal_flash.o(.rel.fini )) KEEP(*fal_partition.o(.rel.fini )) KEEP(*data_move.o(.rel.fini )) KEEP(*inflate.o(.rel.fini )) }
+	. = ALIGN(ALIGNOF(".rela.fini_*driver_flash.o"));
+	".rela.fini_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rel.fini_*driver_flash.o") + SIZEOF (".rel.fini_*driver_flash.o"), ALIGNOF(".rela.fini_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rela.fini )) KEEP(*drv_uart.o(.rela.fini )) KEEP(*driver_uart2.o(.rela.fini )) KEEP(*fal_flash.o(.rela.fini )) KEEP(*fal_partition.o(.rela.fini )) KEEP(*data_move.o(.rela.fini )) KEEP(*inflate.o(.rela.fini )) }
+	. = ALIGN(ALIGNOF(".rel.rodata_*driver_flash.o"));
+	".rel.rodata_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rela.fini_*driver_flash.o") + SIZEOF (".rela.fini_*driver_flash.o"), ALIGNOF(".rel.rodata_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rel.rodata .rel.rodata.* .rel.gnu.linkonce.r.* )) KEEP(*drv_uart.o(.rel.rodata .rel.rodata.* .rel.gnu.linkonce.r.* )) KEEP(*driver_uart2.o(.rel.rodata .rel.rodata.* .rel.gnu.linkonce.r.* )) KEEP(*fal_flash.o(.rel.rodata .rel.rodata.* .rel.gnu.linkonce.r.* )) KEEP(*fal_partition.o(.rel.rodata .rel.rodata.* .rel.gnu.linkonce.r.* )) KEEP(*data_move.o(.rel.rodata .rel.rodata.* .rel.gnu.linkonce.r.* )) KEEP(*inflate.o(.rel.rodata .rel.rodata.* .rel.gnu.linkonce.r.* )) }
+	. = ALIGN(ALIGNOF(".rela.rodata_*driver_flash.o"));
+	".rela.rodata_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rel.rodata_*driver_flash.o") + SIZEOF (".rel.rodata_*driver_flash.o"), ALIGNOF(".rela.rodata_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rela.rodata .rela.rodata.* .rela.gnu.linkonce.r.* )) KEEP(*drv_uart.o(.rela.rodata .rela.rodata.* .rela.gnu.linkonce.r.* )) KEEP(*driver_uart2.o(.rela.rodata .rela.rodata.* .rela.gnu.linkonce.r.* )) KEEP(*fal_flash.o(.rela.rodata .rela.rodata.* .rela.gnu.linkonce.r.* )) KEEP(*fal_partition.o(.rela.rodata .rela.rodata.* .rela.gnu.linkonce.r.* )) KEEP(*data_move.o(.rela.rodata .rela.rodata.* .rela.gnu.linkonce.r.* )) KEEP(*inflate.o(.rela.rodata .rela.rodata.* .rela.gnu.linkonce.r.* )) }
+	. = ALIGN(ALIGNOF(".rel.data.rel.ro_*driver_flash.o"));
+	".rel.data.rel.ro_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rela.rodata_*driver_flash.o") + SIZEOF (".rela.rodata_*driver_flash.o"), ALIGNOF(".rel.data.rel.ro_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rel.data.rel.ro* )) KEEP(*drv_uart.o(.rel.data.rel.ro* )) KEEP(*driver_uart2.o(.rel.data.rel.ro* )) KEEP(*fal_flash.o(.rel.data.rel.ro* )) KEEP(*fal_partition.o(.rel.data.rel.ro* )) KEEP(*data_move.o(.rel.data.rel.ro* )) KEEP(*inflate.o(.rel.data.rel.ro* )) }
+	. = ALIGN(ALIGNOF(".rela.data.rel.ro_*driver_flash.o"));
+	".rela.data.rel.ro_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rel.data.rel.ro_*driver_flash.o") + SIZEOF (".rel.data.rel.ro_*driver_flash.o"), ALIGNOF(".rela.data.rel.ro_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rel.data.rel.ro* )) KEEP(*drv_uart.o(.rel.data.rel.ro* )) KEEP(*driver_uart2.o(.rel.data.rel.ro* )) KEEP(*fal_flash.o(.rel.data.rel.ro* )) KEEP(*fal_partition.o(.rel.data.rel.ro* )) KEEP(*data_move.o(.rel.data.rel.ro* )) KEEP(*inflate.o(.rel.data.rel.ro* )) }
+	. = ALIGN(ALIGNOF(".rel.data_*driver_flash.o"));
+	".rel.data_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rela.data.rel.ro_*driver_flash.o") + SIZEOF (".rela.data.rel.ro_*driver_flash.o"), ALIGNOF(".rel.data_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rel.data .rel.data.* .rel.gnu.linkonce.d.* )) KEEP(*drv_uart.o(.rel.data .rel.data.* .rel.gnu.linkonce.d.* )) KEEP(*driver_uart2.o(.rel.data .rel.data.* .rel.gnu.linkonce.d.* )) KEEP(*fal_flash.o(.rel.data .rel.data.* .rel.gnu.linkonce.d.* )) KEEP(*fal_partition.o(.rel.data .rel.data.* .rel.gnu.linkonce.d.* )) KEEP(*data_move.o(.rel.data .rel.data.* .rel.gnu.linkonce.d.* )) KEEP(*inflate.o(.rel.data .rel.data.* .rel.gnu.linkonce.d.* )) }
+	. = ALIGN(ALIGNOF(".rela.data_*driver_flash.o"));
+	".rela.data_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rel.data_*driver_flash.o") + SIZEOF (".rel.data_*driver_flash.o"), ALIGNOF(".rela.data_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rela.data .rela.data.* .rela.gnu.linkonce.d.* )) KEEP(*drv_uart.o(.rela.data .rela.data.* .rela.gnu.linkonce.d.* )) KEEP(*driver_uart2.o(.rela.data .rela.data.* .rela.gnu.linkonce.d.* )) KEEP(*fal_flash.o(.rela.data .rela.data.* .rela.gnu.linkonce.d.* )) KEEP(*fal_partition.o(.rela.data .rela.data.* .rela.gnu.linkonce.d.* )) KEEP(*data_move.o(.rela.data .rela.data.* .rela.gnu.linkonce.d.* )) KEEP(*inflate.o(.rela.data .rela.data.* .rela.gnu.linkonce.d.* )) }
+	. = ALIGN(ALIGNOF(".rel.tdata_*driver_flash.o"));
+	".rel.tdata_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rela.data_*driver_flash.o") + SIZEOF (".rela.data_*driver_flash.o"), ALIGNOF(".rel.tdata_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rel.tdata .rel.tdata.* .rel.gnu.linkonce.td.* )) KEEP(*drv_uart.o(.rel.tdata .rel.tdata.* .rel.gnu.linkonce.td.* )) KEEP(*driver_uart2.o(.rel.tdata .rel.tdata.* .rel.gnu.linkonce.td.* )) KEEP(*fal_flash.o(.rel.tdata .rel.tdata.* .rel.gnu.linkonce.td.* )) KEEP(*fal_partition.o(.rel.tdata .rel.tdata.* .rel.gnu.linkonce.td.* )) KEEP(*data_move.o(.rel.tdata .rel.tdata.* .rel.gnu.linkonce.td.* )) KEEP(*inflate.o(.rel.tdata .rel.tdata.* .rel.gnu.linkonce.td.* )) }
+	. = ALIGN(ALIGNOF(".rela.tdata_*driver_flash.o"));
+	".rela.tdata_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rel.tdata_*driver_flash.o") + SIZEOF (".rel.tdata_*driver_flash.o"), ALIGNOF(".rela.tdata_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rela.tdata .rela.tdata.* .rela.gnu.linkonce.td.* )) KEEP(*drv_uart.o(.rela.tdata .rela.tdata.* .rela.gnu.linkonce.td.* )) KEEP(*driver_uart2.o(.rela.tdata .rela.tdata.* .rela.gnu.linkonce.td.* )) KEEP(*fal_flash.o(.rela.tdata .rela.tdata.* .rela.gnu.linkonce.td.* )) KEEP(*fal_partition.o(.rela.tdata .rela.tdata.* .rela.gnu.linkonce.td.* )) KEEP(*data_move.o(.rela.tdata .rela.tdata.* .rela.gnu.linkonce.td.* )) KEEP(*inflate.o(.rela.tdata .rela.tdata.* .rela.gnu.linkonce.td.* )) }
+	. = ALIGN(ALIGNOF(".rel.tbss_*driver_flash.o"));
+	".rel.tbss_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rela.tdata_*driver_flash.o") + SIZEOF (".rela.tdata_*driver_flash.o"), ALIGNOF(".rel.tbss_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rel.tbss .rel.tbss.* .rel.gnu.linkonce.tb.* )) KEEP(*drv_uart.o(.rel.tbss .rel.tbss.* .rel.gnu.linkonce.tb.* )) KEEP(*driver_uart2.o(.rel.tbss .rel.tbss.* .rel.gnu.linkonce.tb.* )) KEEP(*fal_flash.o(.rel.tbss .rel.tbss.* .rel.gnu.linkonce.tb.* )) KEEP(*fal_partition.o(.rel.tbss .rel.tbss.* .rel.gnu.linkonce.tb.* )) KEEP(*data_move.o(.rel.tbss .rel.tbss.* .rel.gnu.linkonce.tb.* )) KEEP(*inflate.o(.rel.tbss .rel.tbss.* .rel.gnu.linkonce.tb.* )) }
+	. = ALIGN(ALIGNOF(".rela.tbss_*driver_flash.o"));
+	".rela.tbss_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rel.tbss_*driver_flash.o") + SIZEOF (".rel.tbss_*driver_flash.o"), ALIGNOF(".rela.tbss_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.* )) KEEP(*drv_uart.o(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.* )) KEEP(*driver_uart2.o(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.* )) KEEP(*fal_flash.o(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.* )) KEEP(*fal_partition.o(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.* )) KEEP(*data_move.o(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.* )) KEEP(*inflate.o(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.* )) }
+	. = ALIGN(ALIGNOF(".rel.ctors_*driver_flash.o"));
+	".rel.ctors_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rela.tbss_*driver_flash.o") + SIZEOF (".rela.tbss_*driver_flash.o"), ALIGNOF(".rel.ctors_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rel.ctors )) KEEP(*drv_uart.o(.rel.ctors )) KEEP(*driver_uart2.o(.rel.ctors )) KEEP(*fal_flash.o(.rel.ctors )) KEEP(*fal_partition.o(.rel.ctors )) KEEP(*data_move.o(.rel.ctors )) KEEP(*inflate.o(.rel.ctors )) }
+	. = ALIGN(ALIGNOF(".rela.ctors_*driver_flash.o"));
+	".rela.ctors_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rel.ctors_*driver_flash.o") + SIZEOF (".rel.ctors_*driver_flash.o"), ALIGNOF(".rela.ctors_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rela.ctors )) KEEP(*drv_uart.o(.rela.ctors )) KEEP(*driver_uart2.o(.rela.ctors )) KEEP(*fal_flash.o(.rela.ctors )) KEEP(*fal_partition.o(.rela.ctors )) KEEP(*data_move.o(.rela.ctors )) KEEP(*inflate.o(.rela.ctors )) }
+	. = ALIGN(ALIGNOF(".rel.dtors_*driver_flash.o"));
+	".rel.dtors_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rela.ctors_*driver_flash.o") + SIZEOF (".rela.ctors_*driver_flash.o"), ALIGNOF(".rel.dtors_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rel.dtors )) KEEP(*drv_uart.o(.rel.dtors )) KEEP(*driver_uart2.o(.rel.dtors )) KEEP(*fal_flash.o(.rel.dtors )) KEEP(*fal_partition.o(.rel.dtors )) KEEP(*data_move.o(.rel.dtors )) KEEP(*inflate.o(.rel.dtors )) }
+	. = ALIGN(ALIGNOF(".rela.dtors_*driver_flash.o"));
+	".rela.dtors_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rel.dtors_*driver_flash.o") + SIZEOF (".rel.dtors_*driver_flash.o"), ALIGNOF(".rela.dtors_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rela.dtors )) KEEP(*drv_uart.o(.rela.dtors )) KEEP(*driver_uart2.o(.rela.dtors )) KEEP(*fal_flash.o(.rela.dtors )) KEEP(*fal_partition.o(.rela.dtors )) KEEP(*data_move.o(.rela.dtors )) KEEP(*inflate.o(.rela.dtors )) }
+	. = ALIGN(ALIGNOF(".rela.dyn_*driver_flash.o"));
+	".rela.dyn_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rela.dtors_*driver_flash.o") + SIZEOF (".rela.dtors_*driver_flash.o"), ALIGNOF(".rela.dyn_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(rela.dyn )) KEEP(*drv_uart.o(rela.dyn )) KEEP(*driver_uart2.o(rela.dyn )) KEEP(*fal_flash.o(rela.dyn )) KEEP(*fal_partition.o(rela.dyn )) KEEP(*data_move.o(rela.dyn )) KEEP(*inflate.o(rela.dyn )) KEEP(*driver_flash.o(.rela__libc_subfreeres )) KEEP(*drv_uart.o(.rela__libc_subfreeres )) KEEP(*driver_uart2.o(.rela__libc_subfreeres )) KEEP(*fal_flash.o(.rela__libc_subfreeres )) KEEP(*fal_partition.o(.rela__libc_subfreeres )) KEEP(*data_move.o(.rela__libc_subfreeres )) KEEP(*inflate.o(.rela__libc_subfreeres )) KEEP(*driver_flash.o(.rela__libc_atexit )) KEEP(*drv_uart.o(.rela__libc_atexit )) KEEP(*driver_uart2.o(.rela__libc_atexit )) KEEP(*fal_flash.o(.rela__libc_atexit )) KEEP(*fal_partition.o(.rela__libc_atexit )) KEEP(*data_move.o(.rela__libc_atexit )) KEEP(*inflate.o(.rela__libc_atexit )) KEEP(*driver_flash.o(.rela__libc_thread_subfreeres )) KEEP(*drv_uart.o(.rela__libc_thread_subfreeres )) KEEP(*driver_uart2.o(.rela__libc_thread_subfreeres )) KEEP(*fal_flash.o(.rela__libc_thread_subfreeres )) KEEP(*fal_partition.o(.rela__libc_thread_subfreeres )) KEEP(*data_move.o(.rela__libc_thread_subfreeres )) KEEP(*inflate.o(.rela__libc_thread_subfreeres )) KEEP(*driver_flash.o(.rela.init_array )) KEEP(*drv_uart.o(.rela.init_array )) KEEP(*driver_uart2.o(.rela.init_array )) KEEP(*fal_flash.o(.rela.init_array )) KEEP(*fal_partition.o(.rela.init_array )) KEEP(*data_move.o(.rela.init_array )) KEEP(*inflate.o(.rela.init_array )) KEEP(*driver_flash.o(.rela.fini_array )) KEEP(*drv_uart.o(.rela.fini_array )) KEEP(*driver_uart2.o(.rela.fini_array )) KEEP(*fal_flash.o(.rela.fini_array )) KEEP(*fal_partition.o(.rela.fini_array )) KEEP(*data_move.o(.rela.fini_array )) KEEP(*inflate.o(.rela.fini_array )) }
+	. = ALIGN(ALIGNOF(".rel.got_*driver_flash.o"));
+	".rel.got_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rela.dyn_*driver_flash.o") + SIZEOF (".rela.dyn_*driver_flash.o"), ALIGNOF(".rel.got_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rel.got )) KEEP(*drv_uart.o(.rel.got )) KEEP(*driver_uart2.o(.rel.got )) KEEP(*fal_flash.o(.rel.got )) KEEP(*fal_partition.o(.rel.got )) KEEP(*data_move.o(.rel.got )) KEEP(*inflate.o(.rel.got )) }
+	. = ALIGN(ALIGNOF(".rela.got_*driver_flash.o"));
+	".rela.got_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rel.got_*driver_flash.o") + SIZEOF (".rel.got_*driver_flash.o"), ALIGNOF(".rela.got_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rela.got )) KEEP(*drv_uart.o(.rela.got )) KEEP(*driver_uart2.o(.rela.got )) KEEP(*fal_flash.o(.rela.got )) KEEP(*fal_partition.o(.rela.got )) KEEP(*data_move.o(.rela.got )) KEEP(*inflate.o(.rela.got )) }
+	. = ALIGN(ALIGNOF(".rel.sdata_*driver_flash.o"));
+	".rel.sdata_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rela.got_*driver_flash.o") + SIZEOF (".rela.got_*driver_flash.o"), ALIGNOF(".rel.sdata_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rel.sdata .rel.sdata.* .rel.gnu.linkonce.s.* )) KEEP(*drv_uart.o(.rel.sdata .rel.sdata.* .rel.gnu.linkonce.s.* )) KEEP(*driver_uart2.o(.rel.sdata .rel.sdata.* .rel.gnu.linkonce.s.* )) KEEP(*fal_flash.o(.rel.sdata .rel.sdata.* .rel.gnu.linkonce.s.* )) KEEP(*fal_partition.o(.rel.sdata .rel.sdata.* .rel.gnu.linkonce.s.* )) KEEP(*data_move.o(.rel.sdata .rel.sdata.* .rel.gnu.linkonce.s.* )) KEEP(*inflate.o(.rel.sdata .rel.sdata.* .rel.gnu.linkonce.s.* )) }
+	. = ALIGN(ALIGNOF(".rela.sdata_*driver_flash.o"));
+	".rela.sdata_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rel.sdata_*driver_flash.o") + SIZEOF (".rel.sdata_*driver_flash.o"), ALIGNOF(".rela.sdata_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rela.sdata .rela.sdata.* .rela.gnu.linkonce.s.* )) KEEP(*drv_uart.o(.rela.sdata .rela.sdata.* .rela.gnu.linkonce.s.* )) KEEP(*driver_uart2.o(.rela.sdata .rela.sdata.* .rela.gnu.linkonce.s.* )) KEEP(*fal_flash.o(.rela.sdata .rela.sdata.* .rela.gnu.linkonce.s.* )) KEEP(*fal_partition.o(.rela.sdata .rela.sdata.* .rela.gnu.linkonce.s.* )) KEEP(*data_move.o(.rela.sdata .rela.sdata.* .rela.gnu.linkonce.s.* )) KEEP(*inflate.o(.rela.sdata .rela.sdata.* .rela.gnu.linkonce.s.* )) }
+	. = ALIGN(ALIGNOF(".rel.sbss_*driver_flash.o"));
+	".rel.sbss_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rela.sdata_*driver_flash.o") + SIZEOF (".rela.sdata_*driver_flash.o"), ALIGNOF(".rel.sbss_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rel.sbss .rel.sbss.* .rel.gnu.linkonce.sb.* )) KEEP(*drv_uart.o(.rel.sbss .rel.sbss.* .rel.gnu.linkonce.sb.* )) KEEP(*driver_uart2.o(.rel.sbss .rel.sbss.* .rel.gnu.linkonce.sb.* )) KEEP(*fal_flash.o(.rel.sbss .rel.sbss.* .rel.gnu.linkonce.sb.* )) KEEP(*fal_partition.o(.rel.sbss .rel.sbss.* .rel.gnu.linkonce.sb.* )) KEEP(*data_move.o(.rel.sbss .rel.sbss.* .rel.gnu.linkonce.sb.* )) KEEP(*inflate.o(.rel.sbss .rel.sbss.* .rel.gnu.linkonce.sb.* )) }
+	. = ALIGN(ALIGNOF(".rela.sbss_*driver_flash.o"));
+	".rela.sbss_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rel.sbss_*driver_flash.o") + SIZEOF (".rel.sbss_*driver_flash.o"), ALIGNOF(".rela.sbss_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rela.sbss .rela.sbss.* .rela.gnu.linkonce.sb.* )) KEEP(*drv_uart.o(.rela.sbss .rela.sbss.* .rela.gnu.linkonce.sb.* )) KEEP(*driver_uart2.o(.rela.sbss .rela.sbss.* .rela.gnu.linkonce.sb.* )) KEEP(*fal_flash.o(.rela.sbss .rela.sbss.* .rela.gnu.linkonce.sb.* )) KEEP(*fal_partition.o(.rela.sbss .rela.sbss.* .rela.gnu.linkonce.sb.* )) KEEP(*data_move.o(.rela.sbss .rela.sbss.* .rela.gnu.linkonce.sb.* )) KEEP(*inflate.o(.rela.sbss .rela.sbss.* .rela.gnu.linkonce.sb.* )) }
+	. = ALIGN(ALIGNOF(".rel.sdata2_*driver_flash.o"));
+	".rel.sdata2_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rela.sbss_*driver_flash.o") + SIZEOF (".rela.sbss_*driver_flash.o"), ALIGNOF(".rel.sdata2_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rel.sdata2 .rel.sdata2.* .rel.gnu.linkonce.s2.* )) KEEP(*drv_uart.o(.rel.sdata2 .rel.sdata2.* .rel.gnu.linkonce.s2.* )) KEEP(*driver_uart2.o(.rel.sdata2 .rel.sdata2.* .rel.gnu.linkonce.s2.* )) KEEP(*fal_flash.o(.rel.sdata2 .rel.sdata2.* .rel.gnu.linkonce.s2.* )) KEEP(*fal_partition.o(.rel.sdata2 .rel.sdata2.* .rel.gnu.linkonce.s2.* )) KEEP(*data_move.o(.rel.sdata2 .rel.sdata2.* .rel.gnu.linkonce.s2.* )) KEEP(*inflate.o(.rel.sdata2 .rel.sdata2.* .rel.gnu.linkonce.s2.* )) }
+	. = ALIGN(ALIGNOF(".rela.sdata2_*driver_flash.o"));
+	".rela.sdata2_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rel.sdata2_*driver_flash.o") + SIZEOF (".rel.sdata2_*driver_flash.o"), ALIGNOF(".rela.sdata2_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rela.sdata2 .rela.sdata2.* .rela.gnu.linkonce.s2.* )) KEEP(*drv_uart.o(.rela.sdata2 .rela.sdata2.* .rela.gnu.linkonce.s2.* )) KEEP(*driver_uart2.o(.rela.sdata2 .rela.sdata2.* .rela.gnu.linkonce.s2.* )) KEEP(*fal_flash.o(.rela.sdata2 .rela.sdata2.* .rela.gnu.linkonce.s2.* )) KEEP(*fal_partition.o(.rela.sdata2 .rela.sdata2.* .rela.gnu.linkonce.s2.* )) KEEP(*data_move.o(.rela.sdata2 .rela.sdata2.* .rela.gnu.linkonce.s2.* )) KEEP(*inflate.o(.rela.sdata2 .rela.sdata2.* .rela.gnu.linkonce.s2.* )) }
+	. = ALIGN(ALIGNOF(".rel.sbss2_*driver_flash.o"));
+	".rel.sbss2_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rela.sdata2_*driver_flash.o") + SIZEOF (".rela.sdata2_*driver_flash.o"), ALIGNOF(".rel.sbss2_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rel.sbss2 .rel.sbss2.* .rel.gnu.linkonce.sb2.* )) KEEP(*drv_uart.o(.rel.sbss2 .rel.sbss2.* .rel.gnu.linkonce.sb2.* )) KEEP(*driver_uart2.o(.rel.sbss2 .rel.sbss2.* .rel.gnu.linkonce.sb2.* )) KEEP(*fal_flash.o(.rel.sbss2 .rel.sbss2.* .rel.gnu.linkonce.sb2.* )) KEEP(*fal_partition.o(.rel.sbss2 .rel.sbss2.* .rel.gnu.linkonce.sb2.* )) KEEP(*data_move.o(.rel.sbss2 .rel.sbss2.* .rel.gnu.linkonce.sb2.* )) KEEP(*inflate.o(.rel.sbss2 .rel.sbss2.* .rel.gnu.linkonce.sb2.* )) }
+	. = ALIGN(ALIGNOF(".rela.sbss2_*driver_flash.o"));
+	".rela.sbss2_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rel.sbss2_*driver_flash.o") + SIZEOF (".rel.sbss2_*driver_flash.o"), ALIGNOF(".rela.sbss2_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rela.sbss2 .rela.sbss2.* .rela.gnu.linkonce.sb2.* )) KEEP(*drv_uart.o(.rela.sbss2 .rela.sbss2.* .rela.gnu.linkonce.sb2.* )) KEEP(*driver_uart2.o(.rela.sbss2 .rela.sbss2.* .rela.gnu.linkonce.sb2.* )) KEEP(*fal_flash.o(.rela.sbss2 .rela.sbss2.* .rela.gnu.linkonce.sb2.* )) KEEP(*fal_partition.o(.rela.sbss2 .rela.sbss2.* .rela.gnu.linkonce.sb2.* )) KEEP(*data_move.o(.rela.sbss2 .rela.sbss2.* .rela.gnu.linkonce.sb2.* )) KEEP(*inflate.o(.rela.sbss2 .rela.sbss2.* .rela.gnu.linkonce.sb2.* )) }
+	. = ALIGN(ALIGNOF(".rel.bss_*driver_flash.o"));
+	".rel.bss_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rela.sbss2_*driver_flash.o") + SIZEOF (".rela.sbss2_*driver_flash.o"), ALIGNOF(".rel.bss_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rel.bss .rel.bss.* .rel.gnu.linkonce.b.* )) KEEP(*drv_uart.o(.rel.bss .rel.bss.* .rel.gnu.linkonce.b.* )) KEEP(*driver_uart2.o(.rel.bss .rel.bss.* .rel.gnu.linkonce.b.* )) KEEP(*fal_flash.o(.rel.bss .rel.bss.* .rel.gnu.linkonce.b.* )) KEEP(*fal_partition.o(.rel.bss .rel.bss.* .rel.gnu.linkonce.b.* )) KEEP(*data_move.o(.rel.bss .rel.bss.* .rel.gnu.linkonce.b.* )) KEEP(*inflate.o(.rel.bss .rel.bss.* .rel.gnu.linkonce.b.* )) }
+	. = ALIGN(ALIGNOF(".rela.bss_*driver_flash.o"));
+	".rela.bss_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rel.bss_*driver_flash.o") + SIZEOF (".rel.bss_*driver_flash.o"), ALIGNOF(".rela.bss_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.* )) KEEP(*drv_uart.o(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.* )) KEEP(*driver_uart2.o(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.* )) KEEP(*fal_flash.o(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.* )) KEEP(*fal_partition.o(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.* )) KEEP(*data_move.o(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.* )) KEEP(*inflate.o(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.* )) }
+	. = ALIGN(ALIGNOF(".rel.plt_*driver_flash.o"));
+	".rel.plt_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rela.bss_*driver_flash.o") + SIZEOF (".rela.bss_*driver_flash.o"), ALIGNOF(".rel.plt_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rel.plt )) KEEP(*drv_uart.o(.rel.plt )) KEEP(*driver_uart2.o(.rel.plt )) KEEP(*fal_flash.o(.rel.plt )) KEEP(*fal_partition.o(.rel.plt )) KEEP(*data_move.o(.rel.plt )) KEEP(*inflate.o(.rel.plt )) }
+	. = ALIGN(ALIGNOF(".rela.plt_*driver_flash.o"));
+	".rela.plt_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rel.plt_*driver_flash.o") + SIZEOF (".rel.plt_*driver_flash.o"), ALIGNOF(".rela.plt_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rela.plt )) KEEP(*drv_uart.o(.rela.plt )) KEEP(*driver_uart2.o(.rela.plt )) KEEP(*fal_flash.o(.rela.plt )) KEEP(*fal_partition.o(.rela.plt )) KEEP(*data_move.o(.rela.plt )) KEEP(*inflate.o(.rela.plt )) }
+	. = ALIGN(ALIGNOF(".init_*driver_flash.o"));
+	".init_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rela.plt_*driver_flash.o") + SIZEOF (".rela.plt_*driver_flash.o"), ALIGNOF(".init_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.init )) KEEP(*drv_uart.o(.init )) KEEP(*driver_uart2.o(.init )) KEEP(*fal_flash.o(.init )) KEEP(*fal_partition.o(.init )) KEEP(*data_move.o(.init )) KEEP(*inflate.o(.init )) }
+	. = ALIGN(ALIGNOF(".plt_*driver_flash.o"));
+	".plt_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".init_*driver_flash.o") + SIZEOF (".init_*driver_flash.o"), ALIGNOF(".plt_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.plt )) KEEP(*drv_uart.o(.plt )) KEEP(*driver_uart2.o(.plt )) KEEP(*fal_flash.o(.plt )) KEEP(*fal_partition.o(.plt )) KEEP(*data_move.o(.plt )) KEEP(*inflate.o(.plt )) }
+	. = ALIGN(ALIGNOF(".text_*driver_flash.o"));
+	".text_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".plt_*driver_flash.o") + SIZEOF (".plt_*driver_flash.o"), ALIGNOF(".text_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.text .stub .text.* .gnu.linkonce.t.* )) KEEP(*drv_uart.o(.text .stub .text.* .gnu.linkonce.t.* )) KEEP(*driver_uart2.o(.text .stub .text.* .gnu.linkonce.t.* )) KEEP(*fal_flash.o(.text .stub .text.* .gnu.linkonce.t.* )) KEEP(*fal_partition.o(.text .stub .text.* .gnu.linkonce.t.* )) KEEP(*data_move.o(.text .stub .text.* .gnu.linkonce.t.* )) KEEP(*inflate.o(.text .stub .text.* .gnu.linkonce.t.* )) KEEP(*driver_flash.o(.text.*personality* )) KEEP(*drv_uart.o(.text.*personality* )) KEEP(*driver_uart2.o(.text.*personality* )) KEEP(*fal_flash.o(.text.*personality* )) KEEP(*fal_partition.o(.text.*personality* )) KEEP(*data_move.o(.text.*personality* )) KEEP(*inflate.o(.text.*personality* )) KEEP(*driver_flash.o(.gnu.warning )) KEEP(*drv_uart.o(.gnu.warning )) KEEP(*driver_uart2.o(.gnu.warning )) KEEP(*fal_flash.o(.gnu.warning )) KEEP(*fal_partition.o(.gnu.warning )) KEEP(*data_move.o(.gnu.warning )) KEEP(*inflate.o(.gnu.warning )) . = ALIGN(4); } = 0x9200
+	. = ALIGN(ALIGNOF(".fini_*driver_flash.o"));
+	".fini_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".text_*driver_flash.o") + SIZEOF (".text_*driver_flash.o"), ALIGNOF(".fini_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.fini )) KEEP(*drv_uart.o(.fini )) KEEP(*driver_uart2.o(.fini )) KEEP(*fal_flash.o(.fini )) KEEP(*fal_partition.o(.fini )) KEEP(*data_move.o(.fini )) KEEP(*inflate.o(.fini )) }
+	. = ALIGN(ALIGNOF(".ex9.itable_*driver_flash.o"));
+	".ex9.itable_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".fini_*driver_flash.o") + SIZEOF (".fini_*driver_flash.o"), ALIGNOF(".ex9.itable_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.ex9.itable )) KEEP(*drv_uart.o(.ex9.itable )) KEEP(*driver_uart2.o(.ex9.itable )) KEEP(*fal_flash.o(.ex9.itable )) KEEP(*fal_partition.o(.ex9.itable )) KEEP(*data_move.o(.ex9.itable )) KEEP(*inflate.o(.ex9.itable )) }
+	PROVIDE (__etext = .);
+	PROVIDE (_etext = .);
+	PROVIDE (etext = .);
+	. = ALIGN(ALIGNOF(".rodata_*driver_flash.o"));
+	".rodata_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".ex9.itable_*driver_flash.o") + SIZEOF (".ex9.itable_*driver_flash.o"), ALIGNOF(".rodata_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rodata .rodata.* .gnu.linkonce.r.* )) KEEP(*drv_uart.o(.rodata .rodata.* .gnu.linkonce.r.* )) KEEP(*driver_uart2.o(.rodata .rodata.* .gnu.linkonce.r.* )) KEEP(*fal_flash.o(.rodata .rodata.* .gnu.linkonce.r.* )) KEEP(*fal_partition.o(.rodata .rodata.* .gnu.linkonce.r.* )) KEEP(*data_move.o(.rodata .rodata.* .gnu.linkonce.r.* )) KEEP(*inflate.o(.rodata .rodata.* .gnu.linkonce.r.* )) }
+	. = ALIGN(ALIGNOF(".rodata1_*driver_flash.o"));
+	".rodata1_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rodata_*driver_flash.o") + SIZEOF (".rodata_*driver_flash.o"), ALIGNOF(".rodata1_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.rodata1 )) KEEP(*drv_uart.o(.rodata1 )) KEEP(*driver_uart2.o(.rodata1 )) KEEP(*fal_flash.o(.rodata1 )) KEEP(*fal_partition.o(.rodata1 )) KEEP(*data_move.o(.rodata1 )) KEEP(*inflate.o(.rodata1 )) }
+	. = ALIGN(ALIGNOF(".sdata2_*driver_flash.o"));
+	".sdata2_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".rodata1_*driver_flash.o") + SIZEOF (".rodata1_*driver_flash.o"), ALIGNOF(".sdata2_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.sdata2 .sdata2.* .gnu.linkonce.s2.* )) KEEP(*drv_uart.o(.sdata2 .sdata2.* .gnu.linkonce.s2.* )) KEEP(*driver_uart2.o(.sdata2 .sdata2.* .gnu.linkonce.s2.* )) KEEP(*fal_flash.o(.sdata2 .sdata2.* .gnu.linkonce.s2.* )) KEEP(*fal_partition.o(.sdata2 .sdata2.* .gnu.linkonce.s2.* )) KEEP(*data_move.o(.sdata2 .sdata2.* .gnu.linkonce.s2.* )) KEEP(*inflate.o(.sdata2 .sdata2.* .gnu.linkonce.s2.* )) }
+	. = ALIGN(ALIGNOF(".sbss2_*driver_flash.o"));
+	".sbss2_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".sdata2_*driver_flash.o") + SIZEOF (".sdata2_*driver_flash.o"), ALIGNOF(".sbss2_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.sbss2 .sbss2.* .gnu.linkonce.sb2.* )) KEEP(*drv_uart.o(.sbss2 .sbss2.* .gnu.linkonce.sb2.* )) KEEP(*driver_uart2.o(.sbss2 .sbss2.* .gnu.linkonce.sb2.* )) KEEP(*fal_flash.o(.sbss2 .sbss2.* .gnu.linkonce.sb2.* )) KEEP(*fal_partition.o(.sbss2 .sbss2.* .gnu.linkonce.sb2.* )) KEEP(*data_move.o(.sbss2 .sbss2.* .gnu.linkonce.sb2.* )) KEEP(*inflate.o(.sbss2 .sbss2.* .gnu.linkonce.sb2.* )) }
+	. = ALIGN(ALIGNOF(".eh_frame_hdr_*driver_flash.o"));
+	".eh_frame_hdr_*driver_flash.o" 	: AT(ALIGN(LOADADDR (".sbss2_*driver_flash.o") + SIZEOF (".sbss2_*driver_flash.o"), ALIGNOF(".eh_frame_hdr_*driver_flash.o")))
+		{ KEEP(*driver_flash.o(.eh_frame_hdr )) KEEP(*drv_uart.o(.eh_frame_hdr )) KEEP(*driver_uart2.o(.eh_frame_hdr )) KEEP(*fal_flash.o(.eh_frame_hdr )) KEEP(*fal_partition.o(.eh_frame_hdr )) KEEP(*data_move.o(.eh_frame_hdr )) KEEP(*inflate.o(.eh_frame_hdr )) }
+	.itcm_write_flash 	: AT(LOADADDR (".eh_frame_hdr_*driver_flash.o") + SIZEOF (".eh_frame_hdr_*driver_flash.o"))
+		{ KEEP(*(.itcm_write_flash )) }
+	_itcm_lma_end =  LOADADDR (.itcm_write_flash) + SIZEOF (.itcm_write_flash);
+	_itcm_ema_end = .;
+	ITCM_SIZE = . - ITCM_BEGIN;
 	. = 0x30010000;
 	SRAM2_BEGIN = .;
-	_data_lmastart =  LOADADDR (.eh_frame_hdr) + SIZEOF (.eh_frame_hdr);
+	_data_lmastart =  LOADADDR (.itcm_write_flash) + SIZEOF (.itcm_write_flash);
 	_data_start = .;
 	. = ALIGN(8);
 	. = ALIGN(0x20);
 	. = ALIGN(ALIGNOF(.eh_frame));
-	.eh_frame 	: AT(ALIGN(LOADADDR (.eh_frame_hdr) + SIZEOF (.eh_frame_hdr), 32))
+	.eh_frame 	: AT(ALIGN(LOADADDR (.itcm_write_flash) + SIZEOF (.itcm_write_flash), 32))
 		{ KEEP(*(.eh_frame )) }
 	. = ALIGN(ALIGNOF(.gcc_except_table));
 	.gcc_except_table 	: AT(ALIGN(LOADADDR (.eh_frame) + SIZEOF (.eh_frame), ALIGNOF(.gcc_except_table)))
@@ -238,4 +420,5 @@ SECTIONS
 	.debug_typenames	0 : { *(.debug_typenames) }
 	.debug_varnames	0 : { *(.debug_varnames) }
 }
+ASSERT((DEFINED (_RELAX_END_) ? ITCM_SIZE : 0x0)<= 0x8000, "ITCM OVERFLOW");
 ASSERT((DEFINED (_RELAX_END_) ? SRAM2_SIZE : 0x0)<= 0x20000, "SRAM2 OVERFLOW");

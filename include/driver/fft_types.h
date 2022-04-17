@@ -14,7 +14,6 @@
 //
 #pragma once
 
-#include "arch_interrupt.h"
 #include <driver/int_types.h>
 #include <common/bk_include.h>
 

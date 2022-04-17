@@ -19,7 +19,7 @@
 #include <os/mem.h>
 #include <os/os.h>
 //#include <os/str.h>
-#include "bk_api_system.h"
+#include <components/system.h>
 #include "BkDriverFlash.h"
 #include "flash_namespace_value.h"
 
@@ -33,11 +33,8 @@
 #include "projdefs.h"
 #include "portable.h"
 
-#include "bk_api_ble.h"
+#include "ble.h"
 #include "at_ble_common.h"
-
-
-
 
 
 #endif // _HOMEKIT_PAL_H_

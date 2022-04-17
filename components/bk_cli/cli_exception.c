@@ -66,6 +66,7 @@ void cli_f1(uint32_t exception_type)
 	cli_f2(exception_type);
 }
 
+#if CONFIG_PWM
 static void cli_pwm0_isr(pwm_chan_t chan)
 {
 	char *s_undefine = 0;
@@ -73,9 +74,12 @@ static void cli_pwm0_isr(pwm_chan_t chan)
 	os_printf("Generate undefined exception in isr\n");
 	*s_undefine = 0;
 }
+#endif
 
 static void cli_irq(void)
 {
+#if CONFIG_PWM
+
 	pwm_init_config_t config = {
 		.period_cycle = 26000000,
 		.duty_cycle = 13000000,
@@ -89,6 +93,10 @@ static void cli_irq(void)
 	BK_LOG_ON_ERR(bk_pwm_register_isr(0, cli_pwm0_isr));
 	BK_LOG_ON_ERR(bk_pwm_start(0));
 	BK_LOG_ON_ERR(bk_pwm_enable_interrupt(0));
+#else
+	os_printf("CONFIG_PWM UNDEFINE\n");
+
+#endif
 }
 
 static void cli_exception_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)

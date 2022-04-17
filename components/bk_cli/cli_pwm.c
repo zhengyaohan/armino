@@ -3,6 +3,8 @@
 #include <driver/pwm.h>
 #include "pwm_hal.h"
 
+#if CONFIG_PWM
+
 static void cli_pwm_help(void)
 {
 	CLI_LOGI("pwm_driver init {26M|DCO}\n");
@@ -271,3 +273,5 @@ int cli_pwm_init(void)
 	BK_LOG_ON_ERR(bk_pwm_driver_init());
 	return cli_register_commands(s_pwm_commands, PWM_CMD_CNT);
 }
+
+#endif

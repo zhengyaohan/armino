@@ -288,6 +288,7 @@ u8_t pbuf_remove_header(struct pbuf *p, size_t header_size);
 struct pbuf *pbuf_free_header(struct pbuf *q, u16_t size);
 void pbuf_ref(struct pbuf *p);
 u8_t pbuf_free(struct pbuf *p);
+u8_t pbuf_length_get(void *p,u32_t *size);
 u16_t pbuf_clen(const struct pbuf *p);
 void pbuf_cat(struct pbuf *head, struct pbuf *tail);
 void pbuf_chain(struct pbuf *head, struct pbuf *tail);

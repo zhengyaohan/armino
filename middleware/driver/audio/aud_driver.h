@@ -22,3 +22,70 @@
 #define AUD_LOGE(...) BK_LOGE(AUD_TAG, ##__VA_ARGS__)
 #define AUD_LOGD(...) BK_LOGD(AUD_TAG, ##__VA_ARGS__)
 
+/**
+ * @brief     Start ADC to DAC loop test
+ *
+ * This API start loop test:
+ *   - Start adc to dac loop test if work mode is adc work mode
+ *   - Start dtmf to dac loop test if work mode is dtmf work mode
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - BK_ERR_AUD_NOT_INIT: audio driver is not init
+ *    - others: other errors.
+ */
+bk_err_t bk_aud_start_loop_test(void);
+
+/**
+ * @brief     Stop ADC to DAC loop test
+ *
+ * This API start loop test:
+ *   - Stop adc to dac loop test if work mode is adc work mode
+ *   - Stop dtmf to dac loop test if work mode is dtmf work mode
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - BK_ERR_AUD_NOT_INIT: audio driver is not init
+ *    - others: other errors.
+ */
+bk_err_t bk_aud_stop_loop_test(void);
+
+/**
+ * @brief     write the sampled value to dac fifo 
+ *
+ * @param
+ *    - pcm_value: sampled value
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - BK_ERR_AUD_NOT_INIT: audio driver is not init
+ *    - others: other errors.
+ */
+bk_err_t bk_aud_dac_write(uint32_t pcm_value);
+
+/**
+ * @brief     Set the interrupt threshold of dac fifo read
+ *
+ * @param
+ *    - dacl_throld: the interrupt threshold of dac left channel
+ *    - dacr_throld: the interrupt threshold of dac right channel
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - BK_ERR_AUD_NOT_INIT: audio driver is not init
+ *    - others: other errors.
+ */
+bk_err_t bk_aud_set_dac_read_threshold(uint16_t dacl_throld, uint16_t dacr_throld);
+
+/**
+ * @brief     Control audio interrupt enable/disable of cpu
+ *
+ * @param
+ *    - value: enable/disable audio interrupt of cpu
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_aud_cpu_int_en(uint32_t value);
+

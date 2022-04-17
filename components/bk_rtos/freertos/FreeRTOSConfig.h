@@ -197,12 +197,7 @@ to exclude the API function. */
 
 #define configLIST_VOLATILE volatile
 
-#define configASSERT(cond)                                                               \
-    do {                                                                                 \
-        if (!(cond)) {                                                                   \
-            rtos_assert_error("RTOS", __FUNCTION__, __LINE__);                                 \
-        }                                                                                \
-    } while(0)
+#define configASSERT(cond)         BK_ASSERT(cond)
 
 /* The following constant describe the hardware */
 /* Enable Hardware Stack Protection and Recording mechanism. */

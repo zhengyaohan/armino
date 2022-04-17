@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include <arch/soc.h>
+#include <soc/soc.h>
 #include <components/log.h>
 
 #ifdef __cplusplus

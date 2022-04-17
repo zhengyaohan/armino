@@ -25,7 +25,7 @@
 #if (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7256_CP1)
 
 #if CONFIG_BLE
-#include <modules/bk_ble.h>
+#include <modules/ble.h>
 #endif
 #if ((CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236) || (CONFIG_SOC_BK7256XX) )
 #define GPIO_WAKEUP_INT_BAK_ADDR bk_wifi_get_la_base_address()

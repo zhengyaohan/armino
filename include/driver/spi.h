@@ -21,16 +21,6 @@
 extern "C" {
 #endif
 
-/* @brief Overview about this API header
- *
- */
-
-/**
- * @brief SPI API
- * @defgroup bk_api_spi SPI API group
- * @{
- */
-
 /**
  * @brief     Init the SPI driver
  *
@@ -281,10 +271,6 @@ bk_err_t bk_spi_dma_read_bytes(spi_id_t id, void *data, uint32_t size);
 bk_err_t bk_spi_dma_transmit(spi_id_t id, const void *tx_data, uint32_t tx_size, void *rx_data, uint32_t rx_size);
 
 #endif
-
-/**
- * @}
- */
 
 #ifdef __cplusplus
 }

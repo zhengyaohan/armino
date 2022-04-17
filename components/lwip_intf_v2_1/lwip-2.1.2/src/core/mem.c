@@ -608,6 +608,47 @@ mem_sanity(void)
 #endif /* MEM_SANITY_CHECK */
 
 /**
+ *
+ * @param get_mem_size
+
+ */
+u32_t
+get_mem_size(void *rmem)
+{
+  struct mem *mem;
+  u32_t len=0;
+  
+  if (rmem == NULL) {
+    LWIP_DEBUGF(MEM_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_LEVEL_SERIOUS, ("get_mem_size(p == NULL) was called.\n"));
+    return 0;
+  }
+  if ((((mem_ptr_t)rmem) & (MEM_ALIGNMENT - 1)) != 0) {
+    LWIP_DEBUGF(MEM_DEBUG | LWIP_DBG_LEVEL_SEVERE, ("get_mem_size: sanity check alignment\n"));
+    /* protect mem stats from concurrent access */
+    MEM_STATS_INC_LOCKED(illegal);
+    return 0;
+  }
+
+  /* Get the corresponding struct mem: */
+  /* cast through void* to get rid of alignment warnings */
+  mem = (struct mem *)(void *)((u8_t *)rmem - (SIZEOF_STRUCT_MEM + MEM_SANITY_OFFSET));
+
+  if ((u8_t *)mem < ram || (u8_t *)rmem + MIN_SIZE_ALIGNED > (u8_t *)ram_end) {
+    LWIP_DEBUGF(MEM_DEBUG | LWIP_DBG_LEVEL_SEVERE, ("get_mem_size: illegal memory\n"));
+    /* protect mem stats from concurrent access */
+    MEM_STATS_INC_LOCKED(illegal);
+    return 0;
+  }
+  LWIP_MEM_FREE_DECL_PROTECT();
+  LWIP_MEM_FREE_PROTECT();
+  len = (u32_t)(mem->next - (mem_size_t)(((u8_t *)mem - ram))-SIZEOF_STRUCT_MEM-MEM_SANITY_OVERHEAD);
+  LWIP_MEM_FREE_UNPROTECT();
+  return len;
+
+}
+
+
+/**
  * Put a struct mem back on the heap
  *
  * @param rmem is the data portion of a struct mem as returned by a previous

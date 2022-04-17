@@ -15,7 +15,7 @@
 #pragma once
 
 #include <common/bk_err.h>
-#include <driver/hal/gpio_types.h>
+#include <driver/hal/hal_gpio_types.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -123,6 +123,9 @@ typedef struct {
 	adc_src_clk_t src_clk;  /**< ADC source clcok choose*/
 	adc_chan_t chan;        /**< ADC work channel*/
 	adc_saturate_mode_t saturate_mode; /**< ADC saturate_mode*/
+    uint32_t is_open;       /**< ADC channel is open or not*/
+    uint16_t *output_buf;   /**< ADC channel output buffer*/
+    int32_t output_buf_len; /**< ADC channel output buffer length*/
 } adc_config_t;
 
 

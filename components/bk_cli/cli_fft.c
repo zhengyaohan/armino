@@ -16,7 +16,7 @@
 #include "cli.h"
 #include <driver/fft.h>
 #include <driver/fft_types.h>
-#include "fft_hal.h"
+#include "fft_driver.h"
 #include "sys_driver.h"
 
 #define FFT_TEST_DATA_SIZE      256
@@ -146,7 +146,6 @@ static void cli_fft_fft_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int a
 	int32 temp_q = 0, temp_i = 0;
 	int32 comp_q = 0, comp_i = 0;
 	fft_input_t fft_conf = {0};
-	uint32_t fft_busy_flag = 0;
 
 	if (argc != 2) {
 		cli_fft_help();
@@ -170,7 +169,7 @@ static void cli_fft_fft_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int a
 		os_printf("\r\ndata_source:\n");
 		for (i = 0; i < FFT_TEST_DATA_SIZE; i++) {
 			fft_conf.inbuf[i] = data_source[i];
-			os_printf("0x%08x, ", fft_conf.inbuf[i]);
+			//os_printf("0x%08x, ", fft_conf.inbuf[i]);
 		}
 		os_printf("\r\n");
 		//start fft
@@ -179,9 +178,8 @@ static void cli_fft_fft_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int a
 		//fft_struct_dump();
 
 		//wait fft complete
-		fft_busy_flag = 1;
-		while(fft_busy_flag)
-			bk_fft_is_busy(&fft_busy_flag);
+		while(bk_fft_is_busy())
+			;
 		CLI_LOGI("fft complete\r\n");
 
 		os_free(fft_conf.inbuf);
@@ -190,14 +188,15 @@ static void cli_fft_fft_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int a
 		bk_fft_output_read(data_proc_i, data_proc_q, 2 * FFT_TEST_DATA_SIZE);
 		os_printf("\r\ndata_proc:\n");
 		for (i = 0; i < FFT_TEST_DATA_SIZE; i++) {
-			os_printf("0x%04hx%04hx, ", data_proc_q[i], data_proc_i[i]);
+			//os_printf("0x%04hx%04hx, ", data_proc_q[i], data_proc_i[i]);
 			temp_q = ((int32)data_proc_q[i]) & 0x0000ffff;
 			temp_i = ((int32)data_proc_i[i]) & 0x0000ffff;
 			comp_q = (data_proc[i] >> 16) & 0x0000ffff;
 			comp_i = data_proc[i] & 0x0000ffff;
-			//os_printf("\r\ntemp_q:0x%8x, temp_i:0x%8x, comp_q:0x%8x, comp_i:0x%8x\r\n", temp_q, temp_i, comp_q, comp_i);
+			os_printf("\r\ntemp_q:0x%8x, temp_i:0x%8x, comp_q:0x%8x, comp_i:0x%8x\r\n", temp_q, temp_i, comp_q, comp_i);
 			if ((temp_q != comp_q) || (temp_i != comp_i)) {
 				os_printf("\r\nfft test fail!\r\n");
+				ret = BK_FAIL;
 				break;
 			}
 		}
@@ -224,7 +223,6 @@ static void cli_fft_ifft_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int 
 	int32 temp_q = 0, temp_i = 0;
 	int32 comp_q = 0, comp_i = 0;
 	fft_input_t fft_conf = {0};
-	uint32_t fft_busy_flag = 0;
 
 	if (argc != 2) {
 		cli_fft_help();
@@ -248,7 +246,7 @@ static void cli_fft_ifft_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int 
 		os_printf("\r\ndata_source:\n");
 		for (i = 0; i < FFT_TEST_DATA_SIZE; i++) {
 			fft_conf.inbuf[i] = data_proc[i];
-			os_printf("0x%08x, ", fft_conf.inbuf[i]);
+			//os_printf("0x%08x, ", fft_conf.inbuf[i]);
 		}
 		os_printf("\r\n");
 		//start fft
@@ -256,9 +254,8 @@ static void cli_fft_ifft_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int 
 		CLI_LOGI("start ifft process \r\n");
 
 		//wait fft complete
-		fft_busy_flag = 1;
-		while(fft_busy_flag)
-			bk_fft_is_busy(&fft_busy_flag);
+		while(bk_fft_is_busy())
+			;
 		CLI_LOGI("ifft complete\r\n");
 
 		os_free(fft_conf.inbuf);
@@ -267,7 +264,7 @@ static void cli_fft_ifft_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int 
 		bk_fft_output_read(data_proc_i, data_proc_q, 2 * FFT_TEST_DATA_SIZE);
 		os_printf("\r\ndata_proc:\n");
 		for (i = 0; i < FFT_TEST_DATA_SIZE; i++) {
-			os_printf("0x%04hx%04hx, ", data_proc_q[i], data_proc_i[i]);
+			//os_printf("0x%04hx%04hx, ", data_proc_q[i], data_proc_i[i]);
 			temp_q = ((int32)data_proc_q[i]) & 0x0000ffff;
 			temp_i = ((int32)data_proc_i[i]) & 0x0000ffff;
 			comp_q = (data_comp[i] >> 16) & 0x0000ffff;
@@ -275,6 +272,7 @@ static void cli_fft_ifft_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int 
 			//os_printf("\r\ntemp_q:0x%8x, temp_i:0x%8x, comp_q:0x%8x, comp_i:0x%8x\r\n", temp_q, temp_i, comp_q, comp_i);
 			if ((temp_q != comp_q) || (temp_i != comp_i)) {
 				os_printf("\r\nifft test fail!\r\n");
+				ret = BK_FAIL;
 				break;
 			}
 		}
@@ -294,12 +292,13 @@ static void cli_fft_ifft_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int 
 	}
 }
 
+//fir function is not used
+#if 0
 static void cli_fft_fir_signal_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 	bk_err_t ret = BK_OK;
 	uint32_t i = 0;
 	fft_fir_input_t fir_conf = {0};
-	uint32_t fft_busy_flag = 0;
 
 	if (argc != 2) {
 		cli_fft_help();
@@ -334,9 +333,8 @@ static void cli_fft_fir_signal_test_cmd(char *pcWriteBuffer, int xWriteBufferLen
 		CLI_LOGI("start fir process \r\n");
 
 		//wait fir complete
-		fft_busy_flag = 1;
-		while(fft_busy_flag)
-			bk_fft_is_busy(&fft_busy_flag);
+		while(bk_fft_is_busy())
+			;
 		CLI_LOGI("fft complete\r\n");
 
 		os_free(fir_conf.coef_c0);
@@ -367,7 +365,6 @@ static void cli_fft_fir_dual_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, 
 	bk_err_t ret = BK_OK;
 	uint32_t i = 0;
 	fft_fir_input_t fir_conf = {0};
-	uint32_t fft_busy_flag = 0;
 
 	if (argc != 2) {
 		cli_fft_help();
@@ -405,9 +402,8 @@ static void cli_fft_fir_dual_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, 
 //		fft_struct_dump();
 
 		//wait fir complete
-		fft_busy_flag = 1;
-		while(fft_busy_flag)
-			bk_fft_is_busy(&fft_busy_flag);
+		while(bk_fft_is_busy())
+			;
 		CLI_LOGI("fft complete\r\n");
 
 		//free memory
@@ -435,14 +431,14 @@ static void cli_fft_fir_dual_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, 
 		return;
 	}
 }
-
+#endif
 
 #define FFT_CMD_CNT (sizeof(s_fft_commands) / sizeof(struct cli_command))
 static const struct cli_command s_fft_commands[] = {
 	{"fft_fft_test", "fft_fft_test {start|stop}", cli_fft_fft_test_cmd},
 	{"fft_ifft_test", "fft_ifft_test {start|stop}", cli_fft_ifft_test_cmd},
-	{"fft_fir_signal_test", "fft_fir_signal_test {start|stop}", cli_fft_fir_signal_test_cmd},
-	{"fft_fir_dual_test", "fft_fir_dual_test {start|stop}", cli_fft_fir_dual_test_cmd},
+	//{"fft_fir_signal_test", "fft_fir_signal_test {start|stop}", cli_fft_fir_signal_test_cmd},
+	//{"fft_fir_dual_test", "fft_fir_dual_test {start|stop}", cli_fft_fir_dual_test_cmd},
 };
 
 int cli_fft_init(void)

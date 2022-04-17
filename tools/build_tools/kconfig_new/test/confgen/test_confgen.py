@@ -121,15 +121,15 @@ class JsonMenuTestCase(ConfgenBaseTestCase):
 
     def testMultipleRanges(self):
         self.invoke_and_test("""
-        config BDK_SOC
-            string "BDK target"
+        config ARMINO_SOC
+            string "ARMINO target"
             default "bk7231n"
 
         config SOME_SETTING
             int "setting for the chip"
-            range 0 100 if BDK_SOC="bk7231n"
-            range 0 10 if BDK_SOC="bk7231"
-            range -10 1 if BDK_SOC="bk7251"
+            range 0 100 if ARMINO_SOC="bk7231n"
+            range 0 10 if ARMINO_SOC="bk7231"
+            range -10 1 if ARMINO_SOC="bk7251"
         """, re.compile(r'"range":\s+\[\s+0,\s+10\s+\]'), 'regex')
 
     def testHexRanges(self):
@@ -183,7 +183,7 @@ class MakefileTestCase(ConfgenBaseTestCase):
             self.addCleanup(os.remove, f2.name)
         self.args.update({'env': ['COMPONENT_KCONFIGS_PROJBUILD_SOURCE_FILE={}'.format(f1.name),
                                   'COMPONENT_KCONFIGS_SOURCE_FILE={}'.format(f2.name),
-                                  'BDK_SOC=bk7231n']})
+                                  'ARMINO_SOC=bk7231n']})
 
     def testTarget(self):
         with open(os.path.join(os.environ['ARMINO_PATH'], 'Kconfig')) as f:
@@ -217,7 +217,7 @@ class DocsTestCase(ConfgenBaseTestCase):
     def setUpClass(self):
         super(DocsTestCase, self).setUpClass()
         self.args.update({'output': 'docs',
-                          'env': 'BDK_SOC=bk7231n'})
+                          'env': 'ARMINO_SOC=bk7231n'})
 
     def testChoice(self):
         self.invoke_and_test("""

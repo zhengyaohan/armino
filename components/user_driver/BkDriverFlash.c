@@ -56,7 +56,7 @@ const bk_logic_partition_t bk7256_partitions[BK_PARTITION_MAX] = {
 	{
 		.partition_owner           = BK_FLASH_EMBEDDED,
 		.partition_description     = "ota",
-		.partition_start_addr      = 0x1AA000,
+		.partition_start_addr      = 0x1A9000,
 		.partition_length          = 0x100000,      // 1M
 		.partition_options         = PAR_OPT_READ_EN | PAR_OPT_WRITE_DIS,
 	},

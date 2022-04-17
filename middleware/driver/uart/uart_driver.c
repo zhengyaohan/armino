@@ -29,7 +29,7 @@
 #include "clock_driver.h"
 #include <os/os.h>
 #include "bk_arch.h"
-#include "bk_api_printf.h"
+#include <components/system.h>
 #if (CONFIG_SYSTEM_CTRL)
 #include "sys_driver.h"
 #endif
@@ -110,13 +110,13 @@ static void uart_clock_enable(uart_id_t id)
 {
 	switch(id)
 	{
-		case UART_ID_1:
+		case UART_ID_0:
 			sys_drv_dev_clk_pwr_up(CLK_PWR_ID_UART1, CLK_PWR_CTRL_PWR_UP);
 			break;
-		case UART_ID_2:
+		case UART_ID_1:
 			sys_drv_dev_clk_pwr_up(CLK_PWR_ID_UART2, CLK_PWR_CTRL_PWR_UP);
 			break;
-		case UART_ID_3:
+		case UART_ID_2:
 			sys_drv_dev_clk_pwr_up(CLK_PWR_ID_UART3, CLK_PWR_CTRL_PWR_UP);
 			break;
 		default:
@@ -128,13 +128,13 @@ static void uart_clock_disable(uart_id_t id)
 {
 	switch(id)
 	{
-		case UART_ID_1:
+		case UART_ID_0:
 			sys_drv_dev_clk_pwr_up(CLK_PWR_ID_UART1, CLK_PWR_CTRL_PWR_DOWN);
 			break;
-		case UART_ID_2:
+		case UART_ID_1:
 			sys_drv_dev_clk_pwr_up(CLK_PWR_ID_UART2, CLK_PWR_CTRL_PWR_DOWN);
 			break;
-		case UART_ID_3:
+		case UART_ID_2:
 			sys_drv_dev_clk_pwr_up(CLK_PWR_ID_UART3, CLK_PWR_CTRL_PWR_DOWN);
 			break;
 		default:
@@ -146,13 +146,13 @@ static void uart_interrupt_enable(uart_id_t id)
 {
 	switch(id)
 	{
-		case UART_ID_1:
+		case UART_ID_0:
 			sys_drv_int_enable(UART0_INTERRUPT_CTRL_BIT);
 			break;
-		case UART_ID_2:
+		case UART_ID_1:
 			sys_drv_int_enable(UART1_INTERRUPT_CTRL_BIT);
 			break;
-		case UART_ID_3:
+		case UART_ID_2:
 			sys_drv_int_enable(UART2_INTERRUPT_CTRL_BIT);
 			break;
 		default:
@@ -164,13 +164,13 @@ static void uart_interrupt_disable(uart_id_t id)
 {
 	switch(id)
 	{
-		case UART_ID_1:
+		case UART_ID_0:
 			sys_drv_int_disable(UART0_INTERRUPT_CTRL_BIT);
 			break;
-		case UART_ID_2:
+		case UART_ID_1:
 			sys_drv_int_disable(UART1_INTERRUPT_CTRL_BIT);
 			break;
-		case UART_ID_3:
+		case UART_ID_2:
 			sys_drv_int_disable(UART2_INTERRUPT_CTRL_BIT);
 			break;
 		default:
@@ -183,7 +183,7 @@ static void uart_init_gpio(uart_id_t id)
 {
 	switch (id)
 	{
-		case UART_ID_1:
+		case UART_ID_0:
 		{
 			gpio_dev_map(uart_hal_get_tx_pin(id), GPIO_DEV_UART1_TXD);
 			gpio_dev_map(uart_hal_get_rx_pin(id), GPIO_DEV_UART1_RXD);
@@ -202,7 +202,7 @@ static void uart_init_gpio(uart_id_t id)
 #endif
 			break;
 		}
-		case UART_ID_2:
+		case UART_ID_1:
 		{
 			gpio_dev_map(uart_hal_get_tx_pin(id), GPIO_DEV_UART2_TXD);
 			gpio_dev_map(uart_hal_get_rx_pin(id), GPIO_DEV_UART2_RXD);
@@ -210,7 +210,7 @@ static void uart_init_gpio(uart_id_t id)
 			bk_gpio_pull_up(uart_hal_get_rx_pin(id));
 			break;
 		}
-		case UART_ID_3:
+		case UART_ID_2:
 		{
 			gpio_dev_map(uart_hal_get_tx_pin(id), GPIO_DEV_UART3_TXD);
 			gpio_dev_map(uart_hal_get_rx_pin(id), GPIO_DEV_UART3_RXD);
@@ -227,6 +227,12 @@ static void uart_deinit_tx_gpio(uart_id_t id)
 {
 	switch (id)
 	{
+		case UART_ID_0:
+		{
+			gpio_dev_unmap(uart_hal_get_tx_pin(id));
+			bk_gpio_pull_up(uart_hal_get_tx_pin(id));
+			break;
+		}
 		case UART_ID_1:
 		{
 			gpio_dev_unmap(uart_hal_get_tx_pin(id));
@@ -234,12 +240,6 @@ static void uart_deinit_tx_gpio(uart_id_t id)
 			break;
 		}
 		case UART_ID_2:
-		{
-			gpio_dev_unmap(uart_hal_get_tx_pin(id));
-			bk_gpio_pull_up(uart_hal_get_tx_pin(id));
-			break;
-		}
-		case UART_ID_3:
 		{
 			gpio_dev_unmap(uart_hal_get_tx_pin(id));
 			bk_gpio_pull_up(uart_hal_get_tx_pin(id));
@@ -254,6 +254,12 @@ static void uart_deinit_rx_gpio(uart_id_t id)
 {
 	switch (id)
 	{
+		case UART_ID_0:
+		{
+			gpio_dev_unmap(uart_hal_get_rx_pin(id));
+			bk_gpio_pull_up(uart_hal_get_rx_pin(id));
+			break;
+		}
 		case UART_ID_1:
 		{
 			gpio_dev_unmap(uart_hal_get_rx_pin(id));
@@ -261,12 +267,6 @@ static void uart_deinit_rx_gpio(uart_id_t id)
 			break;
 		}
 		case UART_ID_2:
-		{
-			gpio_dev_unmap(uart_hal_get_rx_pin(id));
-			bk_gpio_pull_up(uart_hal_get_rx_pin(id));
-			break;
-		}
-		case UART_ID_3:
 		{
 			gpio_dev_unmap(uart_hal_get_rx_pin(id));
 			bk_gpio_pull_up(uart_hal_get_rx_pin(id));
@@ -384,16 +384,16 @@ static uint32_t uart_id_read_fifo_frame(uart_id_t id, const kfifo_ptr_t rx_ptr)
 	return kfifo_put_cnt;
 }
 
-void print_hex_dump(const char *prefix, void *buf, int len)
+void print_hex_dump(const char *prefix, const void *buf, int len)
 {
 	int i;
-	u8 *b = buf;
+	const u8 *b = buf;
 
 	if (prefix)
-		UART_LOGI("%s", prefix);
+		BK_LOG_RAW("%s", prefix);
 	for (i = 0; i < len; i++)
-		UART_LOGI("%02X ", b[i]);
-	UART_LOGI("\n");
+		BK_LOG_RAW("%02X ", b[i]);
+	BK_LOG_RAW("\n");
 }
 
 bk_err_t uart_write_byte(uart_id_t id, uint8_t data)
@@ -473,13 +473,13 @@ static void uart_isr_register_functions(uart_id_t id)
 {
 	switch(id)
 	{
-		case UART_ID_1:
+		case UART_ID_0:
 			bk_int_isr_register(INT_SRC_UART1, uart0_isr, NULL);
 			break;
-		case UART_ID_2:
+		case UART_ID_1:
 			bk_int_isr_register(INT_SRC_UART2, uart1_isr, NULL);
 			break;
-		case UART_ID_3:
+		case UART_ID_2:
 			bk_int_isr_register(INT_SRC_UART3, uart2_isr, NULL);
 			break;
 		default:
@@ -497,7 +497,7 @@ bk_err_t bk_uart_driver_init(void)
 	os_memset(&s_uart_rx_isr, 0, sizeof(s_uart_rx_isr));
 	os_memset(&s_uart_tx_isr, 0, sizeof(s_uart_tx_isr));
 
-	for(uart_id_t id = UART_ID_1; id < SOC_UART_ID_NUM_PER_UNIT; id++)
+	for(uart_id_t id = UART_ID_0; id < SOC_UART_ID_NUM_PER_UNIT; id++)
 	{
 		uart_isr_register_functions(id);
 		s_uart[id].hal.id = id;
@@ -518,12 +518,17 @@ bk_err_t bk_uart_driver_deinit(void)
 	if (!s_uart_driver_is_init)
 		return BK_OK;
 
-	for (uart_id_t id = UART_ID_1; id < SOC_UART_ID_NUM_PER_UNIT; id++) {
+	for (uart_id_t id = UART_ID_0; id < SOC_UART_ID_NUM_PER_UNIT; id++) {
 		uart_id_deinit_common(id);
 	}
 	s_uart_driver_is_init = false;
 
 	return BK_OK;
+}
+
+int bk_uart_is_in_used(uart_id_t id)
+{
+	return (s_uart[id].id_init_bits & BIT((id)));
 }
 
 bk_err_t bk_uart_init(uart_id_t id, const uart_config_t *config)
@@ -670,30 +675,33 @@ bk_err_t bk_uart_register_tx_isr(uart_id_t id, uart_isr_t isr, void *param)
 
 static uart_callback_t s_last_uart_rx_isr = {0};
 
-void bk_uart_take_rx_isr(uart_id_t id, uart_isr_t isr, void *param)
+bk_err_t bk_uart_take_rx_isr(uart_id_t id, uart_isr_t isr, void *param)
 {
 	s_last_uart_rx_isr.callback = s_uart_rx_isr[id].callback;
 	s_last_uart_rx_isr.param = s_uart_rx_isr[id].param;
 
-	bk_uart_disable_sw_fifo(id);
-	bk_uart_register_rx_isr(id, isr, param);
+	BK_RETURN_ON_ERR(bk_uart_disable_sw_fifo(id));
+	BK_RETURN_ON_ERR(bk_uart_register_rx_isr(id, isr, param));
+
+	return BK_OK;
 }
 
-void bk_uart_recover_rx_isr(uart_id_t id)
+bk_err_t bk_uart_recover_rx_isr(uart_id_t id)
 {
 	bk_uart_register_rx_isr(id, s_last_uart_rx_isr.callback, s_last_uart_rx_isr.param);
 
 #if (!CONFIG_SHELL_ASYNCLOG)
 	bk_uart_enable_sw_fifo(id);
 #else
-	if (id != CONFIG_UART_PRINT_PORT)
-	{
+	if (id != CONFIG_UART_PRINT_PORT) {
 		bk_uart_enable_sw_fifo(id);
 	}
 #endif
 
 	s_last_uart_rx_isr.callback = NULL;
 	s_last_uart_rx_isr.param = NULL;
+
+	return BK_OK;
 }
 
 bk_err_t bk_uart_write_bytes(uart_id_t id, const void *data, uint32_t size)
@@ -713,51 +721,75 @@ bk_err_t bk_uart_read_bytes(uart_id_t id, void *data, uint32_t size, uint32_t ti
 	UART_RETURN_ON_INVALID_ID(id);
 	UART_RETURN_ON_ID_NOT_INIT(id);
 
-	__attribute__((__unused__)) uart_statis_t* uart_statis = uart_statis_get_statis(id);
-	GLOBAL_INT_DECLARATION();
-	GLOBAL_INT_DISABLE();
-	uint32_t kfifo_data_len = kfifo_data_size(s_uart_rx_kfifo[id]);
-	/* Only kfifo_data_len=0, wait for semaphore */
-	if (kfifo_data_len == 0) {
-		UART_LOGD("kfifo is empty, wait for recv data\r\n");
-		/* when sema_cnt=0, rx_blocked=true, otherwise rx_blocked=false */
-		s_uart_sema[id].rx_blocked = true;
-		GLOBAL_INT_RESTORE();
-
-		uint32_t ret = rtos_get_semaphore(&(s_uart_sema[id].rx_int_sema), timeout_ms);
-		if (ret == kTimeoutErr) {
-			GLOBAL_INT_DISABLE();
-			if (!s_uart_sema[id].rx_blocked) {
-				rtos_get_semaphore(&(s_uart_sema[id].rx_int_sema), 0);
-			}
-			s_uart_sema[id].rx_blocked = false;
+	if (uart_id_is_sw_fifo_enabled(id)) {
+		__attribute__((__unused__)) uart_statis_t* uart_statis = uart_statis_get_statis(id);
+		GLOBAL_INT_DECLARATION();
+		GLOBAL_INT_DISABLE();
+		uint32_t kfifo_data_len = kfifo_data_size(s_uart_rx_kfifo[id]);
+		/* Only kfifo_data_len=0, wait for semaphore */
+		if (kfifo_data_len == 0) {
+			UART_LOGD("kfifo is empty, wait for recv data\r\n");
+			/* when sema_cnt=0, rx_blocked=true, otherwise rx_blocked=false */
+			s_uart_sema[id].rx_blocked = true;
 			GLOBAL_INT_RESTORE();
-			UART_LOGW("recv data timeout:%d\n", timeout_ms);
-			UART_STATIS_INC(uart_statis->recv_timeout_cnt);
-			return BK_ERR_UART_RX_TIMEOUT;
-		}
-	} else {
-		GLOBAL_INT_RESTORE();
-	}
 
-	kfifo_data_len = kfifo_data_size(s_uart_rx_kfifo[id]); /* updata kfifo data size */
-	if (size > kfifo_data_len) {
-		if (kfifo_data_len) {
-			kfifo_get(s_uart_rx_kfifo[id], (uint8_t *)data, kfifo_data_len);
+			uint32_t ret = rtos_get_semaphore(&(s_uart_sema[id].rx_int_sema), timeout_ms);
+			if (ret == kTimeoutErr) {
+				GLOBAL_INT_DISABLE();
+				if (!s_uart_sema[id].rx_blocked) {
+					rtos_get_semaphore(&(s_uart_sema[id].rx_int_sema), 0);
+				}
+				s_uart_sema[id].rx_blocked = false;
+				GLOBAL_INT_RESTORE();
+				UART_LOGW("recv data timeout:%d\n", timeout_ms);
+				UART_STATIS_INC(uart_statis->recv_timeout_cnt);
+				return BK_ERR_UART_RX_TIMEOUT;
+			}
 		} else {
-			UART_LOGW("kfifo data is empty\n");
-			UART_STATIS_INC(uart_statis->kfifo_status.empty_cnt);
+			GLOBAL_INT_RESTORE();
 		}
+
+		kfifo_data_len = kfifo_data_size(s_uart_rx_kfifo[id]); /* updata kfifo data size */
+		if (size > kfifo_data_len) {
+			if (kfifo_data_len) {
+				kfifo_get(s_uart_rx_kfifo[id], (uint8_t *)data, kfifo_data_len);
+			} else {
+				UART_LOGW("kfifo data is empty\n");
+				UART_STATIS_INC(uart_statis->kfifo_status.empty_cnt);
+			}
+			UART_STATIS_SET(uart_statis->kfifo_status.in, s_uart_rx_kfifo[id]->in);
+			UART_STATIS_SET(uart_statis->kfifo_status.out, s_uart_rx_kfifo[id]->out);
+
+			return kfifo_data_len;
+		}
+		kfifo_get(s_uart_rx_kfifo[id], (uint8_t *)data, size);
 		UART_STATIS_SET(uart_statis->kfifo_status.in, s_uart_rx_kfifo[id]->in);
 		UART_STATIS_SET(uart_statis->kfifo_status.out, s_uart_rx_kfifo[id]->out);
 
-		return kfifo_data_len;
-	}
-	kfifo_get(s_uart_rx_kfifo[id], (uint8_t *)data, size);
-	UART_STATIS_SET(uart_statis->kfifo_status.in, s_uart_rx_kfifo[id]->in);
-	UART_STATIS_SET(uart_statis->kfifo_status.out, s_uart_rx_kfifo[id]->out);
+		return size;
+	}else {
+		int ret = 0;
+		uint8_t rx_data;
+		int read_count = 0;
+		uint8_t *read_buffer = (uint8_t *)data;
+	    int actual_bytes_to_read = size;
 
-	return size;
+		/* read all data from rx-FIFO. */
+	 	while (actual_bytes_to_read) {
+			ret = uart_read_byte_ex(id, &rx_data);
+			if (ret == -1)
+				break;
+
+			read_buffer[read_count] = rx_data;
+			read_count++;
+
+			actual_bytes_to_read--;
+		}
+
+		return read_count;
+	}
+
+
 }
 
 bk_err_t bk_uart_set_rx_full_threshold(uart_id_t id, uint8_t threshold)
@@ -906,16 +938,16 @@ static void uart_isr_common(uart_id_t id)
 
 void uart0_isr(void)
 {
-	uart_isr_common(UART_ID_1);
+	uart_isr_common(UART_ID_0);
 }
 
 void uart1_isr(void)
 {
-	uart_isr_common(UART_ID_2);
+	uart_isr_common(UART_ID_1);
 }
 
 void uart2_isr(void)
 {
-	uart_isr_common(UART_ID_3);
+	uart_isr_common(UART_ID_2);
 }
 

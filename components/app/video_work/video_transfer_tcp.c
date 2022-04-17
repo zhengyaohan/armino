@@ -156,7 +156,7 @@ static void app_demo_tcp_main(beken_thread_arg_t data)
 						app_demo_tcp_set_keepalive(new_cli_sockfd);
 
 #if (CONFIG_SPIDMA || CONFIG_CAMERA)
-						TVIDEO_SETUP_DESC_ST setup;
+						video_setup_t setup;
 
 						setup.open_type = TVIDEO_OPEN_SCCB;
 						setup.send_type = TVIDEO_SND_TCP;
@@ -167,7 +167,7 @@ static void app_demo_tcp_main(beken_thread_arg_t data)
 						setup.pkt_header_size = 0;
 						setup.add_pkt_header = NULL;
 
-						video_transfer_init(&setup);
+						bk_video_transfer_init(&setup);
 #endif
 						break;
 					}
@@ -202,7 +202,7 @@ static void app_demo_tcp_main(beken_thread_arg_t data)
 						APP_DEMO_TCP_PRT("not client left, close spidma\r\n");
 
 #if (CONFIG_SPIDMA || CONFIG_CAMERA)
-						video_transfer_deinit();
+						bk_video_transfer_deinit();
 #endif
 					}
 				} else {
@@ -225,7 +225,7 @@ app_demo_tcp_exit:
 	APP_DEMO_TCP_FATAL("app_demo_tcp_main exit\r\n");
 
 #if (CONFIG_SPIDMA || CONFIG_CAMERA)
-	video_transfer_deinit();
+	bk_video_transfer_deinit();
 #endif
 	//app_drone_send_msg(DRONE_TCP_DISCONECTED);
 
@@ -289,7 +289,7 @@ void app_demo_tcp_deinit(void)
 }
 
 /*---------------------------------------------------------------------------*/
-int app_demo_tcp_send_packet(UINT8 *data, UINT32 len)
+int app_demo_tcp_send_packet(uint8_t *data, uint32_t len)
 {
 	int i = 0, snd_len = 0;
 

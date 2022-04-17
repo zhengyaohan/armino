@@ -14,40 +14,10 @@ BLE API Categories
 Most of BLE APIs can be categoried as:
 
 Interface specific BLE APIs:
- - :cpp:func:`bk_ble_init` - init ble
- - :cpp:func:`bk_ble_deinit` - deinit ble
- - :cpp:func:`ble_set_notice_cb` - set ble event notification callback
- - :cpp:func:`ble_appm_get_dev_name` - get device name
- - :cpp:func:`ble_appm_set_dev_name` - set device name
- - :cpp:func:`bk_ble_adv_start` - start legacy ble adv
- - :cpp:func:`bk_ble_adv_stop` - stop legacy ble adv
- - :cpp:func:`bk_ble_scan_start` - start ble scan
- - :cpp:func:`bk_ble_scan_stop` - stop ble scan
- - :cpp:func:`bk_ble_create_advertising` - create extended adv
- - :cpp:func:`bk_ble_start_advertising` - start extended adv
- - :cpp:func:`bk_ble_stop_advertising` - stop extended adv
- - :cpp:func:`bk_ble_delete_advertising` - delete extended adv
- - :cpp:func:`bk_ble_set_adv_data` - set legacy ble adv data
- - :cpp:func:`bk_ble_set_scan_rsp_data` - set ble scan response data
- - :cpp:func:`bk_ble_set_per_adv_data` - set ble periodic adv data
- - :cpp:func:`bk_ble_update_param` - update le connection paramters
- - :cpp:func:`bk_ble_gatt_mtu_change` - change gatt mtu
- - :cpp:func:`bk_ble_create_scaning` - create extended scan
- - :cpp:func:`bk_ble_start_scaning` - start extended scan
- - :cpp:func:`bk_ble_stop_scaning` - stop extended scan
- - :cpp:func:`bk_ble_delete_scaning` - delete extended scan
- - :cpp:func:`bk_ble_create_init` - create connection paramters
- - :cpp:func:`bk_ble_init_start_conn` - start connection link
- - :cpp:func:`bk_ble_init_stop_conn` - stop connection link
- - :cpp:func:`bk_ble_init_set_connect_dev_addr` - set connection device address
- - :cpp:func:`bk_ble_get_idle_actv_idx_handle` - get idle activity index handle
- - :cpp:func:`bk_ble_get_max_actv_handle` - get max active index handle
- - :cpp:func:`bk_ble_get_max_actv_handle` - get max connection index handle
- - :cpp:func:`bk_ble_find_actv_state_idx_handle` - find active state index handle
- - :cpp:func:`bk_ble_get_idle_conn_idx_handle` - get idle connection index handle
- - :cpp:func:`bk_ble_find_master_state_idx_handle` - find master state index handle
- - :cpp:func:`bk_ble_find_conn_idx_from_addr` - find connection index from address
- - :cpp:func:`bk_ble_get_connect_state` - get connection state
+ - BLE common interface
+ - BLE scan interface
+ - BLE ADV interface
+ - BLE connect interface
 
 Compitability and Extension
 ----------------------------------------
@@ -70,7 +40,167 @@ User Development Model
 
 Similar as most popular BLE driver, the Beken BLE driver is implemented as event driver. The application call BLE APIs to operate the BLE driver and get notified by BLE event.
 
+
+User Guide
+----------------------------------------
+- create att database
+
+::
+
+	#define DECL_PRIMARY_SERVICE_128     {0x00,0x28,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+	#define DECL_CHARACTERISTIC_128      {0x03,0x28,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+	#define DESC_CLIENT_CHAR_CFG_128     {0x02,0x29,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+
+	//database index:
+	enum {
+		TEST_IDX_SVC,
+		TEST_IDX_CHAR_DECL,
+		TEST_IDX_CHAR_VALUE,
+		TEST_IDX_CHAR_DESC,
+
+
+		TEST_IDX_NB,
+	};
+	//database build by some att records.
+	ble_attm_desc_t test_service_db[TEST_IDX_NB] = {
+	   //  Service Declaration
+	   [TEST_IDX_SVC]              = {DECL_PRIMARY_SERVICE_128, BK_BLE_PERM_SET(RD, ENABLE), 0, 0},
+	   // Characteristic declare
+	   [TEST_IDX_CHAR_DECL]    = {DECL_CHARACTERISTIC_128,  BK_BLE_PERM_SET(RD, ENABLE), 0, 0},
+	   // Characteristic Value
+	   [TEST_IDX_CHAR_VALUE]   = {{0x34, 0x12, 0},     BK_BLE_PERM_SET(NTF, ENABLE), BK_BLE_PERM_SET(RI, ENABLE) | BK_BLE_PERM_SET(UUID_LEN, UUID_16), 128},
+	   //Client Characteristic Configuration Descriptor
+	   [TEST_IDX_CHAR_DESC] = {DESC_CLIENT_CHAR_CFG_128, BK_BLE_PERM_SET(RD, ENABLE) | BK_BLE_PERM_SET(WRITE_REQ, ENABLE), 0, 0},
+	};
+
+
+	struct bk_ble_db_cfg ble_db_cfg;
+	const uint16_t service_uuid = 0xffff;
+	
+	ble_db_cfg.att_db = (ble_attm_desc_t *)test_service_db;
+	ble_db_cfg.att_db_nb = TEST_IDX_NB;
+	ble_db_cfg.prf_task_id = g_test_prf_task_id;
+	ble_db_cfg.start_hdl = 0;
+	ble_db_cfg.svc_perm = BK_BLE_PERM_SET(SVC_UUID_LEN, UUID_16);
+    os_memcpy(&(ble_db_cfg.uuid[0]), &service_uuid, 2);
+
+	bk_ble_set_notice_cb(ble_at_notice_cb);
+	bk_ble_create_db(&ble_db_cfg);
+
+
+	void ble_at_notice_cb(ble_notice_t notice, void *param)
+	{
+		switch (notice) {
+
+		case BLE_5_WRITE_EVENT: {
+
+			if (w_req->prf_id == g_test_prf_task_id)
+			{
+				switch(w_req->att_idx)
+				{
+				case TEST_IDX_CHAR_DECL:
+					break;
+				case TEST_IDX_CHAR_VALUE:
+					break;
+				case TEST_IDX_CHAR_DESC:
+					//when peer enable notification, we create time and notify peer, such as
+					//write_buffer = (uint8_t *)os_malloc(s_test_data_len);
+					//bk_ble_send_noti_value(s_test_data_len, write_buffer, g_test_prf_task_id, TEST_IDX_CHAR_VALUE);
+					break;
+
+				default:
+					break;
+				}
+			}
+			break;
+		}
+		case BLE_5_CREATE_DB:
+		//bk_ble_create_db success here
+		break;
+		}
+	}
+
+
+
+- start adv
+
+::
+
+	ble_adv_param_t adv_param;
+
+	adv_param.own_addr_type = 0;//BLE_STATIC_ADDR
+	adv_param.adv_type = 0; //ADV_IND
+	adv_param.chnl_map = 7;
+	adv_param.adv_prop = 3;
+	adv_param.adv_intv_min = 0x120; //min
+	adv_param.adv_intv_max = 0x160; //max
+	adv_param.prim_phy = 1;// 1M
+	adv_param.second_phy = 1;// 1M
+	actv_idx = bk_ble_get_idle_actv_idx_handle();
+	if (actv_idx != UNKNOW_ACT_IDX) {
+		bk_ble_create_advertising(actv_idx, &adv_param, ble_at_cmd_cb);
+	}
+
+	//wait for ble_at_cmd_cb
+
+	const uint8_t adv_data[] = {0x02, 0x01, 0x06, 0x0A, 0x09, 0x37 0x32, 0x33, 0x31, 0x4e, 0x5f, 0x42, 0x4c, 0x45};
+	bk_ble_set_adv_data(actv_idx, adv_data, sizeof(adv_data), ble_at_cmd_cb);
+
+	//wait for ble_at_cmd_cb
+
+	const uint8_t scan_data[] = {0x02, 0x01, 0x06, 0x0A, 0x09, 0x37 0x32, 0x33, 0x31, 0x4e, 0x5f, 0x42, 0x4c, 0x45};
+	bk_ble_set_scan_rsp_data(actv_idx, scan_data, sizeof(scan_data), ble_at_cmd_cb);
+
+	//wait for ble_at_cmd_cb
+
+	bk_ble_start_advertising(actv_idx, 0, ble_at_cmd_cb);
+
+
+
+
+- start scan
+
+::
+
+	ble_scan_param_t scan_param;
+
+	scan_param.own_addr_type = 0;//BLE_STATIC_ADDR
+	scan_param.scan_phy = 5;
+	scan_param.scan_intv = 0x64; //interval
+	scan_param.scan_wd = 0x1e; //windows
+	actv_idx = bk_ble_get_idle_actv_idx_handle();
+	bk_ble_create_scaning(actv_idx, &scan_param, ble_at_cmd);
+
+	//wait for ble_at_cmd_cb
+	bk_ble_start_scaning(actv_idx, ble_at_cmd);
+
+
+
+
+- start a connect
+
+::
+
+	ble_conn_param_t conn_param;
+	conn_param.intv_min = 0x40; //interval
+	conn_param.intv_max = 0x40; //interval
+	conn_param.con_latency = 0;
+	conn_param.sup_to = 0x200;//supervision timeout
+	conn_param.init_phys = 1;// 1M
+	con_idx = bk_ble_get_idle_conn_idx_handle();
+	bk_ble_create_init(con_idx, &conn_param, ble_at_cmd);
+	//wait for ble_at_cmd_cb
+	bk_ble_init_set_connect_dev_addr(con_idx, bt_mac, 1);
+	bk_ble_init_start_conn(con_idx, ble_at_cmd)
+
+
+
+
 API Reference
 ----------------------------------------
 
-.. include:: ../../_build/inc/bk_api_ble.inc
+.. include:: ../../_build/inc/ble.inc
+
+API Typedefs
+----------------------------------------
+.. include:: ../../_build/inc/ble_types.inc

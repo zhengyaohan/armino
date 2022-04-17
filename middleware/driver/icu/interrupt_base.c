@@ -33,7 +33,7 @@
 
 const icu_int_map_t icu_int_map_table[] = ICU_DEV_MAP;
 
-#if CONFIG_SYSTEM_CTRL
+#if CONFIG_ARCH_RISCV
 bk_err_t bk_int_isr_register(icu_int_src_t src, int_group_isr_t isr_callback, void*arg)
 {
 	ICU_RETURN_ON_INVALID_DEVS(src);

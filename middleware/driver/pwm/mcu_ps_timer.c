@@ -22,7 +22,7 @@
 #include "bk_misc.h"
 #include "wlan_ui_pub.h"
 #include "bk_intc.h"
-#include "bk_api_tick.h"
+#include <components/system.h>
 #include <driver/timer.h>
 #include <driver/pwm.h>
 #include "timer_hal.h"

@@ -15,7 +15,7 @@
 #include <common/bk_include.h>
 #include "bk_ps_time.h"
 #include "bk_wdt.h"
-#include "bk_api_tick.h"
+#include <components/system.h>
 #include <os/os.h>
 #include "bk_los_timer.h"
 #include "los_tick.h"

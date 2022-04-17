@@ -160,6 +160,8 @@ freertos_risc_v_trap_handler:
 	csrr t0, mstatus					/* Required for MPIE bit. */
 	store_x t0, 29 * portWORD_SIZE( sp )
 
+	csrw mscratch, sp
+
 	portasmSAVE_ADDITIONAL_REGISTERS	/* Defined in freertos_risc_v_chip_specific_extensions.h to save any registers unique to the RISC-V implementation. */
 
 	load_x t0, g_enter_interrupt_nest
@@ -297,10 +299,17 @@ test_if_environment_call:
 	j processed_source
 
 is_exception:
-	csrr t0, mcause						/* For viewing in the debugger only. */
-	csrr t1, mepc						/* For viewing in the debugger only */
-	csrr t2, mstatus
-	j trap_entry						/* Handled by trap_entry. */
+	/*Exception use init stack pointer */
+	la t0, _stack
+	mv sp, t0
+
+	/* Call trap handler */
+	csrr a0, mcause
+	csrr t0, mepc
+	csrr a1, mscratch
+	store_x t0, 0( a1 )
+
+	call trap_handler
 
 as_yet_unhandled:
 	csrr t0, mcause						/* For viewing in the debugger only. */

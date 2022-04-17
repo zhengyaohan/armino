@@ -4,7 +4,7 @@
 #include <os/os.h>
 #include "bk_uart.h"
 
-#define SEMI_HOST_UART			UART_ID_1
+#define SEMI_HOST_UART			UART_ID_0
 
 struct semi_host_env {
 	int received;

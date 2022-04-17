@@ -35,6 +35,7 @@ typedef enum atsvr_wlan_sec_type_e
     ATSVR_SEC_TYPE_WPA2_MIXED,  /**< WPA2 /w AES or TKIP */
     ATSVR_SEC_TYPE_WPA3_SAE,	  /**< WPA3 SAE */
     ATSVR_SEC_TYPE_WPA3_WPA2_MIXED, /** WPA3 SAE or WPA2 AES */
+    ATSVR_SEC_TYPE_OWE,         /**< WPA3 OWE */
     ATSVR_SEC_TYPE_AUTO,        /**< It is used when calling @ref bkWlanStartAdv, It's read security type from scan result. */
 }atsvr_wlan_sec_type;
 

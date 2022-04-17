@@ -2,7 +2,7 @@
 #include "cli.h"
 #include "bk_gpio.h"
 #include <driver/gpio.h>
-#include <driver/hal/gpio_types.h>
+#include <driver/hal/hal_gpio_types.h>
 #include "gpio_driver.h"
 
 static void cli_gpio_help(void)

@@ -53,33 +53,26 @@ static void dma2d_isr_common(void);
 
 #endif
 
-static void dma2d_sys_initial(void)
-{
-	sys_drv_dma2d_set(1, 1);
-	/*
-	addSYSTEM_Reg0xf |= 0x2;//dam2d clk always on;
-	addSYSTEM_Reg0x8  |= 0x60;       //config hclk in 160mhz.
-	addSYSTEM_Reg0x20 |= 0x10000000;  //dma2d int en;
-	*/
-}
-
-
 /**
   * @brief  initializes the DMA2D peripheral registers
-  * @param  dma2d pointer to a DMA2D_HandleTypeDef structure that contains
-  *                 the configuration information for the DMA2D.
+  * @param  dma2d_init_t pointr structure that contains
+  *                 the configuration information for the DMA2D
+  *usage example:
+  *
   * @retval None
   */
-bk_err_t bk_dma2d_driver_init(DMA2D_HandleTypeDef *dma2d)
+bk_err_t bk_dma2d_driver_init(dma2d_config_t *dma2d)
 {
-	dma2d_sys_initial();
+	sys_drv_dma2d_set(1, 1);
 
 #if (USE_HAL_DMA2D_REGISTER_CALLBACKS == 1)
 	os_memset(&s_dma2d_isr, 0, sizeof(s_dma2d_isr));
-	bk_dma2d_isr_register(dma2d_isr);
+	bk_int_isr_register(INT_SRC_DMA2D, dma2d_isr, NULL);
 #endif
 
 	dma2d_hal_init(dma2d);
+	dma2d_hal_start_transfer(0);
+
 	return BK_OK;
 }
 
@@ -96,22 +89,22 @@ bk_err_t bk_dma2d_driver_deinit(void)
 
 /**
   * @brief  Configure the DMA2D Layer according to the specified
-  * @param  dma2d Pointer to a DMA2D_HandleTypeDef structure that contains the configuration information for the DMA2D.
+  * @param  dma2d Pointer to a dma2d_init_t structure that contains the configuration information for the DMA2D.
   * @param  LayerIdx DMA2D Layer index.
   *                   This parameter can be one of the following values:
   *                   DMA2D_BACKGROUND_LAYER(0) / DMA2D_FOREGROUND_LAYER(1)
   * @retval HAL status
   */
-bk_err_t bk_dma2d_driver_layer_config(DMA2D_HandleTypeDef *dma2d, uint32_t LayerIdx)
+bk_err_t bk_dma2d_layer_config(dma2d_config_t *dma2d, uint32_t layer_idx)
 {
-	dma2d_hal_layer_config(dma2d, LayerIdx);
+	dma2d_hal_layer_config(dma2d, layer_idx);
 	return BK_OK;
 }
 
 
 /**
   * @brief  Start the DMA2D Transfer
-  * @param  dma2d     Pointer to a DMA2D_HandleTypeDef structure that contains  the configuration information for the DMA2D.
+  * @param  dma2d     Pointer to a dma2d_init_t structure that contains  the configuration information for the DMA2D.
   * @param  pdata      Configure the source memory Buffer address if
   *                     the Memory-to-Memory or Memory-to-Memory with pixel format
   *                     conversion mode is selected, or configure
@@ -121,7 +114,7 @@ bk_err_t bk_dma2d_driver_layer_config(DMA2D_HandleTypeDef *dma2d, uint32_t Layer
   * @param  Height     The height of data to be transferred from source to destination (expressed in number of lines).
   * @retval bk_err_t status
   */
-bk_err_t bk_dma2d_driver_start_transfer(DMA2D_HandleTypeDef *dma2d, uint32_t pdata, uint32_t dst_addr, uint32_t width, uint32_t height)
+bk_err_t bk_dma2d_start_transfer(dma2d_config_t *dma2d, uint32_t pdata, uint32_t dst_addr, uint32_t width, uint32_t height)
 {
 	dma2d_hal_config(dma2d, pdata, dst_addr, width, height);
 	dma2d_hal_start_transfer(1);
@@ -133,14 +126,14 @@ bk_err_t bk_dma2d_driver_start_transfer(DMA2D_HandleTypeDef *dma2d, uint32_t pda
   * @brief  bk_dma2d_wait_transfer_done
   * @retval return 0: transfer done, return others not transfer done 
   */
-bool bk_dma2d_wait_transfer_done(void)
+bool bk_dma2d_is_transfer_busy(void)
 {
 	return dma2d_hal_is_transfer_done();
 }
 
 /**
   * @brief  Start the multi-source DMA2D Transfer.
-  * @param  dma2d      Pointer to a DMA2D_HandleTypeDef structure that contains  the configuration information for the DMA2D.
+  * @param  dma2d      Pointer to a dma2d_init_t structure that contains  the configuration information for the DMA2D.
   * @param  src_addr1 The source memory Buffer address for the foreground layer.
   * @param  src_addr2 The source memory Buffer address for the background layer.
   * @param  dst_addr  The destination memory Buffer address.
@@ -148,9 +141,9 @@ bool bk_dma2d_wait_transfer_done(void)
   * @param  Height      The height of data to be transferred from source to destination (expressed in number of lines).
   * @retval bk_err_t status
   */
-bk_err_t bk_dma2d_driver_blending_start(DMA2D_HandleTypeDef *dma2d, uint32_t src_addr1, uint32_t src_addr2, uint32_t dst_addr, uint32_t width,  uint32_t height)
+bk_err_t bk_dma2d_start_blending(dma2d_config_t *dma2d, uint32_t fg_addr, uint32_t bg_addr, uint32_t dst_addr, uint32_t width,  uint32_t height)
 {
-	dma2d_hal_blending_start(dma2d, src_addr1, src_addr2, dst_addr, width, height);
+	dma2d_hal_blending_start(dma2d, fg_addr, bg_addr, dst_addr, width, height);
 	return BK_OK;
 }
 
@@ -166,7 +159,7 @@ bk_err_t bk_dma2d_driver_blending_start(DMA2D_HandleTypeDef *dma2d, uint32_t src
   * @param  enable int
   * @retval bk_err_t status
   */
-bk_err_t bk_dma2d_int_config(DMA2D_INT_TYPE int_type, bool enable)
+bk_err_t bk_dma2d_int_enable(dma2d_int_type_t int_type, bool enable)
 {
 	dma2d_hal_int_config(int_type, enable);
 	return BK_OK;
@@ -185,7 +178,7 @@ bk_err_t bk_dma2d_int_config(DMA2D_INT_TYPE int_type, bool enable)
                           DMA2D_CFG_ERROR_STATUS
                       }DMA2D_INT_STATUS;
   */
-bk_err_t bk_dma2d_int_status_get(void)
+uint32_t bk_dma2d_int_status_get(void)
 {
 	return dma2d_hal_int_status_get();
 }
@@ -202,7 +195,7 @@ bk_err_t bk_dma2d_int_status_get(void)
 
   * @retval bk_err_t status
   */
-bk_err_t bk_dma2d_int_status_clear(DMA2D_INT_STATUS int_status)
+bk_err_t bk_dma2d_int_status_clear(dma2d_int_status_t int_status)
 {
 	dma2d_hal_int_status_clear(int_status);
 	return BK_OK;
@@ -280,6 +273,7 @@ static void dma2d_isr_common(void)
 	uint32_t int_status;
 	int_status = bk_dma2d_int_status_get();
 	if (int_status & DMA2D_CFG_ERROR_STATUS) {
+		
 		if (s_dma2d_isr[DMA2D_CFG_ERROR_ISR]) {
 			s_dma2d_isr[DMA2D_CFG_ERROR_ISR]();
 		}
@@ -343,119 +337,6 @@ bk_err_t bk_dma2d_register_int_callback_isr(DMA2D_ISR_ID isr_id, dma2d_isr_t cb_
 }
 
 #endif /* USE_HAL_DMA2D_REGISTER_CALLBACKS */
-
-void dma2d_fill(uint32_t frameaddr, uint16_t x, uint16_t y, uint16_t width, uint16_t high, uint16_t color)
-{
-	//void *pDiSt=&(((uint16_t *)RGB565_320x480)[y*320+x]);
-	void *pDiSt=&(((uint16_t *)frameaddr)[y*320+x]);
-	
-	DMA2D_HandleTypeDef Dma2dHandle = {0};
-	
-	Dma2dHandle.init.Mode		   = DMA2D_R2M; 			 /**< Mode Register to Memory */
-	Dma2dHandle.init.ColorMode	   = DMA2D_OUTPUT_RGB565;  /**< DMA2D Output color mode is ARGB4444 (16 bpp) */
-	Dma2dHandle.init.OutputOffset  = 320 - width;					 /**< No offset in output */
-	Dma2dHandle.init.RedBlueSwap   = DMA2D_RB_REGULAR;		 /**< No R&B swap for the output image */
-	Dma2dHandle.init.AlphaInverted = DMA2D_REGULAR_ALPHA;	 /**< No alpha inversion for the output image */
-	bk_dma2d_driver_init(&Dma2dHandle);
-
-	///bk_dma2d_int_config(DMA2D_TRANS_ERROR | DMA2D_TRANS_COMPLETE ,1);
-	///bk_dma2d_isr_register(dma2d_isr);
-	bk_dma2d_driver_start_transfer(&Dma2dHandle,
-							color,						  /**< Color value is entered in ARGB8888 format: 0x00FFFF00 will yield a combination of Red and Green, that is yellow. */
-							(uint32_t)pDiSt,	  /**< DMA2D output buffer */
-							width, 					 /**< width of buffer in pixels */
-							high); 
-//	while (transferCompleteDetected == 0) {;}
-//	transferCompleteDetected = 0;
-	while (bk_dma2d_wait_transfer_done()) {
-	}
-}
-
-void dma2d_memcpy(uint32_t pixelformat, void *Psrc, void *Pdst, uint32_t xsize, uint32_t ysize, uint32_t src_offline, uint32_t dest_offline)
-{
-	DMA2D_HandleTypeDef Dma2dHandle = {0};
-
-	/*##-1- Configure the DMA2D Mode, Output Color Mode and output offset #############*/
-	Dma2dHandle.init.Mode         = DMA2D_M2M;             /**< Mode Memory To Memory */
-	Dma2dHandle.init.ColorMode    = DMA2D_OUTPUT_RGB565; /**< Output color mode is ARGB4444 : 16 bpp */
-	Dma2dHandle.init.OutputOffset = dest_offline;                   /**< No offset on output */
-	Dma2dHandle.init.RedBlueSwap   = DMA2D_RB_REGULAR;     /**< No R&B swap for the output image */
-	Dma2dHandle.init.AlphaInverted = DMA2D_REGULAR_ALPHA;  /**< No alpha inversion for the output image */
-
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].AlphaMode = DMA2D_NO_MODIF_ALPHA;      /**< Keep original Alpha from ARGB4444 input */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].InputAlpha = 0xFF;                     /**< Fully opaque */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].InputColorMode = pixelformat; /**< Input color is ARGB4444 : 16 bpp */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].InputOffset = src_offline;                     /**< No offset in input */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].RedBlueSwap   = DMA2D_RB_REGULAR;      /**< No R&B swap for the input image */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].AlphaInverted = DMA2D_REGULAR_ALPHA;   /**< No alpha inversion for the input image */
-
-	bk_dma2d_driver_init(&Dma2dHandle);
-	bk_dma2d_driver_layer_config(&Dma2dHandle, DMA2D_FOREGROUND_LAYER);
-/*
-	bk_dma2d_int_config(DMA2D_CFG_ERROR | DMA2D_TRANS_ERROR | DMA2D_TRANS_COMPLETE ,1);
-#if (USE_HAL_DMA2D_REGISTER_CALLBACKS == 1)
-	bk_dma2d_register_int_callback_isr(DMA2D_TRANS_ERROR_ISR, mda2d_r2m_transfer_error);
-	bk_dma2d_register_int_callback_isr(DMA2D_TRANS_COMPLETE_ISR, mda2d_r2m_transfer_complete);
-#else
-	bk_dma2d_isr_register(dma2d_isr);
-#endif
-*/
-	bk_dma2d_driver_start_transfer(&Dma2dHandle,
-                        (uint32_t)Psrc,  /**< Source memory buffer	   */ 
-                        (uint32_t)Pdst, /**< Destination memory buffer */
-                        xsize,              /**< width of buffer in pixels */
-                        ysize);             /**< height of buffer in lines */
-
-	while (bk_dma2d_wait_transfer_done()) {}
-}
-
-void dma2d_mix_colors(void *pFgaddr, void *pBgaddr, void *pDst,
-							uint32_t fg_offline, uint32_t bg_offline, uint32_t dest_offline,
-							uint16_t xsize, uint16_t ysize, int8_t alpha_value)
-{
-	DMA2D_HandleTypeDef Dma2dHandle = {0};
-
-	/*##-1- Configure the DMA2D Mode, Output Color Mode and output offset #############*/
-	Dma2dHandle.init.Mode         = DMA2D_M2M_BLEND;                  /**< Mode Memory To Memory */
-	Dma2dHandle.init.ColorMode    = DMA2D_OUTPUT_RGB565;            /**< output format of DMA2D */
-	Dma2dHandle.init.OutputOffset = dest_offline;   /**< output offset */
-	Dma2dHandle.init.RedBlueSwap   = DMA2D_RB_REGULAR;                /**< No R&B swap for the output image */
-	Dma2dHandle.init.AlphaInverted = DMA2D_REGULAR_ALPHA;             /**< No alpha inversion for the output image */
-
-	/**< Foreground layer Configuration */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].AlphaMode = DMA2D_REPLACE_ALPHA;    /**< Keep original Alpha from ARGB4444 input */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].InputAlpha = alpha_value;                   /**< 127 : semi-transparent */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].InputColorMode = DMA2D_INPUT_RGB565; /**< Foreground color is RGB565 : 16 bpp */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].InputOffset = fg_offline;                   /**< No offset in input */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].RedBlueSwap   = DMA2D_RB_REGULAR;    /**< No R&B swap for the input image */
-	Dma2dHandle.LayerCfg[DMA2D_FOREGROUND_LAYER].AlphaInverted = DMA2D_REGULAR_ALPHA; /**< No alpha inversion for the input image */
-
-	/**< Background layer Configuration */
-	Dma2dHandle.LayerCfg[DMA2D_BACKGROUND_LAYER].AlphaMode  = DMA2D_REPLACE_ALPHA;
-	Dma2dHandle.LayerCfg[DMA2D_BACKGROUND_LAYER].InputAlpha   = 0x80;                            /**< 255 : fully opaque */
-	Dma2dHandle.LayerCfg[DMA2D_BACKGROUND_LAYER].InputColorMode = DMA2D_INPUT_RGB565;          /**< Background format is ARGB8888*/
-	Dma2dHandle.LayerCfg[DMA2D_BACKGROUND_LAYER].InputOffset    = bg_offline;/**< Background input offset*/
-	Dma2dHandle.LayerCfg[DMA2D_BACKGROUND_LAYER].RedBlueSwap    = DMA2D_RB_REGULAR;              /**< No R&B swap for the input background image */
-	Dma2dHandle.LayerCfg[DMA2D_BACKGROUND_LAYER].AlphaInverted  = DMA2D_REGULAR_ALPHA;           /**< No alpha inversion for the input background image */
-
-	bk_dma2d_driver_init(&Dma2dHandle);
-	bk_dma2d_driver_layer_config(&Dma2dHandle, DMA2D_FOREGROUND_LAYER);
-	bk_dma2d_driver_layer_config(&Dma2dHandle, DMA2D_BACKGROUND_LAYER);
-
-//	bk_dma2d_int_config(DMA2D_TRANS_ERROR | DMA2D_TRANS_COMPLETE ,1);
-//	bk_dma2d_isr_register(dma2d_isr);
-	
-	/*## RGB565_240x130_1[] is the foreground layer and LCD_FRAME_BUFFER is the background layer */
-	bk_dma2d_driver_blending_start(&Dma2dHandle,
-                                  (uint32_t)pFgaddr,                                                      /**< Foreground image */
-                                  (uint32_t)pBgaddr,   /**< Background image */
-                                  (uint32_t)pDst,  /**< Destination address */
-                                  xsize ,                                                                    /**< width in pixels   */
-                                  ysize);                                                                    /**< height in pixels   */
-
-
-	while (bk_dma2d_wait_transfer_done()) {}
-}
 
 
 

@@ -45,7 +45,7 @@
 #endif
 
 #if CONFIG_FLASH
-#include "BkDriverFlash.h"
+#include <driver/flash.h>
 #endif
 
 #if CONFIG_SDCARD_HOST
@@ -60,8 +60,8 @@
 #include <driver/psram.h>
 #endif
 
-#if CONFIG_JPEG
-#include <driver/jpeg.h>
+#if CONFIG_JPEG_ENCODE
+#include <driver/jpeg_enc.h>
 #endif
 
 #if CONFIG_CALENDAR
@@ -281,7 +281,7 @@ int driver_init(void)
 #endif
 
 #if CONFIG_FLASH
-	hal_flash_init();
+	bk_flash_driver_init();
 #endif
 
 #if CONFIG_PWM
@@ -312,8 +312,8 @@ int driver_init(void)
 #endif
 
 #if !CONFIG_SYSTEM_CTRL
-#if CONFIG_JPEG
-	bk_jpeg_driver_init();
+#if CONFIG_JPEG_ENCODE
+	bk_jpeg_enc_driver_init();
 #endif
 #endif
 

@@ -361,7 +361,8 @@ void system_timeout_startup(void)
 #elif (CFG_SUPPORT_OS == OS_RTTOS)
 extern int ota_main(void);
 extern int jump_to_app(void);
-void system_startup(void)
+//void system_startup(void)
+ void __attribute__((section(".itcm_write_flash"))) system_startup(void)
 {
 	ota_main();
     
@@ -375,8 +376,8 @@ void system_startup(void)
     while(1);
 }
 
-
-void system_timeout_startup(void)
+//void system_timeout_startup(void)
+ void __attribute__((section(".itcm_write_flash"))) system_timeout_startup(void)
 {
     if((1 == uart_download_status) )
     {

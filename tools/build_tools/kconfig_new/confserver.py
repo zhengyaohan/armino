@@ -51,11 +51,11 @@ def main():
     args = parser.parse_args()
 
     if args.version < MIN_PROTOCOL_VERSION:
-        print("Version %d is older than minimum supported protocol version %d. Client is much older than BEKEN-BDK version?" %
+        print("Version %d is older than minimum supported protocol version %d. Client is much older than BEKEN-ARMINO version?" %
               (args.version, MIN_PROTOCOL_VERSION))
 
     if args.version > MAX_PROTOCOL_VERSION:
-        print("Version %d is newer than maximum supported protocol version %d. Client is newer than BEKEN-BDK version?" %
+        print("Version %d is newer than maximum supported protocol version %d. Client is newer than BEKEN-ARMINO version?" %
               (args.version, MAX_PROTOCOL_VERSION))
 
     try:

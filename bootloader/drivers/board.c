@@ -48,7 +48,8 @@ void IWDG_Feed(void)
 /**
  * This function will initial beken7231 board.
  */
-void rt_hw_board_init(void)
+ //void rt_hw_board_init(void)
+ void __attribute__((section(".itcm_write_flash"))) rt_hw_board_init(void)
 {
 #if (SOC_BK7271 == CFG_SOC_NAME)
     /* told by huaming to avoid reset */
@@ -65,6 +66,7 @@ void rt_hw_board_init(void)
 #endif
     GPIO_Configuration();
     uart_init(); 
+    flash_init(); //flash need init when upgrade OTA 
     flash_set_line_mode(2);
     flash_set_clk(5);  // 78M
     get_flash_ID();

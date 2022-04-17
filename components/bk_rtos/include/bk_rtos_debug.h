@@ -24,7 +24,7 @@ void rtos_dump_stack_memory_usage(void);
 void rtos_dump_task_runtime_stats(void);
 void rtos_dump_task_backtrace(beken_thread_t *thread);
 void rtos_dump_backtrace(void);
-void rtos_assert_error(const char *condition,const char *func,int line);
+
 
 #ifdef __cplusplus
 }

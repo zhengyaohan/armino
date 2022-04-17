@@ -16,8 +16,8 @@
 
 #include <common/bk_include.h>
 #include <common/bk_err.h>
+#include <driver/hal/hal_int_types.h>
 
-typedef void (*int_group_isr_t)(void);
 
 typedef enum {
 	ARM_INT_GROUP_IRQ = 0,

@@ -8,6 +8,7 @@
 
 #define TX_QUEUE_LEN     8
 #define RX_BUFF_SIZE     160
+#define TX_SYNC_BUF_SIZE 142
 
 typedef struct
 {
@@ -34,6 +35,8 @@ typedef struct
 	u8     tx_stopped;
 
 	tx_complete_t   tx_complete_callback;
+
+	u8		tx_sync_buff[TX_SYNC_BUF_SIZE + 2];	
 
 	/* ========  RX channel   ======= */
 	/* rx buffer */
@@ -268,6 +271,97 @@ static void shell_mb_tx_cmpl_isr(shell_mb_ext_t *mb_ext, mb_chnl_ack_t *ack_buf)
 	#endif
 }
 
+static bk_err_t write_sync(shell_mb_ext_t *mb_ext, u8 * p_buf, u16 buf_len)
+{
+	volatile u8 * buff_busy;
+	u8 *   tx_buff;
+
+	tx_buff = &mb_ext->tx_sync_buff[0];
+	if((buf_len + 1) > sizeof(mb_ext->tx_sync_buff))
+	{
+		buf_len = sizeof(mb_ext->tx_sync_buff) - 1;
+	}
+	/*
+	tx_buff = &mb_ext->rx_buff[0];
+	if((buf_len + 1) > sizeof(mb_ext->rx_buff))
+	{
+		buf_len = sizeof(mb_ext->rx_buff) - 1;
+	}
+	*/  // can use rx_buff for assert_out, because the interrpt is disabled when assert, no cmd will be arrived.
+
+	buff_busy = (volatile u8 * )&tx_buff[0];
+	tx_buff[0] = 1;  /* the buffer is busy. */
+	memcpy(&tx_buff[1], p_buf, buf_len);
+
+	mb_chnl_cmd_t	mb_cmd_buf;
+	log_cmd_t * cmd_buf = (log_cmd_t *)&mb_cmd_buf;
+
+	cmd_buf->hdr.data = MB_CMD_ASSERT_OUT;
+	cmd_buf->buf = tx_buff;
+	cmd_buf->len = buf_len + 1;
+	cmd_buf->tag = 0xFFFF;		/* tx_buff is not memory of allocated dynamically. */
+
+	bk_err_t		ret_code;
+
+	ret_code = mb_chnl_ctrl(mb_ext->chnl_id, MB_CHNL_WRITE_SYNC, &mb_cmd_buf);
+
+	if(ret_code == BK_OK)
+	{
+		while(*buff_busy)
+		{
+			// wait buffer to be free.
+		}
+	}
+
+	return ret_code;
+}
+
+static void shell_mb_flush(shell_mb_ext_t *mb_ext)
+{
+	while(mb_ext->tx_stopped == 0)
+	{
+		#if 1
+		/* next tx. */
+		if(mb_ext->list_out_idx != mb_ext->list_in_idx)
+		{
+			mb_ext->cur_packet = mb_ext->tx_list[mb_ext->list_out_idx].packet;
+			mb_ext->packet_len = mb_ext->tx_list[mb_ext->list_out_idx].len;
+			mb_ext->packet_tag = mb_ext->tx_list[mb_ext->list_out_idx].tag;
+
+			write_sync(mb_ext, mb_ext->cur_packet, mb_ext->packet_len);
+
+			/* to next packet. */
+			mb_ext->list_out_idx = (mb_ext->list_out_idx + 1) % TX_QUEUE_LEN;
+		}
+		else
+		{
+			/* all packets tx complete. */
+
+			mb_ext->cur_packet = NULL;
+			mb_ext->packet_len = 0;
+
+			mb_ext->tx_stopped = 1; /* bTRUE;*/  /* all data tranferred, tx stopped.*/
+
+			continue;
+		}
+		#endif
+		#if 1
+		/* MB_CMD_LOG_OUT tx complete. */
+
+		// must have handled complete, because of using MB_CMD_ASSERT_OUT.
+		// if(ack_buf->ack_state != ACK_STATE_PENDING) 
+		{
+			/* MB_CMD_LOG_OUT handle complete. */
+			/* so notify app to free buffer. */
+			if(mb_ext->tx_complete_callback != NULL)
+			{
+				mb_ext->tx_complete_callback(mb_ext->cur_packet, mb_ext->packet_tag);
+			}
+		}
+		#endif
+	}
+}
+
 static void shell_mb_tx_trigger(shell_mb_ext_t *mb_ext)
 {
 	if(mb_ext->tx_stopped == 0)
@@ -403,18 +497,9 @@ static u16 shell_mb_write_sync(shell_dev_t * shell_dev, u8 * pBuf, u16 BufLen)
 
 	mb_ext = (shell_mb_ext_t *)shell_dev->dev_ext;
 
-	mb_chnl_cmd_t	mb_cmd_buf;
-
-	log_cmd_t * cmd_buf = (log_cmd_t *)&mb_cmd_buf;
-
-	cmd_buf->hdr.data = MB_CMD_LOG_OUT;
-	cmd_buf->buf = pBuf;
-	cmd_buf->len = BufLen;
-	cmd_buf->tag = 0xFFFF;
-
 	bk_err_t		ret_code;
 
-	ret_code = mb_chnl_ctrl(mb_ext->chnl_id, MB_CHNL_WRITE_SYNC, &mb_cmd_buf);
+	ret_code = write_sync(mb_ext, pBuf, BufLen);
 
 	if(ret_code != BK_OK)
 		return 0;
@@ -470,6 +555,10 @@ static bool_t shell_mb_ctrl(shell_dev_t * shell_dev, u8 cmd, void *param)
 			mb_ext->packet_len = 0;
 
 			break;
+
+		case SHELL_IO_CTRL_FLUSH:
+			shell_mb_flush(mb_ext);
+			break;			
 
 		default:
 			return bFALSE;

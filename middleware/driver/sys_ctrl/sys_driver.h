@@ -3,7 +3,7 @@
 
 #include <common/sys_config.h>
 #include <common/bk_include.h>
-#include <arch/soc.h>
+#include <soc/soc.h>
 #include <components/log.h>
 #include "sys_types.h"
 #include "sys_hal.h"
@@ -65,6 +65,12 @@ void sys_drv_flash_set_dco(void);
 void sys_drv_flash_set_dpll(void);
 
 void sys_drv_flash_cksel(uint32_t value);
+
+void sys_drv_flash_set_clk_div(uint32_t value);
+
+uint32_t sys_drv_flash_get_clk_sel(void);
+
+uint32_t sys_drv_flash_get_clk_div(void);
 
 void sys_drv_set_qspi_vddram_voltage(uint32_t param);
 
@@ -301,7 +307,7 @@ uint32_t sys_drv_aud_power_en(uint32_t value);
 
 /**  FFT Start  **/
 uint32_t sys_drv_fft_disckg_set(uint32_t value);
-uint32_t sys_drv_cpu0_fft_int_en(uint32_t value);
+uint32_t sys_drv_cpu_fft_int_en(uint32_t value);
 /**  FFT End  **/
 
 /**  I2S Start  **/

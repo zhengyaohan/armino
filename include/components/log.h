@@ -19,7 +19,7 @@ extern "C" {
 #endif
 
 #include <os/os.h>
-#include "bk_api_printf.h"
+#include <components/system.h>
 
 #define BK_LOG_NONE    0 /*!< No log output */
 #define BK_LOG_ERROR   1 /*!< Critical errors, software module can not recover on its own */
@@ -69,7 +69,7 @@ extern "C" {
 #define LOG_LEVEL         BK_LOG_INFO
 #endif
 
-#define BK_LOG_FORMAT(letter, format)  LOG_COLOR_ ## letter #letter " (%d) %s: " format "\r\n" LOG_RESET_COLOR
+#define BK_LOG_FORMAT(letter, format)  LOG_COLOR_ ## letter #letter " (%d) %s: " format  LOG_RESET_COLOR
 
 #if (LOG_LEVEL >= BK_LOG_ERROR)
 #define BK_LOGE( tag, format, ... ) os_printf(BK_LOG_FORMAT(E, format), rtos_get_time(), tag, ##__VA_ARGS__)
@@ -133,12 +133,6 @@ void bk_mem_dump(const char* titile, uint32_t start, uint32_t len);
 #define BK_LOGD( tag, format, ... ) bk_printf_ex(BK_LOG_DEBUG, tag, tag ":" BK_LOG_FORMAT(D, format), rtos_get_time(),  ##__VA_ARGS__)
 #define BK_LOGV( tag, format, ... ) bk_printf_ex(BK_LOG_VERBOSE, tag, tag ":" BK_LOG_FORMAT(V, format), rtos_get_time(), ##__VA_ARGS__)
 
-#define BK_ASSERT_HALT(format, ... ) 		shell_assert_out(false, format, ##__VA_ARGS__)
-#define BK_ASSERT_CONTINUE(format, ... )	shell_assert_out(true,  format, ##__VA_ARGS__)
-
-#define BK_ASSERT_RAW_HALT(buf, len)		shell_assert_raw(false, buf, len)
-#define BK_ASSERT_RAW_CONTINUE(buf, len)	shell_assert_raw(true,  buf, len)
-
 #define BK_SPY( spy_id, byte_array, byte_cnt )		shell_spy_out(spy_id, byte_array, byte_cnt)
 
 #define BK_TRACE(trace_id, ... )	shell_trace_out(trace_id, ##__VA_ARGS__)
@@ -146,12 +140,6 @@ void bk_mem_dump(const char* titile, uint32_t start, uint32_t len);
 #define BK_LOG_FLUSH()				shell_log_flush()
 
 #else
-
-#define BK_ASSERT_HALT(format, ... )		do { os_printf(format, ##__VA_ARGS__); while(1); } while(0)
-#define BK_ASSERT_CONTINUE(format, ...)		os_printf(format, ##__VA_ARGS__)
-
-#define BK_ASSERT_RAW_HALT(buf, len)		do { uart_write_string(CONFIG_UART_PRINT_PORT, buf); while(1); } while(0)
-#define BK_ASSERT_RAW_CONTINUE(buf, len)	uart_write_string(CONFIG_UART_PRINT_PORT, buf)
 
 #define BK_SPY( spy_id, byte_array, byte_cnt )
 #define BK_TRACE(trace_id, ... )

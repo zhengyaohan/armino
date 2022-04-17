@@ -25,7 +25,7 @@
 #include "dma_hal.h"
 
 
-SbcDecoderContext sbc_decoder;
+sbcdecodercontext_t sbc_decoder;
 
 
 static const unsigned char sbc_data[165] = {
@@ -268,6 +268,5 @@ int cli_sbc_init(void)
 {
 	return cli_register_commands(s_sbc_commands, SBC_CMD_CNT);
 }
-
 
 

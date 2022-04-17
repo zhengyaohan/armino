@@ -4,8 +4,8 @@
 :link_to_translation:`en:[English]`
 
 .. toctree::
-    :hidden:
+    :maxdepth: 1
 
     BLE <ble>
-    BT <bt>
+
 

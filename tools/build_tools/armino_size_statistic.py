@@ -49,7 +49,7 @@ def find_file(path):
 
 def main():
     global data, size_tools
-    parser = argparse.ArgumentParser(description='armino_size - a tool to print size information from an BDK MAP file')
+    parser = argparse.ArgumentParser(description='armino_size - a tool to print size information from an ARMINO MAP file')
     parser.add_argument('--size', dest='size', default=None)
     parser.add_argument('--dirs', dest='dirs', default=None)
     parser.add_argument('--outfile', dest='outfile', default=None)

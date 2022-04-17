@@ -26,12 +26,16 @@ static const flash_config_t flash_config[] = {
 	{0x1C7015, 1, 0x200000, 2,  0, 2, 0x1F, 0x1F, 0x00, 0x0d, 0x0d,  0, 0, 0xA5, 0x01}, //en_25qh16b
 	{0x0B4014, 2, 0x100000, 2, 14, 2, 0x1F, 0x1F, 0x00, 0x0C, 0x101, 9, 1, 0xA0, 0x01}, //xtx_25f08b
 	{0x0B4015, 2, 0x200000, 2, 14, 2, 0x1F, 0x1F, 0x00, 0x0D, 0x101, 9, 1, 0xA0, 0x01}, //xtx_25f16b
+#if CONFIG_FLASH_QUAD_ENABLE
+	{0x0B4016, 2, 0x400000, 4, 14, 2, 0x1F, 0x1F, 0x00, 0x0E, 0x101, 9, 1, 0xA0, 0x02}, //xtx_25f32b
+#else
 	{0x0B4016, 2, 0x400000, 2, 14, 2, 0x1F, 0x1F, 0x00, 0x0E, 0x101, 9, 1, 0xA0, 0x01}, //xtx_25f32b
+#endif
 	{0x0B4017, 2, 0x800000, 2, 14, 2, 0x1F, 0x05, 0x00, 0x0E, 0x109, 9, 1, 0xA0, 0x01}, //xtx_25f64b
 	{0x0E4016, 2, 0x400000, 2, 14, 2, 0x1F, 0x1F, 0x00, 0x0E, 0x101, 9, 1, 0xA0, 0x01}, //xtx_FT25H32
 	{0xC84015, 2, 0x200000, 2, 14, 2, 0x1F, 0x1F, 0x00, 0x0D, 0x101, 9, 1, 0xA0, 0x01}, //gd_25q16c
 #if CONFIG_FLASH_QUAD_ENABLE
-	{0xC84016, 2, 0x400000, 4, 14, 2, 0x1F, 0x1F, 0x00, 0x0D, 0x101, 9, 1, 0xA0, 0x02}, //gd_25q32c
+	{0xC84016, 2, 0x400000, 4, 14, 2, 0x1F, 0x1F, 0x00, 0x0E, 0x00E, 9, 1, 0xA0, 0x02}, //gd_25q32c
 #else
 	{0xC84016, 1, 0x400000, 2,  0, 2, 0x1F, 0x1F, 0x00, 0x0E, 0x00E, 0, 0, 0xA0, 0x01}, //gd_25q32c
 #endif
@@ -73,6 +77,11 @@ static void flash_get_current_flash_config(void)
 static void flash_set_clk(UINT8 clk_conf)
 {
 	UINT32 value;
+
+#if CONFIG_FLASH_SRC_CLK_60M
+	sys_drv_flash_set_clk_div(FLASH_DIV_VALUE_TWO);
+	sys_drv_flash_set_dco();
+#endif
 
 	value = REG_READ(REG_FLASH_CONF);
 	value &= ~(FLASH_CLK_CONF_MASK << FLASH_CLK_CONF_POSI);
@@ -172,6 +181,10 @@ static void flash_write_sr(UINT8 sr_width,  UINT16 val)
 	REG_WRITE(REG_FLASH_CONF, value);
 	while (REG_READ(REG_FLASH_OPERATE_SW) & BUSY_SW);
 
+#if CONFIG_FLASH_QUAD_ENABLE
+	if (FLASH_ID_GD25Q32C == flash_id)
+		sr_width = 1;
+#endif
 	if (sr_width == 1) {
 		value = (FLASH_OPCODE_WRSR << OP_TYPE_SW_POSI) | OP_SW | WP_VALUE;
 		REG_WRITE(REG_FLASH_OPERATE_SW, value);
@@ -764,94 +777,7 @@ void sctrl_flash_select_dco(void)
 	ddev_control(flash_hdl, CMD_FLASH_GET_ID, &status);
 }
 
-PM_STATUS flash_ps_status;
 
-UINT32 flash_ps_suspend(UINT32 ps_level)
-{
-	PM_STATUS *flash_ps_status_ptr = &flash_ps_status;
-
-	switch (ps_level) {
-	case NORMAL_PS:
-	case LOWVOL_PS:
-	case DEEP_PS:
-	case IDLE_PS:
-		if (4 == flash_get_line_mode())
-			flash_set_line_mode(2);
-		flash_ps_status_ptr->bits.unconditional_ps_sleeped = 1;
-		flash_ps_status_ptr->bits.normal_ps_sleeped = 1;
-		flash_ps_status_ptr->bits.lowvol_ps_sleeped = 1;
-		flash_ps_status_ptr->bits.deep_ps_sleeped = 1;
-
-		break;
-	default:
-		break;
-	}
-	return 0;
-}
-
-UINT32 flash_ps_resume(UINT32 ps_level)
-{
-	PM_STATUS *flash_ps_status_ptr = &flash_ps_status;
-
-	switch (ps_level) {
-	case NORMAL_PS:
-	case LOWVOL_PS:
-	case DEEP_PS:
-	case IDLE_PS:
-		if (4 == flash_get_line_mode())
-			flash_set_line_mode(4);
-		flash_ps_status_ptr->bits.unconditional_ps_sleeped = 0;
-		flash_ps_status_ptr->bits.normal_ps_sleeped = 0;
-		flash_ps_status_ptr->bits.lowvol_ps_sleeped = 0;
-		flash_ps_status_ptr->bits.deep_ps_sleeped = 0;
-
-		break;
-	default:
-		break;
-	}
-	return 0;
-}
-
-PM_STATUS flash_ps_get_status(UINT32 flag)
-{
-	return flash_ps_status;
-}
-
-
-static DEV_PM_OPS_S flash_ps_ops = {
-	.pm_init = NULL,
-	.pm_deinit = NULL,
-	.suspend = flash_ps_suspend,
-	.resume = flash_ps_resume,
-	.status = flash_ps_get_status,
-	.get_sleep_time = NULL,
-
-};
-void flash_ps_pm_init(void)
-{
-	PM_STATUS *flash_ps_status_ptr = &flash_ps_status;
-
-	sctrl_flash_select_dco();
-
-	flash_ps_status_ptr->bits.unconditional_ps_support = 1;
-	flash_ps_status_ptr->bits.unconditional_ps_suspend_allow = 1;
-	flash_ps_status_ptr->bits.unconditional_ps_resume_allow = 1;
-	flash_ps_status_ptr->bits.unconditional_ps_sleeped = 0;
-	flash_ps_status_ptr->bits.normal_ps_support = 1;
-	flash_ps_status_ptr->bits.normal_ps_suspend_allow = 1;
-	flash_ps_status_ptr->bits.normal_ps_resume_allow = 1;
-	flash_ps_status_ptr->bits.normal_ps_sleeped = 0;
-	flash_ps_status_ptr->bits.lowvol_ps_support = 1;
-	flash_ps_status_ptr->bits.lowvol_ps_suspend_allow = 1;
-	flash_ps_status_ptr->bits.lowvol_ps_resume_allow = 1;
-	flash_ps_status_ptr->bits.lowvol_ps_sleeped = 0;
-	flash_ps_status_ptr->bits.deep_ps_support = 1;
-	flash_ps_status_ptr->bits.deep_ps_suspend_allow = 1;
-	flash_ps_status_ptr->bits.deep_ps_resume_allow = 1;
-	flash_ps_status_ptr->bits.deep_ps_sleeped = 0;
-
-	dev_pm_register(PM_ID_FLASH, "flash", &flash_ps_ops);
-}
 
 
 // eof

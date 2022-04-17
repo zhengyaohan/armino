@@ -21,6 +21,7 @@
 #include <os/mem.h>
 #include "power_driver.h"
 #include <os/os.h>
+#include "i2c_hw.h"
 #include "i2c_driver.h"
 #include "i2c_hal.h"
 #include "i2c_statis.h"
@@ -63,6 +64,14 @@ typedef struct {
 	void *param;
 } i2c_callback_t;
 
+typedef struct bkTimerCallback{
+	beken2_timer_t* i2ctimer;
+	int callbackflag;
+	int asyncflag;
+	uint8_t transtate;
+}bkTimercb_t;
+
+
 #define I2C_RETURN_ON_NOT_INIT() do {\
 	if (!s_i2c_driver_is_init) {\
 		I2C_LOGE("i2c driver not init\r\n");\
@@ -87,6 +96,7 @@ typedef struct {
 	bk_gpio_pull_up(I2C##id##_LL_SDA_PIN);\
 } while(0)
 
+static bkTimercb_t i2ccallback[SOC_I2C_UNIT_NUM] ={0};
 static i2c_driver_t s_i2c[SOC_I2C_UNIT_NUM] = {0};
 static bool s_i2c_driver_is_init = false;
 
@@ -263,11 +273,32 @@ static bk_err_t i2c_wait_sm_bus_idle(i2c_id_t id, uint32_t timeout_ms)
 	return BK_OK;
 }
 
+static void i2c_transtate_reset (int id)
+{
+    i2ccallback[id].transtate = 0;
+}
+
+static void i2c_transtate_set (int id)
+{
+    i2ccallback[id].transtate = 1;
+}
+
+static void i2c_timer_start ( int id )
+{
+    if ((i2ccallback[id].asyncflag == 1)&&(i2ccallback[id].callbackflag == 1)) {
+		if (i2ccallback[id].i2ctimer!= NULL) {
+			rtos_start_oneshot_timer( i2ccallback[id].i2ctimer) ;
+		}
+		i2ccallback[id].asyncflag = 0;
+	}
+}
+
 static bk_err_t i2c_master_start(i2c_id_t id)
 {
 	i2c_hal_disable_stop(&s_i2c[id].hal);
 	i2c_hal_set_tx_mode(&s_i2c[id].hal);
 	s_i2c[id].master_status = I2C_TX_DEV_ADDR;
+	i2c_transtate_reset(id);
 	return BK_OK;
 }
 
@@ -276,6 +307,7 @@ static bk_err_t i2c_master_stop(i2c_id_t id)
 	i2c_hal_enable_stop(&s_i2c[id].hal);
 	s_i2c[id].int_status |= I2C1_F_STOP;
 	s_i2c[id].master_status = I2C_IDLE;
+	i2c_timer_start(id);
 	return BK_OK;
 }
 
@@ -433,6 +465,28 @@ bk_err_t i2c1_master_read_data(i2c_id_t id)
 	return BK_OK;
 }
 
+void bk_i2c_timer_callback(int id, void* myTimer)
+{
+    os_memset(&i2ccallback[id],0,sizeof(bkTimercb_t));
+	i2ccallback[id].i2ctimer =(beken2_timer_t*) myTimer;
+    i2ccallback[id].callbackflag = 1;
+}
+
+uint8_t bk_i2c_get_busstate ( int id )
+{
+    I2C_LOGD("bk_i2c_get_busstate[%d].\n",s_i2c[id].master_status);
+	if(s_i2c[id].master_status==0){
+		return 1;//idle
+		} else {
+		return 0;//busy
+	}
+}
+
+uint8_t bk_i2c_get_transstate ( int id )
+{
+    return i2ccallback[id].transtate;
+}
+
 bk_err_t bk_i2c_driver_init(void)
 {
 	if (s_i2c_driver_is_init) {
@@ -483,6 +537,12 @@ bk_err_t bk_i2c_init(i2c_id_t id, const i2c_config_t *cfg)
 	BK_RETURN_ON_NULL(cfg);
 	I2C_RETURN_ON_NOT_INIT();
 
+#if CONFIG_DUAL_CORE
+	uint32_t support_id = CONFIG_I2C_SUPPORT_ID_BITS;
+	uint32_t id_init_bits = BIT(id);
+	if ((~id_init_bits) & support_id)
+		return BK_ERR_I2C_CHECK_DEFCONFIG;
+#endif
 	s_i2c[id].int_status = 0;
 	s_i2c[id].addr_mode = cfg->addr_mode;
 	i2c_id_init_common(id);
@@ -506,7 +566,9 @@ bk_err_t bk_i2c_master_write(i2c_id_t id, uint32_t dev_addr, uint8_t *data, uint
 	I2C_RETURN_ON_NOT_INIT();
 	I2C_RETURN_ON_ID_NOT_INIT(id);
 	BK_RETURN_ON_ERR(i2c_wait_sm_bus_idle(id, timeout_ms));
-
+	if (timeout_ms != 0xFFFFFFFF){
+		i2ccallback[id].asyncflag = 1;
+	}
 	uint32_t int_level = rtos_disable_int();
 	s_i2c[id].work_mode = I2C_MASTER_WRITE;
 	s_i2c[id].is_with_mem_addr = false;
@@ -530,7 +592,9 @@ bk_err_t bk_i2c_master_read(i2c_id_t id, uint32_t dev_addr, uint8_t *data, uint3
 	I2C_RETURN_ON_NOT_INIT();
 	I2C_RETURN_ON_ID_NOT_INIT(id);
 	BK_RETURN_ON_ERR(i2c_wait_sm_bus_idle(id, timeout_ms));
-
+	if (timeout_ms != 0xFFFFFFFF){
+		i2ccallback[id].asyncflag = 1;
+	}
 	uint32_t int_level = rtos_disable_int();
 	s_i2c[id].work_mode = I2C_MASTER_READ;
 	s_i2c[id].is_with_mem_addr = false;
@@ -653,6 +717,16 @@ bk_err_t bk_i2c_set_baud_rate(i2c_id_t id, uint32_t baud_rate)
 	return BK_OK;
 }
 
+bool bk_i2c_is_bus_busy(i2c_id_t id)
+{
+	return i2c_hal_is_busy(&s_i2c[id].hal);
+}
+
+uint32_t bk_i2c_get_cur_action(i2c_id_t id)
+{
+	return s_i2c[id].master_status;
+}
+
 static void i2c_master_isr_common(i2c_id_t id)
 {
 	I2C_LOGD("s_i2c[id].master_status=%d\r\n", s_i2c[id].master_status);
@@ -714,6 +788,7 @@ static void  i2c0_isr_common(i2c_id_t id)
 	case I2C_MASTER_WRITE: {
 		if (!i2c_hal_is_rx_ack_triggered(hal, int_status)) {
 			I2C_LOGW("i2c(%d) master_write get ack failed\r\n", id);
+			i2c_transtate_set(id);
 			i2c_master_stop(id);
 			rtos_set_semaphore(&s_i2c[id].tx_sema);
 			break;
@@ -725,6 +800,7 @@ static void  i2c0_isr_common(i2c_id_t id)
 		if (s_i2c[id].master_status != I2C_RX_DATA &&
 			!i2c_hal_is_rx_ack_triggered(hal, int_status)) {
 			I2C_LOGW("i2c(%d) master_read get ack failed\r\n", id);
+			i2c_transtate_set(id);
 			i2c_master_stop(id);
 			rtos_set_semaphore(&s_i2c[id].rx_sema);
 			break;
@@ -732,6 +808,7 @@ static void  i2c0_isr_common(i2c_id_t id)
 		if (i2c_hal_is_start_triggered(hal, int_status) &&
 			!i2c_hal_is_rx_ack_triggered(hal, int_status)) {
 			I2C_LOGW("i2c_read get ack failed\r\n");
+			i2c_transtate_set(id);
 			i2c_master_stop(id);
 			rtos_set_semaphore(&s_i2c[id].rx_sema);
 			break;
@@ -761,6 +838,7 @@ static void i2c1_isr_common(i2c_id_t id)
 	if(!i2c_hal_is_sm_int_triggered(hal, int_status)) {
 		if (i2c_hal_is_scl_timeout_triggered(hal, int_status)) {
 			I2C_LOGW("SCL timeout triggered, restart i2c\r\n");
+			s_i2c[id].master_status = I2C_IDLE;
 			/* i2c must close->open when SCL low timeout triggered */
 			i2c_hal_disable(hal);
 			i2c_hal_enable(hal);
@@ -777,6 +855,7 @@ static void i2c1_isr_common(i2c_id_t id)
 		/* send stop if not receive ack */
 		if (!i2c_hal_is_rx_ack_triggered(hal, int_status)) {
 			I2C_LOGW("i2c(%d) master_write get ack failed\r\n", id);
+			i2c_transtate_set(id);
 			i2c_master_stop(id);
 			rtos_set_semaphore(&s_i2c[id].tx_sema);
 			break;
@@ -789,6 +868,7 @@ static void i2c1_isr_common(i2c_id_t id)
 		if (i2c_hal_is_start_triggered(hal, int_status) &&
 			!i2c_hal_is_rx_ack_triggered(hal, int_status)) {
 			I2C_LOGW("i2c(%d) master_read get ack failed\r\n", id);
+			s_i2c[id].master_status = I2C_IDLE;
 			s_i2c[id].int_status |= I2C1_F_STOP;
 			rtos_set_semaphore(&s_i2c[id].rx_sema);
 			break;

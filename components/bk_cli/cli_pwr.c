@@ -220,6 +220,20 @@ static void cli_low_power_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc
 	}
 
 }
+static void cli_low_power_debug(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	UINT32 low_power_debug  = 0;
+	if (argc != 2) 
+	{
+		os_printf("set low power debug parameter invalid %d\r\n",argc);
+		return;
+	}
+
+	low_power_debug = os_strtoul(argv[1], NULL, 10);
+
+	low_power_debug_ctrl(low_power_debug);
+
+}
 static void cli_low_power_vote_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 	UINT32 low_power_sleep_mode   = 0;
@@ -514,7 +528,8 @@ static const struct cli_command s_pwr_commands[] = {
 #if CONFIG_AON_RTC
 	{"low_power", "low_power [sleep_mode] [wake_source] [vote1] [vote2] [vote3] [param1] [param2]", cli_low_power_cmd},
 	{"dvfs", "dvfs [cksel_core] [ckdiv_core] [ckdiv_bus] [ckdiv_cpu0] [ckdiv_cpu1]", cli_dvfs_cmd},
-	{"low_power_vote", "low_power_vote [vote]", cli_low_power_vote_cmd},
+	{"low_power_vote", "low_power_vote [low_power_sleep_mode] [low_power_vote] [low_power_vote_value]", cli_low_power_vote_cmd},
+	{"low_power_debug", "low_power_debug [debug_en_value]", cli_low_power_debug},
 #endif
 #if CONFIG_TPC_PA_MAP
 	{"pwr", "pwr {sta|ap} pwr", cli_pwr_cmd },

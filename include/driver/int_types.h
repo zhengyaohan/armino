@@ -15,31 +15,14 @@
 #pragma once
 #include <common/bk_include.h>
 #include <common/bk_err.h>
-#include "icu_reg.h"
+#include <driver/hal/hal_int_types.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/**
- * @brief ICU defines
- * @defgroup bk_api_icu_defs macos
- * @ingroup bk_api_icu
- * @{
- */
 #define BK_ERR_INT_DEVICE_NONE                  (BK_ERR_INT_BASE - 1) /**< icu device number is invalid */
 #define BK_ERR_INT_NOT_EXIST                    (BK_ERR_INT_BASE - 2) /**< icu device number is invalid */
-
-/**
- * @}
- */
-
-/**
- * @brief ICU int devicde enum defines
- * @defgroup bk_api_icu_enum ICU  enums
- * @ingroup bk_api_icu
- * @{
- */
 
 #if CONFIG_SYSTEM_CTRL
 typedef enum {
@@ -165,29 +148,6 @@ typedef enum {
 	INT_SRC_NONE,
 } icu_int_src_t;
 #endif
-
-/**
- * @}
- */
-
-
-
-/**
- * @brief ICU struct defines
- * @defgroup bk_api_icu_structs structs in ICU
- * @ingroup bk_api_icu
- * @{
- */
-
-typedef struct {
-	uint32_t irq_int_statis[IRQ_STATIS_COUNT];
-	uint32_t fiq_int_statis[FIQ_STATIS_COUNT];
-} int_statis_t;
-
-
-/**
- * @}
- */
 
 #ifdef __cplusplus
 }

@@ -8,6 +8,7 @@ make_clr_l :=  $(shell pwd)/l_boot
 make_clr_up := $(shell pwd)/up_boot
 
 subsystem:
+	$(shell mkdir -p $(make_dir)/out)
 	cd $(make_dir)/l_boot && $(MAKE)
 	cd $(make_dir)/up_boot && $(MAKE)
 

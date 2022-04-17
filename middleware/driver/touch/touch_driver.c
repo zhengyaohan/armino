@@ -25,7 +25,7 @@
 #include <os/os.h>
 #include <os/os.h>
 
-
+extern void delay(int num);
 
 typedef struct {
 	touch_isr_t callback;
@@ -45,6 +45,7 @@ static touch_callback_t s_touch_isr[SOC_TOUCH_ID_NUM] = {NULL};
 
 bk_err_t bk_touch_gpio_init(touch_channel_t touch_id)
 {
+	TOUCH_RETURN_ON_INVALID_ID(touch_id);
 	switch(touch_id)
 	{
 		case BK_TOUCH_0:
@@ -187,6 +188,16 @@ bk_err_t bk_touch_calib_enable(uint32_t enable)
 	return BK_OK;
 }
 
+bk_err_t bk_touch_calibration_start(void)
+{
+	bk_touch_calib_enable(0);
+	delay(100);
+	bk_touch_calib_enable(1);
+	delay(100);
+
+	return BK_OK;
+}
+
 bk_err_t bk_touch_scan_mode_enable(uint32_t enable)
 {
 	if(enable) {
@@ -202,6 +213,7 @@ bk_err_t bk_touch_manul_mode_enable(uint32_t calib_value)
 {
 	sys_drv_touch_manul_mode_calib_value_set(calib_value);
 	sys_drv_touch_manul_mode_enable(1);
+	delay(100);
 
 	return BK_OK;
 }
@@ -213,9 +225,9 @@ bk_err_t bk_touch_manul_mode_disable(void)
 	return BK_OK;
 }
 
-bk_err_t bk_touch_scan_mode_mult_channl_set(uint32_t chann_value)
+bk_err_t bk_touch_scan_mode_multi_channl_set(touch_scan_mode_channel_t touch_id)
 {
-	sys_drv_touch_scan_mode_chann_set(chann_value);
+	sys_drv_touch_scan_mode_chann_set(touch_id);
 
 	return BK_OK;
 }
@@ -250,7 +262,7 @@ bk_err_t bk_touch_clear_int(touch_channel_t touch_id)
 	return BK_OK;
 }
 
-bk_err_t bk_touch_get_calib_value(void)
+uint32_t bk_touch_get_calib_value(void)
 {
 	uint32_t calib_value = 0;
 	calib_value = aon_pmu_drv_get_cap_cal();
@@ -258,7 +270,7 @@ bk_err_t bk_touch_get_calib_value(void)
 	return calib_value;
 }
 
-bk_err_t bk_touch_get_touch_status(void)
+uint32_t bk_touch_get_touch_status(void)
 {
 	uint32_t touch_status = 0;
 	touch_status = aon_pmu_drv_get_touch_state();

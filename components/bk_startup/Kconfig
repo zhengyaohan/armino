@@ -7,4 +7,9 @@ menu "Startup"
 	config APP_MAIN_TASK_STACK_SIZE
 		int "Stack size of application main task"
 		default 4096
+
+	config MATTER_START
+		bool "enable matter auto start"
+		default n
+
 endmenu

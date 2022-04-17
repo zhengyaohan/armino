@@ -170,8 +170,10 @@ void reset_register_dump(void)
 }
 // eof
 #else
-extern void rt_hw_board_init(void);
-int boot_main(void)
+//extern void rt_hw_board_init(void);
+//int boot_main(void)
+ extern void __attribute__((section(".itcm_write_flash"))) rt_hw_board_init(void);
+int __attribute__((section(".itcm_write_flash")))  boot_main(void)
 {
 	rt_hw_board_init();	
     //heap_init();

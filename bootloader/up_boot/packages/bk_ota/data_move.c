@@ -263,38 +263,79 @@ int dm_fwrite_tail(uint32_t addr)
 
 int data_move_handler(void)
 {
-    unsigned have;
-    z_stream strm;
-    uint32_t dest_addr, src_addr;
-    int ret, src_offset = 0;
-	int dl_partition_len = 0;
-	int dl_valid_data_len = 0;
-	int dl_total_len = 0;
-    int rd_len, req_len, wr_ret;
-    Bytef *zlib_decompress_ptr;
-	
-	struct ota_rbl_hdr  rbl_hdr;
-	fal_partition_t dest_part = NULL;
-	fal_partition_t src_part  = NULL;
+        unsigned have;
+        z_stream strm;
+        uint32_t dest_addr, src_addr;
+        int ret, src_offset = 0;
+        int dl_partition_len = 0;
+        int dl_valid_data_len = 0;
+        int dl_total_len = 0;
+        int rd_len, req_len, wr_ret;
+        Bytef *zlib_decompress_ptr;
 
+        struct ota_rbl_hdr  rbl_hdr;
+        fal_partition_t dest_part = NULL;
+        fal_partition_t src_part  = NULL;
+        int i=0;	
+        clr_flash_protect(); // 4
 	src_part  = fal_partition_find(RT_BK_DL_PART_NAME);
-    if(data_move_start(src_part))
-    {
-        return RET_DM_NO_OTA_DATA;
-    }
+        bk_printf("fal_partition_find over: ");    
+        if(data_move_start(src_part))
+        {
+                return RET_DM_NO_OTA_DATA;
+        }
 	dl_partition_len = src_part->len;
 	//read firmware head from download partition 96 bytes
 	fal_get_fw_hdr(RT_BK_DL_PART_NAME, &rbl_hdr);
 	dest_part = fal_partition_find(rbl_hdr.name);
-	dl_valid_data_len = rbl_hdr.size_package;
-	
-    //dm_erase_dest_partition(APP_SEC_BASE, (APP_SEC_LEN + (SM_SECTOR - 1)) / SM_SECTOR * SM_SECTOR);
-    dm_erase_dest_partition(dest_part->offset, (dest_part->len + (SM_SECTOR - 1)) / SM_SECTOR * SM_SECTOR);
+	dl_valid_data_len = rbl_hdr.size_package;	
+        //dm_erase_dest_partition(APP_SEC_BASE, (APP_SEC_LEN + (SM_SECTOR - 1)) / SM_SECTOR * SM_SECTOR);
+        dm_erase_dest_partition(dest_part->offset, (dest_part->len + (SM_SECTOR - 1)) / SM_SECTOR * SM_SECTOR);
+        
+        dest_addr = dest_part->offset;
+        src_addr = src_part->offset+ 0x60; //0x60:rbl head size
+        bk_printf("src_address: ");
+        bk_print_hex(src_addr);
+        bk_printf("\r\n:");
+        bk_printf("dest_address: ");
+        bk_print_hex(dest_addr);
+        bk_printf("\r\n:");
+        /* decompress until deflate stream ends or end of file */	
+    	//log_i("src_address:0x%x", src_addr);
+    	//log_i("dest_address:0x%x", dest_addr);
+        while((dl_valid_data_len > src_offset) && (ret != Z_STREAM_END))
+        {
+                req_len = MIN(DM_CHUNK, (dl_valid_data_len - src_offset));
+                bk_printf("req_len: ");
+                bk_print_hex(req_len);
+                bk_printf("\r\n:");
+                rd_len = dm_rd_src_partition(src_addr, (char *)in_buf, req_len);
+                ASSERT(rd_len == req_len);
+                ASSERT(0 == (rd_len & (32 - 1)));       
+                if(rd_len%32 != 0)
+                {
+                	rd_len += (32 - rd_len%32) ;
+                }
+                REG_FLASH_CONFIG  |= FLASH_CONFIG_CPU_WRITE_ENABLE_MASK; //cpu write flash enable
 
-
-    dest_addr = dest_part->offset;
-    src_addr = src_part->offset;
-
+                for(i=0;i < (req_len/4);i++)
+                {
+                        REG_WRITE((USER_APP_ENTRY+src_offset+i*4) ,in_buf[i]);
+                }       
+                REG_READ(0x0);	
+                src_addr += rd_len;
+                src_offset += rd_len;
+                dest_addr += rd_len;//new
+                bk_printf("src_offset: ");
+                bk_print_hex(src_offset);
+                bk_printf("\r\n:");
+        }
+        REG_FLASH_CONFIG  &= (~(FLASH_CONFIG_CPU_WRITE_ENABLE_MASK)); //cpu write flash disable
+        dm_erase_dest_partition(src_part->offset, (src_part->len + (SM_SECTOR - 1)) / SM_SECTOR * SM_SECTOR);
+        wdt_reboot();
+        return 0;
+     
+#if 0
     /* allocate inflate state */
     strm.zalloc = Z_NULL;
     strm.zfree = Z_NULL;
@@ -306,17 +347,7 @@ int data_move_handler(void)
     ret = inflateInit(&strm);
     if (ret != Z_OK)
         return ret;
-
-    /* decompress until deflate stream ends or end of file */
-	bk_printf("src_address: ");
-	bk_print_hex(src_addr);
-	bk_printf("\r\n:");
-	bk_printf("dest_address: ");
-	bk_print_hex(dest_addr);
-	bk_printf("\r\n:");
-	//log_i("src_address:0x%x", src_addr);
-	//log_i("dest_address:0x%x", dest_addr);
-    while((dl_valid_data_len > src_offset) && (ret != Z_STREAM_END))
+   while((dl_valid_data_len > src_offset) && (ret != Z_STREAM_END))
     {
         req_len = MIN(DM_CHUNK, (dl_valid_data_len - src_offset));
         rd_len = dm_rd_src_partition(src_addr, (char *)in_buf, req_len);
@@ -399,6 +430,7 @@ int data_move_handler(void)
     data_move_end(src_part->offset);
 	
     return ret == Z_STREAM_END ? RET_DM_SUCCESS : RET_DM_DATA_ERROR;
+#endif
 }
 // eof
 

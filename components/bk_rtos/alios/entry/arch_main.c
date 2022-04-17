@@ -17,7 +17,7 @@
 #include "bk_private/bk_ate.h"
 #include "k_api.h"
 #include <os/os.h>
-#include "bk_api_tick.h"
+#include <components/system.h>
 
 void print_exception_addr(unsigned int pc, unsigned int lr, unsigned int sp)
 {

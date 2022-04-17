@@ -114,7 +114,7 @@ bk_err_t rtos_get_semaphore(beken_semaphore_t *semaphore, uint32_t timeout_ms)
 	}
 }
 
-int rtos_get_sema_count(beken_semaphore_t *semaphore)
+int rtos_get_semaphore_count(beken_semaphore_t *semaphore)
 {
 	RTOS_DBG("rtos_get_sema_count\n");
 	rt_sem_t sem = *semaphore;

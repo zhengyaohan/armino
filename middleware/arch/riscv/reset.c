@@ -54,7 +54,7 @@ void reset_handler(void)
 	__libc_init_array();
 
 	/*Init pmp configuration*/
-	// init_pmp_config();
+	init_pmp_config();
 	
 	/* Entry function */
 	entry_main();

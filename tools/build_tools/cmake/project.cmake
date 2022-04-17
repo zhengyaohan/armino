@@ -1,4 +1,4 @@
-# Designed to be included from an BDK app's CMakeLists.txt file
+# Designed to be included from an ARMINO app's CMakeLists.txt file
 cmake_minimum_required(VERSION 3.5)
 
 include(${CMAKE_CURRENT_LIST_DIR}/colors.cmake)
@@ -8,7 +8,7 @@ define_colors()
 # call.
 include(${CMAKE_CURRENT_LIST_DIR}/armino.cmake)
 
-set(BDKTOOL ${PYTHON} "${ARMINO_PATH}/tools/build_tools/armino.py")
+set(ARMINOTOOL ${PYTHON} "${ARMINO_PATH}/tools/build_tools/armino.py")
 # Internally, the Python interpreter is already set to 'python'. Re-set here
 # to be absolutely sure.
 set_default(PYTHON "python")
@@ -104,7 +104,7 @@ function(__project_info test_components)
     armino_build_get_property(SDKCONFIG_DEFAULTS SDKCONFIG_DEFAULTS)
     armino_build_get_property(PROJECT_EXECUTABLE EXECUTABLE)
     set(PROJECT_BIN ${CMAKE_PROJECT_NAME}.bin)
-    armino_build_get_property(BDK_VER BDK_VER)
+    armino_build_get_property(ARMINO_VER ARMINO_VER)
 
     armino_build_get_property(sdkconfig_cmake SDKCONFIG_CMAKE)
     #include(${sdkconfig_cmake})
@@ -171,26 +171,37 @@ function(__project_init components_var test_components_var)
         endif()
     endfunction()
 
-    armino_build_set_property(BDK_COMPONENT_MANAGER "$ENV{BDK_COMPONENT_MANAGER}")
+    armino_build_set_property(ARMINO_COMPONENT_MANAGER "$ENV{ARMINO_COMPONENT_MANAGER}")
 
+    if(COMMON_REQUIRES)
+        armino_build_set_property(__COMPONENT_REQUIRES_COMMON "${COMMON_REQUIRES}")
+    endif()
     # Add component directories to the build, given the component filters, exclusions
     # extra directories, etc. passed from the root CMakeLists.txt.
-    if(COMPONENT_DIRS)
+    if(COMPONENTS_DIRS)
         # User wants to fully override where components are pulled from.
-        spaces2list(COMPONENT_DIRS)
         armino_build_set_property(__COMPONENT_TARGETS "")
+
+        spaces2list(COMPONENTS_DIRS)
+        foreach(component_dir ${COMPONENTS_DIRS})
+            __build_add_components(${component_dir})
+        endforeach()
+
+        spaces2list(COMPONENT_DIRS)
+        armino_build_get_property(prefix __PREFIX)
         foreach(component_dir ${COMPONENT_DIRS})
-            __project_component_dir(${component_dir})
+            get_filename_component(component_dir ${component_dir} ABSOLUTE)
+            __component_add(${component_dir} ${prefix})
         endforeach()
     else()
         # Add project manifest and lock file to the list of dependencies
         set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/armino_project.yml")
         set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/dependencies.lock")
 
-        armino_build_get_property(armino_component_manager BDK_COMPONENT_MANAGER)
+        armino_build_get_property(armino_component_manager ARMINO_COMPONENT_MANAGER)
         if(armino_component_manager)
             if(armino_component_manager EQUAL "0")
-                LOGV("BDK Component manager was explicitly disabled by setting BDK_COMPONENT_MANAGER=0")
+                LOGV("ARMINO Component manager was explicitly disabled by setting ARMINO_COMPONENT_MANAGER=0")
             elseif(armino_component_manager EQUAL "1")
                 set(managed_components_list_file ${CMAKE_BINARY_DIR}/managed_components_list.temp.cmake)
 
@@ -212,16 +223,16 @@ function(__project_init components_var test_components_var)
                 include(${managed_components_list_file})
                 file(REMOVE ${managed_components_list_file})
             else()
-                LOGW("BDK_COMPONENT_MANAGER environment variable is set to unknown value "
+                LOGW("ARMINO_COMPONENT_MANAGER environment variable is set to unknown value "
                         "\"${armino_component_manager}\". If you want to use component manager set it to 1.")
             endif()
         elseif(EXISTS "${CMAKE_CURRENT_LIST_DIR}/armino_project.yml")
             LOGW("\"armino_project.yml\" file is found in project directory, "
-                    "but component manager is not enabled. Please set BDK_COMPONENT_MANAGER environment variable.")
+                    "but component manager is not enabled. Please set ARMINO_COMPONENT_MANAGER environment variable.")
         endif()
 
-        spaces2list(EXTRA_COMPONENT_DIRS)
-        foreach(component_dir ${EXTRA_COMPONENT_DIRS})
+        spaces2list(EXTRA_COMPONENTS_DIRS)
+        foreach(component_dir ${EXTRA_COMPONENTS_DIRS})
             __project_component_dir("${component_dir}")
         endforeach()
 
@@ -294,6 +305,8 @@ macro(project project_name)
     # TEST_EXLUDE_COMPONENTS, TESTS_ALL, BUILD_TESTS
     __project_init(components test_components)
 
+    armino_build_parse_config_file_list()
+    armino_build_parse_toolchain_dir()
     __target_set_toolchain()
 
     if(CCACHE_ENABLE)
@@ -347,50 +360,11 @@ macro(project project_name)
     # Prepare the following arguments for the armino_build_process() call using external
     # user values:
     #
-    # SDKCONFIG_DEFAULTS is from external SDKCONFIG_DEFAULTS
-    # SDKCONFIG is from external SDKCONFIG
     # BUILD_DIR is set to project binary dir
     #
     # PROJECT_NAME is taken from the passed name from project() call
     # PROJECT_DIR is set to the current directory
     # PROJECT_VER is from the version text or git revision of the current repo
-    set(_sdkconfig_defaults "$ENV{SDKCONFIG_DEFAULTS}")
-
-    armino_build_get_property(armino_path ARMINO_PATH)
-    set(arch_path "${armino_path}/middleware/arch/${BDK_SOC}")
-    if(NOT _sdkconfig_defaults)
-        if(EXISTS "${CMAKE_SOURCE_DIR}/sdkconfig.defaults")
-            set(_sdkconfig_defaults "${CMAKE_SOURCE_DIR}/sdkconfig.defaults")
-        else()
-            set(_sdkconfig_defaults "")
-        endif()
-        #add sdkconfig.defaults.target in middleware/arch/target
-        if(EXISTS "${arch_path}/${BDK_SOC}.defconfig")
-            set(_sdkconfig_default_soc "${arch_path}/${BDK_SOC}.defconfig")
-            get_filename_component(sdkconfig_default_soc "${_sdkconfig_default_soc}" ABSOLUTE)
-        else()
-            set(sdkconfig_default_soc)
-        endif()
-    endif()
-
-    if(SDKCONFIG_DEFAULTS)
-        set(_sdkconfig_defaults "${SDKCONFIG_DEFAULTS}")
-        set(_sdkconfig_defaults_soc "")
-    endif()
-
-    foreach(sdkconfig_default ${_sdkconfig_defaults})
-        get_filename_component(sdkconfig_default "${sdkconfig_default}" ABSOLUTE)
-        if(NOT EXISTS "${sdkconfig_default}")
-            LOGE("SDKCONFIG_DEFAULTS '${sdkconfig_default}' does not exist.")
-        endif()
-        list(APPEND sdkconfig_defaults ${sdkconfig_default})
-    endforeach()
-
-    if(SDKCONFIG)
-        get_filename_component(sdkconfig "${SDKCONFIG}" ABSOLUTE)
-    else()
-        set(sdkconfig "${CMAKE_CURRENT_LIST_DIR}/sdkconfig")
-    endif()
 
     if(BUILD_DIR)
         get_filename_component(build_dir "${BUILD_DIR}" ABSOLUTE)
@@ -403,9 +377,12 @@ macro(project project_name)
 
     __project_get_revision(project_ver)
 
-    LOGI("Building Beken BDK components for target ${BDK_SOC}")
+    LOGI("Building Beken ARMINO components for target ${ARMINO_SOC}")
 
-    armino_build_process(${BDK_SOC}
+    armino_build_get_property(sdkconfig_defaults SDKCONFIG_DEFAULTS)
+    armino_build_get_property(sdkconfig_default_soc SDKCONFIG_DEFAULT_SOC)
+    armino_build_get_property(sdkconfig SDKCONFIG)
+    armino_build_process(${ARMINO_SOC}
                     SDKCONFIG_DEFAULTS "${sdkconfig_defaults}"
                     SDKCONFIG_DEFAULT_SOC ${sdkconfig_default_soc}
                     SDKCONFIG ${sdkconfig}
@@ -422,10 +399,6 @@ macro(project project_name)
     #
     # This behavior should only be when user did not set REQUIRES/PRIV_REQUIRES manually.
     armino_build_get_property(build_components BUILD_COMPONENT_ALIASES)
-    armino_build_get_property(internal_components INTERNAL_COMPONENTS)
-    if (NOT "${internal_components}" STREQUAL "")
-        list(REMOVE_ITEM build_components ${internal_components})
-    endif()
     if(armino::main IN_LIST build_components)
         __component_get_target(main_target armino::main)
         __component_get_property(reqs ${main_target} REQUIRES)
@@ -476,18 +449,7 @@ macro(project project_name)
 
     armino_build_get_property(build_components BUILD_COMPONENT_ALIASES)
 
-    if (NOT "${internal_components}" STREQUAL "")
-        list(REMOVE_ITEM build_components ${internal_components})
-    endif()
-    add_custom_target(build_internal_libs DEPENDS ${internal_components})
-
     armino_build_get_property(armino_path ARMINO_PATH)
-    set(armino_lib_cp  "$ENV{ARMINO_PATH}/tools/build_tools/copy_internal_libs.sh")
-    add_custom_target(copy_internal_libs
-        DEPENDS build_internal_libs
-        COMMAND ${armino_lib_cp} "${BDK_SOC}" "${armino_path}" "${build_dir}"
-	)
-    add_custom_target(internal_libs DEPENDS copy_internal_libs)
 
     if(test_components)
         list(REMOVE_ITEM build_components ${test_components})
@@ -541,7 +503,9 @@ macro(project project_name)
     # Add DFU build and flash targets
     __add_dfu_targets()
 
-    armino_build_executable(${project_elf})
+    if (NOT LINK_ONLY)
+        armino_build_executable(${project_elf})
+    endif()
 
     __project_info("${test_components}")
 endmacro()

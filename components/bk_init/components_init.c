@@ -130,7 +130,7 @@ static int pm_init_todo(void)
 static inline void show_sdk_version(void)
 {
 #if (CONFIG_CMAKE)
-	//BK_LOGI(TAG, "armino rev: %s\r\n", BDK_VER);
+	//BK_LOGI(TAG, "armino rev: %s\r\n", ARMINO_VER);
 	BK_LOGI(TAG, "armino rev: %s\r\n", "");
 #else
 	//BK_LOGI(TAG, "armino rev: %s\r\n", BEKEN_SDK_REV);

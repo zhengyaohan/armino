@@ -43,15 +43,14 @@ typedef struct {
 	bool is_rx_blocked;
 	beken_semaphore_t tx_sema;
 	beken_semaphore_t rx_sema;
+	dma_id_t spi_tx_dma_chan;
+	dma_id_t spi_rx_dma_chan;
 } spi_driver_t;
 
 typedef struct {
 	spi_isr_t callback;
 	void *param;
 } spi_callback_t;
-
-#define SPI_RX_DMA_CHANNEL    DMA_ID_1
-#define SPI_TX_DMA_CHANNEL    DMA_ID_3
 
 #define SPI_RETURN_ON_NOT_INIT() do {\
 	if (!s_spi_driver_is_init) {\
@@ -278,33 +277,35 @@ static void spi_dma_rx_finish_handler(dma_id_t id)
 	}
 }
 
-static void spi_dma_tx_init(spi_id_t id)
+static void spi_dma_tx_init(spi_id_t id, dma_id_t spi_tx_dma_chan)
 {
-	dma_config_t dma_config;
+	dma_config_t dma_config = {0};
 	spi_int_config_t int_cfg_table[] = SPI_INT_CONFIG_TABLE;
 
-	os_memset(&dma_config, 0, sizeof(dma_config));
+	s_spi[id].spi_tx_dma_chan = spi_tx_dma_chan;
 
 	dma_config.mode = DMA_WORK_MODE_SINGLE;
 	dma_config.chan_prio = 0;
 	dma_config.src.dev = DMA_DEV_DTCM;
 	dma_config.src.width = DMA_DATA_WIDTH_32BITS;
+	dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
+	dma_config.src.addr_loop_en = DMA_ADDR_LOOP_ENABLE;
 	dma_config.dst.width = DMA_DATA_WIDTH_8BITS;
 	dma_config.dst.start_addr = SPI_R_DATA(id);
 	dma_config.dst.dev = int_cfg_table[id].dma_dev;
 
-	BK_LOG_ON_ERR(bk_dma_init(SPI_TX_DMA_CHANNEL, &dma_config));
-	BK_LOG_ON_ERR(bk_dma_register_isr(SPI_TX_DMA_CHANNEL, NULL, spi_dma_tx_finish_handler));
-	BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(SPI_TX_DMA_CHANNEL));
-	BK_LOG_ON_ERR(bk_dma_enable_half_finish_interrupt(SPI_TX_DMA_CHANNEL));
+	BK_LOG_ON_ERR(bk_dma_init(spi_tx_dma_chan, &dma_config));
+	BK_LOG_ON_ERR(bk_dma_register_isr(spi_tx_dma_chan, NULL, spi_dma_tx_finish_handler));
+	BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(spi_tx_dma_chan));
+	BK_LOG_ON_ERR(bk_dma_enable_half_finish_interrupt(spi_tx_dma_chan));
 }
 
-static void spi_dma_rx_init(spi_id_t id)
+static void spi_dma_rx_init(spi_id_t id, dma_id_t spi_rx_dma_chan)
 {
-	dma_config_t dma_config;
+	dma_config_t dma_config = {0};
 	spi_int_config_t int_cfg_table[] = SPI_INT_CONFIG_TABLE;
 
-	os_memset(&dma_config, 0, sizeof(dma_config));
+	s_spi[id].spi_rx_dma_chan = spi_rx_dma_chan;
 
 	dma_config.mode = DMA_WORK_MODE_SINGLE;
 	dma_config.chan_prio = 0;
@@ -313,11 +314,13 @@ static void spi_dma_rx_init(spi_id_t id)
 	dma_config.src.start_addr = SPI_R_DATA(id);
 	dma_config.dst.dev = DMA_DEV_DTCM;
 	dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
+	dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE;
+	dma_config.dst.addr_loop_en = DMA_ADDR_LOOP_ENABLE;
 
-	BK_LOG_ON_ERR(bk_dma_init(SPI_RX_DMA_CHANNEL, &dma_config));
-	BK_LOG_ON_ERR(bk_dma_register_isr(SPI_RX_DMA_CHANNEL, NULL, spi_dma_rx_finish_handler));
-	BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(SPI_RX_DMA_CHANNEL));
-	BK_LOG_ON_ERR(bk_dma_enable_half_finish_interrupt(SPI_RX_DMA_CHANNEL));
+	BK_LOG_ON_ERR(bk_dma_init(spi_rx_dma_chan, &dma_config));
+	BK_LOG_ON_ERR(bk_dma_register_isr(spi_rx_dma_chan, NULL, spi_dma_rx_finish_handler));
+	BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(spi_rx_dma_chan));
+	BK_LOG_ON_ERR(bk_dma_enable_half_finish_interrupt(spi_rx_dma_chan));
 }
 
 #endif /* CONFIG_SPI_DMA */
@@ -375,8 +378,8 @@ bk_err_t bk_spi_init(spi_id_t id, const spi_config_t *config)
 #if (!CONFIG_SYSTEM_CTRL)
 		gpio_spi_sel(GPIO_SPI_MAP_MODE0);
 #endif
-		spi_dma_tx_init(id);
-		spi_dma_rx_init(id);
+		spi_dma_tx_init(id, config->spi_tx_dma_chan);
+		spi_dma_rx_init(id, config->spi_rx_dma_chan);
 	}
 #endif
 
@@ -577,13 +580,13 @@ bk_err_t bk_spi_dma_write_bytes(spi_id_t id, const void *data, uint32_t size)
 	spi_hal_set_tx_trans_len(&s_spi[id].hal, size);
 	spi_hal_enable_tx(&s_spi[id].hal);
 	rtos_enable_int(int_level);
-	bk_dma_write(SPI_TX_DMA_CHANNEL, (uint8_t *)data, size);
+	bk_dma_write(s_spi[id].spi_tx_dma_chan, (uint8_t *)data, size);
 
 	rtos_get_semaphore(&s_spi[id].tx_sema, BEKEN_NEVER_TIMEOUT);
 
 	int_level = rtos_disable_int();
 	spi_hal_disable_tx(&s_spi[id].hal);
-	bk_dma_stop(SPI_TX_DMA_CHANNEL);
+	bk_dma_stop(s_spi[id].spi_tx_dma_chan);
 	rtos_enable_int(int_level);
 	return BK_OK;
 }
@@ -602,13 +605,13 @@ bk_err_t bk_spi_dma_read_bytes(spi_id_t id, void *data, uint32_t size)
 	spi_hal_disable_rx_fifo_int(&s_spi[id].hal);
 	spi_hal_enable_rx(&s_spi[id].hal);
 	rtos_enable_int(int_level);
-	bk_dma_read(SPI_RX_DMA_CHANNEL, (uint8_t *)data, size);
+	bk_dma_read(s_spi[id].spi_rx_dma_chan, (uint8_t *)data, size);
 
 	rtos_get_semaphore(&s_spi[id].rx_sema, BEKEN_NEVER_TIMEOUT);
 
 	int_level = rtos_disable_int();
 	spi_hal_disable_rx(&s_spi[id].hal);
-	bk_dma_stop(SPI_RX_DMA_CHANNEL);
+	bk_dma_stop(s_spi[id].spi_rx_dma_chan);
 	rtos_enable_int(int_level);
 	return BK_OK;
 }

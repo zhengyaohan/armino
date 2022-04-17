@@ -173,8 +173,6 @@ bk_err_t bk_dma_write(dma_id_t id, const uint8_t *data, uint32_t size)
     DMA_RETURN_ON_NOT_INIT();
     DMA_RETURN_ON_ID_NOT_INIT(id);
 
-    dma_hal_enable_src_addr_inc(&s_dma.hal, id);
-    dma_hal_enable_src_addr_loop(&s_dma.hal, id);
     dma_hal_set_src_start_addr(&s_dma.hal, id, (uint32_t)data);
     dma_hal_set_src_loop_addr(&s_dma.hal, id, (uint32_t)data, (uint32_t)(data + size));
     dma_hal_set_transfer_len(&s_dma.hal, id, size);
@@ -190,8 +188,6 @@ bk_err_t bk_dma_read(dma_id_t id, uint8_t *data, uint32_t size)
     DMA_RETURN_ON_NOT_INIT();
     DMA_RETURN_ON_ID_NOT_INIT(id);
 
-    dma_hal_enable_dest_addr_inc(&s_dma.hal, id);
-    dma_hal_enable_dest_addr_loop(&s_dma.hal, id);
     dma_hal_set_dest_start_addr(&s_dma.hal, id, (uint32_t)data);
     dma_hal_set_dest_loop_addr(&s_dma.hal, id, (uint32_t)data, (uint32_t)(data + size));
     dma_hal_set_transfer_len(&s_dma.hal, id, size);
@@ -269,12 +265,92 @@ bk_err_t bk_dma_set_src_addr(dma_id_t id, uint32_t start_addr, uint32_t end_addr
     return BK_OK;
 }
 
+bk_err_t bk_dma_set_src_start_addr(dma_id_t id, uint32_t start_addr)
+{
+    DMA_RETURN_ON_NOT_INIT();
+    DMA_RETURN_ON_INVALID_ID(id);
+    dma_hal_set_src_start_addr(&s_dma.hal, id, start_addr);
+    return BK_OK;
+}
+
 bk_err_t bk_dma_set_dest_addr(dma_id_t id, uint32_t start_addr, uint32_t end_addr)
 {
     DMA_RETURN_ON_NOT_INIT();
     DMA_RETURN_ON_INVALID_ID(id);
     dma_hal_set_dest_start_addr(&s_dma.hal, id, start_addr);
     dma_hal_set_dest_loop_addr(&s_dma.hal, id, start_addr, end_addr);
+    return BK_OK;
+}
+
+bk_err_t bk_dma_set_dest_start_addr(dma_id_t id, uint32_t start_addr)
+{
+    DMA_RETURN_ON_NOT_INIT();
+    DMA_RETURN_ON_INVALID_ID(id);
+    dma_hal_set_dest_start_addr(&s_dma.hal, id, start_addr);
+    return BK_OK;
+}
+
+bk_err_t bk_dma_enable_src_addr_increase(dma_id_t id)
+{
+    DMA_RETURN_ON_NOT_INIT();
+    DMA_RETURN_ON_INVALID_ID(id);
+    dma_hal_enable_src_addr_inc(&s_dma.hal, id);
+    return BK_OK;
+}
+
+bk_err_t bk_dma_disable_src_addr_increase(dma_id_t id)
+{
+    DMA_RETURN_ON_NOT_INIT();
+    DMA_RETURN_ON_INVALID_ID(id);
+    dma_hal_disable_src_addr_inc(&s_dma.hal, id);
+    return BK_OK;
+}
+
+bk_err_t bk_dma_enable_src_addr_loop(dma_id_t id)
+{
+    DMA_RETURN_ON_NOT_INIT();
+    DMA_RETURN_ON_INVALID_ID(id);
+    dma_hal_enable_src_addr_loop(&s_dma.hal, id);
+    return BK_OK;
+}
+
+bk_err_t bk_dma_disable_src_addr_loop(dma_id_t id)
+{
+    DMA_RETURN_ON_NOT_INIT();
+    DMA_RETURN_ON_INVALID_ID(id);
+    dma_hal_disable_src_addr_loop(&s_dma.hal, id);
+    return BK_OK;
+}
+
+bk_err_t bk_dma_enable_dest_addr_increase(dma_id_t id)
+{
+    DMA_RETURN_ON_NOT_INIT();
+    DMA_RETURN_ON_INVALID_ID(id);
+    dma_hal_enable_dest_addr_inc(&s_dma.hal, id);
+    return BK_OK;
+}
+
+bk_err_t bk_dma_disable_dest_addr_increase(dma_id_t id)
+{
+    DMA_RETURN_ON_NOT_INIT();
+    DMA_RETURN_ON_INVALID_ID(id);
+    dma_hal_disable_dest_addr_inc(&s_dma.hal, id);
+    return BK_OK;
+}
+
+bk_err_t bk_dma_enable_dest_addr_loop(dma_id_t id)
+{
+    DMA_RETURN_ON_NOT_INIT();
+    DMA_RETURN_ON_INVALID_ID(id);
+    dma_hal_enable_dest_addr_loop(&s_dma.hal, id);
+    return BK_OK;
+}
+
+bk_err_t bk_dma_disable_dest_addr_loop(dma_id_t id)
+{
+    DMA_RETURN_ON_NOT_INIT();
+    DMA_RETURN_ON_INVALID_ID(id);
+    dma_hal_disable_dest_addr_loop(&s_dma.hal, id);
     return BK_OK;
 }
 
@@ -333,11 +409,13 @@ bk_err_t dma_memcpy(void *out, const void *in, uint32_t len)
 
     dma_config.src.dev = DMA_DEV_DTCM;
     dma_config.src.width = DMA_DATA_WIDTH_32BITS;
+    dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
     dma_config.src.start_addr = (uint32_t)in;
     dma_config.src.end_addr = (uint32_t)(in + len);
 
     dma_config.dst.dev = DMA_DEV_DTCM;
     dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
+    dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE;
     dma_config.dst.start_addr = (uint32_t)out;
     dma_config.dst.end_addr = (uint32_t)(out + len);
 

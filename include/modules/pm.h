@@ -36,6 +36,7 @@ typedef enum
 typedef struct
 {
     wifi_bt_wakeup_type_e  wifi_bt_wakeup;
+	uint32_t  sleep_time;
     int_group_isr_t isr_callback;
 }system_wakeup_param_t;
 typedef struct
@@ -59,7 +60,10 @@ void low_power_set_sleep_mode(low_power_sleep_mode_e sleep_mode);
 /*wakeup_source_set*/
 void low_power_wakeup_source_set(wakeup_source_t wakeup_source, void* source_param);
 
+/*module sleep ctrl*/
 void low_power_module_enter_sleep_ctrl(power_module_name_t module,uint32_t sleep_state);
+
+void low_power_module_sleep_ctrl(power_module_name_t module,uint32_t sleep_state,uint32_t sleep_time);
 /*power control*/
 /*1. power module ctrl:power on or power off*/
 void low_power_power_ctrl(power_module_name_t module,power_module_state_t power_state);
@@ -84,6 +88,9 @@ void low_power_rf_switch(module_name_t name);
 
 /*enter low power manage*/
 int low_power_suppress_ticks_and_sleep(UINT32 sleep_ticks);
+
+/*for debug log ctrl*/
+void low_power_debug_ctrl(uint32_t debug_en);
 #ifdef __cplusplus
 }
 #endif

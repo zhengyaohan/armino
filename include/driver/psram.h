@@ -20,11 +20,79 @@
 extern "C" {
 #endif
 
+/* @brief Overview about this API header
+ *
+ */
+
+/**
+ * @brief psram API
+ * @defgroup bk_api_psram PSRAM API group
+ * @{
+ */
+
+/**
+ * @brief     Init the PSRAM driver
+ *
+ * This API init the resoure common to PSRAM:
+ *   - Init PSRAM driver control register
+ *   - Configure PSRAM Clock and voltage selection
+ *
+ * This API should be called before any other use PSRAM.
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
 bk_err_t bk_psram_driver_init(void);
+
+/**
+ * @brief     Deinit the PSRAM driver
+ *
+ * This API free the resoure common to PSRAM:
+ *   - Init PSRAM driver control register
+ *   - power down PSRAM voltage
+ *
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
 bk_err_t bk_psram_driver_deinit(void);
+
+/**
+ * @brief     Init the PSRAM HW
+ *
+ * This API init the resoure common to all PSRAM:
+ *   - Configure the clock control register
+ *   - Select a frequency multiple
+ *   - Flash clock select
+ *   - Enable the clock
+ *
+ * This API should be called before any other PSRAM APIs.
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
 bk_err_t bk_psram_init(uint32_t mode);
+
+/**
+ * @brief     Deinit the PSRAM HW
+ *
+ * This API free the resoure common to PSRAM:
+ *   - Init PSRAM HW control register
+ *   - power down PSRAM voltage
+ *
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
 bk_err_t bk_psram_deinit(void);
 
+/**
+ * @}
+ */
 #ifdef __cplusplus
 }
 #endif

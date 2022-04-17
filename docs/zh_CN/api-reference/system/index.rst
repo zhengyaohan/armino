@@ -4,6 +4,8 @@
 :link_to_translation:`en:[English]`
 
 .. toctree::
-    :hidden:
+    :maxdepth: 2
 
+    OS <os>
     事件机制 <bk_event>
+    POSIX <posix/index>

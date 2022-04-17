@@ -5,14 +5,14 @@
 #include <components/system.h>
 
 #if (CONFIG_AT_CMD)
-#if (CONFIG_BLE_5_X)
+#if CONFIG_BLE//(CONFIG_BLE_5_X)
 #include "ble_api_5_x.h"
-#include <modules/bk_ble.h>
+#include <modules/ble.h>
 #endif
 
 #include "at_common.h"
 #include "bk_private/bk_wifi_wpa_cmd.h"
-#include "bk_api_mac.h"
+#include <components/system.h>
 #include <modules/wifi.h>
 #include "bk_wifi_wrapper.h"
 
@@ -48,11 +48,22 @@ static void at_reset_command(char *pcWriteBuffer, int xWriteBufferLen, int argc,
     os_memcpy(pcWriteBuffer, msg, os_strlen(msg));
 }
 
-#if (CONFIG_BLE_5_X || CONFIG_BTDM_5_2)
+//#if (CONFIG_BLE_5_X || CONFIG_BTDM_5_2)
+#if CONFIG_BLE
 static void bleat_command_handler(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
     char *msg = NULL;
-    const at_command_t *command = lookup_ble_at_command(argv[1]);
+    const at_command_t *command = NULL;
+    uint8_t type = bk_ble_get_controller_stack_type();
+
+    if(type != BK_BLE_CONTROLLER_STACK_TYPE_BLE_5_X &&
+        type != BK_BLE_CONTROLLER_STACK_TYPE_BTDM_5_2)
+    {
+        os_printf("%s stack type %d not support\n", __func__, type);
+        return;
+    }
+
+    command = lookup_ble_at_command(argv[1]);
     if (command == NULL) {
         bk_printf("cannot find this cmd, please check again!!!\n");
         msg = AT_CMD_RSP_ERROR;
@@ -188,24 +199,24 @@ void at_mac_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **a
 		ret3 = bk_wifi_ap_get_mac(ap_mac);
 		if ((ret1 != BK_OK) && (ret2 != BK_OK) && (ret3 != BK_OK))
 			msg = AT_CMD_RSP_ERROR;
-		else 
+		else
 			msg = AT_CMD_RSP_SUCCEED;
 		os_printf("base mac: "BK_MAC_FORMAT"\n", BK_MAC_STR(base_mac));
 		os_printf("sta mac: "BK_MAC_FORMAT"\n", BK_MAC_STR(sta_mac));
 		os_printf("ap mac: "BK_MAC_FORMAT"\n", BK_MAC_STR(ap_mac));
-		
+
 	} else if (argc == 2) {
 		hexstr2bin(argv[1], base_mac, BK_MAC_ADDR_LEN);
 		ret4 = bk_set_base_mac(base_mac);
 		os_printf("set base mac: "BK_MAC_FORMAT"\n", BK_MAC_STR(base_mac));
 		if (ret4 != BK_OK)
 			msg = AT_CMD_RSP_ERROR;
-		else 
+		else
 			msg = AT_CMD_RSP_SUCCEED;
 
 	} else {
 		os_printf("invalid cmd\r\n");
-		msg = AT_CMD_RSP_ERROR;	
+		msg = AT_CMD_RSP_ERROR;
 	}
     os_memcpy(pcWriteBuffer, msg, os_strlen(msg));
 }
@@ -218,7 +229,7 @@ static const struct cli_command s_at_commands[] = {
 #if (CONFIG_AT_CMD)
     {"AT", "AT", at_base_command},
     {"AT+RST", "AT+RST", at_reset_command},
-#if (CONFIG_BLE_5_X || CONFIG_BTDM_5_2)
+#if CONFIG_BLE//(CONFIG_BLE_5_X || CONFIG_BTDM_5_2)
     {"AT+BLE", "AT+TYPE_CMD=CMD_name,param1,...,paramn", bleat_command_handler},
 #endif
 #if CONFIG_LWIP

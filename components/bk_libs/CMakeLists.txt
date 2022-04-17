@@ -3,7 +3,7 @@
 # 2. Move WiFi libs to bk_wifi
 # 3. Move BLE libs to bk_ble
 
-armino_build_get_property(armino_soc BDK_SOC)
+armino_build_get_property(armino_soc ARMINO_SOC)
 
 set(incs)
 set(srcs)

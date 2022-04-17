@@ -1,7 +1,5 @@
 set(incs
 	include
-	include/bk_private
-	# freertos
 	)
 
 #TODO OS use different flags

@@ -14,7 +14,7 @@
 //
 #pragma once
 #include <common/bk_include.h>
-#include <driver/hal/gpio_types.h>
+#include <driver/hal/hal_gpio_types.h>
 
 #ifdef __cplusplus
 extern "C" {

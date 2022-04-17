@@ -11,7 +11,7 @@
    GPIO <bk_gpio>
    ICU <bk_interrupt>
    Mailbox <bk_mailbox>
-   PMW <bk_pwm>
+   PWM <bk_pwm>
    SARADC <bk_adc>
    SPI <bk_spi>
    QSPI <bk_qspi>
@@ -20,5 +20,6 @@
    UART <bk_uart>
    WDT <bk_wdt>
    I2C <bk_i2c>
+   TOUCH <bk_touch>
 
 

@@ -22,6 +22,7 @@ header_file_path_prefix_list = \
     "../../include/components/",\
     "../../include/modules/",\
     "../../include/os/",\
+    "../../include/posix/",\
     "../../properties/modules/",\
 ]
 """string: path prefix for header files.

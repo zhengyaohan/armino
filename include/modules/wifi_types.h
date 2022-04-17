@@ -205,6 +205,7 @@ typedef enum {
 	WIFI_SECURITY_WPA3_SAE,        /**< WPA3 SAE */
 	WIFI_SECURITY_WPA3_WPA2_MIXED, /**< WPA3 SAE or WPA2 AES */
 	WIFI_SECURITY_EAP,             /**< EAP */
+	WIFI_SECURITY_OWE,             /**< OWE */
 	WIFI_SECURITY_AUTO,            /**< WiFi automatically detect the security type */
 } wifi_security_t;
 
@@ -246,12 +247,25 @@ typedef struct {
 	wifi_second_channel_t second;    /**< Secondary cahnnel */
 } wifi_channel_t;
 
+/* wpa_vendor_elem_frame */
+enum wifi_sta_vsie {
+	WIFI_VENDOR_ELEM_ASSOC_REQ = 0,
+	WIFI_VENDOR_ELEM_PROBE_REQ = 1,
+	NUM_WIFI_VENDOR_ELEM_FRAMES
+};
+
 typedef struct {
 	char ssid[WIFI_SSID_STR_LEN];      /**< SSID of AP to be connected */
 	uint8_t bssid[WIFI_BSSID_LEN];     /**< BSSID of AP to be connected, fast connect only */
 	uint8_t channel;                   /**< Primary channel of AP to be connected, fast connect only */
 	wifi_security_t security;          /**< Security of AP to be connected */
 	char  password[WIFI_PASSWORD_LEN]; /**< Security key or PMK of the wlan. */
+#if CONFIG_STA_VSIE
+	struct {
+		uint8_t len;
+		uint8_t buf[255];
+	} vsies[NUM_WIFI_VENDOR_ELEM_FRAMES];
+#endif
 	uint8_t reserved[32];              /**< reserved, **must set to 0** */
 
 #if CONFIG_WPA2_ENTERPRISE
@@ -268,6 +282,7 @@ typedef struct {
 
 typedef struct {
 	wifi_link_state_t state;           /**< The WiFi connection status */
+	int aid;                           /**< STA AID */
 	int rssi;                          /**< The RSSI of AP the BK STA is connected */
 	char ssid[WIFI_SSID_STR_LEN];      /**< SSID of AP the BK STA is connected */
 	uint8_t bssid[WIFI_BSSID_LEN];     /**< BSSID of AP the BK STA is connected */
@@ -300,10 +315,49 @@ typedef struct {
 	char password[WIFI_PASSWORD_LEN];  /**< Password of BK AP, ignored in an open system.*/
 	uint8_t channel;                   /**< The channel of BK AP, 0 indicates default TODO */
 	wifi_security_t security;          /**< Security type of BK AP, default value TODO */
-	uint8_t hidden;                    /**< Whether the BK AP is hidden */
+	uint8_t hidden: 1;                 /**< Whether the BK AP is hidden */
+	uint8_t acs: 1;                    /**< Whether Auto Channel Selection is enabled */
+	uint8_t vsie_len;                  /**< Beacon/ProbeResp Vendor Specific IE len */
+	uint8_t vsie[255];                 /**< Beacon/ProbeResp Vendor Specific IE */
 	uint8_t max_con;                   /**< Max number of stations allowed to connect to BK AP, TODO default value? */
 	uint8_t reserved[32];              /**< Reserved, **must be zero** */
 } wifi_ap_config_t;
+
+/**
+ * @brief Wlan station information definition
+ */
+typedef struct wlan_ap_sta {
+	uint8_t addr[6];
+	uint32_t ipaddr;
+	int8_t rssi;
+} wlan_ap_sta_t;
+
+/**
+ * @brief Wlan connected stations information definition
+ */
+typedef struct wlan_ap_stas {
+	wlan_ap_sta_t *sta;
+	int num;
+} wlan_ap_stas_t;
+
+/**
+ * @brief softap beacon/probe response's vendor IEs
+ * Dynamic change softap's vendor specific IEs.
+ */
+typedef struct wlan_ap_vsie {
+	uint8_t len;
+	uint8_t vsie[255];
+} wlan_ap_vsie_t;
+
+/**
+ * @brief STA vendor IEs for (re)assoc, scan, p2p, p2p go, etc.
+ * Dynamic change STA's vendor specific IEs.
+ */
+typedef struct wlan_sta_vsie {
+	int frame;
+	uint8_t len;
+	uint8_t vsie[255];
+} wlan_sta_vsie_t;
 
 typedef struct {
 	uint32_t rx_mcast_frame: 1;        /**< Set this bit to enable callback to receive multicast/broadcast*/

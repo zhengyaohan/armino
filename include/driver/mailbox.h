@@ -42,7 +42,7 @@ extern "C" {
  *    - BK_OK: succeed
  *    - others: other errors.
  */
-bk_err_t mailbox_init(void);
+bk_err_t bk_mailbox_init(void);
 
 /**
  * @brief     Deinit the MAILBOX driver
@@ -52,8 +52,8 @@ bk_err_t mailbox_init(void);
  * @return
  *    - BK_OK: succeed
  *    - others: other errors.
-*/
-bk_err_t mailbox_deinit(void);
+ */
+bk_err_t bk_mailbox_deinit(void);
 /**
  * @brief     Configure the MAILBOX cmd and data.
  *
@@ -66,12 +66,13 @@ bk_err_t mailbox_deinit(void);
  *       uint32_t param1 = 111;
  *       uint32_t param2 = 666;
  *       uint32_t param3 = 888;
- * mailbox_set_param(&send_data, cmd, param1, param2, param3);
+ * mailbox_set_param(&send_data, param0, param1, param2, param3);
  *
  * @return
  *  - BK_OK: succeed
- *  - others: other errors. */
-bk_err_t mailbox_set_param(mailbox_data_t *data, uint32_t p0, uint32_t p1, uint32_t p2, uint32_t p3);
+ *  - others: other errors. 
+ */
+bk_err_t bk_mailbox_set_param(mailbox_data_t *data, uint32_t p0, uint32_t p1, uint32_t p2, uint32_t p3);
 
 /**
  * @brief     Register the callback function for MAILBOX
@@ -94,7 +95,7 @@ bk_err_t mailbox_set_param(mailbox_data_t *data, uint32_t p0, uint32_t p1, uint3
  *    - BK_ERR_MAILBOX_CALLBACK: Insufficient space or wrong format of registered function, etc
  *    - others: other errors.
  */
-bk_err_t mailbox_recv_callback_register(mailbox_endpoint_t src, mailbox_endpoint_t dst, mailbox_callback_t callback);
+bk_err_t bk_mailbox_recv_callback_register(mailbox_endpoint_t src, mailbox_endpoint_t dst, mailbox_callback_t callback);
 
 /**
  * @brief     Unregister the callback function for MAILBOX
@@ -116,7 +117,7 @@ bk_err_t mailbox_recv_callback_register(mailbox_endpoint_t src, mailbox_endpoint
  *    - BK_ERR_MAILBOX_CALLBACK: Callback function is not registered.
  *    - others: other errors.
  */
-bk_err_t mailbox_recv_callback_unregister(mailbox_endpoint_t src, mailbox_endpoint_t dst);
+bk_err_t bk_mailbox_recv_callback_unregister(mailbox_endpoint_t src, mailbox_endpoint_t dst);
 
 /**
  * @brief     Unregister the callback function for MAILBOX
@@ -129,7 +130,7 @@ bk_err_t mailbox_recv_callback_unregister(mailbox_endpoint_t src, mailbox_endpoi
  *
  *          src = MAILBOX_ENDPOINT_CPU0
  *          dst = MAILBOX_CPU1
- *          data : mbx ('by mailbox_set_param(&mbx, cmd, p1, p2, p3)')
+ *          data : mbx ('by mailbox_set_param(&mbx, p0, p1, p2, p3)')
  *
  * @return
  *    - BK_OK: succeed
@@ -138,8 +139,11 @@ bk_err_t mailbox_recv_callback_unregister(mailbox_endpoint_t src, mailbox_endpoi
  *    - BK_ERR_MAILBOX_TIMEOUT: Timeout waiting for the opposite end to fetch data.
  *    - others: other errors.
  */
-bk_err_t mailbox_send(mailbox_data_t *data, mailbox_endpoint_t src, mailbox_endpoint_t dst, void *arg);
+bk_err_t bk_mailbox_send(mailbox_data_t *data, mailbox_endpoint_t src, mailbox_endpoint_t dst, void *arg);
 
+/**
+ * @}
+ */
 #ifdef __cplusplus
 }
 #endif

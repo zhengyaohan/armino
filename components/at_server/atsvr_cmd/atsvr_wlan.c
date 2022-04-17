@@ -86,7 +86,7 @@ int wlan_start_station_connect(char *my_ssid,char* connect_key)
 		netif_ip4_config_t ip4_config = {0};
 
 		ATSVRLOG("DHCP Static ip:%s,maks:%s,gate:%s,dns1:%s,dns2:%s\r\n",
-			atsvr_wlan.static_ip,atsvr_wlan.static_maks, atsvr_wlan.static_gate, 
+			atsvr_wlan.static_ip,atsvr_wlan.static_maks, atsvr_wlan.static_gate,
 			atsvr_wlan.static_dns1, atsvr_wlan.static_dns2);
 		strncpy(ip4_config.ip, (char *)atsvr_wlan.static_ip,16);
 		strncpy(ip4_config.mask, (char *)atsvr_wlan.static_maks,16);
@@ -228,6 +228,8 @@ atsvr_wlan_sec_type wlan2atsvr_sec_type(int sec_type)
 		return ATSVR_SEC_TYPE_WPA3_SAE;
 	case BK_SECURITY_TYPE_WPA3_WPA2_MIXED:
 		return ATSVR_SEC_TYPE_WPA3_WPA2_MIXED;
+	case BK_SECURITY_TYPE_OWE:
+		return ATSVR_SEC_TYPE_OWE;
 	case BK_SECURITY_TYPE_AUTO:
 		return ATSVR_SEC_TYPE_AUTO;
 	}
@@ -255,6 +257,8 @@ int atsvr2wlan_sec_type(atsvr_wlan_sec_type sec_type)
 		return BK_SECURITY_TYPE_WPA3_SAE;
 	case ATSVR_SEC_TYPE_WPA3_WPA2_MIXED:
 		return BK_SECURITY_TYPE_WPA3_WPA2_MIXED;
+	case ATSVR_SEC_TYPE_OWE:
+		return BK_SECURITY_TYPE_OWE;
 	case ATSVR_SEC_TYPE_AUTO:
 		return BK_SECURITY_TYPE_AUTO;
 	default:
@@ -336,7 +340,7 @@ int atsvr_wlan_scan_ap_result(void)
 
         BK_LOG_ON_ERR(bk_wifi_scan_dump_result(&scan_result));
         bk_wifi_scan_free_result(&scan_result);
-	
+
 #define ATSVR_WLAN_SCAN_BUF_SIZE     (5 * 1024)
 	resultbuf = at_malloc(ATSVR_WLAN_SCAN_BUF_SIZE);
 	if(resultbuf == NULL) {
@@ -384,6 +388,9 @@ int atsvr_wlan_scan_ap_result(void)
 					break;
 				case BK_SECURITY_TYPE_WPA3_WPA2_MIXED:
 					n += sprintf(resultbuf+n,"%s","WPA3_WPA2_MIXED");
+					break;
+				case BK_SECURITY_TYPE_OWE:
+					n += sprintf(resultbuf+n,"%s","OWE");
 					break;
 				case BK_SECURITY_TYPE_AUTO:
 					n += sprintf(resultbuf+n,"%s","AUTO_PSK");
@@ -516,7 +523,7 @@ int judge_the_string_is_ipv4_string(char *is_ip_string)
 				if((ip_num[j] < '0') || (ip_num[j] > '9')){
 					return -1;
 				}
-			}
+			}
 			ip_num[j] = '\0';
 			num = atoi( ip_num );
 			if(num < 0 || num > 255){

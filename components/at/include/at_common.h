@@ -8,9 +8,11 @@
 #include <os/mem.h>
 #include <os/str.h>
 #include <os/os.h>
-#if (CONFIG_BLE_5_X || CONFIG_BTDM_5_2)
-#include "modules/bk_ble.h"
-#endif
+//#if (CONFIG_BLE_5_X || CONFIG_BTDM_5_2)
+#include "modules/ble.h"
+#include "ble_api_5_x.h"
+
+//#endif
 #include <common/bk_kernel_err.h>
 
 #define MAX_BT_AT_CMD_LEN               20
@@ -46,14 +48,14 @@ typedef struct
     int (*function) (char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
 }at_command_t;
 
-#if (CONFIG_BLE_5_X || CONFIG_BTDM_5_2)
+//#if (CONFIG_BLE_5_X || CONFIG_BTDM_5_2)
 const at_command_t *lookup_bt_at_command(char *str1);
 const at_command_t *lookup_ble_at_command(char *str1);
 void at_set_data_handle(uint8_t *out, char *buff, uint8_t len);
 int get_addr_from_param(bd_addr_t *bdaddr, char *input_param);
 int ble_at_cmd_cnt(void);
 extern const at_command_t ble_at_cmd_table[MAX_BLE_AT_CMD_LEN];
-#endif
+//#endif
 
 const at_command_t *lookup_video_at_command(char *str1);
 int video_at_cmd_cnt(void);

@@ -5,7 +5,7 @@
 #include "bk_sys_ctrl.h"
 #include "bk_fake_clock.h"
 #include "bk_drv_model.h"
-#include "bk_api_tick.h"
+#include <components/system.h>
 #include "sys_driver.h"
 
 

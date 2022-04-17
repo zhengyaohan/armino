@@ -27,64 +27,135 @@ extern "C" {
 
 /**
  * @brief SBC API
- * @defgroup bk_api_sbc AUD API group
+ * @defgroup sbc.h SBC API group
  * @{
  */
 
-bk_err_t bk_sbc_decoder_frame_decode(SbcDecoderContext* sbc, const uint8_t *data, uint32_t length);
+/**
+ * @brief     SBC decoder decode one frame
+ *
+ * This API decode one frame by sbc decoder.
+ *
+ *
+ * @param
+ *    - sbc: sbc decoder context pointer;
+ *    - data: buffer to be decoded;
+ *    - length: the length of input buffer;
+ *
+ *
+ * Usage example:
+ *
+ *    sbcdecodercontext_t sbc_decoder;
+ *	  bk_sbc_decoder_frame_decode(&sbc_decoder, sbc_data, 512);
+ *
+ *
+ * @return
+ *    - consumed: buffer length by decoder if no error ocurs, else error code (always small than 0) will be return.
+ *
+ * @attention 1. the output PCM data please refer to the follows variables:
+ *    - sbc->pcm_sample: means output PCM data address
+ *    - sbc->pcm_length: means output PCM data length in sample
+ *    - sbc->channel_number: means output PCM data channels
+ */
+bk_err_t bk_sbc_decoder_frame_decode(sbcdecodercontext_t *sbc, const uint8_t *data, uint32_t length);
 
-bk_err_t bk_sbc_decoder_bit_allocation(SbcCommonContext *sbc);
+/**
+ * @brief     SBC bit allocation calculate for both encoder and decoder
+ *
+ * This API calculate sbc bit allocation.
+ *
+ *
+ * @param
+ *    - sbc: sbc decoder context pointer
+ *
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_sbc_decoder_bit_allocation(sbccommoncontext_t *sbc);
 
-bk_err_t bk_sbc_decoder_init(SbcDecoderContext *sbc);
+/**
+ * @brief     SBC decoder initialize
+ *
+ * This API init the sbc decoder function.
+ *
+ *
+ * @param
+ *    - sbc: sbc decoder context pointer
+ *
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_sbc_decoder_init(sbcdecodercontext_t *sbc);
 
+/**
+ * @brief     SBC decoder deinit
+ *
+ * This API deinit the sbc decoder function.
+ *
+ *
+ * @param
+ *    - None
+ *
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
 bk_err_t bk_sbc_decoder_deinit(void);
 
-bk_err_t bk_sbc_decoder_mem_init(void);
-
-bk_err_t bk_sbc_decoder_sbc_enable(void);
-
-bk_err_t bk_sbc_decoder_get_sbc_enable_status(void);
-
+/**
+ * @brief     enable/disable sbc interrupt
+ *
+ * This API enable or disable sbc interrupt:
+ *    - reigster interrupt service handle
+ *    - enable or disable sbc interrupt
+ *
+ *
+ * @param
+ *    - enable: enable —— 1, disable —— 0
+ *
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
 bk_err_t bk_sbc_decoder_interrupt_enable(bool enable);
 
+/**
+ * @brief     enable/disable msbc decoder
+ *
+ * This API enable/disable msbc decoder.
+ *
+ *
+ * @param
+ *    - enable: enable —— 1, disable —— 0
+ *
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
 bk_err_t bk_sbc_decoder_support_msbc(bool enable);
 
-bk_err_t bk_sbc_decoder_get_sbc_ctrl_value(void);
-
-bk_err_t bk_sbc_decoder_clear_interrupt_status(void);
-
-bk_err_t bk_sbc_decoder_get_interrupt_status(void);
-
-bk_err_t bk_sbc_decoder_get_idle_status(void);
-
-bk_err_t bk_sbc_decoder_set_res_bytel_value(uint32_t resl_value);
-
-bk_err_t bk_sbc_decoder_set_res_bytem_value(uint32_t resm_value);
-
-bk_err_t bk_sbc_decoder_set_res_byteh_value(uint32_t resh_value);
-
-bk_err_t bk_sbc_decoder_set_sbc_bit_num(uint32_t bit_num);
-
-bk_err_t bk_sbc_decoder_set_scale_factor(uint32_t sf);
-
-bk_err_t bk_sbc_decoder_set_sbc_level(uint32_t level);
-
-bk_err_t bk_sbc_decoder_set_sbc_res_bit(uint32_t res_bit);
-
-bk_err_t bk_sbc_decoder_start_decode(void);
-
-bk_err_t bk_sbc_decoder_get_decode_enable_value(void);
-
-bk_err_t bk_sbc_decoder_get_pcm_data(void);
-
-bk_err_t bk_sbc_decoder_get_mem0_addr(uint32_t *mem0_addr);
-
-bk_err_t bk_sbc_decoder_get_mem1_addr(uint32_t *mem1_addr);
-
-bk_err_t bk_sbc_decoder_mem0_write(uint32_t *data0);
-
-bk_err_t bk_sbc_decoder_mem1_write(uint32_t *data1);
-
+/**
+ * @brief     Register sbc decoder isr
+ *
+ * This API register sbc decoder isr.
+ *
+ *
+ * @param
+ *    - isr: sbc decoder isr callback;
+ *    - param: sbc decoder isr callback parameter;
+ *
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
 bk_err_t bk_sbc_decoder_register_sbc_isr(sbc_decoder_isr_t isr, void *param);
 
 /**

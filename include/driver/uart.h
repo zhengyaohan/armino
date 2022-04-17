@@ -21,16 +21,6 @@
 extern "C" {
 #endif
 
-/* @brief Overview about this API header
- *
- */
-
-/**
- * @brief UART API
- * @defgroup bk_api_uart UART API group
- * @{
- */
-
 /**
  * @brief     Init the UART driver
  *
@@ -55,6 +45,17 @@ bk_err_t bk_uart_driver_init(void);
  *    - others: other errors.
  */
 bk_err_t bk_uart_driver_deinit(void);
+
+/**
+ * @brief     Get the UART whether in used
+ *
+ * @param id UART id
+ *
+ * @return
+ *    - 1: in used
+ *    - 0: not in used
+ */
+int bk_uart_is_in_used(uart_id_t id);
 
 /**
  * @brief     Init the UART id
@@ -181,7 +182,7 @@ bk_err_t bk_uart_set_rx_full_threshold(uart_id_t id, uint8_t threshold);
 bk_err_t bk_uart_set_tx_empty_threshold(uart_id_t id, uint8_t threshold);
 
 /**
- * @brief     Set the UART threshold timeout for receive data
+ * @brief     Set the UART threshold timeout for receive data, unit is bit
  *
  * UART finish receiving data when the periods is more than timeout threshold.
  * If the time is expired, the UART_RX_STOP_END interrupt is triggered.
@@ -350,13 +351,36 @@ bk_err_t bk_uart_enable_sw_fifo(uart_id_t id);
  */
 bk_err_t bk_uart_disable_sw_fifo(uart_id_t id);
 
+/**
+ * @brief     Get the gpio pin when in ate detect
+ *
+ * @return the ate detect gpio pin
+ */
 uint32_t bk_uart_get_ate_detect_gpio(void);
-void bk_uart_take_rx_isr(uart_id_t id, uart_isr_t isr, void *param);
-void bk_uart_recover_rx_isr(uart_id_t id);
 
 /**
- * @}
+ * @brief     Register uart rx isr and disable software fifo
+ *
+ * @param id UART id
+ * @param isr UART RX callback
+ * @param param UART RX callback parameter
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
  */
+bk_err_t bk_uart_take_rx_isr(uart_id_t id, uart_isr_t isr, void *param);
+
+/**
+ * @brief     Recover uart rx isr
+ *
+ * @param id UART id
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_uart_recover_rx_isr(uart_id_t id);
 
 #ifdef __cplusplus
 }

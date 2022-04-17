@@ -14,17 +14,17 @@
 
 #include <common/bk_include.h>
 #include "i2s_hal.h"
-#include "i2s_cap.h"
 #include "i2s_driver.h"
 #include "sys_driver.h"
 #include "clock_driver.h"
+#include <soc/soc.h>
 #include <driver/i2s_types.h>
 #include <os/os.h>
 #include <os/mem.h>
 #include <driver/int.h>
 #include "gpio_driver.h"
 #include <driver/gpio.h>
-
+#include <modules/pm.h>
 
 typedef struct {
 	i2s_isr_t callback;
@@ -101,6 +101,9 @@ bk_err_t bk_i2s_driver_init(void)
 		return BK_OK;
 
 	//power on
+	low_power_power_ctrl(POWER_MODULE_NAME_AUDP, POWER_MODULE_STATE_ON);
+	sys_drv_aud_power_en(0);    //temp used
+
 	//select 26M XTAL clock and enable i2s clock
 	sys_drv_i2s_select_clock(1);
 	sys_drv_i2s_clock_en(1);
@@ -291,19 +294,19 @@ bk_err_t bk_i2s_clear_txfifo(void)
 	return BK_OK;
 }
 
-bk_err_t bk_i2s_clear_txudf_int(void)
+bk_err_t bk_i2s_clear_txudf_int(i2s_channel_id_t channel_id)
 {
 	I2S_RETURN_ON_NOT_INIT();
 
-	i2s_hal_txudf_int_clear();
+	i2s_hal_txudf_int_clear(channel_id);
 	return BK_OK;
 }
 
-bk_err_t bk_i2s_clear_rxovf_int(void)
+bk_err_t bk_i2s_clear_rxovf_int(i2s_channel_id_t channel_id)
 {
 	I2S_RETURN_ON_NOT_INIT();
 
-	i2s_hal_rxovf_int_clear();
+	i2s_hal_rxovf_int_clear(channel_id);
 	return BK_OK;
 }
 
@@ -475,12 +478,14 @@ void i2s_isr(void)
 	i2s_hal_int_status_get(&i2s_status);
 
 	if (i2s_status.tx_udf) {
+		i2s_hal_txudf_int_clear(I2S_CHANNEL_1);
 		if (s_i2s_isr[I2S_ISR_CHL1_TXUDF].callback) {
 			s_i2s_isr[I2S_ISR_CHL1_TXUDF].callback(s_i2s_isr[I2S_ISR_CHL1_TXUDF].param);
 		}
 	}
 
 	if (i2s_status.rx_ovf) {
+		i2s_hal_rxovf_int_clear(I2S_CHANNEL_1);
 		if (s_i2s_isr[I2S_ISR_CHL1_RXOVF].callback) {
 			s_i2s_isr[I2S_ISR_CHL1_RXOVF].callback(s_i2s_isr[I2S_ISR_CHL1_RXOVF].param);
 		}
@@ -498,98 +503,92 @@ void i2s_isr(void)
 		}
 	}
 
-#if (SOC_I2S_CHANNEL_NUM > 1)
-	if (SOC_I2S_CHANNEL_NUM >= 2) {
-		os_memset(&i2s_status, 0, sizeof(i2s_status));
-		i2s_status.channel_id = I2S_CHANNEL_2;
-		i2s_hal_int_status_get(&i2s_status);
-		if (i2s_status.tx_udf) {
-			if (s_i2s_isr[I2S_ISR_CHL2_TXUDF].callback) {
-				s_i2s_isr[I2S_ISR_CHL2_TXUDF].callback(s_i2s_isr[I2S_ISR_CHL2_TXUDF].param);
-			}
-		}
-
-		if (i2s_status.rx_ovf) {
-			if (s_i2s_isr[I2S_ISR_CHL2_RXOVF].callback) {
-				s_i2s_isr[I2S_ISR_CHL2_RXOVF].callback(s_i2s_isr[I2S_ISR_CHL2_RXOVF].param);
-			}
-		}
-
-		if (i2s_status.tx_int) {
-			if (s_i2s_isr[I2S_ISR_CHL2_TXINT].callback) {
-				s_i2s_isr[I2S_ISR_CHL2_TXINT].callback(s_i2s_isr[I2S_ISR_CHL2_TXINT].param);
-			}
-		}
-
-		if (i2s_status.rx_int) {
-			if (s_i2s_isr[I2S_ISR_CHL2_RXINT].callback) {
-				s_i2s_isr[I2S_ISR_CHL2_RXINT].callback(s_i2s_isr[I2S_ISR_CHL2_RXINT].param);
-			}
+	os_memset(&i2s_status, 0, sizeof(i2s_status));
+	i2s_status.channel_id = I2S_CHANNEL_2;
+	i2s_hal_int_status_get(&i2s_status);
+	if (i2s_status.tx_udf) {
+		i2s_hal_txudf_int_clear(I2S_CHANNEL_2);
+		if (s_i2s_isr[I2S_ISR_CHL2_TXUDF].callback) {
+			s_i2s_isr[I2S_ISR_CHL2_TXUDF].callback(s_i2s_isr[I2S_ISR_CHL2_TXUDF].param);
 		}
 	}
-#endif
 
-#if (SOC_I2S_CHANNEL_NUM > 2)
-	if (SOC_I2S_CHANNEL_NUM >= 3) {
-		os_memset(&i2s_status, 0, sizeof(i2s_status));
-		i2s_status.channel_id = I2S_CHANNEL_3;
-		i2s_hal_int_status_get(&i2s_status);
-		if (i2s_status.tx_udf) {
-			if (s_i2s_isr[I2S_ISR_CHL3_TXUDF].callback) {
-				s_i2s_isr[I2S_ISR_CHL3_TXUDF].callback(s_i2s_isr[I2S_ISR_CHL3_TXUDF].param);
-			}
-		}
-
-		if (i2s_status.rx_ovf) {
-			if (s_i2s_isr[I2S_ISR_CHL3_RXOVF].callback) {
-				s_i2s_isr[I2S_ISR_CHL3_RXOVF].callback(s_i2s_isr[I2S_ISR_CHL3_RXOVF].param);
-			}
-		}
-
-		if (i2s_status.tx_int) {
-			if (s_i2s_isr[I2S_ISR_CHL3_TXINT].callback) {
-				s_i2s_isr[I2S_ISR_CHL3_TXINT].callback(s_i2s_isr[I2S_ISR_CHL3_TXINT].param);
-			}
-		}
-
-		if (i2s_status.rx_int) {
-			if (s_i2s_isr[I2S_ISR_CHL3_RXINT].callback) {
-				s_i2s_isr[I2S_ISR_CHL3_RXINT].callback(s_i2s_isr[I2S_ISR_CHL3_RXINT].param);
-			}
+	if (i2s_status.rx_ovf) {
+		i2s_hal_rxovf_int_clear(I2S_CHANNEL_2);
+		if (s_i2s_isr[I2S_ISR_CHL2_RXOVF].callback) {
+			s_i2s_isr[I2S_ISR_CHL2_RXOVF].callback(s_i2s_isr[I2S_ISR_CHL2_RXOVF].param);
 		}
 	}
-#endif
 
-#if (SOC_I2S_CHANNEL_NUM > 3)
-	if (SOC_I2S_CHANNEL_NUM == 4) {
-		os_memset(&i2s_status, 0, sizeof(i2s_status));
-		i2s_status.channel_id = I2S_CHANNEL_4;
-		i2s_hal_int_status_get(&i2s_status);
-		if (i2s_status.tx_udf) {
-			if (s_i2s_isr[I2S_ISR_CHL4_TXUDF].callback) {
-				s_i2s_isr[I2S_ISR_CHL4_TXUDF].callback(s_i2s_isr[I2S_ISR_CHL4_TXUDF].param);
-			}
-		}
-
-		if (i2s_status.rx_ovf) {
-			if (s_i2s_isr[I2S_ISR_CHL4_RXOVF].callback) {
-				s_i2s_isr[I2S_ISR_CHL4_RXOVF].callback(s_i2s_isr[I2S_ISR_CHL4_RXOVF].param);
-			}
-		}
-
-		if (i2s_status.tx_int) {
-			if (s_i2s_isr[I2S_ISR_CHL4_TXINT].callback) {
-				s_i2s_isr[I2S_ISR_CHL4_TXINT].callback(s_i2s_isr[I2S_ISR_CHL4_TXINT].param);
-			}
-		}
-
-		if (i2s_status.rx_int) {
-			if (s_i2s_isr[I2S_ISR_CHL4_RXINT].callback) {
-				s_i2s_isr[I2S_ISR_CHL4_RXINT].callback(s_i2s_isr[I2S_ISR_CHL4_RXINT].param);
-			}
+	if (i2s_status.tx_int) {
+		if (s_i2s_isr[I2S_ISR_CHL2_TXINT].callback) {
+			s_i2s_isr[I2S_ISR_CHL2_TXINT].callback(s_i2s_isr[I2S_ISR_CHL2_TXINT].param);
 		}
 	}
-#endif
+
+	if (i2s_status.rx_int) {
+		if (s_i2s_isr[I2S_ISR_CHL2_RXINT].callback) {
+			s_i2s_isr[I2S_ISR_CHL2_RXINT].callback(s_i2s_isr[I2S_ISR_CHL2_RXINT].param);
+		}
+	}
+
+	os_memset(&i2s_status, 0, sizeof(i2s_status));
+	i2s_status.channel_id = I2S_CHANNEL_3;
+	i2s_hal_int_status_get(&i2s_status);
+	if (i2s_status.tx_udf) {
+		i2s_hal_txudf_int_clear(I2S_CHANNEL_3);
+		if (s_i2s_isr[I2S_ISR_CHL3_TXUDF].callback) {
+			s_i2s_isr[I2S_ISR_CHL3_TXUDF].callback(s_i2s_isr[I2S_ISR_CHL3_TXUDF].param);
+		}
+	}
+
+	if (i2s_status.rx_ovf) {
+		i2s_hal_rxovf_int_clear(I2S_CHANNEL_3);
+		if (s_i2s_isr[I2S_ISR_CHL3_RXOVF].callback) {
+			s_i2s_isr[I2S_ISR_CHL3_RXOVF].callback(s_i2s_isr[I2S_ISR_CHL3_RXOVF].param);
+		}
+	}
+
+	if (i2s_status.tx_int) {
+		if (s_i2s_isr[I2S_ISR_CHL3_TXINT].callback) {
+			s_i2s_isr[I2S_ISR_CHL3_TXINT].callback(s_i2s_isr[I2S_ISR_CHL3_TXINT].param);
+		}
+	}
+
+	if (i2s_status.rx_int) {
+		if (s_i2s_isr[I2S_ISR_CHL3_RXINT].callback) {
+			s_i2s_isr[I2S_ISR_CHL3_RXINT].callback(s_i2s_isr[I2S_ISR_CHL3_RXINT].param);
+		}
+	}
+
+	os_memset(&i2s_status, 0, sizeof(i2s_status));
+	i2s_status.channel_id = I2S_CHANNEL_4;
+	i2s_hal_int_status_get(&i2s_status);
+	if (i2s_status.tx_udf) {
+		i2s_hal_txudf_int_clear(I2S_CHANNEL_4);
+		if (s_i2s_isr[I2S_ISR_CHL4_TXUDF].callback) {
+			s_i2s_isr[I2S_ISR_CHL4_TXUDF].callback(s_i2s_isr[I2S_ISR_CHL4_TXUDF].param);
+		}
+	}
+
+	if (i2s_status.rx_ovf) {
+		i2s_hal_rxovf_int_clear(I2S_CHANNEL_4);
+		if (s_i2s_isr[I2S_ISR_CHL4_RXOVF].callback) {
+			s_i2s_isr[I2S_ISR_CHL4_RXOVF].callback(s_i2s_isr[I2S_ISR_CHL4_RXOVF].param);
+		}
+	}
+
+	if (i2s_status.tx_int) {
+		if (s_i2s_isr[I2S_ISR_CHL4_TXINT].callback) {
+			s_i2s_isr[I2S_ISR_CHL4_TXINT].callback(s_i2s_isr[I2S_ISR_CHL4_TXINT].param);
+		}
+	}
+
+	if (i2s_status.rx_int) {
+		if (s_i2s_isr[I2S_ISR_CHL4_RXINT].callback) {
+			s_i2s_isr[I2S_ISR_CHL4_RXINT].callback(s_i2s_isr[I2S_ISR_CHL4_RXINT].param);
+		}
+	}
 
 }
 

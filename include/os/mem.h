@@ -16,7 +16,7 @@ void os_mem_init(void);
 void *os_realloc(void *ptr, size_t size);
 int os_memcmp_const(const void *a, const void *b, size_t len);
 
-#if CONFIG_FREERTOS && (CONFIG_MALLOC_STATIS || CONFIG_MEM_DEBUG)
+#if (CONFIG_MALLOC_STATIS || CONFIG_MEM_DEBUG)
 void *os_malloc_debug(const char *func_name, int line, size_t size, int need_zero);
 void *psram_malloc_debug(const char *func_name, int line, size_t size, int need_zero);
 void *os_free_debug(const char *func_name, int line, void *pv);

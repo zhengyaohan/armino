@@ -14,7 +14,6 @@
 
 #pragma once
 
-#include "arch_interrupt.h"
 #include <driver/int_types.h>
 #include <common/bk_include.h>
 
@@ -29,15 +28,14 @@ typedef void (*sbc_decoder_isr_t)(void *param);
 #define MSBC_SYNCWORD					0xAD		/**< MSBC synchronize word */
 #define SBC_CHANNEL_MODE_MONO			0x00		/**< SBC channel mode : MONO */
 #define SBC_CHANNEL_MODE_DUAL			0x01		/**< SBC channel mode : Dual Channels */
-#define SBC_CHANNEL_MODE_STEREO			0x02		/**< SBC channel mode £ºStereo */
+#define SBC_CHANNEL_MODE_STEREO			0x02		/**< SBC channel mode : Stereo */
 #define SBC_CHANNEL_MODE_JOINT_STEREO	0x03		/**< SBC channel mode : Joint Stereo */
 
 #define SBC_DECODER_ERRORS						BK_ERR_SBC_BASE	
 #define SBC_DECODER_ERROR_BUFFER_OVERFLOW		BK_ERR_SBC_BASE - 1		/**< buffer overflow       */
 #define SBC_DECODER_ERROR_SYNC_INCORRECT		BK_ERR_SBC_BASE	- 2		/**< synchronize incorrect */
 #define SBC_DECODER_ERROR_BITPOOL_OUT_BOUNDS	BK_ERR_SBC_BASE	- 3		/**< bitpool out of bounds */
-#define SBC_DECODER_ERROR_CRC8_INCORRECT		BK_ERR_SBC_BASE	- 4		/**< CRC8 check incorrect  */
-#define SBC_DECODER_ERROR_STREAM_EMPTY			BK_ERR_SBC_BASE	- 5		/**< stream empty          */
+#define SBC_DECODER_ERROR_STREAM_EMPTY			BK_ERR_SBC_BASE	- 4		/**< stream empty          */
 #define SBC_DECODER_ERROR_OK					0x0						/**< no error              */
 
 
@@ -84,8 +82,7 @@ typedef enum {
 /**
  * @brief SBC decoder context
  */
-typedef struct _SbcCommonContext
-{
+typedef struct {
 	int8_t blocks;                    /**< block number */
 	int8_t subbands;                  /**< subbands number */
 	uint8_t join;					   /**< bit number x set means joint stereo has been used in subband x */
@@ -102,14 +99,13 @@ typedef struct _SbcCommonContext
 
 	int32_t mem[2][8];                /**< Memory used as bit need and levels */
 
-}SbcCommonContext;
+}sbccommoncontext_t;
 
 /**
  * @brief SBC decoder context
  */
-typedef struct _SbcDecoderContext
-{
-    SbcCommonContext frame;
+typedef struct {
+    sbccommoncontext_t frame;
 
     int8_t   channel_number;            /**< channels number */
     uint8_t  pcm_length;                /**< PCM length */
@@ -121,7 +117,7 @@ typedef struct _SbcDecoderContext
 
     int32_t  offset[2][16];
 
-}SbcDecoderContext;
+}sbcdecodercontext_t;
 
 typedef struct {
 	sbc_channel_num_t channel_num;		/**< channels number */

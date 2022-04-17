@@ -14,7 +14,7 @@
 #include "los_interrupt.h"
 #include "los_tick.h"
 #include <driver/timer.h>
-#include "bk_api_tick.h"
+#include <components/system.h>
 #include "los_arch_interrupt.h"
 #include "los_arch_timer.h"
 #include "los_sched.h"

@@ -151,6 +151,7 @@ CHIP_ERROR BekenWiFiDriver::ConnectWiFiNetwork(const char * ssid, uint8_t ssidLe
 
     BK_LOG_ON_ERR(bk_wifi_sta_set_config(&sta_config));
     BK_LOG_ON_ERR(bk_wifi_sta_start());
+    BK_LOG_ON_ERR(bk_wifi_sta_connect());
 
     return ConnectivityMgr().SetWiFiStationMode(ConnectivityManager::kWiFiStationMode_Enabled);
 }

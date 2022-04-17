@@ -229,9 +229,9 @@ menu "Driver"
 				default n
 	endmenu
 	
-	menu "JPEG"
-			config JPEG
-				bool "Enable JPEG"
+	menu "JPEG_ENCODE"
+			config JPEG_ENCODE
+				bool "Enable JPEG_ENCODE"
 				default n
 	endmenu
 	
@@ -298,39 +298,57 @@ menu "Driver"
 		bool "Enable I2S"
 		default n
 	endmenu
-	
+
 	menu "I2C"
 		config I2C
 			bool "Enable I2C"
 			default y
-		
+
+		config I2C_SUPPORT_ID_BITS
+			int "i2c support id bits"
+			range 1 255
+			default 1
+			help
+			The value should be changed if need to change i2c id
+
 		config FM_I2C
 			bool "Enable FM I2C"
 			default y
 	endmenu
-	
+
 	menu "PWM"
 		config PWM
 			bool "Enable pwm"
 			default y
-		
+
 		config PWM_HAS_TWO_INT
 			bool "Enable pwm has two int"
 			default n
 	endmenu
-	
+
 	menu "ICU"
 		config ICU_GPIO
 			bool "Enable icu gpio"
 			default n
-	endmenu	
-	
+	endmenu
+
 	menu "TIMER"
 		config TIMER_COUNTER
 			bool "Enable timer counter"
 			default y
+
+	      config TIMER
+			bool "Enable TIMER"
+			default n
+
+		config TIMER_SUPPORT_ID_BITS
+			int "timer support id bits"
+			range 1 255
+			default 1
+			help
+			The value should be changed if need to change timer id
 	endmenu	
-	
+
 	menu "SARADC"
 		config SARADC
 			bool "Enable saradc"
@@ -343,7 +361,7 @@ menu "Driver"
 		config SARADC_RANGE_DIVIDE
 			bool "Enable saradc measure range divide"
 			default n
-	endmenu	
+	endmenu
 
 	config SUPPORT_IRDA
 		bool "Enable IRDA"
@@ -375,6 +393,10 @@ menu "Driver"
 
 	config FLASH_QUAD_ENABLE
 		bool "Enable flash quad enable"
+		default n
+
+	config FLASH_SRC_CLK_60M
+		bool "Enable flash source clock 60M"
 		default n
 
 	config TIMER_INIT_EN

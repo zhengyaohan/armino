@@ -17,7 +17,6 @@
 #include <common/bk_include.h>
 #include <driver/hal/hal_aon_rtc_types.h>
 #include <driver/int_types.h>
-#include "arch_interrupt.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -14,7 +14,7 @@
 #include <os/mem.h>
 #include "bk_uart.h"
 #include "bk_arch.h"
-#include "bk_api_tick.h"
+#include <components/system.h>
 #include <driver/gpio.h>
 #include "rtos_impl.h"
 
@@ -25,6 +25,15 @@
 #define TIMER_THREAD_STACK_SIZE      1024 + 4*1024
 #endif
 #define TIMER_QUEUE_LENGTH           5
+
+#if FreeRTOS_VERSION_MAJOR == 7
+#define _xTaskCreate( pvTaskCode, pcName, usStackDepth, pvParameters, uxPriority, pxCreatedTask ) xTaskCreate( pvTaskCode, (signed char*)pcName, usStackDepth, pvParameters, uxPriority, pxCreatedTask )
+#define _xTimerCreate( pcTimerName, xTimerPeriodInTicks, uxAutoReload, pvTimerID, pxCallbackFunction ) xTimerCreate( (signed char*)pcTimerName, xTimerPeriodInTicks, uxAutoReload, pvTimerID, pxCallbackFunction )
+#else
+#define _xTaskCreate( pvTaskCode, pcName, usStackDepth, pvParameters, uxPriority, pxCreatedTask ) xTaskCreate( pvTaskCode, pcName, usStackDepth, pvParameters, uxPriority, pxCreatedTask )
+#define _xTimerCreate( pcTimerName, xTimerPeriodInTicks, uxAutoReload, pvTimerID, pxCallbackFunction ) xTimerCreate( pcTimerName, xTimerPeriodInTicks, uxAutoReload, pvTimerID, pxCallbackFunction )
+#endif
+
 /******************************************************
  *                   Enumerations
  ******************************************************/
@@ -171,7 +180,7 @@ bk_err_t rtos_init_semaphore( beken_semaphore_t* semaphore, int maxCount )
     return ( *semaphore != NULL ) ? kNoErr : kGeneralErr;
 }
 
-bk_err_t rtos_init_semaphore_adv( beken_semaphore_t* semaphore, int maxCount, int init_count)
+bk_err_t rtos_init_semaphore_ex( beken_semaphore_t* semaphore, int maxCount, int init_count)
 {
     *semaphore = xSemaphoreCreateCounting( (unsigned portBASE_TYPE) maxCount, (unsigned portBASE_TYPE) init_count );
 
@@ -197,7 +206,7 @@ bk_err_t rtos_get_semaphore( beken_semaphore_t* semaphore, uint32_t timeout_ms )
         return kTimeoutErr;
     }
 }
-int rtos_get_sema_count( beken_semaphore_t* semaphore )
+int rtos_get_semaphore_count( beken_semaphore_t* semaphore )
 {
 	return uxSemaphoreGetCount( *semaphore );
 }

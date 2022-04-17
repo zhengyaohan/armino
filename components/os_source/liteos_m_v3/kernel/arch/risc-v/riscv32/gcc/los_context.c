@@ -37,7 +37,7 @@
 #include "los_memory.h"
 #include "los_timer.h"
 #include "los_debug.h"
-#include <arch/soc.h>
+#include <soc/soc.h>
 
 #if CONFIG_LITEOS_M_BK
 #include "portmacro.h"

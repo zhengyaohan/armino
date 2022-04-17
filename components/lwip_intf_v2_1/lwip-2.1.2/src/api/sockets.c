@@ -41,6 +41,10 @@
 
 #if LWIP_SOCKET /* don't build if not configured for use in lwipopts.h */
 
+#if 1
+int errno=0;
+#endif
+
 #include "lwip/sockets.h"
 #include "lwip/priv/sockets_priv.h"
 #include "lwip/api.h"

@@ -17,7 +17,7 @@ fi
 
 cd "$ARMINO_PATH"
 
-# Only list the "main" BDK repo, don't check any files in submodules (which may contain
+# Only list the "main" ARMINO repo, don't check any files in submodules (which may contain
 # third party CMakeLists.txt)
  git ls-tree --full-tree --name-only -r HEAD | grep -v "/third_party/" | grep "^CMakeLists.txt$\|\.cmake$" \
     | xargs cmakelint --linelength=120 --spaces=4

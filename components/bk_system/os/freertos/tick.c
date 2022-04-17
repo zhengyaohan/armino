@@ -20,7 +20,7 @@
 #include "task.h"
 #include "bk_ps_time.h"
 #include "bk_wdt.h"
-#include "bk_api_tick.h"
+#include <components/system.h>
 
 extern void mcu_ps_increase_clr(void);
 

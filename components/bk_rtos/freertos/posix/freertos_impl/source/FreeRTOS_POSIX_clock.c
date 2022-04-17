@@ -34,9 +34,9 @@
 
 /* FreeRTOS+POSIX includes. */
 #include "FreeRTOS_POSIX.h"
-#include "FreeRTOS_POSIX/errno.h"
-#include "FreeRTOS_POSIX/time.h"
-#include "FreeRTOS_POSIX/utils.h"
+#include "posix/errno.h"
+#include "posix/time.h"
+#include "posix/utils.h"
 
 /* Declaration of snprintf. The header stdio.h is not included because it
  * includes conflicting symbols on some platforms. */

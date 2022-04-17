@@ -63,7 +63,14 @@ uint16_t sbc_common_sample_rate_get(uint32_t idx)
     return SBC_SAMPLE_RATES[idx];
 }
 
-static uint32_t sbc_decoder_frame_length_calc(SbcDecoderContext *sbc)
+static uint32_t bk_sbc_decoder_get_mem0_addr(uint32_t *mem0_addr)
+{
+	*mem0_addr = SBC_SBC_MEM0_ADDR;
+
+	return BK_OK;
+}
+
+static uint32_t sbc_decoder_frame_length_calc(sbcdecodercontext_t *sbc)
 {
 	uint32_t frame_length = 0;
 	uint32_t blocks       = (uint32_t)sbc->frame.blocks;
@@ -85,14 +92,14 @@ static uint32_t sbc_decoder_frame_length_calc(SbcDecoderContext *sbc)
 
 }
 
-bk_err_t bk_sbc_decoder_frame_decode(SbcDecoderContext *sbc, const uint8_t *data, uint32_t length)
+bk_err_t bk_sbc_decoder_frame_decode(sbcdecodercontext_t *sbc, const uint8_t *data, uint32_t length)
 {
 	int32_t channel, subband, block, consumed;
 	uint32_t mem0_addr = 0;
 	uint32_t pcm_data = 0;
 	sbc_config_t sbc_config;
 
-	SbcCommonContext *frame = &sbc->frame;
+	sbccommoncontext_t *frame = &sbc->frame;
 	
 	bk_sbc_decoder_get_mem0_addr(&mem0_addr);
 
@@ -294,7 +301,7 @@ bk_err_t bk_sbc_decoder_frame_decode(SbcDecoderContext *sbc, const uint8_t *data
 
 }
 
-bk_err_t bk_sbc_decoder_bit_allocation(SbcCommonContext *sbc)
+bk_err_t bk_sbc_decoder_bit_allocation(sbccommoncontext_t *sbc)
 {
 	int32_t channel, subband, slicecount, bitcount, bitslice, loudness, max_bitneed;
 
@@ -565,12 +572,12 @@ bk_err_t bk_sbc_decoder_bit_allocation(SbcCommonContext *sbc)
 	return BK_OK;
 }
 
-bk_err_t bk_sbc_decoder_init(SbcDecoderContext *sbc)
+bk_err_t bk_sbc_decoder_init(sbcdecodercontext_t *sbc)
 {
 	uint32_t channel, i;
 
 	bk_sbc_decoder_mem_init();
-	os_memset((void *)sbc, 0, sizeof(SbcDecoderContext));
+	os_memset((void *)sbc, 0, sizeof(sbcdecodercontext_t));
 
 	for(channel = 0; channel < 2; channel++)
 	{
@@ -724,57 +731,15 @@ bk_err_t bk_sbc_decoder_start_decode(void)
 	return BK_OK;
 }
 
-bk_err_t bk_sbc_decoder_get_decode_enable_value(void)
+uint32_t bk_sbc_decoder_get_decode_enable_value(void)
 {
-	sbc_decoder_hal_get_decode_enable_value();
-
-	return BK_OK;
+	return sbc_decoder_hal_get_decode_enable_value();
 }
 
 bk_err_t bk_sbc_decoder_get_pcm_data(void)
 {
 	return sbc_decoder_hal_get_pcm_data();
 }
-
-bk_err_t bk_sbc_decoder_get_mem0_addr(uint32_t *mem0_addr)
-{
-	*mem0_addr = SBC_SBC_MEM0_ADDR;
-
-	return BK_OK;
-}
-
-bk_err_t bk_sbc_decoder_get_mem1_addr(uint32_t *mem1_addr)
-{
-	*mem1_addr = SBC_SBC_MEM1_ADDR;
-
-	return BK_OK;
-}
-
-bk_err_t bk_sbc_decoder_mem0_write(uint32_t *data0)
-{
-	uint32_t i = 0;
-	uint32_t *mem0_addr = (uint32_t *)SBC_SBC_MEM0_ADDR;
-
-	for(i = 0; i < 256; i++)
-	{
-		mem0_addr[i] = data0[i];
-	}
-
-	return BK_OK;
-}
-
-bk_err_t bk_sbc_decoder_mem1_write(uint32_t *data1)
-{
-	uint32_t j = 0;
-	uint32_t *mem1_addr = (uint32_t *)SBC_SBC_MEM1_ADDR;
-
-	for(j = 0; j < 320; j++)
-	{
-		mem1_addr[j] = data1[j];
-	}
-
-	return BK_OK;
-}
 
 bk_err_t bk_sbc_decoder_register_sbc_isr(sbc_decoder_isr_t isr, void *param)
 {

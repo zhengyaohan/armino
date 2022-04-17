@@ -158,8 +158,8 @@ void mic_test_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		enable = dsp_atoi(argv[1]);
 	else
 		enable = 0;
-	mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_TEST, enable, 0, 0);
-	mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
+	bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_TEST, enable, 0, 0);
+	bk_mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
 }
 
 void usb_mount_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -307,18 +307,18 @@ void pcm_test_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 
 		sddev_control(DD_DEV_TYPE_SCTRL, CMD_SCTRL_AUDIO_PLL, &rate);
 
-		mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_SAMPLE_RATE_SET, rate, 0, 0);
-		mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
+		bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_SAMPLE_RATE_SET, rate, 0, 0);
+		bk_mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
 
 		for (i = 0; i < aud_len; i++) {
 			aud_addr[2 * i] = ((uint32_t)aud_ptr[i] & 0xFFFF) << 8;
 			aud_addr[2 * i + 1] = ((uint32_t)aud_ptr[i] & 0xFFFF) << 8;
 		}
-		mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_PCM_CHECK, ((uint32_t)aud_addr) - W_DSP_DMEM_64KB_BASE_ADDR, aud_len * 8, 1);
-		mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
+		bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_PCM_CHECK, ((uint32_t)aud_addr) - W_DSP_DMEM_64KB_BASE_ADDR, aud_len * 8, 1);
+		bk_mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
 	} else if (os_strcmp(argv[1], "stop") == 0) {
-		mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_PCM_CHECK, 0, 0, 0);
-		mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
+		bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_PCM_CHECK, 0, 0, 0);
+		bk_mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
 	}
 }
 
@@ -343,8 +343,8 @@ void record2dac_cb(mailbox_data_t *param)
 		node->buffer = (uint8_t *)param->param1;
 		node->size = param->param2;
 		co_list_push_back(&g_record_context.using_list, (struct co_list_hdr *)node);
-		mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_PCM_WRITE, param->param1, param->param2, 0);
-		mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
+		bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_PCM_WRITE, param->param1, param->param2, 0);
+		bk_mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
 		break;
 
 	case MAILBOX_CMD_AUDIO_DAC_PCM_WRITE_DONE:
@@ -369,8 +369,8 @@ void record2dac_cb(mailbox_data_t *param)
 			CLI_LOGI("can't find 0x%x in dac_list\r\n", param->param1);
 		else {
 			co_list_push_back(&g_record_context.free_list, (struct co_list_hdr *)node);
-			mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_PCM_READ_DONE, param->param1, param->param2, 0);
-			mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
+			bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_PCM_READ_DONE, param->param1, param->param2, 0);
+			bk_mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
 		}
 		break;
 
@@ -403,31 +403,31 @@ void record2dac_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 			record_buffer_nodes[i].size = 0;
 			co_list_push_back(&g_record_context.free_list, &record_buffer_nodes[i].header);
 		}
-		mailbox_recv_callback_register(MAILBOX_DSP, MAILBOX_CPU0, (mailbox_callback_t)record2dac_cb);
+		bk_mailbox_recv_callback_register(MAILBOX_DSP, MAILBOX_CPU0, (mailbox_callback_t)record2dac_cb);
 
 		if (os_strcmp(argv[2], "adcx") == 0) {
-			mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_ENABLE, 1, 1, 1);
+			bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_ENABLE, 1, 1, 1);
 		} else {
-			mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_ENABLE, 1, 2, 1);
+			bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_ENABLE, 1, 2, 1);
 		}
-		mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
+		bk_mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
 
 		if (os_strcmp(argv[2], "adcx") == 0)
-			mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_RECORD, 0, 1, 0);
+			bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_RECORD, 0, 1, 0);
 		else if (os_strcmp(argv[2], "adc1") == 0)
-			mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_RECORD, 1, 0, 0);
+			bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_RECORD, 1, 0, 0);
 		else if (os_strcmp(argv[2], "adc2") == 0)
-			mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_RECORD, 2, 0, 0);
+			bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_RECORD, 2, 0, 0);
 		else
-			mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_RECORD, 0, 0, 0);
-		mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
+			bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_RECORD, 0, 0, 0);
+		bk_mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
 	} else if (os_strcmp(argv[1], "stop") == 0) {
-		mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_RECORD, 0, 0, 0);
-		mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
+		bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_RECORD, 0, 0, 0);
+		bk_mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
 
-		mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_ENABLE, 0, 0, 0);
-		mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
-		mailbox_recv_callback_unregister(MAILBOX_CPU0, MAILBOX_DSP);
+		bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_ENABLE, 0, 0, 0);
+		bk_mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
+		bk_mailbox_recv_callback_unregister(MAILBOX_CPU0, MAILBOX_DSP);
 	} else
 		CLI_LOGI("NOT support command %s.\r\n", argv[1]);
 }
@@ -458,8 +458,8 @@ static void usb_record_thread_main(void *arg)
 				if (node->size != bw)
 					CLI_LOGI("write %x to usb bytes %d/%d.\r\n", (uint32_t)node->buffer, bw, node->size);
 				co_list_push_back(&g_record_context.free_list, (struct co_list_hdr *)node);
-				mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_PCM_READ_DONE, ((uint32_t)node->buffer) - W_DSP_DMEM_64KB_BASE_ADDR, node->size, 0);
-				mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
+				bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_PCM_READ_DONE, ((uint32_t)node->buffer) - W_DSP_DMEM_64KB_BASE_ADDR, node->size, 0);
+				bk_mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
 			}
 		}
 	}
@@ -572,18 +572,18 @@ void record2usb_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 		}
 
 		/*set mailbox callback*/
-		mailbox_recv_callback_register(MAILBOX_CPU0, MAILBOX_DSP, (mailbox_callback_t)usb_record_cb_hdl);
+		bk_mailbox_recv_callback_register(MAILBOX_CPU0, MAILBOX_DSP, (mailbox_callback_t)usb_record_cb_hdl);
 
 		/*send record start to dsp*/
 		if (os_strcmp(argv[2], "adcx") == 0)
-			mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_RECORD, 0, 1, 0);
+			bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_RECORD, 0, 1, 0);
 		else if (os_strcmp(argv[2], "adc1") == 0)
-			mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_RECORD, 1, 0, 0);
+			bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_RECORD, 1, 0, 0);
 		else if (os_strcmp(argv[2], "adc2") == 0)
-			mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_RECORD, 2, 0, 0);
+			bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_RECORD, 2, 0, 0);
 		else
-			mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_RECORD, 0, 0, 0);
-		mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
+			bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_RECORD, 0, 0, 0);
+		bk_mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
 	} else if (os_strcmp(argv[1], "stop") == 0) {
 		if (!usb_record_sem) {
 			CLI_LOGW("please start record thread.\r\n");
@@ -591,8 +591,8 @@ void record2usb_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 		}
 
 		/*send record stop to dsp*/
-		mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_RECORD, 0, 0, 0);
-		mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
+		bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_RECORD, 0, 0, 0);
+		bk_mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
 
 		/*delete usb record thread*/
 		record_flag = 0;
@@ -606,7 +606,7 @@ void record2usb_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 		ret = rtos_deinit_semaphore(&usb_record_sem);
 		if (ret)
 			CLI_LOGI("delete usb record semaphore fail.\r\n");
-		mailbox_recv_callback_unregister(MAILBOX_CPU0, MAILBOX_DSP);
+		bk_mailbox_recv_callback_unregister(MAILBOX_CPU0, MAILBOX_DSP);
 
 		/*close record file*/
 		fr = f_close(&record_file);
@@ -716,16 +716,16 @@ void usb_play_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 	}
 
 	/*set mailbox callback*/
-	mailbox_recv_callback_register(MAILBOX_CPU0, MAILBOX_DSP, (mailbox_callback_t)usb_play_cb_hdl);
+	bk_mailbox_recv_callback_register(MAILBOX_CPU0, MAILBOX_DSP, (mailbox_callback_t)usb_play_cb_hdl);
 
 	/*send play start to dsp*/
 	postfix = os_strrchr(file_name, '.');
 	if (os_strcmp(postfix, ".opus") == 0) {
-		mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_ENABLE, 1, chann, 0);
-		mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
+		bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_ENABLE, 1, chann, 0);
+		bk_mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
 	} else if (os_strcmp(postfix, ".pcm") == 0) {
-		mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_ENABLE, 1, chann, 1);
-		mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
+		bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_ENABLE, 1, chann, 1);
+		bk_mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
 	} else {
 		CLI_LOGI("unknown file type: %s.\r\n", file_name);
 	}
@@ -754,8 +754,8 @@ void usb_play_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 
 		node->size = br;
 		co_list_push_back(&g_record_context.using_list, (struct co_list_hdr *)node);
-		mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_PCM_WRITE, ((uint32_t)node->buffer) - W_DSP_DMEM_64KB_BASE_ADDR, node->size, 0);
-		mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
+		bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_PCM_WRITE, ((uint32_t)node->buffer) - W_DSP_DMEM_64KB_BASE_ADDR, node->size, 0);
+		bk_mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
 
 		if (br == 0) break;
 	}
@@ -766,9 +766,9 @@ void usb_play_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		CLI_LOGI("get usb play semaphore fail.\r\n");
 
 	/*send play stop to dsp*/
-	mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_ENABLE, 0, 0, 0);
-	mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
-	mailbox_recv_callback_unregister(MAILBOX_CPU0, MAILBOX_DSP);
+	bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_ENABLE, 0, 0, 0);
+	bk_mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
+	bk_mailbox_recv_callback_unregister(MAILBOX_CPU0, MAILBOX_DSP);
 
 	/*close record file*/
 	fr = f_close(&record_file);
@@ -801,8 +801,8 @@ void adc_analog_gain_command(char *pcWriteBuffer, int xWriteBufferLen, int argc,
 		return;
 	}
 	param = dsp_atoi(argv[1]);
-	mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_ANALOG_VOLUME_SET, param & 0x7F, 0, 0);
-	mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
+	bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_ANALOG_VOLUME_SET, param & 0x7F, 0, 0);
+	bk_mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
 }
 
 void adc_digital_gain_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -815,8 +815,8 @@ void adc_digital_gain_command(char *pcWriteBuffer, int xWriteBufferLen, int argc
 		return;
 	}
 	param = dsp_atoi(argv[1]);
-	mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_DIGITAL_VOLUME_SET, param & 0x3F, 0, 0);
-	mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
+	bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_DIGITAL_VOLUME_SET, param & 0x3F, 0, 0);
+	bk_mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
 }
 
 void adc_sample_rate_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -830,8 +830,8 @@ void adc_sample_rate_command(char *pcWriteBuffer, int xWriteBufferLen, int argc,
 	}
 	param = dsp_atoi(argv[1]);
 	sddev_control(DD_DEV_TYPE_SCTRL, CMD_SCTRL_AUDIO_PLL, &param);
-	mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_SAMPLE_RATE_SET, param, 0, 0);
-	mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
+	bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_ADC_SAMPLE_RATE_SET, param, 0, 0);
+	bk_mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
 }
 
 void dac_analog_gain_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -856,8 +856,8 @@ void dac_digital_gain_command(char *pcWriteBuffer, int xWriteBufferLen, int argc
 		return;
 	}
 	param = dsp_atoi(argv[1]);
-	mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_DIGITAL_VOLUME_SET, param & 0xFFF, 0, 0);
-	mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
+	bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_DIGITAL_VOLUME_SET, param & 0xFFF, 0, 0);
+	bk_mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
 }
 
 void dac_sample_rate_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -871,8 +871,8 @@ void dac_sample_rate_command(char *pcWriteBuffer, int xWriteBufferLen, int argc,
 	}
 	param = dsp_atoi(argv[1]);
 	sddev_control(DD_DEV_TYPE_SCTRL, CMD_SCTRL_AUDIO_PLL, &param);
-	mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_SAMPLE_RATE_SET, param, 0, 0);
-	mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
+	bk_mailbox_set_param(&mailbox, MAILBOX_CMD_AUDIO_DAC_SAMPLE_RATE_SET, param, 0, 0);
+	bk_mailbox_send(&mailbox, MAILBOX_CPU0, MAILBOX_DSP, NULL);
 }
 
 const struct cli_command dsp_clis[] = {
@@ -897,7 +897,7 @@ void bk7271_dsp_cli_init(void)
 {
 	int ret;
 
-	mailbox_recv_callback_register(MAILBOX_DSP, MAILBOX_CPU0, (mailbox_callback_t)dsp_wake_up_cb);
+	bk_mailbox_recv_callback_register(MAILBOX_DSP, MAILBOX_CPU0, (mailbox_callback_t)dsp_wake_up_cb);
 	ret = cli_register_commands(dsp_clis, sizeof(dsp_clis) / sizeof(struct cli_command));
 	if (ret)
 		CLI_LOGI("register dsp commands fail.\r\n");

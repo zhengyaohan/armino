@@ -29,11 +29,15 @@ static bool s_mailbox_is_init = false;
 		}\
 	} while(0)
 
+#define MAILBOX_RETURN_ON_REPEAT_INIT() do {\
+		if (s_mailbox_is_init) {\
+			return BK_ERR_MAILBOX_REPEAT_INIT;\
+		}\
+	} while(0)
 
 static void mailbox_config(void);
 static mailbox_id_t mailbox_check_src_dst(mailbox_endpoint_t src, mailbox_endpoint_t dst);
 static void mailbox_write_data(mailbox_data_t *data, mailbox_id_t id, mailbox_box_num_t box);
-static bk_err_t mailbox_wait_ready(mailbox_data_t *data, mailbox_id_t id, mailbox_box_num_t box);
 static void mailbox_receive_data(mailbox_id_t id, mailbox_data_t *data, mailbox_box_num_t box);
 static void mailbox_receive_isr(mailbox_id_t id);
 static void mailbox_service0_isr(void);
@@ -41,9 +45,10 @@ static void mailbox_service1_isr(void);
 static void mailbox_interrupt_service(mailbox_info_t *mailbox);
 
 
-bk_err_t mailbox_init(void)
+bk_err_t bk_mailbox_init(void)
 {
 	MAILBOX_LOGD("Begin %s\n", __func__);
+	MAILBOX_RETURN_ON_REPEAT_INIT();
 	s_mailbox_is_init = true;
 
 	mailbox_config();
@@ -64,9 +69,10 @@ bk_err_t mailbox_init(void)
 	return BK_OK;
 }
 
-bk_err_t mailbox_deinit(void)
+bk_err_t bk_mailbox_deinit(void)
 {
 	MAILBOX_LOGD("Begin %s\n", __func__);
+	MAILBOX_RETURN_ON_NOT_INIT();
 
 	for(int index = 0; index < ARRAY_SIZE(mailbox_cfg_map_table); index++) {
 		mailbox_hal_box_init(&(s_mailbox[index].hal));
@@ -105,7 +111,7 @@ static void mailbox_config(void)
 	}
 }
 
-bk_err_t mailbox_set_param(mailbox_data_t *data, uint32_t p0, uint32_t p1, uint32_t p2, uint32_t p3)
+bk_err_t bk_mailbox_set_param(mailbox_data_t *data, uint32_t p0, uint32_t p1, uint32_t p2, uint32_t p3)
 {
 	MAILBOX_RETURN_ON_NOT_INIT();
 
@@ -142,41 +148,12 @@ static void mailbox_write_data(mailbox_data_t *data, mailbox_id_t id, mailbox_bo
 				data->param1, data->param2, data->param3);
 }
 
-static bk_err_t mailbox_wait_ready(mailbox_data_t *data, mailbox_id_t id, mailbox_box_num_t box)
-{
-	int wait_count = 0;
-	while ((mailbox_hal_read_box_ready(&(s_mailbox[id].hal), box)))
-		{
-			if (wait_count > MAILBOX_SEND_WAIT_COUNT) 
-			{
-				MAILBOX_LOGI("WAITE mailbox: %d, box: %d\n", id, box);
-				return BK_ERR_MAILBOX_TIMEOUT;
-			}
-			wait_count++;
-		}
-
-	return BK_OK;
-}
-
-bk_err_t mailbox_send(mailbox_data_t *data, mailbox_endpoint_t src, mailbox_endpoint_t dst, void *arg)
+bk_err_t bk_mailbox_send(mailbox_data_t *data, mailbox_endpoint_t src, mailbox_endpoint_t dst, void *arg)
 {
 	MAILBOX_RETURN_ON_NOT_INIT();
 
-	uint32_t ret = BK_OK;
 	mailbox_id_t id;
 	mailbox_box_num_t box;
-	uint16_t	async_write = 0;
-
-	if(arg != NULL)
-	{
-		box = (*(uint16_t *)arg) & 0xFF;
-		async_write = (*(uint16_t *)arg) & 0xFF00;
-
-		if ((box != MAILBOX_BOX0) && (box != MAILBOX_BOX1))
-		{
-			box = MAILBOX_NONE;
-		}
-	}
 
 	MAILBOX_LOGD("%s\n", __func__);
 
@@ -189,11 +166,36 @@ bk_err_t mailbox_send(mailbox_data_t *data, mailbox_endpoint_t src, mailbox_endp
 
 	if(arg == NULL)
 	{
-		box = mailbox_hal_check_which_box_ready(&(s_mailbox[id].hal));
-	}
+		int wait_count = 0;
 
-	if (box == MAILBOX_NONE)
-		return BK_ERR_MAILBOX_ID;
+		while(wait_count < MAILBOX_SEND_WAIT_COUNT)
+		{
+			box = mailbox_hal_check_which_box_ready(&(s_mailbox[id].hal));
+
+			if (box != MAILBOX_NONE)
+			{
+				break;
+			}
+			wait_count++;
+		}
+
+		if (box == MAILBOX_NONE) // mailbox busy
+			return BK_ERR_MAILBOX_TIMEOUT;
+	}
+	else
+	{
+		box = (*(uint16_t *)arg) & 0xFF;
+
+		if ((box != MAILBOX_BOX0) && (box != MAILBOX_BOX1))
+		{
+			return BK_ERR_MAILBOX_ID;
+		}
+
+		if(mailbox_hal_read_box_ready(&(s_mailbox[id].hal), box) != 0)
+		{
+			return BK_ERR_MAILBOX_TIMEOUT;  // mailbox busy
+		}
+	}
 
 	MAILBOX_LOGD("BOX: %x param0: %x, param1: %x, param2: %x, param3: %x\r\n",
 			      box, data->param0, data->param1, data->param2, data->param3);
@@ -202,14 +204,7 @@ bk_err_t mailbox_send(mailbox_data_t *data, mailbox_endpoint_t src, mailbox_endp
 	mailbox_write_data(data, id, box);
 	mailbox_hal_box_trigger(&(s_mailbox[id].hal), box);
 
-	if(async_write)
-		return ret;
-
-	if (mailbox_wait_ready(data, id, box)) {
-		return BK_ERR_MAILBOX_TIMEOUT;
-	}
-
-	return ret;
+	return BK_OK;
 
 }
 
@@ -242,7 +237,7 @@ static void mailbox_receive_isr(mailbox_id_t id)
 	mailbox_hal_box_clear(&(s_mailbox[id].hal), box);
 
 	for (int num = 0; num < MAILBOX_CALLBACK_NUMBER; num++)
-	{	if (s_mailbox[id].imp.rx[num] != NULL)		
+	{	if (s_mailbox[id].imp.rx[num] != NULL)
 			(s_mailbox[id].imp.rx[num])(&data);
 	}
 
@@ -250,7 +245,7 @@ static void mailbox_receive_isr(mailbox_id_t id)
 				data.param1, data.param2, data.param3);
 }
 
- bk_err_t mailbox_recv_callback_register(mailbox_endpoint_t src, mailbox_endpoint_t dst, mailbox_callback_t callback)
+ bk_err_t bk_mailbox_recv_callback_register(mailbox_endpoint_t src, mailbox_endpoint_t dst, mailbox_callback_t callback)
 {
 	MAILBOX_RETURN_ON_NOT_INIT();
 
@@ -274,7 +269,7 @@ static void mailbox_receive_isr(mailbox_id_t id)
 	return BK_ERR_MAILBOX_CALLBACK;
 }
 
-bk_err_t mailbox_recv_callback_unregister(mailbox_endpoint_t src, mailbox_endpoint_t dst)
+bk_err_t bk_mailbox_recv_callback_unregister(mailbox_endpoint_t src, mailbox_endpoint_t dst)
 {
 	MAILBOX_RETURN_ON_NOT_INIT();
 
@@ -349,11 +344,11 @@ static void mailbox_interrupt_service(mailbox_info_t *mailbox)
 void mailbox_driver_init(void)
 {
 	MAILBOX_LOGD("%s mailbox driver INIT!!!\n", __func__);
-	mailbox_init();
+	bk_mailbox_init();
 
 }
 void mailbox_driver_deinit(void)
 {
-	mailbox_deinit();
+	bk_mailbox_deinit();
 }
 

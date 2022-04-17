@@ -54,6 +54,10 @@
 #define TRAP_M_S_PAGE_FAULT	15  /* Data store page fault */
 #define TRAP_M_STACKOVF     	32
 #define TRAP_M_STACKUDF     	33
+#define TRAP_M_USER_ASSERT      0x77
+#define TRAP_M_USER_NP          0x88
+#define TRAP_M_USER_OTHER       0x99
+
 
 /* Supervisor mode SCAUSE */
 #define TRAP_S_I_ACC_FAULT    	1   /* Instruction access fault */

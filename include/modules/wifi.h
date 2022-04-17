@@ -159,7 +159,8 @@ bk_err_t bk_wifi_sta_get_config(wifi_sta_config_t *sta_config);
  *
  * @attention the difference between this API and bk_wifi_sta_get_config() is
  *     - This API gets the actual STA link info while the later gets the configured value
- *     - This API can get more info of the link, such as RSSI, WiFi link status etc.
+ *     - This API can get more info of the link, such as RSSI, WiFi link status, AID etc.
+ *     - The AID is only valid if @link_status->state is WIFI_LINK_CONNECTED.
  *
  * @param link_status store the WiFi link status of the BK STA
  *
@@ -296,6 +297,24 @@ bk_err_t bk_wifi_scan_dump_result(const wifi_scan_result_t *scan_result);
  */
 void bk_wifi_scan_free_result(wifi_scan_result_t *scan_result);
 
+
+/**
+ * @brief     Add/Update/Del STA's Vendor Specific IE **before** connect to AP.
+ *
+ * @attention If you want to add vsie when sta starts, just initialize wifi_sta_config_t
+ *            when call bk_wifi_sta_set_config().
+ *
+ * @param     buf   vsie buf
+ * @param     len   vsie buf len
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors
+ */
+bk_err_t bk_wifi_sta_add_vendor_ie(uint8_t frame, uint8_t *vsie, uint8_t len);
+bk_err_t bk_wifi_sta_update_vendor_ie(uint8_t frame, uint8_t *vsie, uint8_t len);
+bk_err_t bk_wifi_sta_del_vendor_ie(uint8_t frame);
+
 /**
  * @brief     Start the BK AP
  *
@@ -367,6 +386,47 @@ bk_err_t bk_wifi_ap_set_config(const wifi_ap_config_t *ap_config);
  */
 bk_err_t bk_wifi_ap_get_config(wifi_ap_config_t *ap_config);
 
+
+/**
+ * @brief     Get the STAs connected to BK AP.
+ *
+ * @attention Free stas->sta after usage.
+ *
+ * @param     stas store the STA list in BK AP
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors
+ */
+bk_err_t bk_wifi_ap_get_sta_list(wlan_ap_stas_t *stas);
+
+/**
+ * @brief     Add softap's Vendor Specific IE when softap is running.
+ *
+ * @attention If you want to add vsie when softap starts, just initialize wifi_ap_config_t
+ *            when call bk_wifi_ap_start().
+ *
+ * @param     buf   vsie buf
+ * @param     len   vsie buf len
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors
+ */
+bk_err_t bk_wifi_ap_add_vendor_ie(void *buf, uint8_t len);
+
+/**
+ * @brief     Delete softap's Vendor Specific IE when softap is running.
+ *
+ * @attention If you want to add vsie when softap starts, just initialize wifi_ap_config_t
+ *            when call bk_wifi_ap_start().
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors
+ */
+bk_err_t bk_wifi_ap_del_vendor_ie(void);
+
 /**
  * @brief     Start the monitor
  *
@@ -431,7 +491,7 @@ bk_err_t bk_wifi_monitor_register_cb(const wifi_monitor_cb_t monitor_cb);
  * @attention 2. This API is only used for settting monitor channel, NOT for other purpose.
  * @attention 3. This API directly change the hardware channel, it may impacts BK STA/AP if
  *               the STA or AP interface is started. TODO describe details of the impact.
- * @attention 4. The channel range can be set is from channel 1 to channel 14, 
+ * @attention 4. The channel range can be set is from channel 1 to channel 14,
  *
  * @param chan channel of monitor
  *
@@ -484,11 +544,11 @@ bk_err_t bk_wifi_monitor_set_channel(const wifi_channel_t *chan);
  *     // Equal to the case when bk_wifi_filter_set_config() is not called
  *     wifi_filter_config_t filter_config = WIFI_DEFAULT_FILTER_CONFIG();
  *     BK_LOG_ON_ERR(bk_wifi_filter_set_config(&filter_config);
- *     
+ *
  *     // Receive all beacon and management frames default received by WiFi driver
  *     filter_config.rx_all_beacon = 1;
  *     BK_LOG_ON_ERR(bk_wifi_filter_set_config(&filter_config);
- *     
+ *
  *     // Only receive all beacon
  *     filter_config.rx_all_beacon = 1;
  *     filter_config.rx_all_default_mgmt = 0;
@@ -534,7 +594,7 @@ bk_err_t bk_wifi_filter_get_config(wifi_filter_config_t *filter_config);
  *               task. Make a copy of them and then relay to other task if necessary.
  * @attention 5. Don't do too much work in the filter callback because it's called in
  *               WiFi driver core thread, otherwise it may impact the WiFi performance.
- * 
+ *
  * @param filter_cb the filter user callback
  *
  * @return
@@ -544,7 +604,7 @@ bk_err_t bk_wifi_filter_get_config(wifi_filter_config_t *filter_config);
 bk_err_t bk_wifi_filter_register_cb(const wifi_filter_cb_t filter_cb);
 
 /**
- * @brief     Get the MAC of BK STA 
+ * @brief     Get the MAC of BK STA
  *
  * @attention 1. The AP's MAC is derived from the base MAC of the system.
  * @attention 2. If you want to change the MAC of AP, call bk_set_mac() to set
@@ -629,16 +689,24 @@ bk_err_t bk_wifi_set_country(const wifi_country_t *country);
   *    - BK_ERR_PARAM: invalid argument
   */
 bk_err_t bk_wifi_get_country(wifi_country_t *country);
+
 /**
- * @brief  set wifi power manage enable or disable
- *
- * @param enable false : disable true : enable
+ * @brief  enable wifi sta power management
  *
  * @return
  *      - BK_OK: on succeed
  *      - others: real error, used for future.
  */
-bk_err_t bk_wifi_sta_pm_enable(bool enable);
+bk_err_t bk_wifi_sta_pm_enable(void);
+
+/**
+ * @brief  disable wifi sta power management
+ *
+ * @return
+ *      - BK_OK: on succeed
+ *      - others: real error, used for future.
+ */
+bk_err_t bk_wifi_sta_pm_disable(void);
 
 /**
  * @}

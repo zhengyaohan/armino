@@ -313,7 +313,7 @@ netif_add(struct netif *netif,
   netif->output = netif_null_output_ip4;
 #endif /* LWIP_IPV4 */
 #if LWIP_IPV6
-  for (i = 1; i < LWIP_IPV6_NUM_ADDRESSES; i++) {
+  for (i = 0; i < LWIP_IPV6_NUM_ADDRESSES; i++) {
     //init addr save in addr[0],need not zero
     ip_addr_set_zero_ip6(&netif->ip6_addr[i]);
     netif->ip6_addr_state[i] = IP6_ADDR_INVALID;

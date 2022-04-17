@@ -15,7 +15,7 @@
 #include <common/bk_include.h>
 #include "cli.h"
 #include "shell_task.h"
-#include <components/uvc_intf_pub.h>
+#include <components/uvc_camera.h>
 #include <os/mem.h>
 #include <os/os.h>
 
@@ -25,12 +25,9 @@
 #include <driver/dma.h>
 #endif
 
-#define uvc_dma_id               DMA_ID_4
-
 static void cli_uvc_help(void)
 {
 	CLI_LOGI("uvc {init|start|stop|read file_id|deinit}\r\n");
-	CLI_LOGI("uvc_dma {set|start|stop}\r\n");
 }
 static void cli_uvc_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
@@ -45,60 +42,41 @@ static void cli_uvc_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 
 	if (os_strcmp(argv[1], "init") == 0) {
 		//shell_cmd_forward(cp1_cmd, cp1_cmd_len);
-		err = uvc_intfer_init();//uvc_buff_set_open();
-		if (err != 0) {
+		err = bk_uvc_init();//uvc_buff_set_open();
+		if (err != kNoErr) {
 			os_printf("uvc open failed!\r\n");
 			return;
 		}
 
 		uint16_t ppi = os_strtoul(argv[2], NULL, 10) & 0xFFFF;
 		uint8_t fps = os_strtoul(argv[3], NULL, 10) & 0xFF;
-		err = uvc_set_ppi_fps(ppi, fps);
-		if (err != 0) {
+		err = bk_uvc_set_ppi_fps(ppi, fps);
+		if (err != kNoErr) {
 			os_printf("uvc set ppi and fps failed!\r\n");
 			return;
 		}
 	} else if (os_strcmp(argv[1], "start") == 0) {
-		err = uvc_set_start();
-		if (err != 1) {
+		err = bk_uvc_set_start();
+		if (err != kNoErr) {
 			os_printf("uvc set start failed!\r\n");
 			return;
 		}
 	} else if (os_strcmp(argv[1], "stop") == 0) {
-		err = uvc_set_stop();
-		if (err != 1) {
+		err = bk_uvc_set_stop();
+		if (err != kNoErr) {
 			os_printf("uvc stop failed!\r\n");
 		}
 	} else if (os_strcmp(argv[1], "deinit") == 0) {
-		err = uvc_intfer_deinit();
-		if (err != 0) {
+		err = bk_uvc_deinit();
+		if (err != kNoErr) {
 			os_printf("uvc close failed!\r\n");
 		}
 	}else if (os_strcmp(argv[1], "read") == 0) {
 		uint8_t file_id = os_strtoul(argv[2], NULL, 10) & 0xFF;
-		err = uvc_read_frame(file_id);
-		if (err != 0) {
+		err = bk_uvc_save_frame(file_id);
+		if (err != kNoErr) {
 			os_printf("read failed!\r\n");
 		}
-	} else {
-		cli_uvc_help();
-		return;
-	}
-}
-
-static void cli_uvc_dma_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
-{
-	if (argc != 2) {
-		cli_uvc_help();
-		return;
-	}
-
-	if (os_strcmp(argv[1], "set") == 0) {
-		uvc_set_dma();
-	} else if (os_strcmp(argv[1], "start") == 0){
-		bk_dma_start(uvc_dma_id);
-	} else if (os_strcmp(argv[1], "stop") == 0){
-		bk_dma_stop(uvc_dma_id);
 	} else {
 		cli_uvc_help();
 		return;
@@ -108,7 +86,6 @@ static void cli_uvc_dma_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, 
 #define UVC_CMD_CNT (sizeof(s_uvc_commands) / sizeof(struct cli_command))
 static const struct cli_command s_uvc_commands[] = {
 	{"uvc", "uvc {start|stop|read file_id}", cli_uvc_cmd},
-	{"uvc_dma", "dma {set|start|stop}", cli_uvc_dma_cmd},
 };
 
 int cli_uvc_init(void)

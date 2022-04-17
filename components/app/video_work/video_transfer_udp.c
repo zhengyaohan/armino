@@ -50,7 +50,7 @@ typedef struct tvideo_hdr_st {
 #endif
 } HDR_ST, *HDR_PTR;
 
-void app_demo_add_pkt_header(TV_HDR_PARAM_PTR param)
+void app_demo_add_pkt_header(video_packet_t *param)
 {
 	HDR_PTR elem_tvhdr = (HDR_PTR)param->ptk_ptr;
 
@@ -84,7 +84,7 @@ static void app_demo_udp_handle_cmd_data(UINT8 *data, UINT16 len)
 
 	{
 		for (int i = 0; i < len; i++)
-			uart_write_byte(UART_ID_1, data[i]);
+			uart_write_byte(UART_ID_0, data[i]);
 	}
 }
 
@@ -137,7 +137,7 @@ static void app_demo_udp_receiver(UINT8 *data, UINT32 len, struct sockaddr_in *a
 			GLOBAL_INT_RESTORE();
 
 #if (CONFIG_SPIDMA || CONFIG_CAMERA)
-			TVIDEO_SETUP_DESC_ST setup;
+			video_setup_t setup;
 
 			setup.open_type = TVIDEO_OPEN_SCCB;
 			setup.send_type = TVIDEO_SND_UDP;
@@ -148,13 +148,13 @@ static void app_demo_udp_receiver(UINT8 *data, UINT32 len, struct sockaddr_in *a
 			setup.pkt_header_size = sizeof(HDR_ST);
 			setup.add_pkt_header = app_demo_add_pkt_header;
 
-			video_transfer_init(&setup);
+			bk_video_transfer_init(&setup);
 #endif
 		} else if (data[1] == CMD_STOP_IMG) {
 			APP_DEMO_UDP_PRT("udp close\r\n");
 
 #if (CONFIG_SPIDMA || CONFIG_CAMERA)
-			video_transfer_deinit();
+			bk_video_transfer_deinit();
 #endif
 
 			GLOBAL_INT_DISABLE();
@@ -367,7 +367,7 @@ app_udp_exit:
 	APP_DEMO_UDP_FATAL("app_demo_udp_main exit %d\r\n", app_demo_udp_run);
 
 #if (CONFIG_SPIDMA || CONFIG_CAMERA)
-	video_transfer_deinit();
+	bk_video_transfer_deinit();
 #endif
 
 	if (rcv_buf) {
@@ -434,7 +434,7 @@ UINT32 app_demo_udp_init(void)
 	return kNoErr;
 }
 
-int app_demo_udp_send_packet(UINT8 *data, UINT32 len)
+int app_demo_udp_send_packet(uint8_t *data, uint32_t len)
 {
 	int send_byte = 0;
 

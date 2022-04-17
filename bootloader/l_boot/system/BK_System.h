@@ -173,9 +173,14 @@ typedef struct boot_param
     extern u32 uart_download_status;
     extern u32 boot_downloading;
 
-
 #define REG_READ(addr)          *((volatile u32 *)(addr))
 #define REG_WRITE(addr, _data) 	(*((volatile u32 *)(addr)) = (_data))
+
+#if(uart_download_status == 0)
+    #define CHECK_CNT_NUMBER     13000
+#else
+    #define CHECK_CNT_NUMBER     400000
+#endif
 
 #ifdef __cplusplus
 }

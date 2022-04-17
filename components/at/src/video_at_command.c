@@ -3,10 +3,10 @@
 // this moudule only support camera in chip, with sccb interface.
 #if (CONFIG_CAMERA)
 #include <components/video_transfer.h>
-#include <components/camera_intf_pub.h>
+#include <components/dvp_camera.h>
 #endif
 
-#include <driver/jpeg.h>
+#include <driver/jpeg_enc.h>
 #include <driver/i2c.h>
 #include <driver/dma.h>
 #if (CONFIG_SDCARD_HOST || CONFIG_USB_HOST)
@@ -70,11 +70,11 @@ int video_at_cmd_cnt(void)
 }
 
 #if (CONFIG_CAMERA && CONFIG_APP_DEMO_VIDEO_TRANSFER && (CONFIG_SDCARD_HOST || CONFIG_USB_HOST))
-static int video_buffer_recv_data(UINT8 * data, UINT32 len)
+static int video_buffer_recv_data(uint8_t * data, uint32_t len)
 {
 	if (g_video_buff->buf_base) {
 		vbuf_header_t *hdr = (vbuf_header_t *)data;
-		UINT32 org_len, left_len;
+		uint32_t org_len, left_len;
 		GLOBAL_INT_DECLARATION();
 
 		if (len < sizeof(vbuf_header_t)) {
@@ -167,12 +167,12 @@ static int video_buffer_recv_data(UINT8 * data, UINT32 len)
 	return len;
 }
 
-static void video_buffer_add_pkt_header(TV_HDR_PARAM_PTR param)
+static void video_buffer_add_pkt_header(video_packet_t *param)
 {
 	vbuf_header_t *elem_tvhdr = (vbuf_header_t *)param->ptk_ptr;
 
 	g_pkt_seq++;
-	elem_tvhdr->id = (UINT8)param->frame_id;
+	elem_tvhdr->id = (uint8_t)param->frame_id;
 	elem_tvhdr->is_eof = param->is_eof;
 	elem_tvhdr->pkt_cnt = param->frame_len;
 	elem_tvhdr->pkt_seq = g_pkt_seq;
@@ -190,7 +190,7 @@ static int video_buff_set_open(void)
 	if (g_video_buff == NULL) {
 		int ret;
 		GLOBAL_INT_DECLARATION();
-		TVIDEO_SETUP_DESC_ST setup;
+		video_setup_t setup;
 
 		g_video_buff = (video_buff_t *)os_malloc(sizeof(video_buff_t));
 		if (g_video_buff == NULL) {
@@ -228,7 +228,7 @@ static int video_buff_set_open(void)
 		setup.pkt_header_size = sizeof(vbuf_header_t);
 		setup.add_pkt_header = video_buffer_add_pkt_header;
 
-		ret = video_transfer_init(&setup);
+		ret = bk_video_transfer_init(&setup);
 		if (ret != kNoErr) {
 			os_printf("video_transfer_init failed\r\n");
 			rtos_deinit_semaphore(&g_video_buff->aready_semaphore);
@@ -247,7 +247,7 @@ static int video_buff_set_close(void)
 {
 	if (g_video_buff) {
 		int ret;
-		ret = video_transfer_deinit();
+		ret = bk_video_transfer_deinit();
 		if (ret != kNoErr) {
 			os_printf("video_buffer_close failed\r\n");
 			return ret;
@@ -370,7 +370,7 @@ int video_take_photo_handler(char *pcWriteBuffer, int xWriteBufferLen, int argc,
 	char *msg = NULL;
 	int err = kNoErr;
 	FIL fp1;
-	char *file_path = "image.txt";
+	char *file_path = "image.jpg";
 	uint8_t file_id = 0;
 	char cFileName[50];
 	unsigned int uiTemp = 0;
@@ -537,7 +537,7 @@ int video_set_yuv_psram_handler(char *pcWriteBuffer, int xWriteBufferLen, int ar
 	}
 
 #if CONFIG_SYSTEM_CTRL
-	err = bk_jpeg_driver_init();
+	err = bk_jpeg_enc_driver_init();
 	if (err != kNoErr) {
 		os_printf("video init error\n");
 		err = kParamErr;
@@ -614,15 +614,15 @@ int video_set_yuv_psram_handler(char *pcWriteBuffer, int xWriteBufferLen, int ar
 		jpeg_config.mclk_div = 0;
 	}
 
-	err = bk_jpeg_cli_init(&jpeg_config);
+	err = bk_jpeg_enc_dvp_init(&jpeg_config);
 	if (err != kNoErr) {
 		os_printf("jpeg init error\n");
 		err = kParamErr;
 		goto error;
 	}
 
-	bk_jpeg_register_frame_end_isr(end_of_jpeg_frame, NULL);
-	bk_jpeg_register_end_yuv_isr(end_of_yuv_frame, NULL);
+	bk_jpeg_enc_register_isr(END_OF_FRAME, end_of_jpeg_frame, NULL);
+	bk_jpeg_enc_register_isr(END_OF_YUV, end_of_yuv_frame, NULL);
 
 	i2c_config.baud_rate = os_strtoul(argv[3], NULL, 10) & 0xFFFFFFFF;//100000;// 400k
 	i2c_config.addr_mode = 0;
@@ -633,14 +633,14 @@ int video_set_yuv_psram_handler(char *pcWriteBuffer, int xWriteBufferLen, int ar
 		goto error;
 	}
 
-	err = camera_set_ppi_fps(ppi, fps);
+	err = bk_camera_set_ppi_fps(ppi, fps);
 	if (err != kNoErr) {
 		os_printf("set camera ppi and fps error\n");
 		err = kParamErr;
 		goto error;
 	}
 
-	camera_intf_config_senser();
+	bk_camera_sensor_config();
 	os_printf("camera init ok\n");
 
 	msg = AT_CMD_RSP_SUCCEED;
@@ -659,7 +659,7 @@ int video_close_yuv_psram_handler(char *pcWriteBuffer, int xWriteBufferLen, int 
 	char *msg = NULL;
 	int err = kNoErr;
 
-	err = bk_jpeg_cli_deinit();
+	err = bk_jpeg_enc_dvp_deinit();
 	if (err != kNoErr) {
 		os_printf("jpeg deinit error\n");
 		err = kParamErr;
@@ -676,7 +676,7 @@ int video_close_yuv_psram_handler(char *pcWriteBuffer, int xWriteBufferLen, int 
 	os_printf("I2c deinit ok!\n");
 
 #if CONFIG_SYSTEM_CTRL
-	err = bk_jpeg_driver_deinit();
+	err = bk_jpeg_enc_driver_deinit();
 	if (err != kNoErr) {
 		os_printf("video deinit error\n");
 		err = kParamErr;

@@ -173,7 +173,7 @@ static shell_dev_t * cmd_dev = &shell_uart;
 
 #ifdef CONFIG_MASTER_CORE
 static shell_dev_ipc_t * ipc_dev = &shell_dev_ipc;
-static int shell_ipc_rx_indication(u8 *data, u16 data_len);
+static int shell_ipc_rx_indication(u16 cmd, u8 *data, u16 data_len);
 #endif
 static const char	 shell_fault_str[] = "\r\n!!some LOGs discarded!!\r\n";
 static const u16     shell_fault_str_len = sizeof(shell_fault_str) - 1;
@@ -213,7 +213,6 @@ static u32 wait_any_event(u32 timeout)
 
 	return SHELL_EVENT_RX_IND;
 }
-
 
 static void tx_req_process(void);
 
@@ -880,6 +879,14 @@ static void rx_ind_process(void)
 			break;
 	}
 
+	if(read_cnt < buf_len) /* all data are read out. */
+	{
+	}
+	else  /* cmd pends in buffer, handle it in new loop cycle. */
+	{
+		set_shell_event(SHELL_EVENT_RX_IND);
+	}
+
 	/* can re-use *buf_len*. */
 	if( cmd_rx_done )
 	{
@@ -1359,9 +1366,20 @@ int shell_assert_raw(bool bContinue, char * data_buff, u16 data_len)
 }
 
 #ifdef CONFIG_MASTER_CORE
-static int shell_ipc_rx_indication(u8 *data, u16 data_len)
+static int shell_ipc_rx_indication(u16 cmd, u8 *data, u16 data_len)
 {
-	return shell_log_raw_data(data, data_len);
+	if(cmd == MB_CMD_LOG_OUT)
+	{
+		return shell_log_raw_data(data, data_len);
+	}
+
+	if(cmd == MB_CMD_ASSERT_OUT)
+	{
+		return shell_assert_raw(true, (char *)data, data_len);
+	}
+
+	/* no cmd handler. */
+	return 0;
 }
 
 int shell_cmd_forward(char *cmd, u16 cmd_len)
@@ -1427,6 +1445,12 @@ int shell_get_log_statist(u32 * info_list, u32 num)
 
 void shell_log_flush(void)
 {
+	u32         int_mask;
+
+	int_mask = rtos_disable_int();
+
 	log_dev->dev_drv->io_ctrl(log_dev, SHELL_IO_CTRL_FLUSH, NULL);
+
+	rtos_enable_int(int_mask);
 }
 

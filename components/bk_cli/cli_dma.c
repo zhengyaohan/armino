@@ -63,12 +63,16 @@ static void cli_dma_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
             .src = {
                 .dev = DMA_DEV_DTCM,
                 .width = DMA_DATA_WIDTH_32BITS,
+                .addr_inc_en = DMA_ADDR_INC_ENABLE,
+                .addr_loop_en = DMA_ADDR_LOOP_DISABLE,
                 .start_addr = 0,
                 .end_addr = 0,
             },
             .dst = {
                 .dev = DMA_DEV_UART1,
                 .width = DMA_DATA_WIDTH_8BITS,
+                .addr_inc_en = DMA_ADDR_INC_DISABLE,
+                .addr_loop_en = DMA_ADDR_LOOP_DISABLE,
                 .start_addr = 0x0802100 + 0x3 * 4,
                 .end_addr = 0,
             },

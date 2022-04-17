@@ -15,6 +15,7 @@ void demo_sta_adv_app_init(char *oob_ssid,char *connect_key);
 void demo_wlan_app_init(VIF_ADDCFG_PTR cfg);
 int demo_state_app_init(void);
 void demo_ip_app_init(void);
+void demo_wifi_iplog_init(char *iplogmode);
 
 #endif
 

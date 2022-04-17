@@ -54,12 +54,29 @@ static void shell_ipc_rx_isr(shell_ipc_ext_t *ipc_ext, mb_chnl_cmd_t *cmd_buf)
 		{
 			log_cmd_t * log_cmd = (log_cmd_t *)cmd_buf;
 
-			result = ipc_ext->rx_callback(log_cmd->buf, log_cmd->len);
+			result = ipc_ext->rx_callback(log_cmd->hdr.cmd, log_cmd->buf, log_cmd->len);
 
 			if(result == 0)
 				result = ACK_STATE_FAIL;  // log discarded.
 			else
 				result = ACK_STATE_COMPLETE;
+		}
+	}
+	else if (cmd_buf->hdr.cmd == MB_CMD_ASSERT_OUT)
+	{
+		if(ipc_ext->rx_callback != NULL)
+		{
+			log_cmd_t * log_cmd = (log_cmd_t *)cmd_buf;
+
+			result = ipc_ext->rx_callback(log_cmd->hdr.cmd, log_cmd->buf + 1, log_cmd->len - 1);
+
+			if(result == 0)
+				result = ACK_STATE_FAIL;  // log discarded.
+			else
+				result = ACK_STATE_COMPLETE;
+
+			/* assert_out must be handled in synchrously, so the buffer is free when return. */
+			log_cmd->buf[0] = 0; /* notify the sender that buffer can be freed now. */
 		}
 	}
 	else   /* unknown cmd. */

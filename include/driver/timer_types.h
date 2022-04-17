@@ -37,6 +37,7 @@ extern "C" {
 #define BK_ERR_TIMER_ID              (BK_ERR_TIMER_BASE - 1) /**< timer id is invalid */
 #define BK_ERR_TIMER_NOT_INIT        (BK_ERR_TIMER_BASE - 2) /**< timer driver not init */
 #define BK_ERR_TIMER_IS_RUNNING      (BK_ERR_TIMER_BASE - 3) /**< timer id is running */
+#define BK_ERR_TIMER_ID_ON_DEFCONFIG     (BK_ERR_TIMER_BASE - 4) /**< timer id is error */
 
 /**
  * @brief Timer interrupt service routine

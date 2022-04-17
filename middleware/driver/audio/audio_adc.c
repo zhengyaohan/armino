@@ -272,6 +272,7 @@ static void audio_adc_config_dma(void)
 
 	dma_config.dst.dev = DMA_DEV_DTCM;
 	dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
+	dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE;
 	dma_config.dst.start_addr = (uint32_t)aud_adc.buf;
 	dma_config.dst.end_addr = (uint32_t)(aud_adc.buf + aud_adc.buf_len);
 

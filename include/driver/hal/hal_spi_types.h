@@ -15,18 +15,11 @@
 #pragma once
 
 #include <common/bk_err.h>
-#include "spi_hw.h"
+#include <driver/hal/hal_dma_types.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/**
- * @brief SPI defines
- * @defgroup bk_api_spi_defs macos
- * @ingroup bk_api_spi
- * @{
- */
 
 #define BK_ERR_SPI_NOT_INIT              (BK_ERR_SPI_BASE - 1) /**< SPI driver not init */
 #define BK_ERR_SPI_INVALID_ID            (BK_ERR_SPI_BASE - 2) /**< SPI id number is invalid */
@@ -37,17 +30,6 @@ extern "C" {
 #define BK_ERR_SPI_FIFO_RD_NOT_READY     (BK_ERR_SPI_BASE - 6) /**< SPI rx fifo read not ready */
 
 typedef uint8_t spi_unit_t; /**< spi uint id */
-
-/**
- * @}
- */
-
-/**
- * @brief SPI enum defines
- * @defgroup bk_api_spi_enum SPI enums
- * @ingroup bk_api_spi
- * @{
- */
 
 typedef enum {
 	SPI_ID_0 = 0, /**< SPI id 1 */
@@ -119,17 +101,6 @@ typedef enum {
 
 #endif
 
-/**
- * @}
- */
-
-/**
- * @brief SPI struct defines
- * @defgroup bk_api_spi_structs structs in SPI
- * @ingroup bk_api_spi
- * @{
- */
-
 typedef struct {
 	spi_role_t role;           /**< SPI as master or slave */
 	spi_bit_width_t bit_width; /**< SPI data bit witdth */
@@ -140,12 +111,10 @@ typedef struct {
 	spi_bit_order_t bit_order; /**< SPI bit order, MSB/LSB */
 #if (CONFIG_SPI_DMA)
 	spi_dma_mode_t dma_mode;   /**< SPI whether use dma */
+	dma_id_t spi_tx_dma_chan;  /**< SPI tx dma channel */
+	dma_id_t spi_rx_dma_chan;  /**< SPI rx dma channel */
 #endif
 } spi_config_t;
-
-/**
- * @}
- */
 
 #ifdef __cplusplus
 }

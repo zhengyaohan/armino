@@ -723,6 +723,9 @@ void dhcp_check_status(void)
 		struct dhcp *dhcp = netif_dhcp_data(netif);
 		if(dhcp != NULL){
 			if(dhcp->state != DHCP_STATE_BOUND){
+				if (netif->status_callback) {
+					(netif->status_callback)(netif);
+				}
 #if(LWIP_AUTOIP == 0)                
 				wifi_netif_notify_sta_disconnect();
 #endif

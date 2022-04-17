@@ -46,11 +46,11 @@ extern char SRAM2_BEGIN;
 extern char _end;
 extern char _stack;
 
-#if CONFIG_MASTER_CORE
+#if (!CONFIG_SLAVE_CORE)
 const pmp_config_t pmp_tor_config_table[] = {\
 	{ENTRY_PMPADDR0, PMPCFG_ALXWR(PMP_A_TOR, PMP_L_ON, PMP_X_ON, PMP_W_OFF, PMP_R_ON),  (void*)(&_start + 4)}, \
 	{ENTRY_PMPADDR1, PMPCFG_ALXWR(PMP_A_TOR, PMP_L_ON, PMP_X_ON, PMP_W_OFF, PMP_R_ON),  (void*)(&__etext + 4) }, \
-	{ENTRY_PMPADDR2, PMPCFG_ALXWR(PMP_A_TOR, PMP_L_ON,PMP_X_OFF, PMP_W_ON, PMP_R_ON),  (void*)(FLASH_END + 4) }, \
+	{ENTRY_PMPADDR2, PMPCFG_ALXWR(PMP_A_TOR, PMP_L_ON, PMP_X_OFF, PMP_W_ON, PMP_R_ON),  (void*)(FLASH_END + 4) }, \
 	{ENTRY_PMPADDR3, PMPCFG_ALXWR(PMP_A_TOR, PMP_L_ON, PMP_X_OFF, PMP_W_OFF, PMP_R_OFF),  (void*)(&_itcm_ema_start + 4) }, \
 	{ENTRY_PMPADDR4, PMPCFG_ALXWR(PMP_A_TOR, PMP_L_ON, PMP_X_ON, PMP_W_OFF, PMP_R_ON),  (void*)(&_dtcm_ema_start + 4) }, \
 	{ENTRY_PMPADDR5, PMPCFG_ALXWR(PMP_A_TOR, PMP_L_ON, PMP_X_OFF, PMP_W_ON, PMP_R_ON),  (void*)(SRAM_END +4) }, \
@@ -59,7 +59,7 @@ const pmp_config_t pmp_tor_config_table[] = {\
 #else
 const pmp_config_t pmp_tor_config_table[] = {\
 };
-#endif //#if CONFIG_MASTER_CORE
+#endif //#if (!CONFIG_SLAVE_CORE)
 
 extern void sys_delay_sync(uint32_t time_count );
 

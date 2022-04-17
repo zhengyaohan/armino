@@ -351,7 +351,7 @@ def dump_diff(s1, s2):
 
 def main():
 
-	parser = argparse.ArgumentParser(description='armino_size - a tool to print size information from an BDK MAP file')
+	parser = argparse.ArgumentParser(description='armino_size - a tool to print size information from an ARMINO MAP file')
 
 	parser.add_argument(
 		'--summary', help='Print size summary', action='store_true')

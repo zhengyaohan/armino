@@ -90,6 +90,16 @@ typedef enum {
     DMA_PRIO_MODE_FIXED_PRIO,      /**< DMA priority mode fixed prio(depend on chan_prio) */
 } dma_priority_mode_t;
 
+typedef enum {
+    DMA_ADDR_INC_DISABLE = 0, /**< DMA disable addrress increase */
+    DMA_ADDR_INC_ENABLE,      /**< DMA enable addrress increase */
+} dma_addr_inc_t;
+
+typedef enum {
+    DMA_ADDR_LOOP_DISABLE = 0, /**< DMA disable addrress loop */
+    DMA_ADDR_LOOP_ENABLE,      /**< DMA enable addrress loop */
+} dma_addr_loop_t;
+
 /**
  * @}
  */
@@ -102,10 +112,12 @@ typedef enum {
  */
 
 typedef struct {
-    dma_dev_t dev;          /**< DMA device */
-    dma_data_width_t width; /**< DMA data width */
-    uint32_t start_addr;    /**< DMA start address */
-    uint32_t end_addr;      /**< DMA end address */
+    dma_dev_t dev;                /**< DMA device */
+    dma_data_width_t width;       /**< DMA data width */
+    dma_addr_inc_t addr_inc_en;   /**< enable/disable DMA address increase */
+    dma_addr_loop_t addr_loop_en; /**< enable/disable DMA address loop */
+    uint32_t start_addr;          /**< DMA start address */
+    uint32_t end_addr;            /**< DMA end address */
 } dma_port_config_t;
 
 typedef struct {

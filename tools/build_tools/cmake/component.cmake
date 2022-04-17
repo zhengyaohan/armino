@@ -88,7 +88,7 @@ macro(__component_set_properties)
     __component_set_property(${component_target} LDFRAGMENTS "${__LDFRAGMENTS}")
     __component_set_property(${component_target} EMBED_FILES "${__EMBED_FILES}")
     __component_set_property(${component_target} EMBED_TXTFILES "${__EMBED_TXTFILES}")
-    __component_set_property(${component_target} REQUIRED_BDK_SOCS "${__REQUIRED_BDK_SOCS}")
+    __component_set_property(${component_target} REQUIRED_ARMINO_SOCS "${__REQUIRED_ARMINO_SOCS}")
 endmacro()
 
 #
@@ -101,7 +101,6 @@ function(__component_dir_quick_check var component_dir)
     # Check this is really a directory and that a CMakeLists.txt file for this component exists
     # - warn and skip anything which isn't valid looking (probably cruft)
     if(NOT IS_DIRECTORY "${abs_dir}")
-        LOGI("Unexpected file in components directory: ${abs_dir}")
         set(res 0)
     endif()
 
@@ -197,7 +196,7 @@ function(__component_add component_dir prefix)
                                                     # used to refer to the component outside
                                                     # the build system. Users can use this name
                                                     # to resolve ambiguity with component names
-                                                    # and to link BDK components to external targets.
+                                                    # and to link ARMINO components to external targets.
     else()
         if(if_inc_component_repeat)
             set(component_lib __${prefix}_${base_dir})
@@ -249,7 +248,7 @@ function(__component_get_requirements)
         LOGI("${error}")
     endif()
 
-    armino_build_get_property(armino_component_manager BDK_COMPONENT_MANAGER)
+    armino_build_get_property(armino_component_manager ARMINO_COMPONENT_MANAGER)
     if(armino_component_manager AND armino_component_manager EQUAL "1")
         # Call for component manager once again to inject dependencies
         armino_build_get_property(python PYTHON)
@@ -334,10 +333,10 @@ macro(__component_add_include_dirs lib dirs type)
 endmacro()
 
 macro(__component_check_target)
-    if(__REQUIRED_BDK_SOCS)
-        armino_build_get_property(armino_target BDK_SOC)
-        if(NOT armino_target IN_LIST __REQUIRED_BDK_SOCS)
-            LOGI("Component ${COMPONENT_NAME} only supports targets: ${__REQUIRED_BDK_SOCS}")
+    if(__REQUIRED_ARMINO_SOCS)
+        armino_build_get_property(armino_target ARMINO_SOC)
+        if(NOT armino_target IN_LIST __REQUIRED_ARMINO_SOCS)
+            LOGI("Component ${COMPONENT_NAME} only supports targets: ${__REQUIRED_ARMINO_SOCS}")
         endif()
     endif()
 endmacro()
@@ -438,7 +437,7 @@ endfunction()
 # @param[in, optional] REQUIRES (multivalue) publicly required components in terms of usage requirements
 # @param[in, optional] PRIV_REQUIRES (multivalue) privately required components in terms of usage requirements
 #                      or components only needed for functions/values defined in its project_include.cmake
-# @param[in, optional] REQUIRED_BDK_SOCS (multivalue) the list of BDK build targets that the component only supports
+# @param[in, optional] REQUIRED_ARMINO_SOCS (multivalue) the list of ARMINO build targets that the component only supports
 # @param[in, optional] EMBED_FILES (multivalue) list of binary files to embed with the component
 # @param[in, optional] EMBED_TXTFILES (multivalue) list of text files to embed with the component
 # @param[in, optional] KCONFIG (single value) override the default Kconfig
@@ -449,15 +448,8 @@ function(armino_component_register)
     set(single_value KCONFIG KCONFIG_PROJBUILD)
     set(multi_value SRCS SRC_DIRS EXCLUDE_SRCS
                     INCLUDE_DIRS PRIV_INCLUDE_DIRS LDFRAGMENTS REQUIRES
-                    PRIV_REQUIRES REQUIRED_BDK_SOCS EMBED_FILES EMBED_TXTFILES)
+                    PRIV_REQUIRES REQUIRED_ARMINO_SOCS EMBED_FILES EMBED_TXTFILES)
     cmake_parse_arguments(_ "${options}" "${single_value}" "${multi_value}" ${ARGN})
-
-    if (__INTERNAL_LIB)
-        armino_build_set_property(INTERNAL_COMPONENTS ${COMPONENT_ALIAS} APPEND)
-        if (NOT BUILD_INTERNAL_LIBS)
-            return()
-        endif()
-    endif()
 
     if(NOT __armino_component_context)
         LOGI("Called armino_component_register from a non-component directory.")
@@ -618,9 +610,9 @@ endmacro()
 
 # require_armino_targets
 #
-# Compatibility function for requiring BDK build targets for 3.xx style components.
+# Compatibility function for requiring ARMINO build targets for 3.xx style components.
 function(require_armino_targets)
-    set(__REQUIRED_BDK_SOCS "${ARGN}")
+    set(__REQUIRED_ARMINO_SOCS "${ARGN}")
     __component_check_target()
 endfunction()
 

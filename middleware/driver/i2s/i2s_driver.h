@@ -15,10 +15,40 @@
 #pragma once
 
 #include <components/log.h>
+#include <driver/i2s_types.h>
 
 #define I2S_TAG "i2s"
 #define I2S_LOGI(...) BK_LOGI(I2S_TAG, ##__VA_ARGS__)
 #define I2S_LOGW(...) BK_LOGW(I2S_TAG, ##__VA_ARGS__)
 #define I2S_LOGE(...) BK_LOGE(I2S_TAG, ##__VA_ARGS__)
 #define I2S_LOGD(...) BK_LOGD(I2S_TAG, ##__VA_ARGS__)
+
+/**
+ * @brief     clear i2s tx_udf interrupt flag
+ *
+ * This API clear i2s tx_udf interrupt flag
+ *
+ * @param channel_id i2s channel id
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - BK_ERR_AUD_NOT_INIT: i2s driver is not init
+ *    - others: other errors.
+ */
+bk_err_t bk_i2s_clear_txudf_int(i2s_channel_id_t channel_id);
+
+/**
+ * @brief     clear i2s rx_ovf interrupt flag
+ *
+ * This API clear i2s rx_ovf interrupt flag
+ *
+ * @param channel_id i2s channel id
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - BK_ERR_AUD_NOT_INIT: i2s driver is not init
+ *    - others: other errors.
+ */
+bk_err_t bk_i2s_clear_rxovf_int(i2s_channel_id_t channel_id);
+
 

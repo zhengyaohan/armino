@@ -11,8 +11,8 @@ set(incs
 
 set(srcs
 	#mbedtls-port/src/timing_alt.c
-	mbedtls-port/src/tls_certificate.c
-	mbedtls-port/src/tls_client.c
+	#mbedtls-port/src/tls_certificate.c
+	#mbedtls-port/src/tls_client.c
 	mbedtls-port/src/tls_hardware.c
 	mbedtls-port/src/tls_mem.c
 	#mbedtls-port/src/tls_net.c

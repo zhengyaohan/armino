@@ -19,7 +19,7 @@ function(__kconfig_init)
             find_program(MCONF mconf)
             if(MCONF)
                 LOGW("Falling back to mconf binary '${MCONF}' not mconf-armino. "
-                    "This is probably because an old version of BDK mconf is installed and this is fine. "
+                    "This is probably because an old version of ARMINO mconf is installed and this is fine. "
                     "However if there are config problems please check the Getting Started guide for your platform.")
             endif()
         endif()
@@ -29,7 +29,7 @@ function(__kconfig_init)
             if(NOT NATIVE_GCC)
                     LOGIW(
                     "Windows requires an MSYS2 version of gcc on the PATH to build mconf-armino. "
-                    "Consult the setup docs for BEKEN-BDK on Windows.")
+                    "Consult the setup docs for BEKEN-ARMINO on Windows.")
             else()
                 # Use the existing Makefile to build mconf (out of tree) when needed
                 #
@@ -73,8 +73,8 @@ function(__kconfig_init)
                 set(mconf_expected_ver "mconf-v4.6.0.0-armino-20190628-win32")
                 if(NOT ${mconf_out} STREQUAL "mconf-armino version ${mconf_expected_ver}")
                     LOGW("Unexpected ${mconf_out}. Expected ${mconf_expected_ver}. "
-                                    "Please check the BEKEN-BDK Getting Started guide for version "
-                                    "${BDK_VERSION_MAJOR}.${BDK_VERSION_MINOR}.${BDK_VERSION_PATCH} "
+                                    "Please check the BEKEN-ARMINO Getting Started guide for version "
+                                    "${ARMINO_VERSION_MAJOR}.${ARMINO_VERSION_MINOR}.${ARMINO_VERSION_PATCH} "
                                     "to correct this issue")
                 else()
                     LOGI("${mconf_out}")   # prints: mconf-armino version ....
@@ -138,9 +138,9 @@ function(__kconfig_generate_config sdkconfig sdkconfig_defaults sdkconfig_defaul
     armino_build_set_property(KCONFIGS "${kconfigs}")
     armino_build_set_property(KCONFIG_PROJBUILDS "${kconfig_projbuilds}")
 
-    armino_build_get_property(armino_target BDK_SOC)
+    armino_build_get_property(armino_target ARMINO_SOC)
     armino_build_get_property(armino_path ARMINO_PATH)
-    armino_build_get_property(armino_env_fpga __BDK_ENV_FPGA)
+    armino_build_get_property(armino_env_fpga __ARMINO_ENV_FPGA)
 
     string(REPLACE ";" " " kconfigs "${kconfigs}")
     string(REPLACE ";" " " kconfig_projbuilds "${kconfig_projbuilds}")
@@ -269,18 +269,18 @@ function(__kconfig_generate_config sdkconfig sdkconfig_defaults sdkconfig_defaul
         # create any missing config file, with defaults if necessary
         COMMAND ${prepare_kconfig_files_command}
         COMMAND ${confgen_basecommand}
-        --env "BDK_SOC=${armino_target}"
-        --env "BDK_ENV_FPGA=${armino_env_fpga}"
+        --env "ARMINO_SOC=${armino_target}"
+        --env "ARMINO_ENV_FPGA=${armino_env_fpga}"
         --dont-write-deprecated
         --output config ${sdkconfig}
         COMMAND ${TERM_CHECK_CMD}
         COMMAND ${CMAKE_COMMAND} -E env
         "COMPONENT_KCONFIGS_SOURCE_FILE=${kconfigs_path}"
         "COMPONENT_KCONFIGS_PROJBUILD_SOURCE_FILE=${kconfigs_projbuild_path}"
-        "BDK_CMAKE=y"
+        "ARMINO_CMAKE=y"
         "KCONFIG_CONFIG=${sdkconfig}"
-        "BDK_SOC=${armino_target}"
-        "BDK_ENV_FPGA=${armino_env_fpga}"
+        "ARMINO_SOC=${armino_target}"
+        "ARMINO_ENV_FPGA=${armino_env_fpga}"
         ${MENUCONFIG_CMD} ${root_kconfig}
         # VERBATIM cannot be used here because it cannot handle ${mconf}="winpty mconf-armino" and the escaping must be
         # done manually
@@ -288,8 +288,8 @@ function(__kconfig_generate_config sdkconfig sdkconfig_defaults sdkconfig_defaul
         # additional run of confgen esures that the deprecated options will be inserted into sdkconfig (for backward
         # compatibility)
         COMMAND ${confgen_basecommand}
-        --env "BDK_SOC=${armino_target}"
-        --env "BDK_ENV_FPGA=${armino_env_fpga}"
+        --env "ARMINO_SOC=${armino_target}"
+        --env "ARMINO_ENV_FPGA=${armino_env_fpga}"
         --output config ${sdkconfig}
         )
 

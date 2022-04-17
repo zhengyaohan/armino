@@ -6,7 +6,7 @@
     "config_defaults":    "${SDKCONFIG_DEFAULTS}",
     "app_elf":            "${PROJECT_EXECUTABLE}",
     "app_bin":            "${PROJECT_BIN}",
-    "git_revision":       "${BDK_VER}",
+    "git_revision":       "${ARMINO_VER}",
     "target":             "${CONFIG_SOC_NAME}",
     "phy_data_partition": "${CONFIG_BEKEN_PHY_INIT_DATA_IN_PARTITION}",
     "monitor_baud" :      "${CONFIG_BEKENTOOLPY_MONITOR_BAUD}",

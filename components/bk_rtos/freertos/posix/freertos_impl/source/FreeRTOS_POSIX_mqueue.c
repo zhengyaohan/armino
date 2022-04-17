@@ -33,10 +33,10 @@
 
 /* FreeRTOS+POSIX includes. */
 #include "FreeRTOS_POSIX.h"
-#include "FreeRTOS_POSIX/errno.h"
-#include "FreeRTOS_POSIX/fcntl.h"
-#include "FreeRTOS_POSIX/mqueue.h"
-#include "FreeRTOS_POSIX/utils.h"
+#include "posix/errno.h"
+#include "posix/fcntl.h"
+#include "posix/mqueue.h"
+#include "posix/utils.h"
 
 /**
  * @brief Element of the FreeRTOS queues that store mq data.

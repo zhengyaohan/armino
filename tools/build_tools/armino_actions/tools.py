@@ -31,7 +31,7 @@ def realpath(path):
 
 def _armino_version_from_cmake():
     version_path = os.path.join(os.environ['ARMINO_PATH'], 'tools/cmake/version.cmake')
-    regex = re.compile(r'^\s*set\s*\(\s*BDK_VERSION_([A-Z]{5})\s+(\d+)')
+    regex = re.compile(r'^\s*set\s*\(\s*ARMINO_VERSION_([A-Z]{5})\s+(\d+)')
     ver = {}
     try:
         with open(version_path) as f:
@@ -43,12 +43,12 @@ def _armino_version_from_cmake():
 
         return 'v%s.%s.%s' % (ver['MAJOR'], ver['MINOR'], ver['PATCH'])
     except (KeyError, OSError):
-        sys.stderr.write('WARNING: Cannot find BEKEN-BDK version in version.cmake\n')
+        sys.stderr.write('WARNING: Cannot find BEKEN-ARMINO version in version.cmake\n')
         return None
 
 
 def armino_version():
-    """Print version of BEKEN-BDK"""
+    """Print version of BEKEN-ARMINO"""
 
     #  Try to get version from git:
     try:
@@ -186,8 +186,8 @@ def ensure_build_directory(args, prog_name, always_run_cmake=False):
     cache_path = os.path.join(build_dir, 'CMakeCache.txt')
     cache = parse_cmakecache(cache_path) if os.path.exists(cache_path) else {}
 
-    # Validate or set BDK_SOC
-    _guess_or_check_armino_target(args, prog_name, cache)
+    # Validate or set ARMINO_SOC
+    #_guess_or_check_armino_target(args, prog_name, cache)
 
     args.define_cache_entry.append('CCACHE_ENABLE=%d' % args.ccache)
 
@@ -210,18 +210,6 @@ def ensure_build_directory(args, prog_name, always_run_cmake=False):
             if args.define_cache_entry:
                 cmake_args += ['-D' + d for d in args.define_cache_entry]
 
-            if args.libs:
-                if args.has_lib_src:
-                    cmake_args += ['-DBUILD_INTERNAL_LIBS=1' ]
-                    print(f'Build armino internal libs')
-                else:
-                    print(f'Ignore run cmake for armino internal libs')
-                    return
-            else:
-                print(f'Build armino')
-                cmake_args += ['-DBUILD_INTERNAL_LIBS=0' ]
-
-            cmake_args += [f"-DTOOLCHAIN_DIR={toolchain_dir}"]
             cmake_args += [project_dir]
 
             run_tool('cmake', cmake_args, cwd=args.build_dir)
@@ -297,35 +285,35 @@ def is_target_supported(project_path, supported_targets):
 
 def _guess_or_check_armino_target(args, prog_name, cache):
     """
-    If CMakeCache.txt doesn't exist, and BDK_SOC is not set in the environment, guess the value from
-    sdkconfig or sdkconfig.defaults, and pass it to CMake in BDK_SOC variable.
+    If CMakeCache.txt doesn't exist, and ARMINO_SOC is not set in the environment, guess the value from
+    sdkconfig or sdkconfig.defaults, and pass it to CMake in ARMINO_SOC variable.
 
     Otherwise, cross-check the three settings (sdkconfig, CMakeCache, environment) and if there is
     mismatch, fail with instructions on how to fix this.
     """
     # Default locations of sdkconfig files.
-    # FIXME: they may be overridden in the project or by a CMake variable (BDK-1369).
+    # FIXME: they may be overridden in the project or by a CMake variable (ARMINO-1369).
     sdkconfig_path = os.path.join(args.project_dir, 'sdkconfig')
     sdkconfig_defaults_path = os.path.join(args.project_dir, 'sdkconfig.defaults')
 
     # These are used to guess the target from sdkconfig, or set the default target by sdkconfig.defaults.
     armino_target_from_sdkconfig = get_sdkconfig_value(sdkconfig_path, 'CONFIG_SOC_STR')
     armino_target_from_sdkconfig_defaults = get_sdkconfig_value(sdkconfig_defaults_path, 'CONFIG_SOC_STR')
-    armino_target_from_env = os.environ.get('BDK_SOC')
-    armino_target_from_cache = cache.get('BDK_SOC')
+    armino_target_from_env = os.environ.get('ARMINO_SOC')
+    armino_target_from_cache = cache.get('ARMINO_SOC')
 
     if not cache and not armino_target_from_env:
-        # CMakeCache.txt does not exist yet, and BDK_SOC is not set in the environment.
+        # CMakeCache.txt does not exist yet, and ARMINO_SOC is not set in the environment.
         guessed_target = armino_target_from_sdkconfig or armino_target_from_sdkconfig_defaults
         if guessed_target:
             if args.verbose:
-                print("BDK_SOC is not set, guessed '%s' from sdkconfig" % (guessed_target))
-            args.define_cache_entry.append('BDK_SOC=' + guessed_target)
+                print("ARMINO_SOC is not set, guessed '%s' from sdkconfig" % (guessed_target))
+            args.define_cache_entry.append('ARMINO_SOC=' + guessed_target)
 
     elif armino_target_from_env:
-        # Let's check that BDK_SOC values are consistent
+        # Let's check that ARMINO_SOC values are consistent
         if armino_target_from_sdkconfig and armino_target_from_sdkconfig != armino_target_from_env:
-            raise FatalError("Project sdkconfig was generated for target '{t_conf}', but environment variable BDK_SOC "
+            raise FatalError("Project sdkconfig was generated for target '{t_conf}', but environment variable ARMINO_SOC "
                              "is set to '{t_env}'. Run '{prog} set-target {t_env}' to generate new sdkconfig file for target {t_env}."
                              .format(t_conf=armino_target_from_sdkconfig, t_env=armino_target_from_env, prog=prog_name))
 

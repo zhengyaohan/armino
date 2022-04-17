@@ -50,7 +50,7 @@
 #include "task.h"
 
 /* FreeRTOS+POSIX data types and internal structs. */
-#include "FreeRTOS_POSIX/sys/types.h"
+#include "posix/sys/types.h"
 #include "FreeRTOS_POSIX_internal.h"
 
 #endif /* _FREERTOS_POSIX_H_ */

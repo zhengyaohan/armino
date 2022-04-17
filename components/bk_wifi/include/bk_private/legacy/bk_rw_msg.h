@@ -27,6 +27,7 @@ typedef enum {
 	RW_EVT_STA_BEACON_LOSE,
 	RW_EVT_STA_PASSWORD_WRONG,
 	RW_EVT_STA_NO_AP_FOUND,
+	RW_EVT_STA_DHCP_TIMEOUT,
 	RW_EVT_STA_ASSOC_FULL,
 	RW_EVT_STA_DISCONNECTED,    /* disconnect with server */
 	RW_EVT_STA_CONNECT_FAILED, /* authentication failed */

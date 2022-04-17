@@ -18,7 +18,7 @@
 //in this component, but bk_api_c1.h is a public header!
 //#include "c1_internal.h"
 
-//Don't include any headers in bk_private because they are used by BDK-only,
+//Don't include any headers in bk_private because they are used by ARMINO-only,
 //but the bk_api_c1.h is for customer only!
 //#include "bk_private/bk_c1.h"
 

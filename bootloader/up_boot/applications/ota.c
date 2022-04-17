@@ -279,7 +279,8 @@ int rt_ota_custom_verify(const struct fal_partition *cur_part, long offset, cons
 #endif
 
 #if CFG_BEKEN_OTA
-int ota_main(void)
+//int ota_main(void)
+int __attribute__((section(".itcm_write_flash"))) ota_main(void)
 {
 	int ret;
 	ret = fal_init();

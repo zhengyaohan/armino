@@ -15,7 +15,6 @@
 #pragma once
 
 #include <common/bk_err.h>
-#include "i2c_hw.h"
 
 #ifdef __cplusplus
 extern "C" {

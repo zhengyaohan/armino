@@ -59,7 +59,7 @@ extern "C" {
 #include "FreeRTOSConfig.h"
 
 #if configBK_FREERTOS
-#include "bk_api_tick.h"
+#include <components/system.h>
 #include "bk_rtos_debug.h"
 #endif
 

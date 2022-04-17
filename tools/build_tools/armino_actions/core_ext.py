@@ -21,9 +21,6 @@ def action_extensions(base_actions, project_path):
 		directory (with the specified generator) as needed.
 		"""
 		ensure_build_directory(args, ctx.info_name)
-		if args.libs and not args.has_lib_src:
-			print(f'Ignore run_target for internal libs')
-			return
 		run_target(target_name, args)
 
 	def list_build_system_targets(target_name, ctx, args):
@@ -162,13 +159,13 @@ def action_extensions(base_actions, project_path):
 
 		cache_path = os.path.join(args.build_dir, 'CMakeCache.txt')
 		cache = parse_cmakecache(cache_path) if os.path.exists(cache_path) else {}
-		armino_target_from_cache = cache.get('BDK_SOC')
+		armino_target_from_cache = cache.get('ARMINO_SOC')
 
 		if armino_target == armino_target_from_cache:
 			print('Target is same as cached target, not full clean')
 			return
 
-		args.define_cache_entry.append('BDK_SOC=' + armino_target)
+		args.define_cache_entry.append('ARMINO_SOC=' + armino_target)
 		sdkconfig_path = os.path.join(args.project_dir, 'sdkconfig')
 		sdkconfig_old = sdkconfig_path + '.old'
 
@@ -220,13 +217,6 @@ def action_extensions(base_actions, project_path):
 				args.build_dir = os.path.join(args.project_dir, 'build')
 		args.build_dir = realpath(args.build_dir)
 
-		# If component ip_ax exists, it indicates we can build the internal libs
-		ip_ax_dir = f'{armino_path}/properties/modules/ip_ax'
-		build_dir = f'{args.build_dir}/armino'
-		if os.path.exists(ip_ax_dir):
-			args.has_lib_src = True
-			print('The armino contains internal lib source code')
- 
 	def armino_version_callback(ctx, param, value):
 		if not value or ctx.resilient_parsing:
 			return
@@ -234,9 +224,9 @@ def action_extensions(base_actions, project_path):
 		version = armino_version()
 
 		if not version:
-			raise FatalError('BEKEN-BDK version cannot be determined')
+			raise FatalError('BEKEN-ARMINO version cannot be determined')
 
-		print('BEKEN-BDK %s' % version)
+		print('BEKEN-ARMINO %s' % version)
 		sys.exit(0)
 
 	def list_targets_callback(ctx, param, value):
@@ -256,7 +246,7 @@ def action_extensions(base_actions, project_path):
 		'global_options': [
 #			{
 #				'names': ['--version'],
-#				'help': 'Show BDK version and exit.',
+#				'help': 'Show ARMINO version and exit.',
 #				'is_flag': True,
 #				'expose_value': False,
 #				'callback': armino_version_callback,
@@ -291,7 +281,7 @@ def action_extensions(base_actions, project_path):
 				'names': ['-w/-n', '--cmake-warn-uninitialized/--no-warnings'],
 				'help': ('Enable CMake uninitialized variable warnings for CMake files inside the project directory. '
 						 "(--no-warnings is now the default, and doesn't need to be specified.)"),
-				'envvar': 'BDK_CMAKE_WARN_UNINITIALIZED',
+				'envvar': 'ARMINO_CMAKE_WARN_UNINITIALIZED',
 				'is_flag': True,
 				'default': False,
 			},
@@ -304,32 +294,10 @@ def action_extensions(base_actions, project_path):
 				'callback': verbose_callback,
 			},
 			{
-				'names': ['-l', '--libs'],
-				'help': 'Build internal libraries.',
-				'is_flag': True,
-				'is_eager': True,
-				'default': False,
-				#'callback': verbose_callback,
-			},
-			{
-				'names': ['-L', '--has-lib-src'],
-				'help': 'Build internal libraries.',
-				'is_flag': True,
-				'is_eager': True,
-				'default': False,
-				#'callback': verbose_callback,
-			},
-#			{
-#				'names': ['--preview'],
-#				'help': 'Enable BDK features that are still in preview.',
-#				'is_flag': True,
-#				'default': False,
-#			},
-			{
 				'names': ['--ccache/--no-ccache'],
 				'help': 'Use ccache in build. Disabled by default.',
 				'is_flag': True,
-				'envvar': 'BDK_CCACHE_ENABLE',
+				'envvar': 'ARMINO_CCACHE_ENABLE',
 				'default': False,
 			},
 			{
@@ -460,7 +428,7 @@ def action_extensions(base_actions, project_path):
 #			},
 #			'efuse_common_table': {
 #				'callback': build_target,
-#				'help': "Generate C-source for BDK's eFuse fields.",
+#				'help': "Generate C-source for ARMINO's eFuse fields.",
 #				'order_dependencies': ['reconfigure'],
 #				'options': global_options,
 #			},
@@ -561,10 +529,10 @@ def action_extensions(base_actions, project_path):
 			},
 			'python-clean': {
 				'callback': python_clean,
-				'short_help': 'Delete generated Python byte code from the BDK directory',
+				'short_help': 'Delete generated Python byte code from the ARMINO directory',
 				'help': (
-					'Delete generated Python byte code from the BDK directory '
-					'which may cause issues when switching between BDK and Python versions. '
+					'Delete generated Python byte code from the ARMINO directory '
+					'which may cause issues when switching between ARMINO and Python versions. '
 					'It is advised to run this target after switching versions.')
 			},
 		}

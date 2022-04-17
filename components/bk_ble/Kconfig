@@ -1,4 +1,9 @@
 menu "BLE"
+	config BT
+		depends on BLUETOOTH
+		bool "Enable Bluetooth Classic"
+		default n
+
 	config BLE
 		depends on BLUETOOTH
 		bool "Enable Bluetooth Low Energy"
@@ -15,19 +20,5 @@ menu "BLE"
 			bool "BLE 4.2"
 		config BTDM_5_2
 			bool "BTDM 5.2"
-	endchoice
-
-	choice BLE_HOST
-		prompt "BLE Host Type"
-		default BLE_HOST_RW
-
-		config BLE_HOST_NONE
-			bool "BLE Host None"
-
-		config BLE_HOST_RW
-			bool "BLE Host RW"
-
-		config BLE_HOST_ZEPHYR
-			bool "BLE Host Zephyr"
 	endchoice
 endmenu

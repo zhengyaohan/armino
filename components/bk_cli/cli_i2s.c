@@ -25,6 +25,7 @@
 #include <driver/dma.h>
 #include "aud_hal.h"
 
+#if (CONFIG_I2S)
 
 #define I2S_TEST_DATA_SIZE  256
 uint32_t data_source[I2S_TEST_DATA_SIZE] = {
@@ -160,8 +161,6 @@ static void cli_i2s_master_rxovf_isr(void *param)
 		i2s_test_global.test_status = I2S_STOP;
 		//disable i2s rxovf interrupt
 		bk_i2s_int_enable(I2S_ISR_CHL1_RXOVF, I2S_INT_DISABLE);
-		//clear rxovf interrupt flag
-		bk_i2s_clear_rxovf_int();
 	}
 }
 
@@ -177,7 +176,7 @@ static void cli_i2s_master_rxint_isr(void *param)
 
 	//CLI_LOGI("enter cli_i2s_master_rxint_isr \r\n");
 	bk_i2s_get_write_ready(&write_flag);
-	if (write_flag) 
+	if (write_flag)
 		bk_i2s_write_data(1, &data_buf_rl, 1);
 }
 
@@ -195,8 +194,6 @@ static void cli_i2s_slave_rxovf_isr(void *param)
 		i2s_test_global.test_status = I2S_STOP;
 		//disable i2s rxovf interrupt
 		bk_i2s_int_enable(I2S_ISR_CHL1_RXOVF, I2S_INT_DISABLE);
-		//clear rxovf interrupt flag
-		bk_i2s_clear_rxovf_int();
 	}
 }
 
@@ -212,7 +209,7 @@ static void cli_i2s_slave_rxint_isr(void *param)
 
 	//CLI_LOGI("enter cli_i2s_slave_rxint_isr \r\n");
 	bk_i2s_get_write_ready(&write_flag);
-	if (write_flag) 
+	if (write_flag)
 		bk_i2s_write_data(1, &data_buf_rl, 1);
 }
 
@@ -321,7 +318,7 @@ static void i2s_master_test(void)
 		data_buf_rl -= 1;
 		while (i2s_test_global.test_status == I2S_TESTING) {
 			bk_i2s_get_write_ready(&write_flag);
-			if (write_flag) 
+			if (write_flag)
 				bk_i2s_write_data(1, &data_buf_rl, 1);
 		}
 		CLI_LOGI("i2s master stop send i2s data to slave \r\n");
@@ -510,6 +507,7 @@ static void cli_i2s_master_sin_test_cmd(char *pcWriteBuffer, int xWriteBufferLen
 	}
 }
 
+#if CONFIG_AUDIO
 static void cli_i2s_master_mic_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 	bk_err_t ret = BK_OK;
@@ -636,6 +634,8 @@ static void cli_i2s_master_mic_test_cmd(char *pcWriteBuffer, int xWriteBufferLen
 			CLI_LOGE("get adc fifo address failed\r\n");
 			return;
 		} else {
+			dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
+			dma_config.src.addr_loop_en = DMA_ADDR_LOOP_ENABLE;
 			dma_config.src.start_addr = adc_fifo_addr;
 			dma_config.src.end_addr = adc_fifo_addr + 4;
 		}
@@ -644,6 +644,8 @@ static void cli_i2s_master_mic_test_cmd(char *pcWriteBuffer, int xWriteBufferLen
 			CLI_LOGE("get i2s data address failed\r\n");
 			return;
 		} else {
+			dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE;
+			dma_config.dst.addr_loop_en = DMA_ADDR_LOOP_ENABLE;
 			dma_config.dst.start_addr = i2s_data_addr;
 			dma_config.dst.end_addr = i2s_data_addr + 4;
 		}
@@ -675,7 +677,7 @@ static void cli_i2s_master_mic_test_cmd(char *pcWriteBuffer, int xWriteBufferLen
 		return;
 	}
 }
-
+#endif
 static void i2s_slave_test(void)
 {
 	i2s_rate_t rate;
@@ -827,6 +829,7 @@ static void cli_i2s_slave_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int
 	}
 }
 
+#if CONFIG_AUDIO
 static void cli_i2s_slave_mic_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 	bk_err_t ret = BK_OK;
@@ -936,6 +939,8 @@ static void cli_i2s_slave_mic_test_cmd(char *pcWriteBuffer, int xWriteBufferLen,
 			CLI_LOGE("get i2s data address failed\r\n");
 			return;
 		} else {
+			dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
+			dma_config.src.addr_loop_en = DMA_ADDR_LOOP_ENABLE;
 			dma_config.src.start_addr = i2s_data_addr;
 			dma_config.src.end_addr = i2s_data_addr + 4;
 		}
@@ -944,6 +949,8 @@ static void cli_i2s_slave_mic_test_cmd(char *pcWriteBuffer, int xWriteBufferLen,
 			CLI_LOGE("get dac fifo address failed\r\n");
 			return;
 		} else {
+			dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE;
+			dma_config.dst.addr_loop_en = DMA_ADDR_LOOP_ENABLE;
 			dma_config.dst.start_addr = dac_fifo_addr;
 			dma_config.dst.end_addr = dac_fifo_addr + 4;
 		}
@@ -975,19 +982,21 @@ static void cli_i2s_slave_mic_test_cmd(char *pcWriteBuffer, int xWriteBufferLen,
 		return;
 	}
 }
-
+#endif
 
 #define I2S_CMD_CNT (sizeof(s_i2s_commands) / sizeof(struct cli_command))
 static const struct cli_command s_i2s_commands[] = {
 	{"i2s_master_test", "i2s_master_test {start|stop}", cli_i2s_master_test_cmd},
 	{"i2s_master_sin_test", "i2s_master_sin_test {start|stop}", cli_i2s_master_sin_test_cmd},
-	{"i2s_master_mic_test", "i2s_master_mic_test {start|stop}", cli_i2s_master_mic_test_cmd},
 	{"i2s_slave_test", "i2s_slave_test {start|stop}", cli_i2s_slave_test_cmd},
+#if CONFIG_AUDIO
+	{"i2s_master_mic_test", "i2s_master_mic_test {start|stop}", cli_i2s_master_mic_test_cmd},
 	{"i2s_slave_mic_test", "i2s_slave_mic_test {start|stop}", cli_i2s_slave_mic_test_cmd},
+#endif
 };
 
 int cli_i2s_init(void)
 {
 	return cli_register_commands(s_i2s_commands, I2S_CMD_CNT);
 }
-
+#endif

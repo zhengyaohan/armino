@@ -77,7 +77,7 @@ if(reg&0x10000)
 *((volatile unsigned long *)    (0x44000000+0x2*4)) |= 0x1 << 16;  //reset flag
 *((volatile unsigned long *)    (0x44000000+0x2*4)) |= 0x1 << 7;   //wdt reset not clr PMU
 #endif
-
+    bk_printf("enter\r\n");
     //printf_flash_ID();
     #if ((CFG_SOC_NAME != SOC_BK7231N) && (CFG_SOC_NAME != SOC_BK7236))
     while(1)
@@ -101,14 +101,14 @@ if(reg&0x10000)
         {
             if(uart_download_status == 0 )
             {
-                if(check_cnt++ > 100000 && 0 == uart_buff_write)  //13000-->100000
+                if(check_cnt++ > CHECK_CNT_NUMBER && 0 == uart_buff_write)  //13000-->100000
                 {
-                    //break;
+                    break;
                 }
             }
             else
             {
-                if(check_cnt++ > 400000)
+                if(check_cnt++ > CHECK_CNT_NUMBER)
                 {
                     #if (CFG_SOC_NAME != SOC_BK7256)
                     sys_forbidden_interrupts();

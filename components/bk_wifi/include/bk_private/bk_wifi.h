@@ -19,6 +19,7 @@
  * */
 #pragma once
 #include "bk_private/bk_wifi_types.h"
+#include "modules/wifi_types.h"
 #include "wlan_defs_pub.h"
 
 #ifdef __cplusplus
@@ -52,13 +53,14 @@ int wlan_ap_set(uint8_t *ssid, uint8_t ssid_len, uint8_t *psk);
 int wlan_sta_wps_pbc(void);
 int wlan_sta_wps_pin_get(wlan_sta_wps_pin_t *wps);
 int wlan_sta_wps_pin_set(wlan_sta_wps_pin_t *wps);
-
+int wlan_sta_set_vendor_ie(wlan_sta_vsie_t *vsie);
 int wlan_ap_set_config(wlan_ap_config_t *config);
 int wlan_ap_get_config(wlan_ap_config_t *config);
 int wlan_ap_enable(void);
 int wlan_ap_reload(void);
 int wlan_ap_sta_num(int *num);
 int wlan_ap_sta_info(wlan_ap_stas_t *stas);
+int wlan_ap_set_beacon_vsie(wlan_ap_vsie_t *vsie);
 int wlan_p2p_listen(void);
 int wlan_p2p_find(void);
 int wlan_p2p_stop_find(void);

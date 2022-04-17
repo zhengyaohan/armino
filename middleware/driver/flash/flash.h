@@ -3,7 +3,7 @@
 
 #include <common/bk_include.h>
 #if CONFIG_SOC_BK7256XX
-#include "reg_base.h"
+#include <soc/soc.h>
 #endif
 
 #define MODE_STD              0
@@ -57,6 +57,8 @@
 
 #define LINE_MODE_TWO                        2
 #define LINE_MODE_FOUR                       4
+
+#define FLASH_DIV_VALUE_TWO		1
 
 typedef enum {
 	FLASH_OPCODE_WREN    = 1,

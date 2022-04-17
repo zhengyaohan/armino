@@ -14,7 +14,6 @@
 
 #include <common/bk_include.h>
 #include "fft_hal.h"
-#include "fft_cap.h"
 #include "fft_driver.h"
 #include "sys_driver.h"
 #include "clock_driver.h"
@@ -22,6 +21,7 @@
 #include <os/os.h>
 #include <os/mem.h>
 #include <driver/int.h>
+#include <modules/pm.h>
 
 
 #define FFT_RETURN_ON_NOT_INIT() do {\
@@ -53,10 +53,9 @@ static __inline uint16_t fft_sat(uint16_t din)
 		return (din);
 }
 
-bk_err_t bk_fft_is_busy(uint32_t *busy_flag)
+bool bk_fft_is_busy(void)
 {
-	*busy_flag = driver_fft.busy_flag;
-	return BK_OK;
+	return driver_fft.busy_flag;
 }
 
 bk_err_t bk_fft_enable(fft_input_t *fft_conf)
@@ -76,14 +75,14 @@ bk_err_t bk_fft_enable(fft_input_t *fft_conf)
 	}
 
 	driver_fft.size = fft_conf->size;
-	driver_fft.busy_flag = 1;
+	driver_fft.busy_flag = true;
 
 	for (i = 0; i < fft_conf->size; i++) {
 		fft_hal_data_write(fft_conf->inbuf[i]);
 	}
-	fft_struct_dump();
 
 	fft_hal_start_trigger_set(1);
+	//fft_struct_dump();
 
 	return BK_OK;
 }
@@ -106,7 +105,7 @@ bk_err_t bk_fft_fir_single_enable(fft_fir_input_t *fir_conf)
 	fft_hal_fir_en(1);
 
 	driver_fft.size = fir_conf->fir_len;
-	driver_fft.busy_flag = 1;
+	driver_fft.busy_flag = true;
 	//os_printf("source data\r\n");
 
 	if (fir_conf->mode) {
@@ -136,6 +135,10 @@ bk_err_t bk_fft_driver_init(void)
 {
 	if (s_fft_driver_is_init)
 		return BK_OK;
+	//power on
+	low_power_power_ctrl(POWER_MODULE_NAME_AUDP, POWER_MODULE_STATE_ON);
+	sys_drv_aud_power_en(0);    //temp used
+
 	//fft_disckg always on
 	sys_drv_fft_disckg_set(1);
 
@@ -145,7 +148,7 @@ bk_err_t bk_fft_driver_init(void)
 	driver_fft.q_out = os_malloc(256 * 2);
 
 	//enable fft interrupt
-	sys_drv_cpu0_fft_int_en(1);
+	sys_drv_cpu_fft_int_en(1);
 	//register fft isr
 	fft_int_config_t int_config_table = {INT_SRC_FFT, fft_isr};
 	bk_int_isr_register(int_config_table.int_src, int_config_table.isr, NULL);
@@ -159,7 +162,7 @@ bk_err_t bk_fft_driver_deinit(void)
 	//fft_disckg not always on
 	sys_drv_fft_disckg_set(0);
 	//disable fft interrupt
-	sys_drv_cpu0_fft_int_en(0);
+	sys_drv_cpu_fft_int_en(0);
 
 	os_free(driver_fft.i_out);
 	os_free(driver_fft.q_out);
@@ -172,7 +175,7 @@ bk_err_t bk_fft_driver_deinit(void)
 	return BK_OK;
 }
 
-bk_err_t bk_fft_output_read(int16 *i_output, int16 *q_output, uint32_t size)
+bk_err_t bk_fft_output_read(int16_t *i_output, int16_t *q_output, uint32_t size)
 {
 	os_memcpy(i_output, driver_fft.i_out, size);
 	os_memcpy(q_output, driver_fft.q_out, size);
@@ -190,6 +193,7 @@ void fft_isr(void)
 	int16 temp_low = 0, temp_high = 0;
 	fft_status_t fft_status = {0};
 	fft_hal_status_get(&fft_status);
+	//fft_struct_dump();
 
 	if (fft_status.fft_done) {
 		bit_ext = (fft_status.bit_ext & 0x00001fff) >> 7;
@@ -211,7 +215,7 @@ void fft_isr(void)
 			//os_printf("i:0x%04hx, q:0x%04hx\r\n", driver_fft.i_out[i], driver_fft.q_out[i]);
 		}
 
-		driver_fft.busy_flag = 0;
+		driver_fft.busy_flag = false;
 		fft_hal_fft_config_reset(0);
 		os_printf("\r\nexit isr \r\n");
 	}
@@ -222,7 +226,7 @@ void fft_isr(void)
 			driver_fft.i_out[i] = (int16)(data & 0x0000ffff);
 			driver_fft.q_out[i] = (int16)((data & 0xffff0000) >> 16);
 		}
-		driver_fft.busy_flag = 0;
+		driver_fft.busy_flag = false;
 		fft_hal_fft_config_reset(0);
 	}
 }

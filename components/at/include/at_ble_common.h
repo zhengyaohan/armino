@@ -1,6 +1,6 @@
 #ifndef AT_BLE_COMMON_H_
 #define AT_BLE_COMMON_H_
-#if (CONFIG_BLE_5_X || CONFIG_BTDM_5_2)
+//#if (CONFIG_BLE_5_X || CONFIG_BTDM_5_2)
 #include "at_common.h"
 
 
@@ -27,8 +27,8 @@
 
 #define UNKNOW_ACT_IDX         0xFFU
 
-#define AT_BLE_MAX_ACTV                  bk_ble_get_max_actv_handle()
-#define AT_BLE_MAX_CONN                  bk_ble_get_max_conn_handle()
+#define AT_BLE_MAX_ACTV                  bk_ble_get_max_actv_idx_count()
+#define AT_BLE_MAX_CONN                  bk_ble_get_max_conn_idx_count()
 
 // sync actv state machine, reference actv_state_t
 typedef enum {
@@ -97,6 +97,12 @@ enum le_coded_phy_option {
 	CODED_S8_PREFEER,
 };
 
-#endif
+enum
+{
+	PRF_TASK_ID_BOARDING = 10,
+	PRF_TASK_ID_MAX,
+};
+
 #endif
 
+//#endif

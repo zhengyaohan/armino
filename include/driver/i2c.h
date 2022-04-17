@@ -176,7 +176,6 @@ bk_err_t bk_i2c_slave_read(i2c_id_t id, uint8_t *data, uint32_t size, uint32_t t
  */
 bk_err_t bk_i2c_memory_write(i2c_id_t id, const i2c_mem_param_t *mem_param);
 
-
 /**
  * @brief     I2C read data from I2C specific memory address,
  *            It shall only be called in I2C master mode.
@@ -208,6 +207,54 @@ bk_err_t bk_i2c_memory_read(i2c_id_t id, const i2c_mem_param_t *mem_param);
  *    - others: other errors.
  */
 bk_err_t bk_i2c_set_baud_rate(i2c_id_t id, uint32_t baud_rate);
+
+/**
+ * @brief     Check if I2C is busy
+ *
+ * @param id I2C id
+ *
+ * @return true: busy, false: not busy
+ */
+bool bk_i2c_is_bus_busy(i2c_id_t id);
+
+/**
+ * @brief     Get i2c current action, such as start,stop,send write_addr
+ *
+ * @param id I2C id
+ *
+ * @return i2c action
+ */
+uint32_t bk_i2c_get_cur_action(i2c_id_t id);
+
+/* * @brief	bk_i2c_timer_callback
+ *
+ * This API set timer call back
+ *
+ * @return
+*/
+void bk_i2c_timer_callback(int id, void* myTimer);
+/**
+ * @brief	  bk_i2c_get_busstate
+ *
+ * This API get bus status idle or busy
+ *
+ * @return
+ *	  - 1: idle
+ *	  - 0: busy.
+ */
+uint8_t bk_i2c_get_busstate ( int id );
+
+/**
+ * @brief	  bk_i2c_get_transstate
+ *
+ * This API get bus status idle or busy
+ *
+ * @return
+ *	  - 1: ok
+ *	  - 0: fail.
+ */
+uint8_t bk_i2c_get_transstate ( int id );
+
 
 #ifdef __cplusplus
 }

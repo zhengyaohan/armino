@@ -14,7 +14,6 @@
 //
 #pragma once
 
-#include "arch_interrupt.h"
 #include <driver/int_types.h>
 #include <common/bk_include.h>
 
@@ -59,26 +58,21 @@ typedef enum {
 	I2S_ISR_CHL1_RXOVF,	    /**< I2S channel1 rx_ovf interrupt */
 	I2S_ISR_CHL1_TXINT,	    /**< I2S channel1 tx interrupt */
 	I2S_ISR_CHL1_RXINT,	    /**< I2S channel1 rx interrupt */
-#if (SOC_I2S_CHANNEL_NUM > 1)
+
 	I2S_ISR_CHL2_TXUDF, /**< I2S channel2 tx_udf interrupt */
 	I2S_ISR_CHL2_RXOVF, /**< I2S channel2 rx_ovf interrupt */
 	I2S_ISR_CHL2_TXINT, /**< I2S channel2 tx interrupt */
 	I2S_ISR_CHL2_RXINT, /**< I2S channel2 rx interrupt */
-#endif
 
-#if (SOC_I2S_CHANNEL_NUM > 2)
 	I2S_ISR_CHL3_TXUDF, /**< I2S channel3 tx_udf interrupt */
 	I2S_ISR_CHL3_RXOVF, /**< I2S channel3 rx_ovf interrupt */
 	I2S_ISR_CHL3_TXINT, /**< I2S channel3 tx interrupt */
 	I2S_ISR_CHL3_RXINT, /**< I2S channel3 rx interrupt */
-#endif
 
-#if (SOC_I2S_CHANNEL_NUM > 3)
 	I2S_ISR_CHL4_TXUDF, /**< I2S channel4 tx_udf interrupt */
 	I2S_ISR_CHL4_RXOVF, /**< I2S channel4 rx_ovf interrupt */
 	I2S_ISR_CHL4_TXINT, /**< I2S channel4 tx interrupt */
 	I2S_ISR_CHL4_RXINT, /**< I2S channel4 rx interrupt */
-#endif
 
 	I2S_ISR_MAX
 } i2s_isr_id_t;

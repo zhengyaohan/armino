@@ -11,7 +11,7 @@
 #include <os/os.h>
 
 #include "gpio_driver.h"
-#include <driver/hal/gpio_types.h>
+#include <driver/hal/hal_gpio_types.h>
 
 #if CONFIG_SOC_BK7256XX
 #include "sys_types.h"

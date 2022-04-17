@@ -19,9 +19,9 @@
 #include <driver/dma.h>
 #include "aud_hal.h"
 #include "sys_driver.h"
-#include "fft_driver.h"
 #include "mailbox_channel.h"
 #include "cli_aud_cp0.h"
+#include "aud_driver.h"
 
 typedef enum {
 	ADC_TEST_MODE_NULL = 0,
@@ -168,11 +168,11 @@ static void mic_dma_pcm_config(uint32_t dst_start_addr, uint32_t dst_end_addr)
 static void cli_aud_adcl_isr(void *param)
 {
 	uint32_t adc_data;
-	aud_adc_status_t adc_status;
+	uint32_t adc_status = 0;
 
 	if (adc_test_mode == ADC_TEST_MODE_MCP) {
 		bk_aud_get_adc_status(&adc_status);
-		if (adc_status.adcl_near_full) {
+		if (adc_status & AUD_ADCL_NEAR_FULL_MASK) {
 			bk_aud_get_adc_fifo_data(&adc_data);
 			bk_aud_dac_write(adc_data);
 		}
@@ -210,11 +210,11 @@ static uint32_t check_free_psram_block(uint32_t block_value)
 static void cli_aud_dtmf_isr(void *param)
 {
 	uint32_t dtmf_data;
-	aud_adc_status_t adc_status;
+	uint32_t adc_status = 0;
 
 	if (adc_test_mode == ADC_TEST_MODE_MCP) {
-		bk_aud_get_adc_status(&adc_status);
-		if (adc_status.dtmf_near_full || adc_status.dtmf_fifo_full) {
+		bk_aud_get_dtmf_status(&adc_status);
+		if ((adc_status & AUD_DTMF_NEAR_FULL_MASK) || (adc_status & AUD_DTMF_FIFO_FULL_MASK)) {
 			bk_aud_get_dtmf_fifo_data(&dtmf_data);
 			bk_aud_dac_write(dtmf_data);
 		}
@@ -325,6 +325,8 @@ static void cli_aud_adc_dma_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, i
 			CLI_LOGE("get adc fifo address failed\r\n");
 			return;
 		} else {
+			dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
+			dma_config.src.addr_loop_en = DMA_ADDR_LOOP_ENABLE;
 			dma_config.src.start_addr = adc_fifo_addr;
 			dma_config.src.end_addr = adc_fifo_addr + 4;
 		}
@@ -333,6 +335,8 @@ static void cli_aud_adc_dma_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, i
 			CLI_LOGE("get dac fifo address failed\r\n");
 			return;
 		} else {
+			dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE;
+			dma_config.dst.addr_loop_en = DMA_ADDR_LOOP_ENABLE;
 			dma_config.dst.start_addr = dac_fifo_addr;
 			dma_config.dst.end_addr = dac_fifo_addr + 4;
 		}
@@ -640,7 +644,6 @@ static void cli_aud_adc_loop_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, 
 		adc_config.adc_fracmod_manual = AUD_ADC_TRACMOD_MANUAL_DISABLE;
 		adc_config.adc_fracmod = 0;
 
-
 		dac_config.dac_enable = AUD_DAC_DISABLE;
 		dac_config.samp_rate = AUD_DAC_SAMP_RATE_SOURCE_16K;
 		dac_config.dac_hpf2_coef_B2 = 0x3A22;
@@ -659,7 +662,7 @@ static void cli_aud_adc_loop_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, 
 		dac_config.dacl_rd_threshold = 0x4;
 		dac_config.dacr_int_enable = 0x0;
 		dac_config.dacl_int_enable = 0x0;
-		
+
 		dac_config.dac_filt_enable = AUD_DAC_FILT_DISABLE;
 		dac_config.dac_fracmod_manual_enable = AUD_DAC_FRACMOD_MANUAL_DISABLE;
 		dac_config.dac_fracmode_value = 0x0;
@@ -835,7 +838,7 @@ static void cli_aud_pcm_mcp_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, i
 	uint32_t *aud_ptr = NULL;
 	uint32_t aud_len = 0;
 	aud_dac_config_t dac_config;
-	aud_dac_status_t *dac_fifo_status = NULL;
+	uint32_t dac_fifo_status = 0;
 
 	if (argc != 3) {
 		cli_aud_help();
@@ -906,15 +909,15 @@ static void cli_aud_pcm_mcp_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, i
 
 		CLI_LOGI("enable dac successful\n");
 
-		ret = bk_aud_get_dac_status(dac_fifo_status);
+		ret = bk_aud_get_dac_status(&dac_fifo_status);
 		if (ret != BK_OK)
 			return;
 		CLI_LOGI("get dac status successful\n");
 
 		while(1) {
-			if(dac_fifo_status->dacl_near_empty) {
+			if(dac_fifo_status & AUD_DACL_NEAR_EMPTY_MASK) {
 				bk_aud_dac_write(aud_ptr[i++]);
-				if(i == aud_len -1) {
+				if(i == aud_len - 1) {
 					i = 0;
 				}
 			}
@@ -1012,10 +1015,12 @@ static void cli_aud_pcm_dma_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, i
 			CLI_LOGE("get dac fifo address failed\r\n");
 			return;
 		} else {
+			dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE;
+			dma_config.dst.addr_loop_en = DMA_ADDR_LOOP_ENABLE;
 			dma_config.dst.start_addr = dac_fifo_addr;
 			dma_config.dst.end_addr = dac_fifo_addr + 4;
 		}
-
+		dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
 		dma_config.src.start_addr = (uint32_t)aud_ptr;
 		dma_config.src.end_addr = (uint32_t)aud_ptr + aud_len;
 
@@ -1139,9 +1144,12 @@ static void cli_aud_adc_to_file_test_cmd(char *pcWriteBuffer, int xWriteBufferLe
 			CLI_LOGE("get adc fifo address failed\r\n");
 			return;
 		} else {
+			dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
+			dma_config.src.addr_loop_en = DMA_ADDR_LOOP_ENABLE;
 			dma_config.src.start_addr = adc_fifo_addr;
 			dma_config.src.end_addr = adc_fifo_addr + 4;
 		}
+		dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE;
 		dma_config.dst.start_addr = (uint32_t)&pcm_data[0];
 		dma_config.dst.end_addr = (uint32_t)&pcm_data[test_size-1];
 
@@ -1316,6 +1324,7 @@ static void cli_aud_adc_to_sd_test_cmd(char *pcWriteBuffer, int xWriteBufferLen,
 			//dma_config.src.end_addr = adc_fifo_addr + 4;
 		}
 
+		dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE;
 		dma_config.dst.start_addr = (uint32_t)0x60000000;
 		dma_config.dst.end_addr = (uint32_t)0x60000000 + 0xFFFF;
 		os_printf("source_addr:0x%x, dest_addr:0x%x\r\n", dma_config.src.start_addr, dma_config.dst.start_addr);
@@ -1485,6 +1494,8 @@ static void cli_aud_eq_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int ar
 			CLI_LOGE("get adc fifo address failed\r\n");
 			return;
 		} else {
+			dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
+			dma_config.src.addr_loop_en = DMA_ADDR_LOOP_ENABLE;
 			dma_config.src.start_addr = adc_fifo_addr;
 			dma_config.src.end_addr = adc_fifo_addr + 4;
 		}
@@ -1493,6 +1504,8 @@ static void cli_aud_eq_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int ar
 			CLI_LOGE("get dac fifo address failed\r\n");
 			return;
 		} else {
+			dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE;
+			dma_config.dst.addr_loop_en = DMA_ADDR_LOOP_ENABLE;
 			dma_config.dst.start_addr = dac_fifo_addr;
 			dma_config.dst.end_addr = dac_fifo_addr + 4;
 		}
@@ -1514,6 +1527,7 @@ static void cli_aud_eq_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int ar
 	} else if (os_strcmp(argv[1], "stop") == 0) {
 		CLI_LOGI("audio adc test stop\n");
 		adc_test_mode = ADC_TEST_MODE_NULL;
+		bk_aud_eq_deinit(&eq_config);
 		//disable adc and dac
 		bk_aud_stop_adc();
 		bk_aud_stop_dac();
@@ -1602,7 +1616,8 @@ static void cp1_mailbox_tx_cmpl_isr(aud_mb_t *aud_mb, mb_chnl_ack_t *cmd_buf)
 		mb_cmd.param3 = 0;
 		ret = mb_chnl_write(MB_CHNL_AUD, &mb_cmd);
 		if (ret != BK_OK) {
-			CLI_LOGI("cpu1->cpu0: send stop test mailbox msg fail: %x \r\n", ret);
+
+	CLI_LOGI("cpu1->cpu0: send stop test mailbox msg fail: %x \r\n", ret);
 		}
 
 		bk_aud_driver_deinit();
@@ -1762,6 +1777,7 @@ static void cli_aud_mic_to_pcm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int
 			//dma_config.src.end_addr = adc_fifo_addr + 4;
 		}
 
+		dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE;
 		dma_config.dst.start_addr = (uint32_t)PSRAM_AUD_ADDR_BASE;
 		dma_config.dst.end_addr = (uint32_t)PSRAM_AUD_ADDR_BASE + AUD_DMA_SIZE;
 		os_printf("source_addr:0x%x, dest_addr:0x%x\r\n", dma_config.src.start_addr, dma_config.dst.start_addr);

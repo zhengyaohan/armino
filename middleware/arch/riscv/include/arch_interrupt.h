@@ -20,6 +20,7 @@
 #include "core_v5.h"
 #include <common/bk_include.h>
 #include <common/bk_err.h>
+#include <driver/hal/hal_int_types.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -190,7 +191,6 @@ typedef enum {
 
 
 typedef void (*interrupt_handle_p)();
-typedef void (*int_group_isr_t)(void);
 
 
 bk_err_t arch_isr_entry_init(void);

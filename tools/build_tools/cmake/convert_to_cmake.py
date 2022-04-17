@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Command line tool to convert simple BEKEN-BDK Makefile & component.mk files to
+# Command line tool to convert simple BEKEN-ARMINO Makefile & component.mk files to
 # CMakeLists.txt files
 #
 import argparse
@@ -112,7 +112,7 @@ def convert_project(project_path):
 
     project_vars = get_make_variables(project_path, expected_failure=True)
     if "PROJECT_NAME" not in project_vars:
-        raise RuntimeError("PROJECT_NAME does not appear to be defined in BDK project Makefile at %s" % project_path)
+        raise RuntimeError("PROJECT_NAME does not appear to be defined in ARMINO project Makefile at %s" % project_path)
 
     component_paths = project_vars["COMPONENT_PATHS"].split()
 
@@ -188,7 +188,7 @@ def convert_component(project_path, component_path):
 def main():
     global debug
 
-    parser = argparse.ArgumentParser(description='convert_to_cmake.py - BEKEN-BDK Project Makefile to CMakeLists.txt converter', prog='convert_to_cmake')
+    parser = argparse.ArgumentParser(description='convert_to_cmake.py - BEKEN-ARMINO Project Makefile to CMakeLists.txt converter', prog='convert_to_cmake')
 
     parser.add_argument('--debug', help='Display debugging output',
                         action='store_true')

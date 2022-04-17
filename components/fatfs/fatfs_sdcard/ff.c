@@ -20,6 +20,7 @@
 #include "ff.h"			/* Declarations of FatFs API */
 #include "diskio.h"		/* Declarations of device I/O functions */
 #include "bk_uart.h"
+#include <os/os.h>
 /*--------------------------------------------------------------------------
 
    Module Private Definitions

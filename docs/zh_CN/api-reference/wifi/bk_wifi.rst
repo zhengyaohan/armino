@@ -49,6 +49,8 @@ Interface specific WiFi APIs:
  - :cpp:func:`bk_wifi_sta_get_config` - get basic configuration of BK STA
  - :cpp:func:`bk_wifi_sta_get_link_status` - get link status of BK STA
  - :cpp:func:`bk_wifi_sta_get_mac` - get STA MAC address
+ - :cpp:func:`bk_wifi_sta_pm_enable` - enable STA power management
+ - :cpp:func:`bk_wifi_sta_pm_disable` - disable STA power management
  - :cpp:func:`bk_wifi_ap_start` - start BK AP
  - :cpp:func:`bk_wifi_ap_stop` - stop BK AP
  - :cpp:func:`bk_wifi_ap_set_config` - set the **basic** configuration of BK AP, such as SSID etc

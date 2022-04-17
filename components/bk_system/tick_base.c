@@ -5,7 +5,7 @@
 #include "bk_drv_model.h"
 #include "bk_uart.h"
 #include <os/os.h>
-#include "bk_api_tick.h"
+#include <components/system.h>
 
 #include <components/log.h>
 #include "bk_ps_time.h"

@@ -29,6 +29,7 @@ copy_libs()
 	echo "Copy armino internal lib from ${armino_build_dir}/armino to ${armino_dir}/components/bk_libs"
 
 	mkdir -p ${bk_libs_dir}/${soc}
+	rm -rf ${bk_libs_dir}/${soc}/*
 
 	for component in ${GENERATED_LIBS}
 	do
@@ -47,6 +48,6 @@ exit_on_error()
 	fi
 }
 
-validate_soc $1
-exit_on_error $?
+#validate_soc $1
+#exit_on_error $?
 copy_libs $1 $2 $3

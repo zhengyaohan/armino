@@ -28,7 +28,7 @@ endfunction()
 # Passes a linker script template to the linker script generation tool for
 # processing
 function(__ldgen_process_template template output)
-    armino_build_get_property(armino_target BDK_SOC)
+    armino_build_get_property(armino_target ARMINO_SOC)
     armino_build_get_property(armino_path ARMINO_PATH)
 
     armino_build_get_property(build_dir BUILD_DIR)

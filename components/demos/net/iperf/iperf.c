@@ -10,7 +10,7 @@
 #include "bk_fake_clock.h"
 #include <lwip/sockets.h>
 #include <stdlib.h>
-#include "bk_api_tick.h"
+#include <components/system.h>
 
 #define THREAD_SIZE             (4 * 1024)
 #define THREAD_PROIRITY         4

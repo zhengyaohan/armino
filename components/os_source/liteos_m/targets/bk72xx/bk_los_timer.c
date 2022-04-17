@@ -7,7 +7,7 @@
 #include "los_interrupt.h"
 #include "los_tick.h"
 #include <driver/timer.h>
-#include "bk_api_tick.h"
+#include <components/system.h>
 
 static OS_TICK_HANDLER g_tickHandler = NULL;
 

@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 #
-# Command line tool to take in BEKEN-BDK sdkconfig files with project
+# Command line tool to take in BEKEN-ARMINO sdkconfig files with project
 # settings and output data in multiple formats (update config, generate
 # header file, generate .cmake include file, documentation, etc).
 #
-# Used internally by the BEKEN-BDK build system. But designed to be
-# non-BDK-specific.
+# Used internally by the BEKEN-ARMINO build system. But designed to be
+# non-ARMINO-specific.
 #
 # Copyright 2018-2020 Beken Co
 #
@@ -40,8 +40,8 @@ except Exception:
 
 __version__ = "0.1"
 
-if "BDK_CMAKE" not in os.environ:
-    os.environ["BDK_CMAKE"] = ""
+if "ARMINO_CMAKE" not in os.environ:
+    os.environ["ARMINO_CMAKE"] = ""
 
 
 class DeprecatedOptions(object):
@@ -337,7 +337,7 @@ def main():
 def write_config(deprecated_options, config, filename):
     CONFIG_HEADING = """#
 # Automatically generated file. DO NOT EDIT.
-# Beken IoT Development Framework (BEKEN-BDK) Project Configuration
+# Beken IoT Development Framework (BEKEN-ARMINO) Project Configuration
 #
 """
     config.write_config(filename, header=CONFIG_HEADING)
@@ -347,7 +347,7 @@ def write_config(deprecated_options, config, filename):
 def write_makefile(deprecated_options, config, filename):
     CONFIG_HEADING = """#
 # Automatically generated file. DO NOT EDIT.
-# Beken IoT Development Framework (BEKEN-BDK) Project Makefile Configuration
+# Beken IoT Development Framework (BEKEN-ARMINO) Project Makefile Configuration
 #
 """
     with open(filename, "w") as f:
@@ -397,7 +397,7 @@ def write_makefile(deprecated_options, config, filename):
 def write_header(deprecated_options, config, filename):
     CONFIG_HEADING = """/*
  * Automatically generated file. DO NOT EDIT.
- * Beken IoT Development Framework (BEKEN-BDK) Configuration Header
+ * Beken IoT Development Framework (BEKEN-ARMINO) Configuration Header
  */
 #pragma once
 """
@@ -413,7 +413,7 @@ def write_cmake(deprecated_options, config, filename):
 
         write("""#
 # Automatically generated file. DO NOT EDIT.
-# Beken IoT Development Framework (BEKEN-BDK) Configuration cmake include file
+# Beken IoT Development Framework (BEKEN-ARMINO) Configuration cmake include file
 #
 """)
 
@@ -596,9 +596,9 @@ def write_json_menus(deprecated_options, config, filename):
 
 def write_docs(deprecated_options, config, filename):
     try:
-        target = os.environ['BDK_SOC']
+        target = os.environ['ARMINO_SOC']
     except KeyError:
-        print('BDK_SOC environment variable must be defined!')
+        print('ARMINO_SOC environment variable must be defined!')
         sys.exit(1)
 
     visibility = gen_kconfig_doc.ConfigTargetVisibility(config, target)

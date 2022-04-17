@@ -11,7 +11,7 @@ def action_extensions(base_actions, project_path):
 		'actions': {
 			'doc': {
 				'callback': doc_target,
-				'short_help': 'Generate the BDK docs',
+				'short_help': 'Generate the ARMINO docs',
 				'dependencies': None,
 			},
 		}

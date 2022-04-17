@@ -38,6 +38,8 @@ typedef struct {
 } pwm_group_info_t;
 
 #define PWM_GROUP_NUM (SOC_PWM_CHAN_NUM_PER_UNIT >> 1)
+#define PWM_GPIO_MODE_MAX	4
+
 typedef struct {
 	pwm_hal_t hal;
 	//Important notes: currently no lock for bits
@@ -80,6 +82,12 @@ static bool s_pwm_driver_is_init = false;
 		}\
 	} while(0)
 
+#define PWM_RETURN_ON_INVALID_GPIO_MODE(chan) do {\
+			if (chan >= PWM_GPIO_MODE_MAX) {\
+				return BK_ERR_PWM_INVALID_GPIO_MODE;\
+			}\
+		} while(0)
+
 
 #define PWM_RETURN_ON_CHAN_NOT_STOP(chan) do {\
 	} while(0)
@@ -93,6 +101,18 @@ static bool s_pwm_driver_is_init = false;
 static void pwm_init_gpio(pwm_id_t id);
 static void pwm_init_gpio(pwm_id_t id)
 {
+#if (SOC_PWM_CHAN_NUM_PER_UNIT > 6)
+	if(id == 10) {
+		PWM_SET_PIN(10);
+		return;
+	}
+
+	if(id == 11) {
+		PWM_SET_PIN(11);
+		return;
+	}
+#endif
+
 	switch(id) {
 	case PWM_ID_0:
 		PWM_SET_PIN(0);
@@ -428,12 +448,19 @@ bk_err_t bk_pwm_set_init_signal_high(pwm_chan_t chan)
 }
 
 //TODO finish it
-bk_err_t bk_pwm_set_gpio(pwm_chan_t chan, uint32_t gpio)
+bk_err_t bk_pwm_set_gpio(pwm_chan_t id, uint32 mode)
 {
-	PWM_RETURN_ON_INVALID_CHAN(chan);
-	PWM_RETURN_ON_CHAN_NOT_INIT(chan);
+	PWM_RETURN_ON_INVALID_CHAN(id);
+	PWM_RETURN_ON_CHAN_NOT_INIT(id);
+	PWM_RETURN_ON_INVALID_GPIO_MODE(id);
 
-	return BK_ERR_NOT_SUPPORT;
+#if (SOC_PWM_CHAN_NUM_PER_UNIT > 6)
+	if( (id == 6) || (id == 7) || (id == 8) ||(id == 9)  )
+		return gpio_pwms_sel(id, mode);
+#endif
+	pwm_set_gpio(id);
+
+	return BK_OK;
 }
 
 bk_err_t bk_pwm_capture_init(pwm_chan_t chan, const pwm_capture_init_config_t *config)

@@ -70,7 +70,7 @@ typedef struct
 	void  * dev_ext;
 } shell_dev_ipc_t;
 
-typedef int  (* shell_ipc_rx_t)(void *data_buf, u16 dataLen);
+typedef int  (* shell_ipc_rx_t)(u16 cmd, void *data_buf, u16 dataLen);
 
 typedef struct _shell_ipc_drv
 {
@@ -110,6 +110,7 @@ enum
 	MB_CMD_LOG_OUT = 1,
 	MB_CMD_LOG_OUT_OK,
 	MB_CMD_USER_INPUT,
+	MB_CMD_ASSERT_OUT,
 } ;
 
 extern shell_dev_ipc_t		shell_dev_ipc;

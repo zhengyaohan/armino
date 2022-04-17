@@ -34,16 +34,8 @@
 
 #endif
 
-#define MB_PHY_ASYNC_TX		0x100
-
 #define MB_PHY_CMD_CHNL		(MAILBOX_BOX0)
 #define MB_PHY_ACK_CHNL		(MAILBOX_BOX1)
-
-#define MB_PHY_CMD_CHNL_ASYNC	(MB_PHY_CMD_CHNL + MB_PHY_ASYNC_TX)
-#define MB_PHY_ACK_CHNL_ASYNC	(MB_PHY_ACK_CHNL + MB_PHY_ASYNC_TX)
-
-#define MB_PHY_CMD_CHNL_SYNC	(MB_PHY_CMD_CHNL)
-#define MB_PHY_ACK_CHNL_SYNC	(MB_PHY_ACK_CHNL)
 
 #define CHNL_STATE_BUSY		1
 #define CHNL_STATE_ILDE		0
@@ -65,7 +57,9 @@ typedef struct
  *  use the CHNL_CTRL_ACK_BOX bit in the msg hdr.ctrl to distinguish where it is from.
  *  when CHNL_CTRL_ACK_BOX is set, it means from ack box ( MAILBOXn_BOX1 ).
  */
-#define CHNL_CTRL_ACK_BOX		0x1
+#define CHNL_CTRL_ACK_BOX		0x01
+
+#define CHNL_CTRL_SYNC_TX		0x02
 
 typedef union
 {
@@ -76,22 +70,6 @@ typedef union
 		u32		ctrl           : 4;
 		u32		tx_seq         : 8;
 		u32		logical_chnl   : 8;
-
-		#if 0
-		u32		cmd            : 15;
-		u32		rx_fail        : 1;		/* cmd NO target app, it is an ACK bit to peer CPU. */
-
-		u32		tx_seq         : 7;
-		u32		rsp_flag       : 1;
-									/*
-									*  there are 2 boxes in one MAILBOXn HW, 
-									*  but no way to know which box this msg is from in current mailbox_driver design.
-									*  so use the rsp_flag in the box msg hdr to distinguish where it is from.
-									*  when rsp_flag is 1, it means from ack box ( MAILBOXn_BOX1 ).
-									*/
-
-		u32		logical_chnl   : 8;
-		#endif
 	} ;
 	u32		data;
 } phy_chnnl_hdr_t;
@@ -160,12 +138,9 @@ static u8 mb_phy_chnl_tx_cmd(u8 log_chnl)
 	cmd_ptr->hdr.ctrl  = 0;
 	cmd_ptr->hdr.state = 0;
 
-	if(cmd_ptr->hdr.ctrl & CHNL_CTRL_ACK_BOX)
-		chnl_type = MB_PHY_ACK_CHNL_ASYNC;
-	else
-		chnl_type = MB_PHY_CMD_CHNL_ASYNC;
+	chnl_type = MB_PHY_CMD_CHNL;
 
-	ret_code = mailbox_send(&log_chnl_cb[log_chnl].chnnl_tx_buff, SRC_CPU, DST_CPU, (void *)&chnl_type);
+	ret_code = bk_mailbox_send(&log_chnl_cb[log_chnl].chnnl_tx_buff, SRC_CPU, DST_CPU, (void *)&chnl_type);
 
 	if(ret_code != BK_OK)
 	{
@@ -268,18 +243,24 @@ static void mb_phy_chnl_rx_cmd_isr(mb_phy_chnl_cmd_t *cmd_ptr)
 		chnl_hdr.state |= CHNL_STATE_COM_FAIL;		/* cmd NO target app, it is an ACK bit to peer CPU. */
 	}
 
+	if(chnl_hdr.ctrl & CHNL_CTRL_SYNC_TX)
+	{
+		/* sync tx cmd, do NOT send ACK. */
+		return;
+	}
+
 	/* mb_phy_chnl_tx_ack. */
 
 	/* RE-USE the cmd buffer for ACK !!! */
-	cmd_ptr->hdr.data= chnl_hdr.data;
+	cmd_ptr->hdr.data =  chnl_hdr.data;
 	cmd_ptr->hdr.ctrl |= CHNL_CTRL_ACK_BOX;			/* ACK msg, use the ACK channel.  */
 
 	if(cmd_ptr->hdr.ctrl & CHNL_CTRL_ACK_BOX)
-		chnl_type = MB_PHY_ACK_CHNL_ASYNC;
+		chnl_type = MB_PHY_ACK_CHNL;
 	else
-		chnl_type = MB_PHY_CMD_CHNL_ASYNC;
+		chnl_type = MB_PHY_CMD_CHNL;
 
-	ret_code = mailbox_send((mailbox_data_t *)cmd_ptr, SRC_CPU, DST_CPU, (void *)&chnl_type);	/* mb_phy_chnl_tx_ack. */
+	ret_code = bk_mailbox_send((mailbox_data_t *)cmd_ptr, SRC_CPU, DST_CPU, (void *)&chnl_type);	/* mb_phy_chnl_tx_ack. */
 
 	if(ret_code != BK_OK)
 	{
@@ -342,12 +323,26 @@ static bk_err_t mb_phy_chnl_tx_cmd_sync(u8 log_chnl, mb_phy_chnl_cmd_t *cmd_ptr)
 
 	cmd_ptr->hdr.logical_chnl = log_chnl;
 	cmd_ptr->hdr.tx_seq = 0;
-	cmd_ptr->hdr.ctrl  = 0;
+	cmd_ptr->hdr.ctrl  = CHNL_CTRL_SYNC_TX;
 	cmd_ptr->hdr.state = 0;
 
-	chnl_type = MB_PHY_CMD_CHNL_SYNC;
+	chnl_type = MB_PHY_CMD_CHNL;
 
-	ret_code = mailbox_send((mailbox_data_t *)cmd_ptr, SRC_CPU, DST_CPU, (void *)&chnl_type);
+	/* 
+	 * can't wait 'phy_chnl_cb.tx_state' to be CHNL_STATE_ILDE here,
+	 * 'phy_chnl_cb.tx_state' is set to CHNL_STATE_ILDE in interrupt callback.
+	 * but the interrupt may be disabled when this API is called.
+	 *    wait physical channel HW to be IDLE by <POLLing> !!
+	 */
+	while(1)
+	{
+		ret_code = bk_mailbox_send((mailbox_data_t *)cmd_ptr, SRC_CPU, DST_CPU, (void *)&chnl_type);
+
+		if(ret_code != BK_ERR_MAILBOX_TIMEOUT)
+		{
+			break;
+		}
+	}
 
 	return ret_code;
 }
@@ -380,13 +375,13 @@ bk_err_t mb_chnl_init(void)
 		log_chnl_cb[i].tx_state    = CHNL_STATE_ILDE;
 	}
 
-	ret_code = mailbox_init();
+	ret_code = bk_mailbox_init();
 	if(ret_code != BK_OK)
 	{
 		return ret_code;
 	}
 
-	ret_code = mailbox_recv_callback_register(DST_CPU, SRC_CPU, mb_phy_chnl_rx_isr);
+	ret_code = bk_mailbox_recv_callback_register(DST_CPU, SRC_CPU, mb_phy_chnl_rx_isr);
 	if(ret_code != BK_OK)
 	{
 		return ret_code;

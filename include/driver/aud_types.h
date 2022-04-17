@@ -14,7 +14,6 @@
 //
 #pragma once
 
-#include "arch_interrupt.h"
 #include <driver/int_types.h>
 #include <common/bk_include.h>
 #include <driver/hal/hal_aud_types.h>
@@ -271,7 +270,7 @@ typedef enum {
 	AUD_ADC_TRACMOD_MANUAL_EN_MAX,
 } aud_adc_fracmod_manual_en_t;
 
-
+/**dac enum */
 typedef enum {
 	AUD_DAC_DISABLE = 0,	/**< 0：disable dac */
 	AUD_DAC_ENABLE,			/**< 1：enable dac */
@@ -298,7 +297,6 @@ typedef enum {
 	AUD_DAC_SAMP_RATE_SOURCE_48K,		/**< DAC sample rate : 48k */
 	AUD_DAC_SAMP_RATE_SOURCE_MAX,
 } aud_dac_samp_rate_source_t;
-
 
 typedef enum
 {
@@ -328,11 +326,33 @@ typedef enum {
 } aud_dac_filt_enable_t;
 
 typedef enum {
-	AUD_DAC_FRACMOD_MANUAL_DISABLE = 0,	/**< disable dac fractional frequency division of manual set */
-	AUD_DAC_FRACMOD_MANUAL_ENABLE,		/**< enable ADC fractional frequency division of manual set */
+	AUD_DAC_FRACMOD_MANUAL_DISABLE = 0,		/**< disable dac fractional frequency division of manual set */
+	AUD_DAC_FRACMOD_MANUAL_ENABLE,			/**< enable ADC fractional frequency division of manual set */
 	ADU_DAC_FRACMOD_MANUAL_OTHERS,
 } aud_dac_fracmod_manual_t;
 
+typedef enum {
+	/* fifo status */
+	AUD_ADCL_NEAR_FULL_MASK = 1 << 2,		/**< AUD ADC left channel FIFO near full */
+	AUD_DTMF_NEAR_FULL_MASK = 1 << 3,		/**< AUD DTMF FIFO near full */
+	AUD_ADCL_NEAR_EMPTY_MASK = 1 << 6,		/**< AUD ADC left channel FIFO near empty */
+	AUD_DTMF_NEAR_EMPTY_MASK = 1 << 7,		/**< AUD DTMF FIFO near empty */
+	AUD_ADCL_FIFO_FULL_MASK = 1 << 10,		/**< AUD ADC left channel FIFO full */
+	AUD_DTMF_FIFO_FULL_MASK = 1 << 11,		/**< AUD DTMF FIFO full */
+	AUD_ADCL_FIFO_EMPTY_MASK = 1 << 14,		/**< AUD ADC left channel FIFO empty */
+	AUD_DTMF_FIFO_EMPTY_MASK = 1 << 15,		/**< AUD DTMF FIFO empty */
+} aud_adc_status_mask_t;
+
+typedef enum {
+	AUD_DACR_NEAR_FULL_MASK = 1,			/**< AUD DAC right channel fifo near full */
+	AUD_DACL_NEAR_FULL_MASK = 1 << 1,		/**< AUD DAC left channel fifo near full */
+	AUD_DACR_NEAR_EMPTY_MASK = 1 << 4,		/**< AUD DAC right channel fifo near empty */
+	AUD_DACL_NEAR_EMPTY_MASK = 1 << 5,		/**< AUD DAC left channel fifo near empty */
+	AUD_DACR_FIFO_FULL_MASK = 1 << 8,		/**< AUD DAC right channel fifo full */
+	AUD_DACL_FIFO_FULL_MASK = 1 << 9,		/**< AUD DAC left channel fifo full */
+	AUD_DACR_FIFO_EMPTY_MASK = 1 << 12,		/**< AUD DAC right channel fifo empty */
+	AUD_DACL_FIFO_EMPTY_MASK = 1 << 13,		/**< AUD DAC left channel fifo empty */
+} aud_dac_status_mask_t;
 
 /**
  * @}
@@ -442,31 +462,6 @@ typedef struct {
 } aud_adc_config_t;
 
 typedef struct {
-	/* fifo status */
-	bool adcl_near_full;  /**< AUD ADC left channel FIFO near full */
-	bool dtmf_near_full;  /**< AUD DTMF FIFO near full */
-	bool adcl_near_empty; /**< AUD ADC left channel FIFO near empty */
-	bool dtmf_near_empty; /**< AUD DTMF FIFO near empty */
-	bool adcl_fifo_full;  /**< AUD ADC left channel FIFO full */
-	bool dtmf_fifo_full;  /**< AUD DTMF FIFO full */
-	bool adcl_fifo_empty; /**< AUD ADC left channel FIFO empty */
-	bool dtmf_fifo_empty; /**< AUD DTMF FIFO empty */
-
-	/* agc status */
-	uint32_t rssi_in_db;  /**< AUD AGC Absolutely microphone signal power in dB unit */
-	uint32_t mic_pga;     /**< AUD AGC {1'b0, GAIN2[2:0] GAIN1[3:0]} */
-	uint32_t mic_rssi;    /**< AUD AGC Microphone level; MIC_RSSI[15:0] */
-} aud_adc_status_t;
-
-typedef struct {
-	/* fifo status */
-	bool dtmf_near_full;  /**< AUD DTMF FIFO near full */
-	bool dtmf_near_empty; /**< AUD DTMF FIFO near empty */
-	bool dtmf_fifo_full;  /**< AUD DTMF FIFO full */
-	bool dtmf_fifo_empty; /**< AUD DTMF FIFO empty */
-} aud_dtmf_status_t;
-
-typedef struct {
 	/* audio_config */
 	aud_dac_enable_t dac_enable;						/**< AUD dac enable */
 	aud_dac_samp_rate_source_t samp_rate;				/**< AUD dac sample rate */
@@ -497,17 +492,6 @@ typedef struct {
 	aud_dac_fracmod_manual_t dac_fracmod_manual_enable;	/**< AUD dac fractional frequency division enable of manual set */
 	uint32_t dac_fracmode_value;						/**< AUD dac fractional frequency division value N * 2^24 */
 } aud_dac_config_t;
-
-typedef struct {
-	uint32_t dacr_near_full;	/**< AUD DAC right channel near full */
-	uint32_t dacl_near_full;	/**< AUD DAC left channel near full */
-	uint32_t dacr_near_empty;	/**< AUD DAC right channel near empty */
-	uint32_t dacl_near_empty;	/**< AUD DAC left channel near empty */
-	uint32_t dacr_fifo_full;	/**< AUD DAC right channel FIFO full */
-	uint32_t dacl_fifo_full;	/**< AUD DAC left channel FIFO full */
-	uint32_t dacr_fifo_empty;	/**< AUD DAC right channel FIFO empty */
-	uint32_t dacl_fifo_empty;	/**< AUD DAC left channel FIFO empty */
-} aud_dac_status_t;
 
 typedef struct {
 	int32_t flt0_A1;

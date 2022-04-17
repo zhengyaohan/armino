@@ -2,10 +2,11 @@
 #
 
 function(__add_dfu_targets)
-    armino_build_get_property(target BDK_SOC)
+    armino_build_get_property(target ARMINO_SOC)
+    armino_build_get_property(soc_path SOC_PATH)
 
-	if (EXISTS ${armino_path}/middleware/arch/${target}/${target}.defconfig)
-		message("Check defconfig: " ${armino_path}/middleware/arch/${target}/${target}.defconfig)
+    if (EXISTS ${soc_path}/${target}/${target}.defconfig)
+        message("Check defconfig: " ${soc_path}/${target}/${target}.defconfig)
     else()
         message(SEND_ERROR "DFU PID unknown for ${target}")
     endif()

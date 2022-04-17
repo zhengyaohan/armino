@@ -21,9 +21,10 @@ static void cli_task_backtrace_cmd(char *pcWriteBuffer, int xWriteBufferLen, int
 
 static void cli_os_info_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
-#if CONFIG_FREERTOS
 	rtos_dump_backtrace();
 	rtos_dump_task_list();
+
+#if CONFIG_FREERTOS
 	rtos_dump_task_runtime_stats();
 #endif
 
@@ -37,12 +38,18 @@ static void cli_os_info_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, 
 #endif
 }
 
+static void cli_assert_dump_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	BK_ASSERT(false);
+}
+
 #define OS_CMD_CNT (sizeof(s_os_commands) / sizeof(struct cli_command))
 static const struct cli_command s_os_commands[] = {
 	{"tasklist", "list tasks", cli_task_list_cmd},
 	{"cpuload", "show task cpu load", cli_task_cpuload_cmd},
 	{"backtrace", "show task backtrace", cli_task_backtrace_cmd},
 	{"osinfo", "show os runtime information", cli_os_info_cmd},
+	{"assert", "asset and dump system information", cli_assert_dump_cmd},
 };
 
 int cli_os_init(void)

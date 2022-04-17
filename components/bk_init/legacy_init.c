@@ -19,7 +19,8 @@
 #include <driver/uart.h>
 
 #if CONFIG_BLE
-#include "modules/bk_ble.h"
+#include "modules/ble.h"
+#include "ble_api_5_x.h"
 #endif
 
 #if ((CONFIG_FREERTOS) || (CONFIG_LITEOS_M) || (CONFIG_LITEOS_M_V3)) && (CONFIG_CLI)
@@ -27,6 +28,8 @@
 #endif
 
 #define TAG "app_init"
+
+volatile const uint8_t build_version[] = __DATE__ " " __TIME__;
 
 static int app_wifi_init(void)
 {
@@ -162,7 +165,11 @@ int legacy_init1(void)
 
 int legacy_init(void)
 {
-	BK_LOGI(TAG, "bk378 test init!!!!\r\n");
+	BK_LOGI(TAG, "armino app init: %s\n", build_version);
+
+#ifdef APP_VERSION
+	BK_LOGI(TAG, "APP Verion: %s\n", APP_VERSION);
+#endif
 
 #if (CONFIG_SOC_BK7256XX)
 	app_wifi_init();

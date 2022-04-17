@@ -34,14 +34,11 @@ extern "C" {
 /**
  * @brief     Get the fft module working status
  *
- * @param
- *    - busy_flag: save the busy status of fft
- *
  * @return
- *    - BK_OK: succeed
- *    - others: other errors.
+ *    - TRUE: fft is busying
+ *    - FALSE: fft is not busying
  */
-bk_err_t bk_fft_is_busy(uint32_t *busy_flag);
+bool bk_fft_is_busy(void);
 
 /**
  * @brief     Enable fft module to process fft/ifft function
@@ -52,8 +49,28 @@ bk_err_t bk_fft_is_busy(uint32_t *busy_flag);
  *  - start trigger
  *  - enable interrupts
  *
- * @param
- *    - fft_conf: fft/ifft parameters
+ * Usage example:
+ *
+ *     //init fft driver
+ *     bk_fft_driver_init();
+ *
+ *     fft_conf.inbuf = os_malloc(4*1024);
+ *     os_memset(fft_conf.inbuf, 0, 4*1024);
+ *
+ *     fft_conf.mode = FFT_WORK_MODE_FFT;
+ *     fft_conf.size = 1024;
+ *
+ *     //start fft
+ *     bk_fft_enable(&fft_conf);
+ *
+ *     //wait fft complete
+ *     while(fft_busy_flag)
+ *         bk_fft_is_busy(&fft_busy_flag);
+ *     CLI_LOGI("fft complete\r\n");
+ *     //read output data
+ *     bk_fft_output_read(data_proc_i, data_proc_q, 2 * 1024);
+ *
+ * @param fft_conf fft/ifft parameters
  *
  * @return
  *    - BK_OK: succeed
@@ -62,28 +79,10 @@ bk_err_t bk_fft_is_busy(uint32_t *busy_flag);
 bk_err_t bk_fft_enable(fft_input_t *fft_conf);
 
 /**
- * @brief     Enable fft module to process fir function
- *
- * This API process fir function :
- *  - Set fir work mode: signal/dual
- *  - Configure the fir parameters
- *  - start trigger
- *  - enable interrupts
- *
- * @param
- *    - fir_conf: fir parameters
- *
- * @return
- *    - BK_OK: succeed
- *    - others: other errors.
- */
-bk_err_t bk_fft_fir_single_enable(fft_fir_input_t *fir_conf);
-
-/**
  * @brief     Init fft module driver
  *
  * This API init fft driver :
- *  - Power on clock
+ *  - power on
  *  - enable interrupts
  *
  * @return
@@ -111,16 +110,15 @@ bk_err_t bk_fft_driver_deinit(void);
  * This API read fft data after processing complete
  *
 
- * @param
- *    - i_output: save fft data
- *    - q_output: save fft data
- *    - size:   read size if i_output
+ * @param i_output save fft data
+ * @param q_output save fft data
+ * @param size read size if i_output
  *
  * @return
  *    - BK_OK: succeed
  *    - others: other errors.
  */
-bk_err_t bk_fft_output_read(int16 *i_output, int16 *q_output, uint32_t size);
+bk_err_t bk_fft_output_read(int16_t *i_output, int16_t *q_output, uint32_t size);
 
 /**
  * @}

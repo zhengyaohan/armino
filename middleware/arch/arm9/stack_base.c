@@ -18,6 +18,8 @@
 #include "arm.h"
 #include "bk_arch.h"
 #include "bk_uart.h"
+#include <components/system.h>
+#include <os/os.h>
 
 extern uint32_t und_stack_start;
 extern uint32_t abt_stack_start;

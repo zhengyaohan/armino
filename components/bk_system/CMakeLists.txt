@@ -1,6 +1,6 @@
-armino_build_get_property(target BDK_SOC)
+armino_build_get_property(target ARMINO_SOC)
 
-set(incs include)
+set(incs)
 
 if(CONFIG_FREERTOS)
 	set(priv_incs os/freertos)

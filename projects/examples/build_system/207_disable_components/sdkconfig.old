@@ -1,6 +1,6 @@
 #
 # Automatically generated file. DO NOT EDIT.
-# Beken IoT Development Framework (BEKEN-BDK) Project Configuration
+# Beken IoT Development Framework (BEKEN-ARMINO) Project Configuration
 #
 CONFIG_SOC_BK7231N=y
 # CONFIG_SOC_BK7231U is not set
@@ -11,7 +11,7 @@ CONFIG_SOC_BK7231N=y
 CONFIG_SOC_STR="bk7231n"
 
 #
-# BDK Configuration
+# ARMINO Configuration
 #
 
 #
@@ -366,4 +366,4 @@ CONFIG_WPA_CTRL_IFACE=y
 
 CONFIG_C1=y
 # end of Components Configuration
-# end of BDK Configuration
+# end of ARMINO Configuration

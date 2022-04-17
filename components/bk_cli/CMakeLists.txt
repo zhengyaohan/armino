@@ -31,7 +31,6 @@ set(srcs
 	cli_wifi.c
 	cli_dma.c
 	cli_wdt.c
-
 	cli_spi.c
 	cli_exception.c
 	cli_icu.c
@@ -44,16 +43,27 @@ if (CONFIG_MATTER_NAMEKEY)
 	)
 endif()
 
+if (CONFIG_FLASH)
+	list(APPEND srcs
+		cli_flash.c
+	)
+endif()
+
 if (CONFIG_TRNG_SUPPORT)
 	list(APPEND srcs
 		cli_trng.c
 	)
 endif()
 
+if (CONFIG_I2S)
+	list(APPEND srcs
+		cli_i2s.c
+		)
+endif()
+
 if (CONFIG_FATFS)
 	list(APPEND srcs "cli_fatfs.c")
 endif()
-
 
 if (CONFIG_EFUSE)
 	list(APPEND srcs
@@ -114,20 +124,13 @@ if (CONFIG_AON_RTC)
 	)
 endif()
 
-if (CONFIG_JPEG)
+if (CONFIG_JPEG_ENCODE)
 	list(APPEND srcs
-		"cli_jpeg.c"
+		"cli_jpegenc.c"
 	)
 endif()
 
-if (CONFIG_DMA2D_TEST)
-	list(APPEND incs
-		"include/bk_private/dma2d"
-	)
-	list(APPEND srcs
-		"cli_dma2d.c"
-	)
-endif() #CONFIG_DMA2D_TEST
+
 if (CONFIG_AT_CMD)
 	list(APPEND srcs "cli_at.c")
 endif()
@@ -138,6 +141,14 @@ if (CONFIG_LCD_TEST)
 	list(APPEND srcs
 		"cli_lcd.c")
 endif() #CONFIG_LCD_TEST
+if (CONFIG_DMA2D_TEST)
+	list(APPEND incs
+		"include/bk_private/dma2d"
+	)
+	list(APPEND srcs
+		"cli_dma2d.c"
+	)
+endif() #CONFIG_DMA2D_TEST
 endif()
 
 if (CONFIG_AUDIO_TEST AND CONFIG_AUDIO_RISCV_IP_V1_0)
@@ -174,9 +185,13 @@ endif()
 
 endif() #if(CONFIG_CLI)
 
+if (CONFIG_JPEG_DECODE)
+	list(APPEND srcs cli_jpegdec.c)
+endif()
+
 armino_component_register(SRCS "${srcs}"
 	INCLUDE_DIRS "${incs}"
 	REQUIRES utf8 temp_detect app driver user_driver bk_system security demos fatfs http user_driver
 	#PRIV_REQUIRES airkiss bk_common bk_netif bk_ble bk_ps
-	PRIV_REQUIRES bk_common bk_netif bk_ble bk_ps fatfs bk_init at bk_wifi compal homekit
+	PRIV_REQUIRES bk_common bk_netif bk_ble bk_ps fatfs bk_init at bk_wifi compal homekit video
 	)

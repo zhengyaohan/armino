@@ -9,7 +9,7 @@ try:
     import pkg_resources
 except Exception:
     print('pkg_resources cannot be imported probably because the pip package is not installed and/or using a '
-          'legacy Python interpreter. Please refer to the Get Started section of the BEKEN-BDK Programming Guide for '
+          'legacy Python interpreter. Please refer to the Get Started section of the BEKEN-ARMINO Programming Guide for '
           'setting up the required packages.')
     sys.exit(1)
 
@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
     default_requirements_path = os.path.join(armino_path, 'requirements.txt')
 
-    parser = argparse.ArgumentParser(description='BEKEN-BDK Python package dependency checker')
+    parser = argparse.ArgumentParser(description='BEKEN-ARMINO Python package dependency checker')
     parser.add_argument('--requirements', '-r',
                         help='Path to the requirements file',
                         default=default_requirements_path)
@@ -55,8 +55,8 @@ if __name__ == "__main__":
         if os.path.realpath(args.requirements) != os.path.realpath(default_requirements_path):
             # we're using this script to check non-default requirements.txt, so tell the user to run pip
             print('Please check the documentation for the feature you are using, or run "%s -m pip install -r %s"' % (sys.executable, args.requirements))
-        elif os.environ.get('BDK_PYTHON_ENV_PATH'):
-            # We are running inside a private virtual environment under BDK_TOOLS_PATH,
+        elif os.environ.get('ARMINO_PYTHON_ENV_PATH'):
+            # We are running inside a private virtual environment under ARMINO_TOOLS_PATH,
             # ask the user to run install.bat again.
             if sys.platform == "win32" and not os.environ.get("MSYSTEM"):
                 install_script = 'install.bat'
@@ -85,14 +85,14 @@ if __name__ == "__main__":
                     continue
         else:
             print('Please follow the instructions found in the "Set up the tools" section of '
-                  'BEKEN-BDK Getting Started Guide')
+                  'BEKEN-ARMINO Getting Started Guide')
 
         print('Diagnostic information:')
-        armino_python_env_path = os.environ.get('BDK_PYTHON_ENV_PATH')
-        print('    BDK_PYTHON_ENV_PATH: {}'.format(armino_python_env_path or '(not set)'))
+        armino_python_env_path = os.environ.get('ARMINO_PYTHON_ENV_PATH')
+        print('    ARMINO_PYTHON_ENV_PATH: {}'.format(armino_python_env_path or '(not set)'))
         print('    Python interpreter used: {}'.format(sys.executable))
         if not armino_python_env_path or armino_python_env_path not in sys.executable:
-            print('    Warning: python interpreter not running from BDK_PYTHON_ENV_PATH')
+            print('    Warning: python interpreter not running from ARMINO_PYTHON_ENV_PATH')
             print('    PATH: {}'.format(os.getenv('PATH')))
         sys.exit(1)
 

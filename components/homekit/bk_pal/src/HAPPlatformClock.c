@@ -52,7 +52,7 @@
 #include <time.h>
 
 #include "HAPPlatform.h"
-#include "bk_api_tick.h"
+#include <components/system.h>
 
 static const HAPLogObject logObject = { .subsystem = kHAPPlatform_LogSubsystem, .category = "Clock" };
 

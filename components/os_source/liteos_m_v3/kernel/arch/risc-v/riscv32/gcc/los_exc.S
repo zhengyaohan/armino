@@ -132,8 +132,10 @@
 .section .interrupt.text
 .extern HalExcEntry
 .extern g_excInfo
+.extern trap_handler
 .global HalTrapEntry
 .align 4
+#if 0
 HalTrapEntry:
     PUSH_CALLEE_REG
     addi  sp, sp, -(4 * REGBYTES)
@@ -164,7 +166,28 @@ HalTrapEntry:
     csrw  mepc, t0
     POP_ALL_REG
     mret
+#else
+HalTrapEntry:
+    PUSH_CALLEE_REG
+    csrw  mscratch, sp
+    la    t2, __except_stack_top
+    mv    t2, sp
 
+    /* Call trap handler */
+    csrr a0, mcause
+    csrr a1, mscratch
+
+    call trap_handler
+
+    csrr  sp, mscratch
+    lw    t0, 16 * REGBYTES(sp)
+    csrw  mstatus, t0
+    lw    t0, 17 * REGBYTES(sp)
+    csrw  mepc, t0
+
+    POP_ALL_REG
+    mret
+#endif
 
 /*.section .interrupt.HalTrapVector.text*/
 

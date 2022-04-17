@@ -16,7 +16,6 @@
 
 #include <common/bk_include.h>
 #include "aud_hal.h"
-#include "aud_cap.h"
 #include "aud_driver.h"
 #include "sys_driver.h"
 #include "clock_driver.h"
@@ -177,7 +176,6 @@ bk_err_t bk_aud_driver_init(void)
 	//power on
 	low_power_power_ctrl(POWER_MODULE_NAME_AUDP, POWER_MODULE_STATE_ON);
 	sys_drv_aud_power_en(0);    //temp used
-	delay(10);
 	//select 26M XTAL clock and enable audio clock
 	sys_drv_aud_select_clock(0);
 	sys_drv_aud_clock_en(1);
@@ -186,7 +184,7 @@ bk_err_t bk_aud_driver_init(void)
 
 	// config analog register
 	sys_drv_analog_reg12_set(0x8610E0E0);
-	sys_drv_analog_reg13_set(0x0F808400);   
+	sys_drv_analog_reg13_set(0x0F808400);
 	sys_drv_analog_reg14_set(0x40038002);    //gain :15
 	sys_drv_analog_reg15_set(0x40038002);
 	sys_drv_analog_reg16_set(0x89C02401);
@@ -194,9 +192,7 @@ bk_err_t bk_aud_driver_init(void)
 
 	//enable audvdd 1.0v and 1.5v
 	sys_drv_aud_vdd1v_en(1);
-	delay(100);
 	sys_drv_aud_vdd1v5_en(1);
-	delay(100);
 
 	os_memset(&s_aud_isr, 0, sizeof(s_aud_isr));
 
@@ -226,7 +222,6 @@ bk_err_t bk_aud_driver_deinit(void)
 
 	//disable audio interrupt
 	sys_drv_aud_int_en(0);
-	delay(10);
 	//ungister isr
 	aud_int_config_t int_config_table = {INT_SRC_AUDIO, aud_isr};
 	bk_int_isr_unregister(int_config_table.int_src);
@@ -305,86 +300,24 @@ bk_err_t bk_aud_get_dtmf_fifo_data(uint32_t *dtmf_data)
 }
 
 /* get audio adc fifo and agc status */
-bk_err_t bk_aud_get_adc_status(aud_adc_status_t *adc_status)
+bk_err_t bk_aud_get_adc_status(uint32_t *adc_status)
 {
 	AUD_RETURN_ON_NOT_INIT();
 	if (adc_mode != AUD_ADC_WORK_MODE_ADC)
 		return BK_ERR_AUD_ADC_MODE;
 
-	if (aud_hal_get_fifo_status_adcl_near_full())
-		adc_status->adcl_near_full = true;
-	else
-		adc_status->adcl_near_full = false;
-
-	if (aud_hal_get_fifo_status_dtmf_near_full())
-		adc_status->dtmf_near_full = true;
-	else
-		adc_status->dtmf_near_full = false;
-
-	if (aud_hal_get_fifo_status_adcl_near_empty())
-		adc_status->adcl_near_empty = true;
-	else
-		adc_status->adcl_near_empty = false;
-
-	if (aud_hal_get_fifo_status_dtmf_near_empty())
-		adc_status->dtmf_near_empty = true;
-	else
-		adc_status->dtmf_near_empty = false;
-
-	if (aud_hal_get_fifo_status_adcl_fifo_full())
-		adc_status->adcl_fifo_full = true;
-	else
-		adc_status->adcl_fifo_full = false;
-
-	if (aud_hal_get_fifo_status_dtmf_fifo_full())
-		adc_status->dtmf_fifo_full = true;
-	else
-		adc_status->dtmf_fifo_full = false;
-
-	if (aud_hal_get_fifo_status_adcl_fifo_empty())
-		adc_status->adcl_fifo_empty = true;
-	else
-		adc_status->adcl_fifo_empty = false;
-
-	if (aud_hal_get_fifo_status_dtmf_fifo_empty())
-		adc_status->dtmf_fifo_empty = true;
-	else
-		adc_status->dtmf_fifo_empty = false;
-
-	adc_status->rssi_in_db = aud_hal_get_agc_status_rssi();
-	adc_status->mic_pga = aud_hal_get_agc_status_mic_pga();
-	adc_status->mic_rssi = aud_hal_get_agc_status_mic_rssi();
-
+	*adc_status = aud_hal_get_fifo_status_value();
 	return BK_OK;
 }
 
 /* get audio dtmf fifo status */
-bk_err_t bk_aud_get_dtmf_status(aud_dtmf_status_t *dtmf_status)
+bk_err_t bk_aud_get_dtmf_status(uint32_t *dtmf_status)
 {
 	AUD_RETURN_ON_NOT_INIT();
-	if (adc_mode != AUD_ADC_WORK_MODE_ADC)
+	if (adc_mode != AUD_ADC_WORK_MODE_DTMF)
 		return BK_ERR_AUD_ADC_MODE;
 
-	if (aud_hal_get_fifo_status_dtmf_near_full())
-		dtmf_status->dtmf_near_full = true;
-	else
-		dtmf_status->dtmf_near_full = false;
-
-	if (aud_hal_get_fifo_status_dtmf_near_empty())
-		dtmf_status->dtmf_near_empty = true;
-	else
-		dtmf_status->dtmf_near_empty = false;
-
-	if (aud_hal_get_fifo_status_dtmf_fifo_full())
-		dtmf_status->dtmf_fifo_full = true;
-	else
-		dtmf_status->dtmf_fifo_full = false;
-
-	if (aud_hal_get_fifo_status_dtmf_fifo_empty())
-		dtmf_status->dtmf_fifo_empty = true;
-	else
-		dtmf_status->dtmf_fifo_empty = false;
-
+	*dtmf_status = aud_hal_get_fifo_status_value();
 	return BK_OK;
 }
 
@@ -521,9 +454,7 @@ bk_err_t bk_aud_dac_init(const aud_dac_config_t *dac_config)
 
 	//enable dacl and dacr
 	sys_drv_aud_dacr_en(1);
-	delay(100);
 	sys_drv_aud_dacl_en(1);
-	delay(100);
 
 	aud_hal_dac_config(dac_config);
 
@@ -563,9 +494,7 @@ bk_err_t bk_aud_dac_deinit(void)
 
 	//enable dacl and dacr
 	sys_drv_aud_dacr_en(0);
-	delay(100);
 	sys_drv_aud_dacl_en(0);
-	delay(100);
 
 	//config system registers
 	sys_drv_aud_dacdrv_en(0);
@@ -616,17 +545,11 @@ bk_err_t bk_aud_disable_dac_int(void)
 	return BK_OK;
 }
 
-bk_err_t bk_aud_get_dac_status(aud_dac_status_t *dac_status)
+bk_err_t bk_aud_get_dac_status(uint32_t *dac_status)
 {
 	AUD_RETURN_ON_NOT_INIT();
-	dac_status->dacr_near_full = aud_hal_get_fifo_status_dacr_near_full();
-	dac_status->dacl_near_full = aud_hal_get_fifo_status_dacl_near_full();
-	dac_status->dacr_near_empty = aud_hal_get_fifo_status_dacr_near_empty();
-	dac_status->dacl_near_empty = aud_hal_get_fifo_status_dacl_near_empty();
-	dac_status->dacr_fifo_full = aud_hal_get_fifo_status_dacr_fifo_full();
-	dac_status->dacl_fifo_full = aud_hal_get_fifo_status_dacl_fifo_full();
-	dac_status->dacr_fifo_empty = aud_hal_get_fifo_status_dacr_fifo_empty();
-	dac_status->dacl_fifo_empty = aud_hal_get_fifo_status_dacl_fifo_empty();
+
+	*dac_status = aud_hal_get_fifo_status_value();
 
 	return BK_OK;
 }
@@ -653,6 +576,17 @@ bk_err_t bk_aud_eq_init(const aud_eq_config_t *eq_config)
 	BK_RETURN_ON_NULL(eq_config);
 	aud_hal_set_extend_cfg_filt_enable(1);
 	aud_hal_eq_config(eq_config);
+
+	return BK_OK;
+}
+
+bk_err_t bk_aud_eq_deinit(aud_eq_config_t *eq_config)
+{
+	BK_RETURN_ON_NULL(eq_config);
+
+	os_memset((void *)eq_config, 0, sizeof(aud_eq_config_t));
+	aud_hal_eq_config(eq_config);
+	aud_hal_set_extend_cfg_filt_enable(0);
 
 	return BK_OK;
 }

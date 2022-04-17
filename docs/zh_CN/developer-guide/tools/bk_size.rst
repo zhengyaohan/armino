@@ -32,9 +32,9 @@ armino.py 下述命令可以用于分析 FLASH/RAM 静态使用情况，可以�
 armino.py size-diff 使用方法
 ---------------------------------
 
-假设项目路劲为 $ARMINO_PATH，生成的 .map 文件为 project_name.map， 现想查看 BDK v3.2 版本相对于 v3.1 版本 FLASH 增大了多少，则步骤为：
+假设项目路劲为 $ARMINO_PATH，生成的 .map 文件为 project_name.map， 现想查看 ARMINO v3.2 版本相对于 v3.1 版本 FLASH 增大了多少，则步骤为：
 
- - BDK 切到 v3.1 分支， 执行 armino.py build
+ - ARMINO 切到 v3.1 分支， 执行 armino.py build
  - 将 $ARMINO_PATH/build 保存，如重命名为 $ARMINO_PATH/build_v3.1
- - BDK 切到 v3.2 分支， 执行 armino.py size-diff -m $ARMINO_PATH/build_v3.1/project_name.map
+ - ARMINO 切到 v3.2 分支， 执行 armino.py size-diff -m $ARMINO_PATH/build_v3.1/project_name.map
 

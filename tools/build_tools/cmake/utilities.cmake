@@ -184,7 +184,7 @@ function(target_linker_script target deptype scriptfiles)
         #target_link_libraries("${target}" "${deptype}" "-T ${scriptname}" "-Xlinker -Map=bk7231n.map")
         target_link_libraries("${target}" "${deptype}" "-T ${scriptname}")
 
-        # Note: In BEKEN-BDK, most targets are libraries and libary LINK_DEPENDS don't propagate to
+        # Note: In BEKEN-ARMINO, most targets are libraries and libary LINK_DEPENDS don't propagate to
         # executable(s) the library is linked to. Attach manually to executable once it is known.
         #
         # Property INTERFACE_LINK_DEPENDS is available in CMake 3.13 which should propagate link
@@ -305,7 +305,7 @@ endfunction()
 
 # add_prebuild_library
 #
-# Add prebuilt library with support for adding dependencies on BEKEN-BDK components.
+# Add prebuilt library with support for adding dependencies on BEKEN-ARMINO components.
 function(add_prebuilt_library target_name lib_path)
     cmake_parse_arguments(_ "" "" "REQUIRES;PRIV_REQUIRES" ${ARGN})
 

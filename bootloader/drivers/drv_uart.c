@@ -20,10 +20,10 @@
 int uart_init(void)
 {
     uart0_init(115200);
-    uart1_init(115200);
+    //uart1_init(115200);
 	
 #if ((SOC_BK7271 == CFG_SOC_NAME) || (SOC_BK7256 == CFG_SOC_NAME))
-	uart2_init(115200);
+	//uart2_init(115200);
 #endif
     return 0;
 }

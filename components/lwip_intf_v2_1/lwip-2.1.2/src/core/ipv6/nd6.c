@@ -1126,6 +1126,13 @@ nd6_tmr(void)
 #endif /* LWIP_IPV6_ADDRESS_LIFETIMES */
           netif_ip6_addr_set_state(netif, i, addr_state);
         } else if (netif_is_up(netif) && netif_is_link_up(netif)) {
+        #if LWIP_IPV6_MLD
+          if ((addr_state & IP6_ADDR_TENTATIVE_COUNT_MASK) == 0) {
+            /* Join solicited node multicast group. */
+            ip6_addr_set_solicitednode(&multicast_address, netif_ip6_addr(netif, i)->addr[3]);
+            mld6_joingroup_netif(netif, &multicast_address);
+          }
+        #endif /* LWIP_IPV6_MLD */            
           /* tentative: set next state by increasing by one */
           netif_ip6_addr_set_state(netif, i, addr_state + 1);
           /* Send a NS for this address. Use the unspecified address as source

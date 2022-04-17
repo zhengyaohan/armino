@@ -1,12 +1,20 @@
-#TODO add full BDK Kconfig
+#TODO add full ARMINO Kconfig
 
-source "${ARMINO_PATH}/middleware/arch/Kconfig"
+source "${ARMINO_PATH}/middleware/soc/Kconfig"
 
 mainmenu "Beken Development Configuration"
 
-	menu "BDK Configuration"
+	menu "ARMINO Configuration"
 		menu "Common Configuration"
+
 			menu "Compile/Build"
+				# Don't modify the default value directly!
+				# modify middleware/soc/bkxxx/bkxxx.defconfig,
+				# or modify it in per-project bkxxx.config
+				config TOOLCHAIN_PATH
+				string "Toolchain absolute path"
+				default "/opt/gcc-arm-none-eabi-5_4-2016q3/bin"
+
 			endmenu
 
 			menu "Debug"

@@ -257,6 +257,8 @@ static void wm_netif_status_callback(struct netif *n)
 					(*sta_connected_func)();
 			} else {
 				// dhcp fail
+				wifi_netif_call_status_cb_when_sta_dhcp_timeout();
+				wifi_netif_notify_sta_dhcp_timeout();
 			}
 		} else {
 			// static IP success;

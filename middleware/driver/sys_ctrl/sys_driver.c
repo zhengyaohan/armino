@@ -203,6 +203,24 @@ void sys_drv_flash_cksel(uint32_t value)
 	rtos_enable_int(int_level);
 }
 
+void sys_drv_flash_set_clk_div(uint32_t value)
+{
+	uint32_t int_level = rtos_disable_int();
+
+	sys_hal_flash_set_clk_div(value);
+
+	rtos_enable_int(int_level);
+}
+
+uint32_t sys_drv_flash_get_clk_sel(void)
+{
+	return sys_hal_flash_get_clk_sel();
+}
+
+uint32_t sys_drv_flash_get_clk_div(void)
+{
+	return sys_hal_flash_get_clk_div();
+}
 
 //sys_ctrl CMD: CMD_QSPI_VDDRAM_VOLTAGE
 void sys_drv_set_qspi_vddram_voltage(uint32_t param)
@@ -2019,11 +2037,11 @@ uint32_t sys_drv_fft_disckg_set(uint32_t value)
 	return SYS_DRV_SUCCESS;
 }
 
-uint32_t sys_drv_cpu0_fft_int_en(uint32_t value)
+uint32_t sys_drv_cpu_fft_int_en(uint32_t value)
 {
 	uint32_t int_level = rtos_disable_int();
 
-	sys_hal_cpu0_fft_int_en(value);
+	sys_hal_cpu_fft_int_en(value);
 	rtos_enable_int(int_level);
 	return SYS_DRV_SUCCESS;
 }

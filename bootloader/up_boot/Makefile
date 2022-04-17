@@ -2,8 +2,8 @@
 # Copyright (c) 2012-2021 Andes Technology Corporation
 # All rights reserved.
 #
-
-PROG	?= ../u_bootloader
+PROJECT_BUILD_DIR   = ../out
+PROG	?= $(PROJECT_BUILD_DIR)/u_bootloader
 
 CROSS_COMPILE = /opt/risc-v/nds32le-elf-mculib-v5/bin/riscv32-elf-
 
@@ -111,8 +111,8 @@ APP_SRCS = \
 	$(APP_SOURCE_DIR)/encrypt.c  \
 	$(APP_SOURCE_DIR)/light_upgrade.c  \
 	$(COMPONENT_DIR)/rt_ota/rt_ota_key_port.c \
-	$(COMPONENT_DIR)/fal/fal_flash_beken7231_port.c  \
-	$(COMPONENT_DIR)/fal/fal_flash_beken7231_crc_port.c  \
+	$(COMPONENT_DIR)/fal/fal_flash_port.c  \
+	$(COMPONENT_DIR)/fal/fal_flash_crc_port.c  \
 	
 RT_OTA_SRCS = \
 	$(PACKAGES_DIR)/fal/src/fal.c        \

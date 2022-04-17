@@ -20,96 +20,147 @@
 
 #pragma once
 
-#define GLOBAL_INT_START               rtos_start_int 
-#define GLOBAL_INT_STOP                rtos_stop_int
+/**
+* @brief os enums defines
+* @defgroup os_defines os defines
+* @ingroup os
+* @{
+*/
+
+#define RTOS_TAG "os"  /**< OS log tag*/
+
+#define RTOS_LOGI(...) BK_LOGI(RTOS_TAG, ##__VA_ARGS__)   /**< Output OS Info log */
+#define RTOS_LOGW(...) BK_LOGW(RTOS_TAG, ##__VA_ARGS__)   /**< Output OS Warning log */
+#define RTOS_LOGE(...) BK_LOGE(RTOS_TAG, ##__VA_ARGS__)   /**< Output OS Error log */
+#define RTOS_LOGD(...) BK_LOGD(RTOS_TAG, ##__VA_ARGS__)   /**< Output OS Debug log */
+
+
+/// os stop interrupt
+#define GLOBAL_INT_STOP               (void)rtos_disable_int
+
+/// os declaration interrupt status
 #define GLOBAL_INT_DECLARATION()   uint32_t irq_level
+/// os read interrupt status and disable interrupt
 #define GLOBAL_INT_DISABLE()  irq_level = rtos_disable_int()
+/// os restore interrupt status
 #define GLOBAL_INT_RESTORE()  rtos_enable_int(irq_level)
 
-#define RTOS_SUCCESS                       (1)
-#define RTOS_FAILURE                       (0)
+#define RTOS_SUCCESS                       (1)  /**< Return Success */
+#define RTOS_FAILURE                       (0)  /**< Return Failure */
 
-#define BEKEN_DEFAULT_WORKER_PRIORITY      (6)
-#define BEKEN_APPLICATION_PRIORITY         (7)
+#define BEKEN_DEFAULT_WORKER_PRIORITY      (6)  /**< Default Worker Priority */
+#define BEKEN_APPLICATION_PRIORITY         (7)  /**< Application Task Priority */
+
 #ifndef CONFIG_MATTER
-#define kNanosecondsPerSecond              1000000000UUL
-#define kMicrosecondsPerSecond             1000000UL
-#define kMillisecondsPerSecond             1000
-#endif
-#define BEKEN_NEVER_TIMEOUT                (0xFFFFFFFF)
-#define BEKEN_WAIT_FOREVER                 (0xFFFFFFFF)
-#define BEKEN_NO_WAIT                      (0)
-
-#define NANOSECONDS                        1000000UL
-#define MICROSECONDS                       1000
-#define MILLISECONDS                       (1)
-#define SECONDS                            (1000)
-#define MINUTES                            (60 * SECONDS)
-#define HOURS                              (60 * MINUTES)
-#define DAYS                               (24 * HOURS)
-
-#if FreeRTOS_VERSION_MAJOR == 7
-#define _xTaskCreate( pvTaskCode, pcName, usStackDepth, pvParameters, uxPriority, pxCreatedTask ) xTaskCreate( pvTaskCode, (signed char*)pcName, usStackDepth, pvParameters, uxPriority, pxCreatedTask )
-#define _xTimerCreate( pcTimerName, xTimerPeriodInTicks, uxAutoReload, pvTimerID, pxCallbackFunction ) xTimerCreate( (signed char*)pcTimerName, xTimerPeriodInTicks, uxAutoReload, pvTimerID, pxCallbackFunction )
-#else
-#define _xTaskCreate( pvTaskCode, pcName, usStackDepth, pvParameters, uxPriority, pxCreatedTask ) xTaskCreate( pvTaskCode, pcName, usStackDepth, pvParameters, uxPriority, pxCreatedTask )
-#define _xTimerCreate( pcTimerName, xTimerPeriodInTicks, uxAutoReload, pvTimerID, pxCallbackFunction ) xTimerCreate( pcTimerName, xTimerPeriodInTicks, uxAutoReload, pvTimerID, pxCallbackFunction )
+#define kNanosecondsPerSecond              1000000000UUL   /**< Nanoseconds Per Second */
+#define kMicrosecondsPerSecond             1000000UL       /**< Microseconds Per Second */
+#define kMillisecondsPerSecond             1000            /**< Milliseconds Per Second */
 #endif
 
-typedef int             bk_err_t;
-typedef void (*timer_handler_t)(void *);
-typedef bk_err_t(*event_handler_t)(void *arg);
+#define BEKEN_NEVER_TIMEOUT                (0xFFFFFFFF)    /**< Never Timeout */
+#define BEKEN_WAIT_FOREVER                 (0xFFFFFFFF)    /**< Wait Forever */
+#define BEKEN_NO_WAIT                      (0)             /**< No Wait */
 
-typedef void           *beken_thread_arg_t;
-typedef uint8_t         beken_bool_t;
+#define NANOSECONDS                        1000000UL       /**< Nanoseconds Per Milliseconds */
+#define MICROSECONDS                       1000            /**< Microseconds Per Milliseconds */
+#define MILLISECONDS                       (1)             /**< One Milliseconds */
+#define SECONDS                            (1000)          /**< Milliseconds Per Second */
+#define MINUTES                            (60 * SECONDS)  /**< Milliseconds Per MINUTES */
+#define HOURS                              (60 * MINUTES)  /**< Milliseconds Per HOURS */
+#define DAYS                               (24 * HOURS)    /**< Milliseconds Per DAYS */
+
+#define BEKEN_MAGIC_WORD       (0xBABA7231)                /**< Beken Magic word */
+
+
+typedef int             bk_err_t;            /**< Return error code */
+
+typedef void           *beken_thread_arg_t;  /**< Thread argument pointer type */
+typedef uint8_t         beken_bool_t;        /**< Bool type */
 typedef uint32_t        beken_time_t;        /**< Time value in milliseconds */
 typedef uint32_t        beken_utc_time_t;    /**< UTC Time in seconds        */
 typedef uint64_t        beken_utc_time_ms_t; /**< UTC Time in milliseconds   */
-typedef uint32_t        beken_event_flags_t;
-typedef void           *beken_semaphore_t;
-typedef void           *beken_mutex_t;
-typedef void           *beken_thread_t;
-typedef void           *beken_queue_t;
-typedef void           *beken_event_t;        //  OS event: beken_semaphore_t, beken_mutex_t or beken_queue_t
+typedef uint32_t        beken_event_flags_t; /**< Event flag type */
+typedef void           *beken_semaphore_t;   /**< OS Semaphore handle pointer */
+typedef void           *beken_mutex_t;       /**< OS Mutex handle pointer */
+typedef void           *beken_thread_t;      /**< OS Thread handle pointer */
+typedef void           *beken_queue_t;       /**< OS Queue handle pointer */
+typedef void           *beken_event_t;       /**< OS Event handle pointer */
 
-typedef enum {
-	WAIT_FOR_ANY_EVENT,
-	WAIT_FOR_ALL_EVENTS,
-} beken_event_flags_wait_option_t;
-
-typedef struct {
-	void           *handle;
-	timer_handler_t function;
-	void           *arg;
-} beken_timer_t;
-
-typedef struct {
-	beken_thread_t thread;
-	beken_queue_t  event_queue;
-} beken_worker_thread_t;
-
-typedef struct {
-	event_handler_t        function;
-	void                  *arg;
-	beken_timer_t           timer;
-	beken_worker_thread_t  *thread;
-} beken_timed_event_t;
-
+/// timer callback function type with one parameter
+typedef void (*timer_handler_t)(void *);
+/// timer callback function type with two parameters
 typedef void (*timer_2handler_t)(void *Larg, void *Rarg);
+/// event callback function type with one parameter
+typedef bk_err_t(*event_handler_t)(void *arg);
 
-#define BEKEN_MAGIC_WORD       (0xBABA7231)
-typedef struct {
-	void           *handle;
-	timer_2handler_t function;
-	void           *left_arg;
-	void           *right_arg;
-	uint32_t        beken_magic;
-} beken2_timer_t;
-
+/// OS Thread entry function type
 typedef void (*beken_thread_function_t)(beken_thread_arg_t arg);
 
-extern beken_worker_thread_t beken_hardware_io_worker_thread;
-extern beken_worker_thread_t beken_worker_thread;
+/// OS Event wait options
+typedef enum {
+	WAIT_FOR_ANY_EVENT,  /**< Wait for any event */
+	WAIT_FOR_ALL_EVENTS, /**< Wait for all event */
+} beken_event_flags_wait_option_t;
+
+/**
+* @}
+*/
+
+
+#define os_printf bk_printf    /**< OS printf, will be replace with RTOS_LOGI later */
+#define os_null_printf bk_null_printf  /**< OS drop print string */
+#define rtos_init_semaphore_adv rtos_init_semaphore_ex   /**< To be replace with rtos_init_semaphore_ex */
+#define rtos_get_sema_count  rtos_get_semaphore_count    /**< To be replace with rtos_get_semaphore_count */
+
+/**
+* @brief os struct defines
+* @defgroup os_structs structs in os
+* @ingroup os
+* @{
+*/
+
+/// OS timer handle struct type
+typedef struct {
+	void           *handle;    /**< OS timer handle pointer */
+	timer_handler_t function;  /**< OS timer handle callback function */
+	void           *arg;       /**< OS timer handle callback argument */
+} beken_timer_t;
+
+/// OS worker thread handle struct type
+typedef struct {
+	beken_thread_t thread;       /**< OS thread handle */
+	beken_queue_t  event_queue;  /**< OS event queue */
+} beken_worker_thread_t;
+
+/// OS timer event struct type
+typedef struct {
+	event_handler_t        function; /**< OS event callback function */
+	void                  *arg;      /**< OS event callback argument */
+	beken_timer_t           timer;   /**< OS timer handle */
+	beken_worker_thread_t  *thread;  /**< OS work thread handle */
+} beken_timed_event_t;
+
+/// OS timer handle struct type
+typedef struct {
+	void           *handle;      /**< OS timer handle pointer */
+	timer_2handler_t function;   /**< OS timer handle callback function */
+	void           *left_arg;    /**< OS timer handle callback first argument */
+	void           *right_arg;   /**< OS timer handle callback second argument */
+	uint32_t        beken_magic; /**< OS timer magic word */
+} beken2_timer_t;
+/**
+* @}
+*/
+
+
+
+/**
+ * @brief os API
+ * @defgroup os_apis os API group
+ * @ingroup os
+ * @{
+ */
+
 
 /** @brief Enter a critical session, all interrupts are disabled
   *
@@ -123,15 +174,17 @@ void rtos_enter_critical(void);
   */
 void rtos_exit_critical(void);
 
-/**
-  * @}
-  */
 
+/** @brief   Get system time value in milliseconds
+  *
+  * @param   time_ptr     : the pointer of time value in milliseconds
+  *
+  * @return  kNoErr        : on success.
+  * @return  kGeneralErr   : if an error occurred
+  */
 bk_err_t beken_time_get_time(beken_time_t *time_ptr);
-bk_err_t beken_time_set_time(beken_time_t *time_ptr);
-void beken_free( void *pv );
-void *beken_malloc( size_t xWantedSize );
-void *beken_realloc( void *pv, size_t xWantedSize );
+
+
 
 /** @defgroup BEKEN_RTOS_Thread _BK_ RTOS Thread Management Functions
  *  @brief Provide thread creation, delete, suspend, resume, and other RTOS management API
@@ -329,13 +382,23 @@ bk_err_t rtos_print_thread_status(char *buffer, int length);
 /** @brief    Initialises a counting semaphore and set count to 0
   *
   * @param    semaphore : a pointer to the semaphore handle to be initialised
-  * @param    maxCount  : the max count number of this semaphore
+  * @param    max_count  : the max count number of this semaphore
   *
   * @return   kNoErr        : on success.
   * @return   kGeneralErr   : if an error occurred
   */
-bk_err_t rtos_init_semaphore(beken_semaphore_t *semaphore, int maxCount);
-bk_err_t rtos_init_semaphore_adv(beken_semaphore_t *semaphore, int maxCount, int init_count);
+bk_err_t rtos_init_semaphore(beken_semaphore_t *semaphore, int max_count);
+
+/** @brief    Initialises a counting semaphore and set count to init count
+  *
+  * @param    semaphore : a pointer to the semaphore handle to be initialised
+  * @param    max_count  : the max count number of this semaphore
+  * @param    init_count  : the init count number of this semaphore
+  *
+  * @return   kNoErr        : on success.
+  * @return   kGeneralErr   : if an error occurred
+  */
+bk_err_t rtos_init_semaphore_ex(beken_semaphore_t *semaphore, int max_count, int init_count);
 
 
 /** @brief    Set (post/put/increment) a semaphore
@@ -361,7 +424,9 @@ bk_err_t rtos_set_semaphore(beken_semaphore_t *semaphore);
   * @return   kGeneralErr   : if an error occurred
   */
 bk_err_t rtos_get_semaphore(beken_semaphore_t *semaphore, uint32_t timeout_ms);
-int rtos_get_sema_count(beken_semaphore_t *semaphore);
+
+
+int rtos_get_semaphore_count(beken_semaphore_t *semaphore);
 
 
 /** @brief    De-initialise a semaphore
@@ -480,6 +545,16 @@ bk_err_t rtos_init_queue(beken_queue_t *queue, const char *name, uint32_t messag
   */
 bk_err_t rtos_push_to_queue(beken_queue_t *queue, void *message, uint32_t timeout_ms);
 
+/** @brief    Pushes an object to front of the queue
+  *
+  * @param    queue : a pointer to the queue handle
+  * @param    message : the object to be added to the queue. Size is assumed to be
+  *                  the size specified in @ref rtos_init_queue
+  * @param    timeout_ms: the number of milliseconds to wait before returning
+  *
+  * @return   kNoErr        : on success.
+  * @return   kGeneralErr   : if an error or timeout occurred
+  */
 bk_err_t rtos_push_to_queue_front(beken_queue_t *queue, void *message, uint32_t timeout_ms);
 
 
@@ -528,9 +603,7 @@ bool rtos_is_queue_empty(beken_queue_t *queue);
   */
 bool rtos_is_queue_full(beken_queue_t *queue);
 
-/**
-  * @}
-  */
+
 
 
 /** @defgroup BEKEN_RTOS_EVENT _BK_ RTOS Event Functions
@@ -582,9 +655,6 @@ bk_err_t rtos_register_timed_event(beken_timed_event_t *event_object, beken_work
 bk_err_t rtos_deregister_timed_event(beken_timed_event_t *event_object);
 
 
-/**
-  * @}
-  */
 
 /** @defgroup BEKEN_RTOS_TIMER _BK_ RTOS Timer Functions
   * @brief Provide management APIs for timer such as init,start,stop,reload and dinit.
@@ -695,6 +765,14 @@ bk_err_t rtos_reload_timer(beken_timer_t *timer);
   */
 bk_err_t rtos_deinit_timer(beken_timer_t *timer);
 
+/** @brief    Check if an RTOS timer is init
+  *
+  * @param    timer : a pointer to the RTOS timer handle
+  *
+  * @return   true        : if init.
+  * @return   false       : if not init
+  */
+bool rtos_is_timer_init(beken_timer_t *timer);
 
 /** @brief    Check if an RTOS timer is running
   *
@@ -703,62 +781,34 @@ bk_err_t rtos_deinit_timer(beken_timer_t *timer);
   * @return   true        : if running.
   * @return   false       : if not running
   */
-bool rtos_is_timer_init(beken_timer_t *timer);
 bool rtos_is_timer_running(beken_timer_t *timer);
-int SetTimer(unsigned long ms, void (*psysTimerHandler)(void));
-int SetTimer_uniq(unsigned long ms, void (*psysTimerHandler)(void));
-int UnSetTimer(void (*psysTimerHandler)(void));
+
 uint32_t rtos_get_timer_expiry_time(beken_timer_t *timer);
 uint32_t rtos_get_next_expire_time();
 uint32_t rtos_get_current_timer_count(void);
 
 
-/** @brief    Initialize an endpoint for a RTOS event, a file descriptor
-  *           will be created, can be used for select
-  *
-  * @param    event_handle : beken_semaphore_t, beken_mutex_t or beken_queue_t
-  *
-  * @retval   On success, a file descriptor for RTOS event is returned.
-  *           On error, -1 is returned.
-  */
-int rtos_init_event_fd(beken_event_t event_handle);
-
-/** @brief    De-initialise an endpoint created from a RTOS event
-  *
-  * @param    fd : file descriptor for RTOS event
-  *
-  * @retval   0 for success. On error, -1 is returned.
-  */
-int rtos_deinit_event_fd(int fd);
-
-#define os_printf bk_printf
-#define os_null_printf bk_null_printf
-
-bk_err_t rtos_push_to_queue_front(beken_queue_t *queue, void *message, uint32_t timeout_ms);
 void rtos_start_scheduler(void);
 bool rtos_is_scheduler_started(void);
 
 uint32_t rtos_get_cpsr(void);
+
 char* rtos_get_name(void);
 char* rtos_get_version(void);
+
 size_t rtos_get_free_heap_size(void);
 uint32_t rtos_get_tick_count(void);
+
 uint32_t rtos_disable_int(void);
 void rtos_enable_int(uint32_t int_level);
-void rtos_stop_int(void);
-void rtos_start_int(void);
-size_t rtos_get_min_ever_free_heap_size(void);
 bool rtos_is_in_interrupt_context(void);
 void rtos_wait_for_interrupt(void);
+
 void rtos_shutdown(void);
 
-#define RTOS_TAG "os"
-
-#define RTOS_LOGI(...) BK_LOGI(RTOS_TAG, ##__VA_ARGS__)
-#define RTOS_LOGW(...) BK_LOGW(RTOS_TAG, ##__VA_ARGS__)
-#define RTOS_LOGE(...) BK_LOGE(RTOS_TAG, ##__VA_ARGS__)
-#define RTOS_LOGD(...) BK_LOGD(RTOS_TAG, ##__VA_ARGS__)
-
 /**
-  * @}
-  */
+* @}
+*/
+
+
+

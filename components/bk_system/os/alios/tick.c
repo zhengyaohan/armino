@@ -17,7 +17,7 @@
 #include "sys_rtos.h"
 #include "k_api.h"
 #include "bk_fake_clock.h"
-#include "bk_api_tick.h"
+#include <components/system.h>
 
 void bk_tick_handle(uint8_t arg)
 {

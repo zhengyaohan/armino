@@ -33,7 +33,8 @@ static uint8_t init_ok = 0;
  *
  * @return >= 0: partitions total number
  */
-int fal_init(void)
+//int fal_init(void)
+int __attribute__((section(".itcm_write_flash"))) fal_init(void)
 {
     extern int fal_flash_init(void);
     extern int fal_partition_init(void);

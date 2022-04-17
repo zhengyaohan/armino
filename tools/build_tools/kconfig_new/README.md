@@ -14,7 +14,7 @@ After launching confserver.py (which can be done via `armino.py confserver` comm
 
 During cmake run, the CMake-based build system produces a number of metadata files including `build/config/kconfig_menus.json`, which is a JSON representation of all the menu items in the project configuration and their structure.
 
-This format is currently undocumented, however running CMake with an BDK project will give an indication of the format. The format is expected to be stable.
+This format is currently undocumented, however running CMake with an ARMINO project will give an indication of the format. The format is expected to be stable.
 
 ### Initial Process
 

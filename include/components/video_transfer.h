@@ -20,19 +20,27 @@
 extern "C" {
 #endif
 
-#if (CONFIG_SPIDMA || CONFIG_CAMERA)
+/* @brief Overview about this API header
+ *
+ */
 
 /**
- * @brief     tvideo send msg
+ * @brief Video_transfer APIs Version 1.0
+ * @{
+ */
+
+/**
+ * @brief     video send msg
  *
  * This API send msg to video thread msg queue, to control video data transfer or stop
  *
  * param new_msg: the type of send msg
  *
  * @return
- *    - void
+ *    - kNoErr: send ok
+ *    - other: other error
  */
-void tvideo_intfer_send_msg(UINT32 new_msg);
+bk_err_t bk_video_send_msg(uint32_t new_msg);
 
 /**
  * @brief     video transfer init
@@ -45,7 +53,7 @@ void tvideo_intfer_send_msg(UINT32 new_msg);
  *    - kNoErr: succeed
  *    - others: other errors.
  */
-int video_transfer_init(TVIDEO_SETUP_DESC_PTR setup_cfg);
+bk_err_t bk_video_transfer_init(video_setup_t *setup_cfg);
 
 /**
  * @brief     video transfer deinit
@@ -56,23 +64,7 @@ int video_transfer_init(TVIDEO_SETUP_DESC_PTR setup_cfg);
  *    - kNoErr: succeed
  *    - others: other errors.
  */
-int video_transfer_deinit(void);
-
-/**
- * @brief     set video transfer param
- *
- * This API will modify jpeg encode image resolution and camera pps and fps
- *
- * param ppi: image resolution
- * param fps: frame rate
- *
- * @attention 1. only work for gc0328c
- *
- * @return
- *    - 0: succeed
- *    - 1: other errors.
- */
-UINT32 video_transfer_set_video_param(UINT32 ppi, UINT32 fps);
+bk_err_t bk_video_transfer_deinit(void);
 
 /**
  * @brief     set video transfer param
@@ -82,10 +74,10 @@ UINT32 video_transfer_set_video_param(UINT32 ppi, UINT32 fps);
  * @attention 1. when call this function, the video date will transfer to wifi(UDP/others)
  *
  * @return
- *    - 0: succeed
- *    - other: other errors.
+ *    - kNoErr: succeed
+ *    - others: other errors.
  */
-int video_buffer_open(void);
+bk_err_t bk_video_buffer_open(void);
 
 /**
  * @brief     set video buffer close
@@ -93,10 +85,10 @@ int video_buffer_open(void);
  * This API will deinit video tranfer, stop transfer video data
  *
  * @return
- *    - 0: succeed
- *    - other: other errors.
+ *    - kNoErr: succeed
+ *    - others: other errors.
  */
-int video_buffer_close(void);
+bk_err_t bk_video_buffer_close(void);
 
 /**
  * @brief     read video buffer frame
@@ -105,13 +97,18 @@ int video_buffer_close(void);
  *
  * param buf: malloc buf pointer
  * param buf_len: buf length
+ * param err_code:  0: success, -1: param error, -2: buffer full, -3: frame data err, -4: timeout, -5: unknow err
+ * param timeout: read frame data timeout
  *
  * @return
- *    - 0: succeed
- *    - other: other errors.
+ *    - 0: failed
+ *    - other: frame_length.
  */
-UINT32 video_buffer_read_frame(UINT8 *buf, UINT32 buf_len);
-#endif
+uint32_t bk_video_buffer_read_frame(uint8_t *buf, uint32_t buf_len, int *err_code, uint32_t timeout);
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

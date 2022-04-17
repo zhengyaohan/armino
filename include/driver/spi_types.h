@@ -14,7 +14,6 @@
 
 #pragma once
 
-#include "arch_interrupt.h"
 #include <driver/int_types.h>
 #include <common/bk_include.h>
 #include <driver/hal/hal_dma_types.h>
@@ -24,21 +23,13 @@
 extern "C" {
 #endif
 
-/**
- * @brief UART interrupt service routine
- */
-
-typedef void (*spi_isr_t)(spi_id_t id, void *param);
-
-/**
- * @}
- */
+typedef void (*spi_isr_t)(spi_id_t id, void *param); /**< SPI interrupt service routine */
 
 typedef struct {
-	spi_id_t id;
-	icu_int_src_t int_src;
-	int_group_isr_t isr;
-	dma_dev_t dma_dev;
+	spi_id_t id;           /**< SPI id */
+	icu_int_src_t int_src; /**< int source */
+	int_group_isr_t isr;   /**< isr function */
+	dma_dev_t dma_dev;     /**< dma device */
 } spi_int_config_t;
 
 #ifdef __cplusplus

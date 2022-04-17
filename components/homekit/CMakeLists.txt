@@ -233,7 +233,7 @@ armino_build_set_property(C_COMPILE_OPTIONS "${c_compile_options}" APPEND)
 
 else()
 
-armino_component_register(SRCS "${srcs}"INCLUDE_DIRS "${incs}")
+armino_component_register(SRCS "${srcs}" INCLUDE_DIRS "${incs}")
 
 endif()
 

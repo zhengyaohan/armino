@@ -58,7 +58,7 @@ typedef struct {
 	INT16 *in;
 	INT16 *out;
 	INT32 *mac_out;
-	volatile UINT8 busy_flag;
+	bool busy_flag;
 	UINT16 size;
 } driver_fft_t;
 

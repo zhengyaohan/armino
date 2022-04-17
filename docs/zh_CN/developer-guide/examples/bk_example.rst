@@ -3,10 +3,10 @@
 
 :link_to_translation:`en:[English]`
 
-$ARMINO_PATH/examples 目录下存放 BDK 用例，用例用于:
+$ARMINO_PATH/examples 目录下存放 ARMINO 用例，用例用于:
 
- - 展示 BDK API 的用法， 如 WiFi API 等
- - BDK 关键模块的用法，如 Kconfig 配置， Backtrace 查看， 编译等
+ - 展示 ARMINO API 的用法， 如 WiFi API 等
+ - ARMINO 关键模块的用法，如 Kconfig 配置， Backtrace 查看， 编译等
 
 每个用例可以独立地进行编译与测试。
 
@@ -17,13 +17,13 @@ $ARMINO_PATH/examples 目录下存放 BDK 用例，用例用于:
 
  - 单个 API 较为复杂时，如 WiFi 配置 bk_wifi_sta_set_config() 等
  - 使用某个功能涉及一组相关 API 时
- - BDK 用户容易出错的 API
- - BDK 用户经常使用的功能，如 Debug, 编译， CLI 等
- - BDK 用户明确提出需求时
+ - ARMINO 用户容易出错的 API
+ - ARMINO 用户经常使用的功能，如 Debug, 编译， CLI 等
+ - ARMINO 用户明确提出需求时
 
 .. note::
 
-    当一个用例是说明 BDK API 或者功能时， 就应该放在 $ARMINO_PATH/examples 中， 而非放在其他位置.
+    当一个用例是说明 ARMINO API 或者功能时， 就应该放在 $ARMINO_PATH/examples 中， 而非放在其他位置.
 
 用例编写规范
 -------------------------

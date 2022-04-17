@@ -47,6 +47,7 @@ extern "C" {
 #define BK_ERR_PWM_GROUP_NOT_EXIST (BK_ERR_PWM_BASE - 12) /**< PWM group doesn't exist */
 #define BK_ERR_PWM_GROUP_DUTY      (BK_ERR_PWM_BASE - 13) /**< PWM group cycle invalid */
 #define BK_ERR_PWM_GROUP_SAME_CHAN (BK_ERR_PWM_BASE - 14) /**< PWM group channel is same */
+#define BK_ERR_PWM_INVALID_GPIO_MODE (BK_ERR_PWM_BASE - 15) /**< PWM invalid gpio mode */
 
 /**
  * @brief default PWM configuration

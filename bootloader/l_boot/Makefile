@@ -2,8 +2,8 @@
 # Copyright (c) 2012-2021 Andes Technology Corporation
 # All rights reserved.
 #
-
-PROG	?= ../l_bootloader
+PROJECT_BUILD_DIR   = ../out
+PROG	?= $(PROJECT_BUILD_DIR)/l_bootloader
 
 CROSS_COMPILE = /opt/risc-v/nds32le-elf-mculib-v5/bin/riscv32-elf-
 

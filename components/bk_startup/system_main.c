@@ -164,6 +164,8 @@ void stop_slave_core(void)
 #endif
 
 extern int main(void);
+extern void ChipTest(void);
+
 static void app_main_thread(void *arg)
 {
 #ifdef RTOS_FUNC_TEST
@@ -175,6 +177,18 @@ static void app_main_thread(void *arg)
 
 #if (CONFIG_MASTER_CORE) 
 	start_slave_core();
+#endif
+
+#if CONFIG_MATTER_START
+    beken_thread_t matter_thread_handle = NULL;
+
+    os_printf("start matter\r\n");
+    rtos_create_thread(&matter_thread_handle,
+		BEKEN_DEFAULT_WORKER_PRIORITY,
+		 "matter",
+		(beken_thread_function_t)ChipTest,
+		8192,
+		0);
 #endif
 
 	rtos_delete_thread(NULL);

@@ -24,3 +24,33 @@ int_statis_t g_int_statis_num = {0};
 #else
 #define INT_STATIS_INC((_x))
 #endif
+
+typedef struct {
+        uint32_t irq_int_statis[IRQ_STATIS_COUNT];
+        uint32_t fiq_int_statis[FIQ_STATIS_COUNT];
+} int_statis_t;
+
+/**
+ * @brief     get every unit int numbers form ICU driver after congifg CONFIG_INT_STATIS
+ *
+ * This API get every unit's int numbers
+ *
+ * @return
+ *    - int_statis_t: an int_statis_t pointer which including all uints' int numbers
+ *    - others: other errors.
+ */
+int_statis_t * bk_get_int_statis(void);
+
+/**
+ * @brief     dunmp all units' int numbers form ICU driver
+ *
+ * This API dunmp all unit's int numbers
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_dump_int_statis(int_statis_t *int_statistic);
+
+
+
