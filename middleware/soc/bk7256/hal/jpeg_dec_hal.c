@@ -26,6 +26,7 @@
 #include "driver/jpeg_dec_types.h"
 #include "jpeg_dec_macro_def.h"
 #include "jpeg_dec_hal.h"
+#include "sys_ll_op_if.h"
 
 
 #define	LDB_WORD(ptr)		(uint16_t)(((uint16_t)*((uint8_t*)(ptr))<<8)|(uint16_t)*(uint8_t*)((ptr)+1))
@@ -53,31 +54,30 @@ static const uint16_t Ipsf[64] = {	/* See also aa_idct.png */
 	(uint16_t)(0.27590*8192), (uint16_t)(0.38268*8192), (uint16_t)(0.36048*8192), (uint16_t)(0.32442*8192), (uint16_t)(0.27590*8192), (uint16_t)(0.21678*8192), (uint16_t)(0.14932*8192), (uint16_t)(0.07612*8192)
 };
 
-void jpeg_hal_dec_init(void)
+void jpeg_hal_dec_sysclk_en(bool en)
 {
-	/*jpeg clk config*/
-	//addSYSTEM_Reg0xe |= 0xc0000000;
-	addSYSTEM_Reg0xe |= 0x80000000;
-	//addSYSTEM_Reg0x8 |= 0x50000030;//jpeg clk config //lea add
+	/*jpeg dec clk config*/
+	sys_ll_set_cpu_mode_disckg1_jpeg_dec_disckg(1);
 }
 
 void jpeg_hal_dec_deinit(void)
 {
-	addSYSTEM_Reg0xe &= ~0x80000000;
+	//addSYSTEM_Reg0xe &= ~0x80000000;
+	sys_ll_set_cpu_mode_disckg1_jpeg_dec_disckg(0);
 }
-/*
-void jpegenc_en(void)
+
+void jpeg_hal_dec_int_en(bool en)
 {
-	addJPEG_Reg0x1      |= 0x10;
-	addGENER_DMA_Reg0x0 |= 1;
+	sys_ll_set_cpu0_int_0_31_en_cpu0_jpegdec_int_en(en);
+	//addSYSTEM_Reg0x20   |= 0x4000000 ;  //enable cpu0 jpegdec_int
 }
-void jpegenc_off(void)
+
+void hal_jpeg_dec_start(void)
 {
-	//setf_GENER_DMA_Reg0x30_flush_src_buff;
-	addJPEG_Reg0x1      &= 0xffffffef;
-	addGENER_DMA_Reg0x0 &= 0xfffffffe;
+	REG_DC_CLR;
+	REG_DEC_START;
 }
-*/
+
 
 /** breaf   User defined input function 
  *  param1  Decompression object
@@ -152,8 +152,6 @@ JRESULT jd_decomp (
 	JRESULT rc;
     BASE_RADDR = (unsigned long)(dec_src_addr);
     BASE_WADDR = (unsigned long)(dec_dest_addr);
-//  	BASE_RADDR = (unsigned long)&rd_buff;
-//  	memcpy((unsigned char *)rd_buff,(unsigned long)(&img_jpg) + 627,16384);
 	
 	BASE_RD_LEN = 20480*4-1;
 	if(size  == 0)
@@ -499,10 +497,11 @@ JRESULT jd_prepare (
 			/* Pre-load the JPEG data to extract it from the bit stream */
 			jd->dptr = seg; jd->dctr = 0; jd->dmsk = 0;	/* Prepare to read bit stream */
 			if (ofs %= JD_SZBUF)
-			{						/* Align read offset to JD_SZBUF */
+			{
+			/* Align read offset to JD_SZBUF */
 //				jd->dctr = jd->infunc(jd, seg + ofs, (uint16_t)(JD_SZBUF - ofs));
 //				jd->dptr = seg + ofs - 1;
-//			   DEBUG5 = ofs;	
+//			   DEBUG5 = ofs;
 			}
 
 			return JDR_OK;		/* Initialization succeeded. Ready to decompress the JPEG image. */
@@ -601,11 +600,9 @@ void JpegdecInit(JDEC* jdec,uint32_t * dec_src_addr)
 	volatile unsigned long * zig_pointer;
 	volatile unsigned long * dqt_pointer;
 //    long tmp;
-	JPEGDEC_INTEN = 0x40;
+	JPEGDEC_INTEN = 0x40;  
     REG_JPEG_MCUX = 0;
     REG_JPEG_MCUY = 0;
-    addSYSTEM_Reg0x20   |= 0x4000000 ;  //enable jpegdec_int
-	jpg_decoder_init();
 	
 	//os_printf("5-----JPEGDEC_INTEN = %x \r\n", JPEGDEC_INTEN);
 	
@@ -750,7 +747,7 @@ void JpegdecInit(JDEC* jdec,uint32_t * dec_src_addr)
   for(i = 0; i < 64; i = i + 1)
 	  *(zig_pointer + i) = (unsigned long)Zig[i];
 	
-	addJPEG_DEC_Reg0x0 = 3;
+	REG_JPEG_ACC_REG0 = 3;
 
 //	if (JDR_OK != ret)
 //		return -1;
@@ -767,7 +764,6 @@ void JpegdecInit(JDEC* jdec,uint32_t * dec_src_addr)
 //		return -1;
 //	}
 //	*Y_buf = jpg_dec_st.outputbuf;  
-
 }
 
 

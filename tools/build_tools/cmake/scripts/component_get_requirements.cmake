@@ -70,6 +70,9 @@ macro(armino_component_register)
     return()
 endmacro()
 
+macro(armino_component_register_call_subdirs)
+endmacro()
+
 macro(register_component)
     set(__component_requires "${COMPONENT_REQUIRES}")
     set(__component_priv_requires "${COMPONENT_PRIV_REQUIRES}")

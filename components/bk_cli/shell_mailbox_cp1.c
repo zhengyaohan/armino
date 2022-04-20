@@ -150,7 +150,8 @@ static void shell_mb_tx_isr2(shell_mb_ext_t *mb_ext)
 
 		log_cmd_t * cmd_buf = (log_cmd_t *)&mb_cmd_buf;
 
-		cmd_buf->hdr.data = MB_CMD_LOG_OUT;
+		cmd_buf->hdr.data = 0;
+		cmd_buf->hdr.cmd = MB_CMD_LOG_OUT;
 		cmd_buf->buf = mb_ext->cur_packet;
 		cmd_buf->len = mb_ext->packet_len;
 		cmd_buf->tag = mb_ext->packet_tag;
@@ -296,7 +297,8 @@ static bk_err_t write_sync(shell_mb_ext_t *mb_ext, u8 * p_buf, u16 buf_len)
 	mb_chnl_cmd_t	mb_cmd_buf;
 	log_cmd_t * cmd_buf = (log_cmd_t *)&mb_cmd_buf;
 
-	cmd_buf->hdr.data = MB_CMD_ASSERT_OUT;
+	cmd_buf->hdr.data = 0;
+	cmd_buf->hdr.cmd = MB_CMD_ASSERT_OUT;
 	cmd_buf->buf = tx_buff;
 	cmd_buf->len = buf_len + 1;
 	cmd_buf->tag = 0xFFFF;		/* tx_buff is not memory of allocated dynamically. */

@@ -328,6 +328,7 @@ static void dma2d_memcpy_display(char *pcWriteBuffer, int xWriteBufferLen, int a
 	//}
 }
 
+#if(0)
 static void bk_example_dma2d_mem_to_mem(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 	os_printf("test start: dma2d_mem_to_mem \r\n");
@@ -380,7 +381,7 @@ static void bk_example_dma2d_mem_to_mem(char *pcWriteBuffer, int xWriteBufferLen
 		}
 	}
 }
-
+#endif
 static void bk_example_dma2d_rgb565_to_argb8888pixel(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 	//uint32_t psram_mode = 0;
@@ -818,7 +819,7 @@ static const struct cli_command s_dma2d_commands[] = {
 	//{"lcd_multi_fill", "lcd_multi_fill", lcd_multi_fill},
 	{"lcd_fill", "lcd_dma2d_blending", lcd_fill},
 
-	{"dma2d_mem_to_mem", "dma2d_mem_to_mem \r\n", bk_example_dma2d_mem_to_mem},
+	//{"dma2d_mem_to_mem", "dma2d_mem_to_mem \r\n", bk_example_dma2d_mem_to_mem},
 	{"dma2d_memcpy_display", "dma2d_mem_to_mem \r\n", dma2d_memcpy_display},
 
 

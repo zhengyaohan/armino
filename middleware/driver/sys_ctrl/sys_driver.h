@@ -78,6 +78,17 @@ void sys_drv_set_qspi_io_voltage(uint32_t param);
 
 void sys_drv_qspi_clk_sel(uint32_t param);
 
+#if CONFIG_SDIO_V2P0
+void sys_driver_set_sdio_clk_en(uint32_t value);
+
+void sys_driver_set_cpu0_sdio_int_en(uint32_t value);
+void sys_driver_set_cpu1_sdio_int_en(uint32_t value);
+void sys_driver_set_sdio_clk_div(uint32_t value);
+uint32_t sys_driver_get_sdio_clk_div();
+void sys_driver_set_sdio_clk_sel(uint32_t value);
+uint32_t sys_driver_get_sdio_clk_sel();
+#endif
+
 void sys_drv_efuse_read_byte(uint32_t param);
 
 void sys_drv_efuse_write_byte(uint32_t param);

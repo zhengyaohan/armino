@@ -78,6 +78,12 @@ if(CONFIG_AON_RTC)
 	)
 endif()
 
+if (CONFIG_SDIO_V2P0)
+	list(APPEND srcs
+		"hal/sdio_hal.c"
+	)
+endif()
+
 if(CONFIG_VAULT)
 	list(APPEND srcs
 		"hal/vault_hal.c"

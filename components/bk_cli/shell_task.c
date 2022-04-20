@@ -639,7 +639,7 @@ static void rx_ind_process(void)
 		return;
 	}
 
-	/* cmd_line_buf.rsp_buff is free, can used for read buff temporarily  */
+	/* cmd_line_buf.rsp_buff is free, can be used for read buff temporarily  */
 
 	if(cmd_dev->dev_type == SHELL_DEV_MAILBOX)
 	{
@@ -652,7 +652,9 @@ static void rx_ind_process(void)
 
 	while(bTRUE)
 	{
-		read_cnt = cmd_dev->dev_drv->read(cmd_dev, cmd_line_buf.rsp_buff, buf_len);
+		u8  * rx_temp_buff = &cmd_line_buf.rsp_buff[0];
+
+		read_cnt = cmd_dev->dev_drv->read(cmd_dev, rx_temp_buff, buf_len);
 
 		echo_len = 0;
 
@@ -660,7 +662,7 @@ static void rx_ind_process(void)
 		{
 			if(cmd_line_buf.cur_cmd_type == CMD_TYPE_INVALID)
 			{
-				if(cmd_line_buf.rsp_buff[i] == HEX_SYNC_CHAR)  // SYNC_CHAR, hex frame start.
+				if(rx_temp_buff[i] == HEX_SYNC_CHAR)  // SYNC_CHAR, hex frame start.
 				{
 					cmd_line_buf.cur_cmd_type = CMD_TYPE_HEX;
 
@@ -673,12 +675,12 @@ static void rx_ind_process(void)
 
 				echo_len++;          /* SYNC_CHAR not echo. */
 
-				if((cmd_line_buf.rsp_buff[i] >= 0x20) && (cmd_line_buf.rsp_buff[i] < 0x7f))
+				if((rx_temp_buff[i] >= 0x20) && (rx_temp_buff[i] < 0x7f))
 				{
 					cmd_line_buf.cur_cmd_type = CMD_TYPE_TEXT;
 
 					cmd_line_buf.cmd_data_len = 0;
-					cmd_line_buf.cmd_buff[cmd_line_buf.cmd_data_len] = cmd_line_buf.rsp_buff[i];
+					cmd_line_buf.cmd_buff[cmd_line_buf.cmd_data_len] = rx_temp_buff[i];
 					cmd_line_buf.cmd_data_len++;
 						
 					continue;
@@ -687,19 +689,19 @@ static void rx_ind_process(void)
 				/* patch for BK_REG tool. */
 				if(cmd_line_buf.bkreg_state == BKREG_WAIT_01)
 				{
-					if(cmd_line_buf.rsp_buff[i] == 0x01)
+					if(rx_temp_buff[i] == 0x01)
 						cmd_line_buf.bkreg_state = BKREG_WAIT_E0;
 				}
 				else if(cmd_line_buf.bkreg_state == BKREG_WAIT_E0)
 				{
-					if(cmd_line_buf.rsp_buff[i] == 0xE0)
+					if(rx_temp_buff[i] == 0xE0)
 						cmd_line_buf.bkreg_state = BKREG_WAIT_FC;
-					else if(cmd_line_buf.rsp_buff[i] != 0x01)
+					else if(rx_temp_buff[i] != 0x01)
 						cmd_line_buf.bkreg_state = BKREG_WAIT_01;
 				}
 				else if(cmd_line_buf.bkreg_state == BKREG_WAIT_FC)
 				{
-					if(cmd_line_buf.rsp_buff[i] == 0xFC)
+					if(rx_temp_buff[i] == 0xFC)
 					{
 						cmd_line_buf.cur_cmd_type = CMD_TYPE_BKREG;
 
@@ -713,7 +715,7 @@ static void rx_ind_process(void)
 
 						continue;
 					}
-					else if(cmd_line_buf.rsp_buff[i] != 0x01)
+					else if(rx_temp_buff[i] != 0x01)
 						cmd_line_buf.bkreg_state = BKREG_WAIT_01;
 					else
 						cmd_line_buf.bkreg_state = BKREG_WAIT_E0;
@@ -725,11 +727,11 @@ static void rx_ind_process(void)
 			{
 				if(cmd_line_buf.cmd_data_len < sizeof(cmd_line_buf.cmd_buff))
 				{
-					cmd_line_buf.cmd_buff[cmd_line_buf.cmd_data_len] = cmd_line_buf.rsp_buff[i];
+					cmd_line_buf.cmd_buff[cmd_line_buf.cmd_data_len] = rx_temp_buff[i];
 					cmd_line_buf.cmd_data_len++;
 				}
 
-				if(cmd_line_buf.rsp_buff[i] == HEX_SYNC_CHAR)  // SYNC_CHAR, hex frame end.
+				if(rx_temp_buff[i] == HEX_SYNC_CHAR)  // SYNC_CHAR, hex frame end.
 				{
 					cmd_line_buf.cmd_buff[cmd_line_buf.cmd_data_len - 1] = HEX_SYNC_CHAR;  // in case cmd_data_len overflow.
 					cmd_rx_done = bTRUE;
@@ -740,7 +742,7 @@ static void rx_ind_process(void)
 			if(cmd_line_buf.cur_cmd_type == CMD_TYPE_TEXT)
 			{
 				echo_len++;
-				if(cmd_line_buf.rsp_buff[i] == '\b')
+				if(rx_temp_buff[i] == '\b')
 				{
 					if(cmd_line_buf.cmd_data_len > 0)
 					{
@@ -750,7 +752,7 @@ static void rx_ind_process(void)
 							need_backspace = bTRUE;
 					}
 				}
-				else if((cmd_line_buf.rsp_buff[i] == '\n') || (cmd_line_buf.rsp_buff[i] == '\r'))
+				else if((rx_temp_buff[i] == '\n') || (rx_temp_buff[i] == '\r'))
 				{
 					if(cmd_line_buf.cmd_data_len < sizeof(cmd_line_buf.cmd_buff))
 					{
@@ -764,11 +766,11 @@ static void rx_ind_process(void)
 					cmd_rx_done = bTRUE;
 					break;
 				}
-				else if((cmd_line_buf.rsp_buff[i] >= 0x20))
+				else if((rx_temp_buff[i] >= 0x20))
 				{
 					if(cmd_line_buf.cmd_data_len < sizeof(cmd_line_buf.cmd_buff))
 					{
-						cmd_line_buf.cmd_buff[cmd_line_buf.cmd_data_len] = cmd_line_buf.rsp_buff[i];
+						cmd_line_buf.cmd_buff[cmd_line_buf.cmd_data_len] = rx_temp_buff[i];
 						cmd_line_buf.cmd_data_len++;
 					}
 				}
@@ -783,7 +785,7 @@ static void rx_ind_process(void)
 				/* p[0] = 0x1, p[1]=0xe0, p[2]=0xfc, p[3]=len. */
 				if(cmd_line_buf.cmd_data_len == 3)
 				{
-					cmd_line_buf.bkreg_left_byte = cmd_line_buf.rsp_buff[i] + 1;  // +1, because will -1 in next process.
+					cmd_line_buf.bkreg_left_byte = rx_temp_buff[i] + 1;  // +1, because will -1 in next process.
 
 					if((cmd_line_buf.bkreg_left_byte + 3) >= sizeof(cmd_line_buf.cmd_buff))  // 3 bytes of header + 1 byte of len.
 					{
@@ -796,7 +798,7 @@ static void rx_ind_process(void)
 
 				if(cmd_line_buf.cmd_data_len < sizeof(cmd_line_buf.cmd_buff))
 				{
-					cmd_line_buf.cmd_buff[cmd_line_buf.cmd_data_len] = cmd_line_buf.rsp_buff[i];
+					cmd_line_buf.cmd_buff[cmd_line_buf.cmd_data_len] = rx_temp_buff[i];
 					cmd_line_buf.cmd_data_len++;
 				}
 
@@ -820,7 +822,7 @@ static void rx_ind_process(void)
 
 			if(cmd_line_buf.echo_enable)
 			{
-				echo_out(&cmd_line_buf.rsp_buff[0], echo_len);
+				echo_out(&rx_temp_buff[0], echo_len);
 				echo_out((u8 *)"\r\n", 2);
 			}
 
@@ -838,8 +840,8 @@ static void rx_ind_process(void)
 			{
 				if(echo_len > 0)
 				{
-					if( (cmd_line_buf.rsp_buff[echo_len - 1] == '\b') || 
-						(cmd_line_buf.rsp_buff[echo_len - 1] == 0x7f) ) /* DEL */
+					if( (rx_temp_buff[echo_len - 1] == '\b') || 
+						(rx_temp_buff[echo_len - 1] == 0x7f) ) /* DEL */
 					{
 						echo_len--;
 						if((cmd_line_buf.cmd_data_len > 0) || need_backspace)
@@ -850,16 +852,16 @@ static void rx_ind_process(void)
 
 					if(echo_len == 1)
 					{
-						if( (cmd_line_buf.rsp_buff[echo_len - 1] == '\r') || 
-							(cmd_line_buf.rsp_buff[echo_len - 1] == '\n') )
+						if( (rx_temp_buff[echo_len - 1] == '\r') || 
+							(rx_temp_buff[echo_len - 1] == '\n') )
 						{
 							cr_lf = 1;
 						}
 					}
 					else if(echo_len == 2)
 					{
-						if( (memcmp(cmd_line_buf.rsp_buff, "\r\n", 2) == 0) || 
-							(memcmp(cmd_line_buf.rsp_buff, "\n\r", 2) == 0) )
+						if( (memcmp(rx_temp_buff, "\r\n", 2) == 0) || 
+							(memcmp(rx_temp_buff, "\n\r", 2) == 0) )
 						{
 							cr_lf = 1;
 						}
@@ -871,7 +873,7 @@ static void rx_ind_process(void)
 						echo_len = 0;
 					}
 				}
-				echo_out(cmd_line_buf.rsp_buff, echo_len);
+				echo_out(rx_temp_buff, echo_len);
 			}
 		}
 

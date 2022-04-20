@@ -9,7 +9,7 @@
 #ifdef KEY_DEBUG
 #define KEY_PRT       os_printf
 #endif
-#ifdef CONFIG_TX_BUFING
+#ifdef CONFIG_COMPONENTS_TX_BUFING
 #define APP_PRT       os_null_printf
 #endif
 

@@ -1,5 +1,9 @@
 set(incs include include/bk_private)
 
+list(APPEND incs
+	../../properties/modules/aec/
+	)
+
 if (CONFIG_CLI)
 set(srcs
 	cli_adc.c
@@ -96,7 +100,8 @@ endif()
 
 if (CONFIG_DUAL_CORE)
 	list(APPEND srcs
-		rpc_mb.c
+		mb_ipc_cmd.c
+		amp_res_lock.c
 		rpc_client_gpio.c
 	)
 endif()
@@ -163,6 +168,10 @@ endif()
 endif()
 endif()
 
+if (CONFIG_AUDIO_AEC_TEST)
+	list(APPEND srcs "cli_aec.c")
+endif()
+
 if (CONFIG_FFT_TEST)
 	list(APPEND srcs "cli_fft.c")
 endif()
@@ -189,9 +198,13 @@ if (CONFIG_JPEG_DECODE)
 	list(APPEND srcs cli_jpegdec.c)
 endif()
 
+if (CONFIG_JPEG_DECODE)
+	list(APPEND srcs cli_jpegdec.c)
+endif()
+
 armino_component_register(SRCS "${srcs}"
 	INCLUDE_DIRS "${incs}"
-	REQUIRES utf8 temp_detect app driver user_driver bk_system security demos fatfs http user_driver
+	REQUIRES utf8 temp_detect app driver user_driver bk_system security iperf fatfs http user_driver
 	#PRIV_REQUIRES airkiss bk_common bk_netif bk_ble bk_ps
 	PRIV_REQUIRES bk_common bk_netif bk_ble bk_ps fatfs bk_init at bk_wifi compal homekit video
 	)

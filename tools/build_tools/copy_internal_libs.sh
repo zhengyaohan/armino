@@ -4,7 +4,7 @@ SUPPORTED_SOCS=${SOC_SUPPORTED_TARGETS}
 GENERATED_LIBS="bk_cal bk_coex bk_hostapd bk_wifi_impl ble ble_5_x_rw ble_wifi_exchange bt ip \
 		ip_ax mac_tx_cache net_param_intf power_save rf_test rwnx_intf uart_debug wpa_supplicant-2.9\
 		arch ble_cli ble_pub controller hci host modules platform bk_airkiss sensor usb wfa_ca\
-		bk_adapter pcm_resampler vad bk_system btdm_5_2_rw wolfssl mesh"
+		bk_adapter pcm_resampler vad bk_system btdm_5_2_rw wolfssl mesh aec"
 
 validate_soc()
 {
@@ -20,25 +20,32 @@ validate_soc()
         return 1
 }
 
+init_bk_libs_dir()
+{
+	rm -rf ${s_bk_libs_dir}/${s_soc}
+	mkdir -p ${s_bk_libs_dir}/${s_soc}
+	mkdir -p ${s_bk_libs_dir}/${s_soc}/libs
+	mkdir -p ${s_bk_libs_dir}/${s_soc}/config
+}
+
 copy_libs()
 {
-	soc=$1
-	armino_dir=$2
-	armino_build_dir=$3
-	bk_libs_dir="${armino_dir}/components/bk_libs"
-	echo "Copy armino internal lib from ${armino_build_dir}/armino to ${armino_dir}/components/bk_libs"
-
-	mkdir -p ${bk_libs_dir}/${soc}
-	rm -rf ${bk_libs_dir}/${soc}/*
+	echo "Copy armino internal lib from ${s_armino_build_dir}/armino to ${s_armino_dir}/components/bk_libs"
 
 	for component in ${GENERATED_LIBS}
 	do
-		if [ -f "${armino_build_dir}/armino/${component}/lib${component}.a" ]; then
-			#echo "copy ${armino_build_dir}/armino/${component}/lib${component}.a"
-			cp ${armino_build_dir}/armino/${component}/lib${component}.a ${bk_libs_dir}/${soc}/lib${component}.a
+		if [ -f "${s_armino_build_dir}/armino/${component}/lib${component}.a" ]; then
+			#echo "copy ${s_armino_build_dir}/armino/${component}/lib${component}.a"
+			cp ${s_armino_build_dir}/armino/${component}/lib${component}.a ${s_bk_libs_dir}/${s_soc}/libs/
 		fi
 	done
 	cd ..
+}
+
+copy_sdkconfig()
+{
+	cp ${s_armino_build_dir}/sdkconfig ${s_bk_libs_dir}/${s_soc}/config/
+	cp ${s_armino_build_dir}/config/sdkconfig.h ${s_bk_libs_dir}/${s_soc}/config
 }
 
 exit_on_error()
@@ -48,6 +55,11 @@ exit_on_error()
 	fi
 }
 
-#validate_soc $1
-#exit_on_error $?
-copy_libs $1 $2 $3
+s_soc=$1
+s_armino_dir=$2
+s_armino_build_dir=$3
+s_bk_libs_dir="${s_armino_dir}/components/bk_libs"
+
+init_bk_libs_dir
+copy_libs
+copy_sdkconfig 

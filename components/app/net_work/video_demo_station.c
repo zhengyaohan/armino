@@ -144,17 +144,17 @@ void app_demo_sta_send_msg(u32 new_msg, u32 new_data)
 
 static void app_demo_sta_rw_event_func(void *new_evt)
 {
-    rw_evt_type evt_type = *((rw_evt_type *)new_evt);
+    wifi_linkstate_reason_t info = *((wifi_linkstate_reason_t *)new_evt);
 
-    if (evt_type == RW_EVT_STA_GOT_IP)
+    if (info.state == WIFI_LINKSTATE_STA_GOT_IP)
     {
-        APP_DEMO_STA_PRT("RW_EVT_STA_GOT_IP\r\n");
+        APP_DEMO_STA_PRT("WIFI_LINKSTATE_STA_GOT_IP\r\n");
         //if(g_demo_sta->status == DS_WIFI_DISCONECTED)
         app_demo_sta_send_msg(DAP_WIFI_CONECTED, 0);
     }
-    else if (evt_type == RW_EVT_STA_DISCONNECTED)
+    else if (info.state == WIFI_LINKSTATE_STA_DISCONNECTED)
     {
-        APP_DEMO_STA_PRT("RW_EVT_STA_DISCONNECTED\r\n");
+        APP_DEMO_STA_PRT("WIFI_LINKSTATE_STA_DISCONNECTED\r\n");
         //if(g_demo_sta->status != DS_WIFI_DISCONECTED)
         app_demo_sta_send_msg(DAP_WIFI_DISCONECTED, 0);
     }

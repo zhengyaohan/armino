@@ -192,6 +192,8 @@ typedef enum {
 	WIFI_REASON_NO_AP_FOUND = 257,       /**< Can't find the target AP */
 	WIFI_REASON_WRONG_PASSWORD = 258,    /**< The password is wrong */
 	WIFI_REASON_DISCONNECT_BY_APP = 259, /**< The BK STA disconnected by application */
+	WIFI_REASON_DHCP_TIMEOUT = 260, /**<The BK STA dhcp timeout, 20s**/
+	WIFI_REASON_MAX,		/**<The BK STA connect success*/
 } wifi_err_reason_t;
 
 typedef enum {
@@ -210,8 +212,17 @@ typedef enum {
 } wifi_security_t;
 
 typedef enum {
-	WIFI_LINK_DISCONNECTED = 0,   /**< WiFi link is disconnected */
-	WIFI_LINK_CONNECTED,          /**< WiFi link is connected */
+	/* for station mode */
+	WIFI_LINKSTATE_STA_IDLE = 0,	/**< sta mode is idle */
+	WIFI_LINKSTATE_STA_CONNECTING,	/**< sta mode is connecting */
+	WIFI_LINKSTATE_STA_DISCONNECTED,   /**< sta mode is disconnected */
+	WIFI_LINKSTATE_STA_CONNECTED,          /**< sta mode is connected */
+	WIFI_LINKSTATE_STA_GOT_IP,		 /**< sta mode got ip */
+	/* for softap mode */
+	WIFI_LINKSTATE_AP_CONNECTED,          /**< softap mode, a client association success */
+	WIFI_LINKSTATE_AP_DISCONNECTED,    /**< softap mode, a client disconnect */
+	WIFI_LINKSTATE_AP_CONNECT_FAILED, /**< softap mode, a client association failed */
+	WIFI_LINKSTATE_MAX,	/**<reserved*/
 	//TODO maybe we can provide more precise link status
 } wifi_link_state_t;
 
@@ -260,7 +271,7 @@ typedef struct {
 	uint8_t channel;                   /**< Primary channel of AP to be connected, fast connect only */
 	wifi_security_t security;          /**< Security of AP to be connected */
 	char  password[WIFI_PASSWORD_LEN]; /**< Security key or PMK of the wlan. */
-#if CONFIG_STA_VSIE
+#if CONFIG_INCLUDE_STA_VSIE
 	struct {
 		uint8_t len;
 		uint8_t buf[255];
@@ -268,7 +279,7 @@ typedef struct {
 #endif
 	uint8_t reserved[32];              /**< reserved, **must set to 0** */
 
-#if CONFIG_WPA2_ENTERPRISE
+#if CONFIG_INCLUDE_WPA2_ENTERPRISE
 	/* starts of WPA2-Enterprise/WPA3-Enterprise configuration */
 	char eap[16];                      /**< phase1 authType: TLS/TTLS/SIM */
 	char identity[32];                 /**< user identity */
@@ -279,6 +290,11 @@ typedef struct {
 	char phase1[32];                   /**< client's phase1 parameters */
 #endif
 } wifi_sta_config_t;
+
+typedef struct {
+	wifi_link_state_t state;	/**<Wifi linkstate*/
+	wifi_err_reason_t reason_code;	/**<Wifi disconnect reason code, success will be WIFI_REASON_MAX*/
+}wifi_linkstate_reason_t;
 
 typedef struct {
 	wifi_link_state_t state;           /**< The WiFi connection status */

@@ -97,6 +97,9 @@ static const struct cli_command s_netif_commands[] = {
 	{"ip", "ip [sta|ap][{ip}{mask}{gate}{dns}]", cli_ip_cmd},
 	{"dhcpc", "dhcpc", cli_dhcpc_cmd},
 	{"ping", "ping <ip>", cli_ping_cmd},
+#ifdef CONFIG_IPV6
+	{"ping6",       "ping6 xxx",             ping_cmd},
+#endif
 #ifdef TCP_CLIENT_DEMO
 	{"tcp_cont", "tcp_cont [ip] [port]", tcp_make_connect_server_command},
 #endif

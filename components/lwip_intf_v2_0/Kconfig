@@ -26,7 +26,7 @@ menu "LwIP 2.0.2"
 		range 1 10
 		default 4
 		
-	config MOBILE_CONNECT_SAP_STATISTICS
+	config COMPONENTS_MOBILE_CONNECT_SAP_STATISTICS
 		bool "Statistics mobile connect sap time"
 		default n
 

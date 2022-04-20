@@ -257,14 +257,14 @@ static void lcd_isr(void)
 
 	if (int_status & RGB_OUTPUT_SOF) {
 		lcd_hal_rgb_sof_int_status_clear(); 
-		if (s_lcd.lcd_8080_frame_start_handler) {
-			s_lcd.lcd_8080_frame_start_handler();
+		if (s_lcd.lcd_rgb_frame_start_handler) {
+			s_lcd.lcd_rgb_frame_start_handler();
 		}
 	}
 	if (int_status & RGB_OUTPUT_EOF) {
 		lcd_hal_rgb_eof_int_status_clear(); 
-		if (s_lcd.lcd_8080_frame_end_handler) {
-			s_lcd.lcd_8080_frame_end_handler();
+		if (s_lcd.lcd_rgb_frame_end_handler) {
+			s_lcd.lcd_rgb_frame_end_handler();
 		}
 	}
 	if (int_status & I8080_OUTPUT_SOF) {

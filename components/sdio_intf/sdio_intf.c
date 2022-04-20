@@ -333,7 +333,6 @@ UINT32 sdio_h2e_msg_conversion(STM32_FRAME_HDR *frm_ptr, struct ke_msg **kmsg_pp
 	break;
 	case MM_BCN_CHANGE_REQ: {
 		struct mm_bcn_change_req *req = ke_msg2param(kmsg_dst);
-		req->bcn_ptr_malloc_flag = false;
 		req->bcn_ptr = (uint32_t)req->bcn_buf;
 	}
 	break;
@@ -408,7 +407,7 @@ static INT32 sdio_tx_done(struct tx_cfm_tag *cfm)
 
 void sdio_emb_rxed_evt(int dummy)
 {
-#if !CONFIG_RWNX_QOS_MSDU
+#if !CONFIG_QOS_MSDU
 	UINT32 status;
 #endif
 #if CFG_WMM_PATCH
@@ -454,7 +453,7 @@ void sdio_emb_rxed_evt(int dummy)
 				goto rxed_exception;
 #endif
 
-#if !CONFIG_RWNX_QOS_MSDU
+#if !CONFIG_QOS_MSDU
 			status = sdio_emb_get_tx_info(content_ptr, &tid);
 			if (SDIO_INTF_SUCCESS != status)
 				goto rxed_exception;

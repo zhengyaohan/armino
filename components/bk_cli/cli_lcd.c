@@ -18,9 +18,8 @@
 #include <components/dvp_camera.h>
 #include <driver/i2c.h>
 #include <driver/jpeg_dec.h>
-#include "ff.h"
-#include "diskio.h"
-#include "stdio.h"
+#include <interrupt_base.h>
+#include "jpeg_dec_macro_def.h"
 
 
 
@@ -45,7 +44,6 @@ void lcd_video_power(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **
 {
 	if (os_strcmp(argv[1], "on") == 0) {
 		sys_drv_module_power_ctrl(POWER_MODULE_NAME_VIDP,POWER_MODULE_STATE_ON);
-		
 		bk_psram_init(0x00054043);
 	} else if(os_strcmp(argv[1], "off") == 0) {
 		sys_drv_module_power_ctrl(POWER_MODULE_NAME_VIDP,POWER_MODULE_STATE_OFF);
@@ -596,8 +594,8 @@ static void lcd_video(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 
 static void dma1_jpeg_dec_isr(dma_id_t id)
 {
-	//CLI_LOGI("enter dma1_jpeg_dec_isr \r\n");
-	addAON_GPIO_Reg0x4 = 0x2;
+	//os_printf("%s, %d\n", __func__, __LINE__);
+	//addAON_GPIO_Reg0x2 = 0x2;
 	dma_int_cnt++;
 	if(dma_int_cnt == 4)
 	{
@@ -611,13 +609,13 @@ static void dma1_jpeg_dec_isr(dma_id_t id)
 		BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(1));
 		bk_dma_start(1);
 	}
-	addAON_GPIO_Reg0x4 = 0x0;
+	//addAON_GPIO_Reg0x2 = 0x0;
 }
 
 
 static void jpeg_end_of_frame(jpeg_unit_t id, void *param)
 {
-	//CLI_LOGI("enter jpeg end_of_frame isr \r\n");
+	//os_printf("%s, %d\n", __func__, __LINE__);
 	addAON_GPIO_Reg0x3 = 0x2;
 #if(1)
 	//jpegenc_off();
@@ -627,13 +625,19 @@ static void jpeg_end_of_frame(jpeg_unit_t id, void *param)
 	bk_jpeg_enc_set_enable(0);
 	bk_dma_stop(DMA_ID_0);
 #endif
-	bk_jpeg_dec_start_dec(JpegRxBuff, rd_buff);
+	//set_JPEG_DEC_Reg0x8_DEC_CMD(4);
+	//set_JPEG_DEC_Reg0x8_DEC_CMD(1);
+	bk_jpeg_dec_start();
+
 	addAON_GPIO_Reg0x3 = 0x0;
 }
 
 
-static void jpeg_dec_end_of_frame()
+static void jpeg_dec_complete_cb()
 {
+	//CLI_LOGI("enter jpeg end_of_frame isr \r\n");
+
+	addAON_GPIO_Reg0x4 = 0x2;
 	//jpegenc_en();
 #if(1)
 	addJPEG_Reg0x1 |= 0x10;
@@ -644,15 +648,14 @@ static void jpeg_dec_end_of_frame()
 #endif
 	bk_lcd_rgb_display_en(1);
 	bk_dma_start(1);
-
+	addAON_GPIO_Reg0x4 = 0x0;
 }
 
 static void lcd_jpeg_dec_frame_isr(void)
 {
-	addAON_GPIO_Reg0x5 = 0x2;
+	//addAON_GPIO_Reg0x5 = 0x2;
 
-	//CLI_LOGI("enter lcd_jpeg_dec_frame_isr \r\n");
-	addAON_GPIO_Reg0x5 = 0x0;
+	//addAON_GPIO_Reg0x5 = 0x0;
 }
 
 
@@ -735,6 +738,7 @@ void dma0_jpeg_config(void)
 #endif
 }
 
+extern  interrupt_handle_p p_intn_func_handle[64];
 
 static void lcd_video_jpeg_dec(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
@@ -746,7 +750,13 @@ static void lcd_video_jpeg_dec(char *pcWriteBuffer, int xWriteBufferLen, int arg
 	uint32_t psram_mode = 0x00054043;
 	dma_int_cnt = 0;
 
-	bk_jpeg_dec_driver_init();
+	err=bk_jpeg_dec_driver_init();
+	if (err != BK_OK)
+		return;
+	CLI_LOGI("jpegdec driver init successful.\r\n");
+
+	CLI_LOGI("p_intn_func_handle[26] = %x\r\n", p_intn_func_handle[26]);
+
 
 	rgb_clk_div = os_strtoul(argv[1], NULL, 10) & 0xFFFF;
 	os_printf("rgb_clk_div  = %d \r\n", rgb_clk_div);
@@ -768,7 +778,7 @@ static void lcd_video_jpeg_dec(char *pcWriteBuffer, int xWriteBufferLen, int arg
 	}
 	
 	dma_pre_config();
-	os_printf(" dma_pre config \r\n");
+	CLI_LOGI(" dma_pre config \r\n");
 	BK_LOG_ON_ERR(bk_dma_start(1));
 
 	while(dma_int_flag == 0);
@@ -783,7 +793,7 @@ static void lcd_video_jpeg_dec(char *pcWriteBuffer, int xWriteBufferLen, int arg
 	bk_jpeg_enc_register_isr(END_OF_FRAME, jpeg_end_of_frame, NULL);
 	bk_lcd_isr_register(RGB_OUTPUT_EOF, lcd_jpeg_dec_frame_isr);
 	//bk_jpeg_dec_isr_register(jpeg_dec_end_of_frame);
-	bk_jpeg_dec_complete_cb(jpeg_dec_end_of_frame, NULL);
+	bk_jpeg_dec_complete_cb(jpeg_dec_complete_cb, NULL);
 	os_printf("lcd disp init.\r\n");
 
 	jpeg_config.yuv_mode = 0;
@@ -837,58 +847,9 @@ static void lcd_video_jpeg_dec(char *pcWriteBuffer, int xWriteBufferLen, int arg
 		return;
 	}
 	bk_camera_sensor_config();
+	bk_jpeg_dec_init(JpegRxBuff, rd_buff);
 }
 
-static void lcd_cp0_psram_to_sdcard(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
-{
-	uint32_t psram = 0x60000000;
-
-	char file_name[] = "1:/lcd_rgb_data.txt";
-	FRESULT fr;
-	FIL file;
-	//int number = DISK_NUMBER_SDIO_SD;
-	uint32 uiTemp = 0;
-
-	if (argc != 2) {
-		cli_lcd_help();
-		return;
-	}
-
-	if (os_strcmp(argv[1], "start") == 0) {
-		CLI_LOGI("cp0: write lcd data file start\n");
-
-		/*open pcm file*/
-		fr = f_open(&file, file_name, FA_CREATE_ALWAYS | FA_WRITE);
-		if (fr != FR_OK) {
-			os_printf("open %s fail.\r\n", file_name);
-			return;
-		}
-
-		os_printf("data:\n");
-		fr = f_write(&file, (void *)psram, 0x3fc00, &uiTemp);
-		if (fr != FR_OK) {
-			os_printf("write %s fail.\r\n", file_name);
-			return;
-		}
-
-		os_printf("\n");
-
-		fr = f_close(&file);
-		if (fr != FR_OK) {
-			os_printf("close %s fail!\r\n", file_name);
-			return;
-		}
-
-		CLI_LOGI("cp0: write LCD data to file successful\r\n");
-	} else if (os_strcmp(argv[1], "stop") == 0) {
-		CLI_LOGI("cp0: LCD data to file test stop\n");
-
-		CLI_LOGI("cp0: LCD data to file test stop successful\n");
-	} else {
-		cli_lcd_help();
-		return;
-	}
-}
 
 
 static void lcd_close(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -914,7 +875,6 @@ static const struct cli_command s_lcd_commands[] = {
 	{"lcd_video", "lcd_video=96M,8,25", lcd_video},
 	{"lcd_video_jpeg_dec", "lcd_video_jpeg_dec = 96M,8,25,4", lcd_video_jpeg_dec},
 	{"lcd_video_power", "lcd_video_power = on/off", lcd_video_power},
-	{"lcd_cp0_psram_to_sdcard", "lcd_cp0_psram_to_sdcard {start|stop}", lcd_cp0_psram_to_sdcard},
 	{"lcd_close", "lcd_close", lcd_close},
 };
 

@@ -89,8 +89,14 @@
 
 #if LWIP_NETIF_STATUS_CALLBACK
 #define NETIF_STATUS_CALLBACK(n) do{ if (n->status_callback) { (n->status_callback)(n); }}while(0)
+#if LWIP_IPV6
+#define NETIF_STATUS_IPV6_CALLBACK(n) do{ if (n->status_ip6_callback) { (n->status_ip6_callback)(n); }}while(0)
+#endif
 #else
 #define NETIF_STATUS_CALLBACK(n)
+#if LWIP_IPV6
+#define NETIF_STATUS_IPV6_CALLBACK(n)
+#endif
 #endif /* LWIP_NETIF_STATUS_CALLBACK */
 
 #if LWIP_NETIF_LINK_CALLBACK
@@ -255,7 +261,7 @@ netif_add(struct netif *netif,
   ip_addr_set_zero_ip4(&netif->gw);
 #endif /* LWIP_IPV4 */
 #if LWIP_IPV6
-  for (i = 0; i < LWIP_IPV6_NUM_ADDRESSES; i++) {
+  for (i = 1; i < LWIP_IPV6_NUM_ADDRESSES; i++) {
     ip_addr_set_zero_ip6(&netif->ip6_addr[i]);
     netif->ip6_addr_state[i] = IP6_ADDR_INVALID;
   }
@@ -268,7 +274,7 @@ netif_add(struct netif *netif,
 #endif /* LWIP_NUM_NETIF_CLIENT_DATA */
 #if LWIP_IPV6_AUTOCONFIG
   /* IPv6 address autoconfiguration not enabled by default */
-  netif->ip6_autoconfig_enabled = 0;
+  netif->ip6_autoconfig_enabled = 1;
 #endif /* LWIP_IPV6_AUTOCONFIG */
 #if LWIP_IPV6_SEND_ROUTER_SOLICIT
   netif->rs_count = LWIP_ND6_MAX_MULTICAST_SOLICIT;
@@ -742,6 +748,16 @@ netif_set_status_callback(struct netif *netif, netif_status_callback_fn status_c
     netif->status_callback = status_callback;
   }
 }
+
+#if LWIP_IPV6
+void
+netif_set_ipv6_status_callback(struct netif *netif, netif_status_callback_fn status_callback)
+{
+	if (netif) {
+		netif->status_ip6_callback = status_callback;
+	}
+}
+#endif
 #endif /* LWIP_NETIF_STATUS_CALLBACK */
 
 #if LWIP_NETIF_REMOVE_CALLBACK
@@ -1094,7 +1110,7 @@ netif_ip6_addr_set_parts(struct netif *netif, s8_t addr_idx, u32_t i0, u32_t i1,
 
     if (netif_ip6_addr_state(netif, addr_idx) & IP6_ADDR_VALID) {
       netif_issue_reports(netif, NETIF_REPORT_TYPE_IPV6);
-      NETIF_STATUS_CALLBACK(netif);
+      NETIF_STATUS_IPV6_CALLBACK(netif);
     }
   }
 
@@ -1157,7 +1173,7 @@ netif_ip6_addr_set_state(struct netif* netif, s8_t addr_idx, u8_t state)
     if ((old_state & IP6_ADDR_PREFERRED) != (state & IP6_ADDR_PREFERRED)) {
       /* address state has changed (valid flag changed or switched between
          preferred and deprecated) -> call the callback function */
-      NETIF_STATUS_CALLBACK(netif);
+      NETIF_STATUS_IPV6_CALLBACK(netif);
     }
   }
 

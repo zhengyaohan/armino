@@ -174,7 +174,7 @@ bk_err_t bk_aud_driver_init(void)
 	if (s_aud_driver_is_init)
 		return BK_OK;
 	//power on
-	low_power_power_ctrl(POWER_MODULE_NAME_AUDP, POWER_MODULE_STATE_ON);
+	pm_module_vote_power_ctrl(PM_POWER_MODULE_NAME_AUDP, PM_POWER_MODULE_STATE_ON);
 	sys_drv_aud_power_en(0);    //temp used
 	//select 26M XTAL clock and enable audio clock
 	sys_drv_aud_select_clock(0);
@@ -244,7 +244,7 @@ bk_err_t bk_aud_driver_deinit(void)
 	sys_drv_aud_clock_en(0);
 
 	//power down
-	low_power_power_ctrl(POWER_MODULE_NAME_AUDP, POWER_MODULE_STATE_OFF);
+	pm_module_vote_power_ctrl(PM_POWER_MODULE_NAME_AUDP, PM_POWER_MODULE_STATE_OFF);
 	sys_drv_aud_power_en(1);    //temp used
 
 	s_aud_driver_is_init = false;

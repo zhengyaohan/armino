@@ -44,6 +44,7 @@ list(APPEND srcs
 	"hal/dma2d_hal.c"
 	"hal/jpeg_ll.c"
 	"hal/jpeg_hal_debug.c"
+	"hal/jpeg_dec_hal.c"
 )
 
 if(CONFIG_ICU)

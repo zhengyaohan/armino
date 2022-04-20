@@ -24,9 +24,9 @@ extern "C" {
 #define USE_JPEG_DEC_COMPLETE_CALLBACKS 1 /**< set 1, register jpeg decode complete callback, set 0, register jpeg dec cpu isr*/
 
 #if (USE_JPEG_DEC_COMPLETE_CALLBACKS == 1)
-typedef void (*jpeg_dec_isr_t)(void *param);
+typedef void (*jpeg_dec_isr_t)(void *param);  /**< jpegdec complete callback func type */
 #else
-typedef void (*jpeg_dec_isr_t)(void);
+typedef void (*jpeg_dec_isr_t)(void);               /**< jpegdec int isr register func type */
 #endif
 
 /*

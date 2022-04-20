@@ -149,7 +149,8 @@ static u16 shell_ipc_write_sync(shell_dev_ipc_t * dev_ipc, u8 * pBuf, u16 BufLen
 	mb_chnl_cmd_t	mb_cmd_buf;
 	user_cmd_t * user_cmd = (user_cmd_t *)&mb_cmd_buf;
 
-	user_cmd->hdr.data = MB_CMD_USER_INPUT;
+	user_cmd->hdr.data = 0;
+	user_cmd->hdr.cmd = MB_CMD_USER_INPUT;
 	user_cmd->buf = pBuf;
 	user_cmd->len = BufLen;
 

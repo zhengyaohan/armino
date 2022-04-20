@@ -532,16 +532,6 @@ void bk_ap_no_password_connected_register_cb(bk_ap_no_password_cb_t func);
 void bk_wifi_get_mac_address(char *mac);
 
 /**
- * @brief  set the system MAC
- *
- * The MAC of STA and AP is derived from the system MAC.
- * TODO - add more description about MAC derive.
- *
- * @param mac system mac
- */
-void bk_wifi_set_mac_address(char *mac);
-
-/**
  * @brief  Get maximum power level
  *
  * TODO add more description about the power level

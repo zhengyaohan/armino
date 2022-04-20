@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include "modules/wifi.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22,7 +24,7 @@ int mcu_suppress_and_sleep(uint32_t sleep_ticks);
 int bkreg_tx_get_uart_port(void);
 void write_cal_result_to_flash_secure_op1(void);
 void write_cal_result_to_flash_secure_op2(void);
-void connection_fail_cb(int val);
+void connection_fail_cb(wifi_linkstate_reason_t info);
 
 bool bk_is_audio_adc_en(void);
 bool bk_is_audio_dac_en(void);

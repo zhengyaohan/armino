@@ -193,15 +193,29 @@ if (CONFIG_SDCARD_HOST)
 		)
 endif() #if (CONFIG_SDCARD_HOST)
 
-if (CONFIG_SDIO)
+if (CONFIG_SDIO_V1P0)
+	list(APPEND incs
+		"sdio/v1p0"
+	)
+
 	list(APPEND srcs
-		"sdio.c"
-		"sdma.c"
-		"sutil.c"
+		"sdio/v1p0/sdio.c"
+		"sdio/v1p0/sdma.c"
+		"sdio/v1p0/sutil.c"
 		)
-endif() #if (CONFIG_SDIO)
+endif() #if (CONFIG_SDIO_V1P0)
 
+if (CONFIG_SDIO_V2P0)
+	list(APPEND incs
+		"sdio/v2p0"
+	)
 
+	list(APPEND srcs
+		"sdio/v2p0/sdio_slave_driver.c"
+		"sdio/v2p0/sdio_slave_utils.c"
+		"sdio/v2p0/sdio_slave_test.c"
+		)
+endif() #if (CONFIG_SDIO_V2P0)
 
 if (CONFIG_AUDIO)
 if (CONFIG_AUDIO_DSP_IP_V1_0)
@@ -277,12 +291,9 @@ if (CONFIG_SOC_BK7256XX OR CONFIG_SOC_BK7256_CP1)
 endif()
 
 if (CONFIG_MAILBOX)
-	list(APPEND incs
-		"spinlock"
-		)
+
 	list(APPEND srcs
 		"mailbox/mailbox_driver_base.c"
-		"spinlock/spinlock.c"
 		)
 	if (CONFIG_DUAL_CORE)
 		list(APPEND srcs

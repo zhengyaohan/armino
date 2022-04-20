@@ -9,7 +9,7 @@
 #include <os/mem.h>
 #include "lwip/etharp.h"
 #include "lwip/sockets.h"
-#if CONFIG_MOBILE_CONNECT_SAP_STATISTICS
+#if CONFIG_COMPONENTS_MOBILE_CONNECT_SAP_STATISTICS
 #include "opt.h"
 #endif
 
@@ -412,7 +412,7 @@ static int process_dhcp_message(char *msg, int len)
 			    (uint8_t)opt->value[3]);
 			memcpy((uint8_t *) &dhcps.client_ip, (uint8_t *) opt->value, 4);
 			got_client_ip = 1;
-#if CONFIG_MOBILE_CONNECT_SAP_STATISTICS
+#if CONFIG_COMPONENTS_MOBILE_CONNECT_SAP_STATISTICS
 			LWIP_LOGI("SapConnTimeStat::got ip 2.0\r\n");
 #endif
 		}

@@ -130,6 +130,16 @@ menu "Driver"
 			default y if FULLY_HOSTED
 			default n if !FULLY_HOSTED
 
+		config SDIO_V1P0
+			bool "SDIO Version V1P0"
+			depends on SDIO
+			default n
+		
+		config SDIO_V2P0
+			bool "SDIO Version V2P0"
+			depends on SDIO
+			default n
+
 		config SDIO_TRANS
 			bool "Enable SDIO Trans"
 			depends on SDIO
@@ -146,6 +156,46 @@ menu "Driver"
 			depends on REAL_SDIO
 			default y if FULLY_HOSTED
 			default n if !FULLY_HOSTED
+
+		config SDIO_SLAVE
+			bool "Enable SDIO Slave Device, BEKEN Chip Is A SDIO Slave Device"
+			depends on SDIO
+			default n
+
+		config SDIO_CHANNEL_EN
+			bool "Enable SDIO channel"
+			depends on SDIO_SLAVE
+			default n
+
+		config SDIO_BIDIRECT_CHANNEL_EN
+			bool "Enable SDIO two derect channel"
+			depends on SDIO_CHANNEL_EN
+			default n
+
+		config SDIO_GDMA_EN
+			bool "BK7256 First Version Chip Doesn't Support GDMA"
+			depends on SDIO_SLAVE
+			default n
+
+		config GPIO_NOTIFY_TRANSACTION_EN
+			bool "Host Wake BK7256"
+			depends on SDIO
+			default y
+
+		config SDIO_4LINES_EN
+			bool "SDIO Uses 4 Lines Transfer Data"
+			depends on SDIO
+			default y
+
+		config SDIO_TEST_EN
+			bool "SDIO Test Program Enable"
+			depends on SDIO
+			default n
+
+		config SDIO_DEBUG_EN
+			bool "SDIO Debug Program Enable"
+			depends on SDIO
+			default n
 
 	endmenu
 
@@ -343,10 +393,10 @@ menu "Driver"
 
 		config TIMER_SUPPORT_ID_BITS
 			int "timer support id bits"
-			range 1 255
-			default 1
+			range 0 255
+			default 0
 			help
-			The value should be changed if need to change timer id
+			0 indicates that all IDs are supported by default, no configuration required
 	endmenu	
 
 	menu "SARADC"

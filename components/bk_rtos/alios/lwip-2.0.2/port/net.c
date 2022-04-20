@@ -264,6 +264,7 @@ static void wm_netif_status_callback(struct netif *n)
 	uint32_t sed = (uint32_t)aos_now_ms();
 	u32 val;
 	FUNC_1PARAM_PTR fn;
+	wifi_linkstate_reason_t info;
 
 	/* use current system time to set the start tcp/udp port number RANDOMIZE */
 	srand(sed);
@@ -288,10 +289,12 @@ static void wm_netif_status_callback(struct netif *n)
 				fn = bk_wlan_get_status_cb();
 				if(fn)
 				{
-					val = RW_EVT_STA_GOT_IP;
+					val = WIFI_LINKSTATE_STA_GOT_IP;
 					(*fn)(&val);
 				}
-				mhdr_set_station_status(RW_EVT_STA_GOT_IP);
+				info.state = WIFI_LINKSTATE_STA_GOT_IP;
+				info.reason_code = WIFI_REASON_MAX;
+				mhdr_set_station_status(info, NULL);
 				/* dhcp success*/
 			} 
 			else 
@@ -416,6 +419,7 @@ void sta_ip_down(void)
 void sta_ip_start(void)
 {
     struct wlan_ip_config address = {0};
+    wifi_linkstate_reason_t info = mhdr_get_station_status();
 
 	if(!sta_ip_start_flag)
 	{
@@ -428,10 +432,12 @@ void sta_ip_start(void)
 	
 	os_printf("sta_ip_start2:0x%x\r\n", address.ipv4.address);	
     net_get_if_addr(&address, net_get_sta_handle());
-    if((mhdr_get_station_status() == RW_EVT_STA_CONNECTED)
+    if((info.state == WIFI_LINKSTATE_STA_CONNECTED)
 		&& (0 != address.ipv4.address))
     {
-        mhdr_set_station_status(RW_EVT_STA_GOT_IP);
+	 info.state = WIFI_LINKSTATE_STA_GOT_IP;
+	 info.state = WIFI_REASON_MAX;
+        mhdr_set_station_status(info, NULL);
     }
 }
 

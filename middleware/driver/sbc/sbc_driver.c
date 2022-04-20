@@ -754,8 +754,14 @@ bk_err_t bk_sbc_decoder_register_sbc_isr(sbc_decoder_isr_t isr, void *param)
 
 static void sbc_decoder_isr(void)
 {
-	if (s_sbc_decoder_isr.callback) {
-		s_sbc_decoder_isr.callback(s_sbc_decoder_isr.param);
+	uint32_t int_status = 0;
+	int_status = bk_sbc_decoder_get_interrupt_status();
+
+	if (int_status) {
+		bk_sbc_decoder_clear_interrupt_status();
+		if (s_sbc_decoder_isr.callback) {
+			s_sbc_decoder_isr.callback(s_sbc_decoder_isr.param);
+		}
 	}
 }
 

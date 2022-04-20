@@ -216,7 +216,7 @@ void cli_wifi_sta_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 	}
 }
 
-#if CONFIG_WPA2_ENTERPRISE
+#if CONFIG_COMPONENTS_WPA2_ENTERPRISE
 /**
  * cli command: sta_eap <ssid>, connect to EAP-TLS AP.
  *
@@ -322,7 +322,7 @@ static void cli_wifi_sensor_cmd(char *pcWriteBuffer, int xWriteBufferLen, int ar
 }
 #endif
 
-#if CONFIG_WFA_CA
+#if CONFIG_COMPONENTS_WFA_CA
 extern void wfa_ca_start();
 extern void wfa_ca_stop();
 
@@ -400,7 +400,7 @@ static void wifi_filter_result_dump(void)
 	bk_printf("probe rsp: %u\n", s_filter_result->cnt_probe_rsp);
 	bk_printf("auth: %u\n", s_filter_result->cnt_auth);
 	bk_printf("assoc req: %u\n", s_filter_result->cnt_assoc_req);
-	bk_printf("assoc req: %u\n", s_filter_result->cnt_assoc_rsp);
+	bk_printf("assoc rsp: %u\n", s_filter_result->cnt_assoc_rsp);
 	bk_printf("action: %u\n", s_filter_result->cnt_action);
 	bk_printf("others: %u\n", s_filter_result->cnt_others);
 }
@@ -413,8 +413,8 @@ static void wifi_mgmt_filter_help(void)
 	bk_printf("    bit2 - probe rsp\n");
 	bk_printf("    bit3 - all beacon\n");
 	bk_printf("    bit4 - action\n");
-	bk_printf("    0 - stop filter\n");
-	bk_printf("    -1 - display result\n");
+	bk_printf("       0 - stop filter\n");
+	bk_printf("      -1 - display result\n");
 }
 
 static void cli_wifi_filter_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -654,7 +654,7 @@ void cli_wifi_net_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		cmd_wlan_sta_exec(buf);
 	else if (os_strcmp(argv[1], "ap") == 0)
 		cmd_wlan_ap_exec(buf);
-#if CONFIG_WIFI_P2P
+#if CONFIG_COMPONENTS_P2P
 	else if (os_strcmp(argv[1], "p2p") == 0)
 		cmd_wlan_p2p_exec(buf);
 #endif
@@ -685,7 +685,7 @@ void cli_wifi_get_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 #endif
 }
 
-#ifdef CONFIG_WPA_TWT_TEST
+#ifdef CONFIG_COMPONENTS_WPA_TWT_TEST
 void cli_wifi_twt_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 	char buf[128];
@@ -716,7 +716,7 @@ static const struct cli_command s_wifi_commands[] = {
 	{"scan", "scan [ssid]", cli_wifi_scan_cmd},
 	{"ap", "ap ssid [password]", cli_wifi_ap_cmd},
 	{"sta", "sta ssid [password][bssid][channel]", cli_wifi_sta_cmd}, //TODO support connect speicific BSSID
-#if CONFIG_WPA2_ENTERPRISE
+#if CONFIG_COMPONENTS_WPA2_ENTERPRISE
 	{"sta_eap", "sta_eap ssid password [identity] [client_cert] [private_key]", cli_wifi_sta_eap_cmd},
 #endif
 	{"stop", "stop {sta|ap}", cli_wifi_stop_cmd},
@@ -725,17 +725,16 @@ static const struct cli_command s_wifi_commands[] = {
 	{"channel", "channel {1~13} - set monitor channel", cli_wifi_monitor_channel_cmd},
 	{"net", "net {sta/ap} ... - wifi net config", cli_wifi_net_cmd},
 	{"get", "get wifi status", cli_wifi_get_cmd},
-	
 	{"iplog", "iplog [modle]", cli_wifi_iplog_cmd},
 
-#ifdef CONFIG_WPA_TWT_TEST
+#ifdef CONFIG_COMPONENTS_WPA_TWT_TEST
 	{"twt", "twt {setup|teardown}", cli_wifi_twt_cmd},
 	/*{ "twt_setup", "[dialog=<token>] [exponent=<exponent>] [mantissa=<mantissa>] [min_twt=<Min TWT>] [setup_cmd=<setup-cmd>] [twt=<u64>] [requestor=0|1] [trigger=0|1] [implicit=0|1] [flow_type=0|1] [flow_id=<3-bit-id>] [protection=0|1] [twt_channel=<twt chanel id>] [control=<control-u8>] = Send TWT Setup frame",
 	},
 	{ "twt_teardown", "[flags=<value>] = Send TWT Teardown frame", },*/
 #endif
 
-#if CONFIG_WFA_CA
+#if CONFIG_COMPONENTS_WFA_CA
 	{"wfa_ca", "wfa_ca <start|stop>", cli_wifi_wfa_ca_cmd},
 #endif
 

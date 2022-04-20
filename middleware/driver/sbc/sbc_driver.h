@@ -19,9 +19,9 @@
 
 #define SBC_TAG "sbc"
 #define SBC_LOGI(...) BK_LOGI(SBC_TAG, ##__VA_ARGS__)
-#define SBC_LOGW(...) BK_LOGW(AUD_TAG, ##__VA_ARGS__)
-#define SBC_LOGE(...) BK_LOGE(AUD_TAG, ##__VA_ARGS__)
-#define SBC_LOGD(...) BK_LOGD(AUD_TAG, ##__VA_ARGS__)
+#define SBC_LOGW(...) BK_LOGW(SBC_TAG, ##__VA_ARGS__)
+#define SBC_LOGE(...) BK_LOGE(SBC_TAG, ##__VA_ARGS__)
+#define SBC_LOGD(...) BK_LOGD(SBC_TAG, ##__VA_ARGS__)
 
 /**
  * @brief     SBC decoder memory initialize

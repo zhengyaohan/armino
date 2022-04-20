@@ -1360,6 +1360,11 @@ int bk_cli_init(void)
 	cli_jpegdec_init();
 #endif
 
+#if (CLI_CFG_AEC == 1)
+	cli_aec_init();
+#endif
+
+
 	/* sort cmds after registered all cmds. */
 	cli_sort_command(NULL, 0, 0, NULL);
 

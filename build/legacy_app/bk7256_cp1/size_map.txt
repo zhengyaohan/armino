@@ -1,0 +1,331 @@
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+ 241843	 155196	  86647	   1648	  58696	 302187	  49c6b	app.elf
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+    110	    110	      0	      4	      0	    114	     72	tick_base.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_system/libbk_system.a)
+     92	     92	      0	      0	      1	     93	     5d	printf_base.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_system/libbk_system.a)
+    945	    940	      5	      1	    453	   1399	    577	printf.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_system/libbk_system.a)
+    789	    496	    293	      7	      1	    797	    31d	mac.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_system/libbk_system.a)
+    189	    138	     51	      0	      0	    189	     bd	reboot.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_system/libbk_system.a)
+    384	    384	      0	      0	      0	    384	    180	target_util.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_system/libbk_system.a)
+    222	    222	      0	      0	      0	    222	     de	tick.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_system/libbk_system.a)
+   2731	   2382	    349	     12	    455	   3198	  0x222	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_system/libbk_system.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+     85	     52	     33	      0	      0	     85	     55	stub.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+   8603	   5348	   3255	      0	      0	   8603	   219b	icu_hal_debug.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+      0	      0	      0	      0	      0	      0	      0	icu_ll.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+   2447	   1434	   1013	      0	      0	   2447	    98f	pwm_hal_debug.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+      0	      0	      0	      0	      0	      0	      0	pwm_ll.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+   1298	    782	    516	      0	      0	   1298	    512	timer_hal_debug.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+      0	      0	      0	      0	      0	      0	      0	timer_ll.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+   1095	    592	    503	      0	      0	   1095	    447	gpio_hal_debug.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+      0	      0	      0	      0	      0	      0	      0	gpio_ll.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+   3988	   2000	   1988	      0	      0	   3988	    f94	dma_hal_debug.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+      0	      0	      0	      0	      0	      0	      0	dma_ll.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+   4282	   2406	   1876	      0	      0	   4282	   10ba	uart_hal_debug.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+      0	      0	      0	      0	      0	      0	      0	uart_ll.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+    291	    178	    113	      0	      0	    291	    123	wdt_hal_debug.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+      0	      0	      0	      0	      0	      0	      0	wdt_ll.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+   1890	   1030	    860	      0	      0	   1890	    762	adc_hal_debug.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+      0	      0	      0	      0	      0	      0	      0	adc_ll.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+   3240	   1690	   1550	      0	      0	   3240	    ca8	spi_hal_debug.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+      0	      0	      0	      0	      0	      0	      0	spi_ll.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+   1011	    534	    477	      0	      0	   1011	    3f3	aon_rtc_hal_debug.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+      0	      0	      0	      0	      0	      0	      0	aon_rtc_ll.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+   5086	   4902	    184	      0	      8	   5094	   13e6	sys_hal.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+    492	    412	     80	      0	      0	    492	    1ec	aon_pmu_hal.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+   3524	   2440	   1084	      0	      0	   3524	    dc4	i2c_hal_debug.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+      0	      0	      0	      0	      0	      0	      0	i2c_ll.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+   4451	   2436	   2015	      0	      0	   4451	   1163	i2s_hal_debug.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+   3211	   1682	   1529	      0	      0	   3211	    c8b	lcd_disp_hal_debug.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+      0	      0	      0	      0	      0	      0	      0	lcd_disp_ll.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+    466	    466	      0	      0	      0	    466	    1d2	lcd_disp_hal.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+    204	     76	    128	      0	      0	    204	     cc	jpeg_ll.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+   3835	   2070	   1765	      0	      0	   3835	    efb	jpeg_hal_debug.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+    890	    890	      0	      0	      4	    894	    37e	dma2d_hal.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+   3086	   2816	    270	     64	     36	   3186	    c72	jpeg_dec_hal.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a)
+  53475	  34236	  19239	     64	     48	  53587	 0x3186	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk7256_cp1/libbk7256_cp1.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+    446	    446	      0	      0	      0	    446	    1be	pwm_hal.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/common/libcommon.a)
+    650	    650	      0	      0	      0	    650	    28a	timer_hal.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/common/libcommon.a)
+    497	    482	     15	      0	      0	    497	    1f1	dma_hal.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/common/libcommon.a)
+     10	     10	      0	      0	      0	     10	      a	icu_hal.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/common/libcommon.a)
+     72	     72	      0	      0	      0	     72	     48	wdt_hal.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/common/libcommon.a)
+    850	    662	    188	      0	      0	    850	    352	spi_hal.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/common/libcommon.a)
+    592	    592	      0	      0	      0	    592	    250	i2c_hal.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/common/libcommon.a)
+   3811	   2226	   1585	      0	      4	   3815	    ee7	gpio_hal.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/common/libcommon.a)
+    488	    476	     12	      0	      0	    488	    1e8	uart_hal.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/common/libcommon.a)
+    356	    356	      0	      0	      0	    356	    164	adc_hal.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/common/libcommon.a)
+    318	    318	      0	      0	      0	    318	    13e	fft_hal.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/common/libcommon.a)
+   1582	   1518	     64	      0	      0	   1582	    62e	i2s_hal.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/common/libcommon.a)
+    144	    144	      0	      0	      0	    144	     90	mailbox_hal.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/common/libcommon.a)
+    344	    344	      0	      0	      0	    344	    158	jpeg_hal.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/common/libcommon.a)
+     70	     70	      0	      0	      0	     70	     46	psram_hal.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/common/libcommon.a)
+   3888	   3852	     36	      0	      0	   3888	    f30	aud_hal.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/common/libcommon.a)
+    334	    334	      0	      0	      0	    334	    14e	sbc_hal.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/common/libcommon.a)
+  14452	  12552	   1900	      0	      4	  14456	  0x334	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/common/libcommon.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+     16	     16	      0	      0	      0	     16	     10	boot_handlers_base.S.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/riscv/libriscv.a)
+    158	    158	      0	      0	      0	    158	     9e	riscv_utility.S.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/riscv/libriscv.a)
+    616	    414	    202	      0	      0	    616	    268	stack_base.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/riscv/libriscv.a)
+   2212	   1202	   1010	      0	      4	   2216	    8a8	trap_base.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/riscv/libriscv.a)
+    724	    630	     94	      0	    262	    986	    3da	arch_interrupt.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/riscv/libriscv.a)
+    112	    112	      0	      0	      0	    112	     70	reset.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/riscv/libriscv.a)
+    256	    256	      0	      0	      0	    256	    100	ae350.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/riscv/libriscv.a)
+   1236	    954	    282	      0	      0	   1236	    4d4	pmp.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/riscv/libriscv.a)
+    150	    150	      0	      0	      0	    150	     96	initfini.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/riscv/libriscv.a)
+      2	      2	      0	      0	      0	      2	      2	riscv.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/riscv/libriscv.a)
+     47	     34	     13	      0	      0	     47	     2f	cpu.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/riscv/libriscv.a)
+    280	    280	      0	      0	      0	    280	    118	boot_vectors_base.S.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/riscv/libriscv.a)
+   5809	   4208	   1601	      0	    266	   6075	  0x280	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/riscv/libriscv.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+   3178	   3162	     16	      4	   4313	   7495	   1d47	rtos_pub.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_rtos/libbk_rtos.a)
+   1295	    718	    577	      0	      0	   1295	    50f	rtos_debug.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_rtos/libbk_rtos.a)
+    549	    464	     85	      0	      0	    549	    225	mem_arch.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_rtos/libbk_rtos.a)
+    448	    310	    138	      0	      0	    448	    1c0	platform_stub.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_rtos/libbk_rtos.a)
+    266	    266	      0	      0	      0	    266	    10a	str_arch.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_rtos/libbk_rtos.a)
+    456	    456	      0	      0	      4	    460	    1cc	FreeRTOS_tick_config.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_rtos/libbk_rtos.a)
+    499	    376	    123	      0	      4	    503	    1f7	main_blinky.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_rtos/libbk_rtos.a)
+   6691	   5752	    939	      4	   4321	  11016	  0x503	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_rtos/libbk_rtos.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+      4	      4	      0	      0	      0	      4	      4	ate.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_ate/libbk_ate.a)
+      4	      4	      0	      0	      0	      4	    0x4	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_ate/libbk_ate.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+    814	    750	     64	      0	      0	    814	    32e	base_64.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/base64/libbase64.a)
+    814	    750	     64	      0	      0	    814	  0x814	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/base64/libbase64.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+      0	      0	      0	      0	      0	      0	      0	bk_ef.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/easy_flash/libeasy_flash.a)
+    267	    110	    157	      0	      0	    267	    10b	easyflash.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/easy_flash/libeasy_flash.a)
+   3397	   2510	    887	      0	   1046	   4443	   115b	ef_env.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/easy_flash/libeasy_flash.a)
+      0	      0	      0	      0	      0	      0	      0	ef_env_wl.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/easy_flash/libeasy_flash.a)
+      0	      0	      0	      0	      0	      0	      0	ef_iap.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/easy_flash/libeasy_flash.a)
+      0	      0	      0	      0	      0	      0	      0	ef_log.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/easy_flash/libeasy_flash.a)
+   1070	     46	   1024	      0	      0	   1070	    42e	ef_utils.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/easy_flash/libeasy_flash.a)
+    597	    548	     49	      0	      4	    601	    259	ef_port.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/easy_flash/libeasy_flash.a)
+   5331	   3214	   2117	      0	   1050	   6381	  0x601	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/easy_flash/libeasy_flash.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+    300	    180	    120	     21	      0	    321	    141	legacy_init.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_init/libbk_init.a)
+    324	    206	    118	      0	      0	    324	    144	components_init.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_init/libbk_init.a)
+    233	    154	     79	      0	      0	    233	     e9	reset_reason.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_init/libbk_init.a)
+    857	    540	    317	     21	      0	    878	  0x233	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_init/libbk_init.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+    164	    146	     18	      0	      0	    164	     a4	driver.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+  10954	  10954	      0	      0	      0	  10954	   2aca	sys_driver.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+      4	      4	      0	      0	      0	      4	      4	dd.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+    798	    798	      0	      0	    420	   1218	    4c2	drv_model.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+    713	    444	    269	      0	      4	    717	    2cd	icu_driver.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+    674	    162	    512	      0	      0	    674	    2a2	interrupt_base.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+   1703	   1606	     97	      0	     33	   1736	    6c8	timer_driver.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+   2672	   2624	     48	      0	     61	   2733	    aad	dma_driver.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+   1059	    870	    189	      5	     29	   1093	    445	wdt_driver.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+   7044	   6286	    758	      0	    145	   7189	   1c15	spi_driver.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+    821	    392	    429	      0	     64	    885	    375	spi_statis.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+      0	      0	      0	      0	      0	      0	      0	sys_ctrl.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+    112	    112	      0	      0	      0	    112	     70	aon_pmu_driver.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+   3178	   2438	    740	      0	      8	   3186	    c72	flash.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+   1161	    962	    199	      0	     13	   1174	    496	irda.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+      0	      0	      0	      0	      0	      0	      0	mac_phy_bypass.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+   1286	   1200	     86	      0	    200	   1486	    5ce	gpio_driver_base.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+   7119	   6664	    455	      0	    129	   7248	   1c50	uart_driver.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+      0	      0	      0	      0	      0	      0	      0	uart_statis.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+    294	    294	      0	      0	      9	    303	    12f	efuse_driver.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+     54	     54	      0	      0	      0	     54	     36	rw_platf_pub.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+   4549	   4112	    437	      0	      0	   4549	   11c5	printf.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+      0	      0	      0	      0	      0	      0	      0	security.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+      0	      0	      0	      0	      0	      0	      0	hal_aes.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+      0	      0	      0	      0	      0	      0	      0	hal_sha.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+   3466	   3132	    334	      0	    485	   3951	    f6f	adc_driver.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+    473	    244	    229	      0	     16	    489	    1e9	adc_statis.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+   6700	   5830	    870	      0	    169	   6869	   1ad5	i2c_driver.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+      0	      0	      0	      0	      0	      0	      0	i2c_statis.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+    474	    474	      0	      0	      0	    474	    1da	flash_bypass.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+    998	    968	     30	      0	     17	   1015	    3f7	fft_driver.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+   3244	   2624	    620	      0	     33	   3277	    ccd	i2s_driver.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+   1408	   1136	    272	      0	     16	   1424	    590	lcd_disp_driver.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+    340	    340	      0	      0	      0	    340	    154	dma2d_driver.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+    392	    392	      0	      0	    136	    528	    210	jpeg_dec_driver.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+   1836	   1672	    164	      0	     49	   1885	    75d	jpeg_driver.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+      0	      0	      0	      0	      0	      0	      0	jpeg_statis.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+    402	    402	      0	      0	      1	    403	    193	psram_driver.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+   2570	   2530	     40	      0	     37	   2607	    a2f	aud_driver.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+   3306	   3090	    216	      0	      8	   3314	    cf2	sbc_driver.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+      0	      0	      0	      0	      0	      0	      0	dsp.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+     80	     80	      0	      0	      0	     80	     50	mailbox_driver.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+   1382	   1350	     32	      0	     73	   1455	    5af	mailbox_driver_base.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+   1106	   1086	     20	      0	    157	   1263	    4ef	mailbox_channel.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+   1039	    746	    293	      0	      0	   1039	    40f	gpio_driver.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+     10	     10	      0	      0	      0	     10	      a	interrupt.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+      0	      0	      0	      0	      0	      0	      0	interrupt_statis.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a)
+  73585	  66228	   7357	      5	   2312	  75902	    0x0	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/driver/libdriver.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+   4914	   3498	   1416	      0	     25	   4939	   134b	event.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_event/libbk_event.a)
+   4914	   3498	   1416	      0	     25	   4939	 0x4939	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_event/libbk_event.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+    164	    130	     34	      0	      0	    164	     a4	log.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_log/libbk_log.a)
+    164	    130	     34	      0	      0	    164	  0x164	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_log/libbk_log.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+    152	    138	     14	      0	      0	    152	     98	system_main.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_startup/libbk_startup.a)
+     30	     30	      0	      0	      0	     30	     1e	rtos_init.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_startup/libbk_startup.a)
+    182	    168	     14	      0	      0	    182	   0x30	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_startup/libbk_startup.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+      0	      0	      0	      0	      0	      0	      0	croutine.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/os_source/libos_source.a)
+   2003	   1862	    141	      0	      0	   2003	    7d3	event_groups.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/os_source/libos_source.a)
+    136	    136	      0	      0	      0	    136	     88	list.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/os_source/libos_source.a)
+    706	    630	     76	      4	   4108	   4818	   12d2	port.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/os_source/libos_source.a)
+   1792	   1792	      0	      0	      0	   1792	    700	portASM.S.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/os_source/libos_source.a)
+   6287	   5848	    439	      0	      0	   6287	   188f	queue.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/os_source/libos_source.a)
+  13680	  12800	    880	      4	    364	  14048	   36e0	tasks.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/os_source/libos_source.a)
+   4738	   4216	    522	      0	      0	   4738	   1282	stream_buffer.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/os_source/libos_source.a)
+   2896	   2540	    356	      0	    332	   3228	    c9c	timers.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/os_source/libos_source.a)
+   1159	   1106	     53	      0	  30744	  31903	   7c9f	heap_4.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/os_source/libos_source.a)
+  33397	  30930	   2467	      8	  35548	  68953	0x31903	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/os_source/libos_source.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+      0	      0	      0	      0	      0	      0	      0	conv_utf8.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/utf8/libutf8.a)
+      0	      0	      0	      0	      0	      0	    0x0	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/utf8/libutf8.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+    522	    414	    108	      0	      4	    526	    20e	temp_detect.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/temp_detect/libtemp_detect.a)
+    522	    414	    108	      0	      4	    526	  0x526	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/temp_detect/libtemp_detect.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+   2559	   1990	    569	      0	      4	   2563	    a03	BkDriverFlash.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/user_driver/libuser_driver.a)
+   2559	   1990	    569	      0	      4	   2563	 0x2563	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/user_driver/libuser_driver.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+      0	      0	      0	      0	      0	      0	      0	security_func.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/security/libsecurity.a)
+      0	      0	      0	      0	      0	      0	    0x0	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/security/libsecurity.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+   2426	   1228	   1198	      0	     40	   2466	    9a2	dvp_camera_driver.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/video/libvideo.a)
+   2426	   1228	   1198	      0	     40	   2466	 0x2466	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/video/libvideo.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+    556	    504	     52	      0	      0	    556	    22c	at_common.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/at/libat.a)
+      0	      0	      0	      0	      0	      0	      0	ble_at_command.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/at/libat.a)
+   1964	   1260	    704	      0	      0	   1964	    7ac	video_at_command.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/at/libat.a)
+   2520	   1764	    756	      0	      0	   2520	 0x1964	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/at/libat.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+   3473	   2948	    525	      0	      0	   3473	    d91	key_value.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/compal/libcompal.a)
+    306	    306	      0	      0	      0	    306	    132	func_convert.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/compal/libcompal.a)
+  10285	   7696	   2589	      0	      0	  10285	   282d	flash_namespace_value.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/compal/libcompal.a)
+   4921	   3514	   1407	      0	      1	   4922	   133a	iot_uart.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/compal/libcompal.a)
+   1480	   1308	    172	      0	     36	   1516	    5ec	iot_adc.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/compal/libcompal.a)
+    159	    120	     39	      0	     16	    175	     af	iot_test_common_io_internal.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/compal/libcompal.a)
+   6617	   5640	    977	      5	     12	   6634	   19ea	test_iot_adc.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/compal/libcompal.a)
+   8084	   6518	   1566	     16	     26	   8126	   1fbe	test_iot_gpio.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/compal/libcompal.a)
+  13236	  10934	   2302	      6	      9	  13251	   33c3	test_iot_i2c.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/compal/libcompal.a)
+   3971	   3008	    963	     24	     12	   4007	    fa7	test_iot_pwm.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/compal/libcompal.a)
+   7458	   6082	   1376	      1	    184	   7643	   1ddb	test_iot_uart.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/compal/libcompal.a)
+     48	     48	      0	      0	      0	     48	     30	all_tests.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/compal/libcompal.a)
+   1818	   1654	    164	      4	     68	   1890	    762	unity_fixture.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/compal/libcompal.a)
+   6917	   6302	    615	      0	    348	   7265	   1c61	unity.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/compal/libcompal.a)
+  68773	  56078	  12695	     56	    712	  69541	 0x7265	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/compal/libcompal.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+   5058	   3228	   1830	      0	      0	   5058	   13c2	cli_adc.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+     18	     18	      0	      0	      0	     18	     12	cli_airkiss.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+     18	     18	      0	      0	      0	     18	     12	cli_ble.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+   1729	   1292	    437	      0	      0	   1729	    6c1	cli_event.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+   1448	    918	    530	      0	      0	   1448	    5a8	cli_flash.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+    750	    534	    216	      0	      0	    750	    2ee	cli_keyValue.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+   4370	   2886	   1484	      0	      0	   4370	   1112	cli_gpio.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+      0	      0	      0	      0	      0	      0	      0	cli_iperf.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+   3499	   2814	    685	      1	     73	   3573	    df5	cli_main.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+    931	    426	    505	      0	      0	    931	    3a3	cli_misc.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+    344	    178	    166	      0	      4	    348	    15c	cli_mico.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+    650	    382	    268	      0	      0	    650	    28a	cli_mem.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+    429	    164	    265	      0	      0	    429	    1ad	cli_os.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+     18	     18	      0	      0	      0	     18	     12	cli_ota.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+   1690	   1036	    654	      0	     18	   1708	    6ac	cli_rpc.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+      0	      0	      0	      0	      0	      0	      0	cli_phy.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+    753	    398	    355	      0	      0	    753	    2f1	cli_pwr.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+      0	      0	      0	      0	      0	      0	      0	cli_pwm.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+   2165	   1492	    673	      0	      0	   2165	    875	cli_reg.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+     18	     18	      0	      0	      0	     18	     12	cli_sd.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+     18	     18	      0	      0	      0	     18	     12	cli_security.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+      0	      0	      0	      0	      0	      0	      0	cli_netif.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+   1233	    668	    565	      0	      0	   1233	    4d1	cli_timer.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+   2244	   1082	   1162	      0	      0	   2244	    8c4	cli_touch.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+    300	    146	    154	      0	      0	    300	    12c	cli_temp_detect.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+   5477	   3560	   1917	      0	      0	   5477	   1565	cli_uart.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+      0	      0	      0	      0	      0	      0	      0	cli_wifi.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+   3226	   1976	   1250	      0	      0	   3226	    c9a	cli_dma.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+   1362	    936	    426	      0	      0	   1362	    552	cli_wdt.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+   4852	   3310	   1542	      0	      0	   4852	   12f4	cli_spi.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+    831	    498	    333	      0	      0	    831	    33f	cli_exception.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+   2719	   1520	   1199	      0	      0	   2719	    a9f	cli_icu.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+   2281	   1590	    691	      0	      0	   2281	    8e9	cli_i2c.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+  10626	   5814	   4812	   1024	     32	  11682	   2da2	cli_i2s.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+   4375	   4138	    237	     72	   3705	   8152	   1fd8	shell_task.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+   1174	   1142	     32	    680	      0	   1854	    73e	shell_uart.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+   1096	   1064	     32	    416	      0	   1512	    5e8	shell_mailbox_cp1.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+   1653	   1494	    159	      0	    336	   1989	    7c5	mb_ipc_cmd.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+    382	    382	      0	      0	     24	    406	    196	amp_res_lock.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+    192	    192	      0	      0	      0	    192	     c0	rpc_client_gpio.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+   1112	    768	    344	      0	      0	   1112	    458	cli_jpegenc.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+    432	    272	    160	      0	      0	    432	    1b0	cli_at.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+  11222	   7196	   4026	      4	     12	  11238	   2be6	cli_lcd.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+  30528	   4218	  26310	      0	     16	  30544	   7750	cli_dma2d.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+  16489	   9594	   6895	      8	   8212	  24709	   6085	cli_aud.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+   1878	   1244	    634	      0	   2620	   4498	   1192	cli_sbc.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a)
+ 129590	  68642	  60948	   2205	  15052	 146847	 0x4498	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_cli/libbk_cli.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+      0	      0	      0	      0	      0	      0	      0	video_transfer_tcp.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/app/libapp.a)
+      0	      0	      0	      0	      0	      0	      0	video_transfer_udp.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/app/libapp.a)
+      0	      0	      0	      0	      0	      0	      0	video_buffer.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/app/libapp.a)
+     18	     18	      0	      0	      0	     18	     12	video_demo_main.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/app/libapp.a)
+      0	      0	      0	      0	      0	      0	      0	video_demo_station.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/app/libapp.a)
+      0	      0	      0	      0	      0	      0	      0	video_demo_softap.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/app/libapp.a)
+     18	     18	      0	      0	      0	     18	    0x0	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/app/libapp.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+      0	      0	      0	      0	      0	      0	      0	audio_intf.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/audio/libaudio.a)
+      0	      0	      0	      0	      0	      0	    0x0	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/audio/libaudio.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+     62	     62	      0	      0	      0	     62	     3e	lib_adapter.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_adapter/libbk_adapter.a)
+     62	     62	      0	      0	      0	     62	   0x62	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/bk_adapter/libbk_adapter.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+      2	      2	      0	      0	      0	      2	      2	usb_plug.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/usb_plug/libusb_plug.a)
+      2	      2	      0	      0	      0	      2	    0x2	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/usb_plug/libusb_plug.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+     26	     26	      0	      0	      0	     26	     1a	legacy_app_main.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/main/libmain.a)
+     26	     26	      0	      0	      0	     26	   0x26	/home/jenkins/workspace/Armino_SDK_Push/armino/build/legacy_app/bk7256_cp1/armino/main/libmain.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+   1637	   1562	     75	      0	     12	   1649	    671	ps.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/components/bk_libs/bk7256_cp1/libs/libip_ax.a)
+     12	      0	     12	      0	      0	     12	      c	llc.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/components/bk_libs/bk7256_cp1/libs/libip_ax.a)
+     70	     70	      0	      0	      0	     70	     46	dma.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/components/bk_libs/bk7256_cp1/libs/libip_ax.a)
+   1719	   1632	     87	      0	     12	   1731	   0x70	/home/jenkins/workspace/Armino_SDK_Push/armino/components/bk_libs/bk7256_cp1/libs/libip_ax.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+   2113	   1916	    197	      8	    280	   2401	    961	pm.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/components/bk_libs/bk7256_cp1/libs/libpower_save.a)
+    402	    338	     64	      0	      0	    402	    192	ps_control.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/components/bk_libs/bk7256_cp1/libs/libpower_save.a)
+     20	     20	      0	      0	      0	     20	     14	mcu_ps.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/components/bk_libs/bk7256_cp1/libs/libpower_save.a)
+    260	    260	      0	      0	     16	    276	    114	ap_idle.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/components/bk_libs/bk7256_cp1/libs/libpower_save.a)
+     10	     10	      0	      0	      4	     14	      e	manual_ps.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/components/bk_libs/bk7256_cp1/libs/libpower_save.a)
+      0	      0	      0	      0	      0	      0	      0	ps_time.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/components/bk_libs/bk7256_cp1/libs/libpower_save.a)
+   2805	   2544	    261	      8	    300	   3113	    0x0	/home/jenkins/workspace/Armino_SDK_Push/armino/components/bk_libs/bk7256_cp1/libs/libpower_save.a
+
+   text	   code	 rodata	   data	    bss	    dec	    hex	filename
+      0	      0	      0	      0	      0	      0	      0	pbuf.c.obj (ex /home/jenkins/workspace/Armino_SDK_Push/armino/components/bk_libs/bk7256_cp1/libs/librwnx_intf.a)
+      0	      0	      0	      0	      0	      0	    0x0	/home/jenkins/workspace/Armino_SDK_Push/armino/components/bk_libs/bk7256_cp1/libs/librwnx_intf.a
+

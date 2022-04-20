@@ -241,7 +241,9 @@ bk_err_t bk_timer_start_without_callback(timer_id_t timer_id, uint32_t time_ms)
 
 bk_err_t bk_timer_start(timer_id_t timer_id, uint32_t time_ms, timer_isr_t callback)
 {
+#if CONFIG_TIMER_SUPPORT_ID_BITS
     TIMER_RETURN_TIMER_ID_IS_ERR(timer_id);
+#endif
     BK_LOG_ON_ERR(bk_timer_start_without_callback(timer_id, time_ms));
     s_timer_isr[timer_id] = callback;
 
@@ -251,7 +253,9 @@ bk_err_t bk_timer_start(timer_id_t timer_id, uint32_t time_ms, timer_isr_t callb
 bk_err_t bk_timer_stop(timer_id_t timer_id)
 {
     TIMER_RETURN_ON_NOT_INIT();
+#if CONFIG_TIMER_SUPPORT_ID_BITS
     TIMER_RETURN_TIMER_ID_IS_ERR(timer_id);
+#endif
     TIMER_RETURN_ON_INVALID_ID(timer_id);
 
     timer_hal_stop_common(&s_timer.hal, timer_id);
@@ -262,7 +266,6 @@ bk_err_t bk_timer_stop(timer_id_t timer_id)
 uint32_t bk_timer_get_cnt(timer_id_t timer_id)
 {
     TIMER_RETURN_ON_NOT_INIT();
-    TIMER_RETURN_TIMER_ID_IS_ERR(timer_id);
     TIMER_RETURN_ON_INVALID_ID(timer_id);
 
     return timer_hal_get_count(&s_timer.hal, timer_id);
@@ -271,7 +274,6 @@ uint32_t bk_timer_get_cnt(timer_id_t timer_id)
 bk_err_t bk_timer_enable(timer_id_t timer_id)
 {
     TIMER_RETURN_ON_NOT_INIT();
-    TIMER_RETURN_TIMER_ID_IS_ERR(timer_id);
     TIMER_RETURN_ON_INVALID_ID(timer_id);
     timer_hal_enable(&s_timer.hal, timer_id);
     return BK_OK;
@@ -280,7 +282,6 @@ bk_err_t bk_timer_enable(timer_id_t timer_id)
 bk_err_t bk_timer_disable(timer_id_t timer_id)
 {
     TIMER_RETURN_ON_NOT_INIT();
-    TIMER_RETURN_TIMER_ID_IS_ERR(timer_id);
     TIMER_RETURN_ON_INVALID_ID(timer_id);
     timer_hal_disable(&s_timer.hal, timer_id);
     return BK_OK;
@@ -289,7 +290,6 @@ bk_err_t bk_timer_disable(timer_id_t timer_id)
 uint32_t bk_timer_get_period(timer_id_t timer_id)
 {
     TIMER_RETURN_ON_NOT_INIT();
-    TIMER_RETURN_TIMER_ID_IS_ERR(timer_id);
     TIMER_RETURN_ON_INVALID_ID(timer_id);
     return timer_hal_get_end_count(&s_timer.hal, timer_id);
 }

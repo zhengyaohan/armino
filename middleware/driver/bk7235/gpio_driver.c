@@ -99,3 +99,19 @@ bk_err_t gpio_sdio_sel(gpio_sdio_map_mode_t mode)
 	return BK_OK;
 }
 
+//Add for ONE DATA LINE mode
+bk_err_t gpio_sdio_one_line_sel(gpio_sdio_map_mode_t mode)
+{
+	GPIO_RETURN_ON_INVALID_PERIAL_MODE(mode, GPIO_SDIO_MAP_MODE_MAX);
+
+	GPIO_MAP_TABLE(GPIO_SDIO_ONE_LINE_USED_GPIO_NUM, GPIO_SDIO_MAP_MODE_MAX, sdio_gpio_map) = GPIO_SDIO_ONE_LINE_MAP_TABLE;
+
+	gpio_hal_devs_map(&s_gpio.hal, sdio_gpio_map[mode].gpio_bits, sdio_gpio_map[mode].devs, GPIO_SDIO_ONE_LINE_USED_GPIO_NUM);
+
+	GPIO_LOGI("Warning bk7256 USE PLIC  NOT icu\n");
+	//icu_sdio_gpio_sel(mode);
+
+	return BK_OK;
+}
+
+

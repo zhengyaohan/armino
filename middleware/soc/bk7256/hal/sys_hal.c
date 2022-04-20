@@ -7670,3 +7670,39 @@ void sys_hal_set_ana_vhsel_ldodig(uint32_t value)
 {
     sys_ll_set_ana_reg3_vhsel_ldodig(value);
 }
+
+void sys_hal_set_sdio_clk_en(uint32_t value)
+{
+	sys_ll_set_cpu_device_clk_enable_sdio_cken(value);
+}
+
+void sys_hal_set_cpu0_sdio_int_en(uint32_t value)
+{
+	sys_ll_set_cpu0_int_0_31_en_cpu0_sdio_int_en(value);
+}
+
+void sys_hal_set_cpu1_sdio_int_en(uint32_t value)
+{
+	sys_ll_set_cpu1_int_0_31_en_cpu1_sdio_int_en(value);
+}
+
+void sys_hal_set_sdio_clk_div(uint32_t value)
+{
+	sys_ll_set_cpu_clk_div_mode2_ckdiv_sdio(value);
+}
+
+uint32_t sys_hal_get_sdio_clk_div()
+{
+	return sys_ll_get_cpu_clk_div_mode2_ckdiv_sdio();
+}
+
+void sys_hal_set_sdio_clk_sel(uint32_t value)
+{
+	sys_ll_set_cpu_clk_div_mode2_cksel_sdio(value);
+}
+
+uint32_t sys_hal_get_sdio_clk_sel()
+{
+	return sys_ll_get_cpu_clk_div_mode2_cksel_sdio();
+}
+

@@ -16,7 +16,7 @@
 #include <string.h>
 
 #include <os/os.h>
-#include "rpc_mb.h"
+#include "mb_ipc_cmd.h"
 #include <driver/gpio.h>
 
 #define MOD_TAG		"RPC"
@@ -195,7 +195,7 @@ int bk_gpio_api_svr(rpc_call_def_t * call_buf)
 #endif
 
 #include <os/os.h>
-#include "rpc_mb.h"
+#include "mb_ipc_cmd.h"
 #include <driver/dma.h>
 
 //#define MOD_TAG		"RPC"

@@ -2824,27 +2824,76 @@ uint32_t system_driver_get_qspi0_clk_div()
 {
 	return system_hal_get_qspi0_clk_div(&s_system);
 }
+#endif
 
-void system_driver_set_sdio_clk_div(uint32_t value)
+#if CONFIG_SDIO_V2P0
+void sys_driver_set_sdio_clk_en(uint32_t value)
 {
-	system_hal_set_sdio_clk_div(&s_system, value);
-}
-uint32_t system_driver_get_sdio_clk_div()
-{
-	return system_hal_get_sdio_clk_div(&s_system);
-}
-void system_driver_set_sdio_clk_sel(bool value)
-{
-	if(value)
-		system_hal_set_sdio_clk_sel(&s_system, 1);
-	else
-		system_hal_set_sdio_clk_sel(&s_system, 0);
-}
-uint32_t system_driver_get_sdio_clk_sel()
-{
-	return system_hal_get_sdio_clk_sel(&s_system);
+	uint32_t int_level = rtos_disable_int();
+
+	sys_hal_set_sdio_clk_en(value);
+
+	rtos_enable_int(int_level);
 }
 
+void sys_driver_set_cpu0_sdio_int_en(uint32_t value)
+{
+	uint32_t int_level = rtos_disable_int();
+
+	sys_hal_set_cpu0_sdio_int_en(value);
+
+	rtos_enable_int(int_level);
+}
+
+void sys_driver_set_cpu1_sdio_int_en(uint32_t value)
+{
+	uint32_t int_level = rtos_disable_int();
+
+	sys_hal_set_cpu1_sdio_int_en(value);
+
+	rtos_enable_int(int_level);
+}
+
+void sys_driver_set_sdio_clk_div(uint32_t value)
+{
+	uint32_t int_level = rtos_disable_int();
+
+	sys_hal_set_sdio_clk_div(value);
+
+	rtos_enable_int(int_level);
+}
+
+uint32_t sys_driver_get_sdio_clk_div()
+{
+	uint32_t reg_v;
+	uint32_t int_level = rtos_disable_int();
+
+	reg_v = sys_hal_get_sdio_clk_div();
+	rtos_enable_int(int_level);
+
+	return reg_v;
+}
+void sys_driver_set_sdio_clk_sel(uint32_t value)
+{
+	uint32_t int_level = rtos_disable_int();
+
+	sys_hal_set_sdio_clk_sel(value);
+
+	rtos_enable_int(int_level);
+}
+uint32_t sys_driver_get_sdio_clk_sel()
+{
+	uint32_t reg_v;
+	uint32_t int_level = rtos_disable_int();
+
+	reg_v = sys_hal_get_sdio_clk_sel();
+	rtos_enable_int(int_level);
+
+	return reg_v;
+}
+#endif
+
+#if 0
 void system_driver_set_auxs_clk_div(uint32_t value)
 {
 	system_hal_set_auxs_clk_div(&s_system, value);

@@ -101,7 +101,7 @@ bk_err_t bk_i2s_driver_init(void)
 		return BK_OK;
 
 	//power on
-	low_power_power_ctrl(POWER_MODULE_NAME_AUDP, POWER_MODULE_STATE_ON);
+	pm_module_vote_power_ctrl(PM_POWER_MODULE_NAME_AUDP, PM_POWER_MODULE_STATE_ON);
 	sys_drv_aud_power_en(0);    //temp used
 
 	//select 26M XTAL clock and enable i2s clock

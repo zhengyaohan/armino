@@ -50,19 +50,19 @@ static const unsigned char msbc_data[] = {
 
 static void cli_sbc_decoder_help(void)
 {
-	CLI_LOGI("sbc_decoder_test {start|stop} \r\n");
-	CLI_LOGI("msbc_decoder_test {start|stop} \r\n");
+	SBC_LOGI("sbc_decoder_test {start|stop} \r\n");
+	SBC_LOGI("msbc_decoder_test {start|stop} \r\n");
 }
 
 static void cli_sbc_decoder_isr(void *param)
 {
 	bk_dma_start(DMA_ID_2);
 	bk_aud_start_dac();
-	bk_sbc_decoder_clear_interrupt_status();
 }
 
 static void cli_sbc_decoder_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
+	bk_err_t ret = BK_OK;
 	aud_dac_config_t dac_config;
 	dma_config_t dma_config;
 	uint32_t dac_fifo_addr;
@@ -77,6 +77,7 @@ static void cli_sbc_decoder_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, i
 	}
 
 	if (os_strcmp(argv[1], "start") == 0) {
+		SBC_LOGI("sbc_decoder_test start\r\n");
 		bk_sbc_decoder_init(&sbc_decoder);
 		bk_sbc_decoder_register_sbc_isr(cli_sbc_decoder_isr, NULL);
 		bk_sbc_decoder_interrupt_enable(1);
@@ -118,22 +119,31 @@ static void cli_sbc_decoder_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, i
 		dma_config.chan_prio = 1;
 		dma_config.src.dev = DMA_DEV_DTCM;
 		dma_config.src.width = DMA_DATA_WIDTH_32BITS;
+		dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
+		dma_config.src.addr_loop_en = DMA_ADDR_LOOP_ENABLE;
 		dma_config.dst.dev = DMA_DEV_AUDIO;
 		dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
 
 		//get dac fifo address
 		if (bk_aud_get_dac_fifo_addr(&dac_fifo_addr) != BK_OK) {
-			CLI_LOGE("get dac fifo address failed\r\n");
+			SBC_LOGE("get dac fifo address failed\r\n");
 			return;
 		} else {
+			dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE;
+			dma_config.dst.addr_loop_en = DMA_ADDR_LOOP_ENABLE;
 			dma_config.dst.start_addr = dac_fifo_addr;
+			dma_config.dst.end_addr = dac_fifo_addr + 4;
 		}
 
 		dma_config.src.start_addr =(uint32_t)&sbc_decoder.pcm_sample;
 		dma_config.src.end_addr = (uint32_t)&sbc_decoder.pcm_sample + sbc_decoder.pcm_length;
 
 		//init dma channel
-		bk_dma_init(DMA_ID_0, &dma_config);
+		ret = bk_dma_init(DMA_ID_0, &dma_config);
+		if (ret != BK_OK) {
+			SBC_LOGE("dma init failed\r\n");
+			return;
+		}
 		bk_dma_set_transfer_len(DMA_ID_0, sbc_decoder.pcm_length * 4);
 
 		while(fp < sizeof(sbc_data))
@@ -146,7 +156,7 @@ static void cli_sbc_decoder_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, i
 			}
 		}
 	}else if (os_strcmp(argv[1], "stop") == 0) {
-		CLI_LOGI("sbc decoder test stop!\r\n");
+		SBC_LOGI("sbc decoder test stop!\r\n");
 		bk_sbc_decoder_deinit();
 		bk_aud_stop_dac();
 		bk_aud_driver_deinit();
@@ -160,6 +170,7 @@ static void cli_sbc_decoder_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, i
 
 static void cli_msbc_decoder_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
+	bk_err_t ret = BK_OK;
 	aud_dac_config_t dac_config;
 	dma_config_t dma_config;
 	uint32_t dac_fifo_addr;
@@ -174,6 +185,7 @@ static void cli_msbc_decoder_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, 
 	}
 
 	if (os_strcmp(argv[1], "start") == 0) {
+		SBC_LOGI("msbc_decoder_test start\r\n");
 		bk_sbc_decoder_init(&sbc_decoder);
 		bk_sbc_decoder_register_sbc_isr(cli_sbc_decoder_isr, NULL);
 		bk_sbc_decoder_interrupt_enable(1);
@@ -215,22 +227,29 @@ static void cli_msbc_decoder_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, 
 		dma_config.chan_prio = 1;
 		dma_config.src.dev = DMA_DEV_DTCM;
 		dma_config.src.width = DMA_DATA_WIDTH_32BITS;
-		dma_config.dst.dev = DMA_DEV_AUDIO;
-		dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
+		dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
+		dma_config.src.addr_loop_en = DMA_ADDR_LOOP_ENABLE;
 
 		//get dac fifo address
 		if (bk_aud_get_dac_fifo_addr(&dac_fifo_addr) != BK_OK) {
-			CLI_LOGE("get dac fifo address failed\r\n");
+			SBC_LOGE("get dac fifo address failed\r\n");
 			return;
 		} else {
 			dma_config.dst.start_addr = dac_fifo_addr;
+			dma_config.dst.end_addr = dac_fifo_addr + 4;
+			dma_config.dst.dev = DMA_DEV_AUDIO;
+			dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
 		}
 
 		dma_config.src.start_addr =(uint32_t)&sbc_decoder.pcm_sample;
 		dma_config.src.end_addr = (uint32_t)&sbc_decoder.pcm_sample + sbc_decoder.pcm_length;
 
 		//init dma channel
-		bk_dma_init(DMA_ID_0, &dma_config);
+		ret = bk_dma_init(DMA_ID_0, &dma_config);
+		if (ret != BK_OK) {
+			SBC_LOGE("dma init failed\r\n");
+			return;
+		}
 		bk_dma_set_transfer_len(DMA_ID_0, sbc_decoder.pcm_length * 4);
 
 		while(fp < sizeof(msbc_data))
@@ -243,7 +262,7 @@ static void cli_msbc_decoder_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, 
 			}
 		}
 	}else if (os_strcmp(argv[1], "stop") == 0) {
-		CLI_LOGI("sbc decoder test stop!\r\n");
+		SBC_LOGI("msbc decoder test stop!\r\n");
 		bk_sbc_decoder_support_msbc(0);
 		bk_sbc_decoder_deinit();
 		bk_aud_stop_dac();

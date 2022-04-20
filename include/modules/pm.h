@@ -1,43 +1,42 @@
-#ifndef _LOW_POWER_MANAGE_API_H_
-#define _LOW_POWER_MANAGE_API_H_
+#ifndef _PM_H_
+#define _PM_H_
 
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "sys_types.h"
 #include <driver/int.h>
 
 typedef enum
 {
-   GPIO_TRIGGER_INTERRUPE_LEVEL_LOW_ACTIVE = 0,
-   GPIO_TRIGGER_INTERRUPE_LEVEL_HIGH_ACTIVE,
-   GPIO_TRIGGER_INTERRUPE_EDGE_RISING,
-   GPIO_TRIGGER_INTERRUPE_EDGE_FALLING,
+	GPIO_TRIGGER_INTERRUPE_LEVEL_LOW_ACTIVE = 0,
+	GPIO_TRIGGER_INTERRUPE_LEVEL_HIGH_ACTIVE,
+	GPIO_TRIGGER_INTERRUPE_EDGE_RISING,
+	GPIO_TRIGGER_INTERRUPE_EDGE_FALLING,
 }gpio_trigger_interrupt_type_e;
 
 typedef struct
 {
-  uint32_t gpio_id;
-  gpio_trigger_interrupt_type_e gpio_trigger_interrupt_type;
-  int_group_isr_t isr_callback;
+	uint32_t gpio_id;
+	gpio_trigger_interrupt_type_e gpio_trigger_interrupt_type;
+	int_group_isr_t isr_callback;
 }gpio_wakeup_param_t;
 typedef struct
 {
-    uint32_t  period;
-    int_group_isr_t isr_callback;
+	uint32_t  period;
+	int_group_isr_t isr_callback;
 }rtc_wakeup_param_t;
 typedef enum
 {
-    WIFI_WAKEUP = 1,
-    BT_WAKEUP,
+	WIFI_WAKEUP = 1,
+	BT_WAKEUP,
 }wifi_bt_wakeup_type_e;
 typedef struct
 {
-    wifi_bt_wakeup_type_e  wifi_bt_wakeup;
+	wifi_bt_wakeup_type_e  wifi_bt_wakeup;
 	uint32_t  sleep_time;
-    int_group_isr_t isr_callback;
+	int_group_isr_t isr_callback;
 }system_wakeup_param_t;
 typedef struct
 {
@@ -48,49 +47,173 @@ typedef struct
 	uint32_t  touch_channel;
     int_group_isr_t isr_callback;
 }touch_wakeup_param_t;
-/*low_power_init*/
-void low_power_init();
+typedef enum
+{
+	PM_MODE_NORMAL_SLEEP = 0,
+	PM_MODE_LOW_VOLTAGE ,
+	PM_MODE_DEEP_SLEEP ,
+	PM_MODE_DEFAULT
+}pm_sleep_mode_e;
 
-/*low power hardware init*/
-void low_power_hardware_init();
+typedef enum
+{
+	PM_WAKEUP_SOURCE_INT_GPIO = 0,
+	PM_WAKEUP_SOURCE_INT_RTC ,
+	PM_WAKEUP_SOURCE_INT_SYSTEM_WAKE ,
+	PM_WAKEUP_SOURCE_INT_USBPLUG ,
+	PM_WAKEUP_SOURCE_INT_TOUCHED ,
+	PM_WAKEUP_SOURCE_INT_NONE ,
+}pm_wakeup_source_e;
+typedef enum
+{
+	PM_POWER_MODULE_NAME_MEM1 = 0,
+	PM_POWER_MODULE_NAME_MEM2,
+	PM_POWER_MODULE_NAME_MEM3,
+	PM_POWER_MODULE_NAME_ENCP,
+	PM_POWER_MODULE_NAME_BAKP,
+	PM_POWER_MODULE_NAME_AHBP,
+	PM_POWER_MODULE_NAME_AUDP,
+	PM_POWER_MODULE_NAME_VIDP,
+	PM_POWER_MODULE_NAME_BTSP,      //8
+	PM_POWER_MODULE_NAME_WIFIP_MAC, //9
+	PM_POWER_MODULE_NAME_WIFI_PHY,
+	PM_POWER_MODULE_NAME_CPU1 ,     //11
+	PM_POWER_MODULE_NAME_APP ,      //12
+	PM_POWER_MODULE_NAME_NONE
+}pm_power_module_name_e;
 
-/*set_sleep_mode */
-void low_power_set_sleep_mode(low_power_sleep_mode_e sleep_mode);
+typedef enum
+{
+	PM_POWER_MODULE_STATE_ON = 0,
+    PM_POWER_MODULE_STATE_OFF,
+	PM_POWER_MODULE_STATE_NONE
+}pm_power_module_state_e;
+typedef enum
+{
+	PM_MODULE_NAME_WIFI = 0,
+	PM_MODULE_NAME_BT,
+	PM_MODULE_NAME_NONE
+}pm_module_name_e;
 
-/*wakeup_source_set*/
-void low_power_wakeup_source_set(wakeup_source_t wakeup_source, void* source_param);
+/**
+ * @brief mcu pm ctrl
+ *
+ * enabel and disable the mcu power manage
+ *
+ * @attention
+ * - This API is used to enabel and disable the mcu power manage
+ *
+ * @param
+ * -power_state:0x1:enable the mcu power manage;0x0:diable the mcu power manage
+ * @return
+ *    - BK_OK: succeed
+ *
+ */
+int pm_mcu_pm_ctrl(uint32_t power_state);
 
-/*module sleep ctrl*/
-void low_power_module_enter_sleep_ctrl(power_module_name_t module,uint32_t sleep_state);
+/**
+ * @brief get the mcu power feature state
+ *
+ * get the mcu power feature state
+ *
+ * @attention
+ *-This API is used to get the mcu power manage feature state(open or close)
+ *
+ * @param
+ * none
+ * @return
+ *-mcu power manage state(0x1:enable the mcu power manage;0x0:diable the mcu power manage)
+ *
+ */
+uint32_t pm_mcu_pm_state_get();
 
-void low_power_module_sleep_ctrl(power_module_name_t module,uint32_t sleep_state,uint32_t sleep_time);
-/*power control*/
-/*1. power module ctrl:power on or power off*/
-void low_power_power_ctrl(power_module_name_t module,power_module_state_t power_state);
+/**
+ * @brief set sleep mode
+ *
+ * set sleep mode.
+ *
+ * @attention
+ * - This API set sleep mode
+ *
+ * @param sleep mode
+ *
+ * @return
+ * - BK_OK: succeed
+ *
+ */
+int pm_sleep_mode_set(pm_sleep_mode_e sleep_mode);
 
-/*2. power lowvol_ctrl low voltage on or lowvol_off*/
-void low_power_lowvol_ctrl(power_module_name_t module,lowvol_module_state_t lowvol_state);
+/**
+ * @brief set wakeup source
+ *
+ * set wakeup source(eg.rtc,gpio)
+ *
+ * @attention
+ * - This API set wakeup source,wifi and bt themselves not need set wakup source when in volatage
+ *
+ * @param
+ * -wakeup_source:wake up source
+ * -source_param: the wakeup source parameter
+ * @return
+ * - BK_OK: succeed
+ *
+ */
+int pm_wakeup_source_set(pm_wakeup_source_e wakeup_source, void* source_param);
+
+/**
+ * @brief module vote sleep ctrl
+ *
+ * other module tell pm module, they have entered sleep.(eg.wifi or bt enter sleep,then call the function ,tell pm it have entered sleep)
+ *
+ * @attention
+ * - This API is used by wifi or bt... let pm module know them(wifi or bt...) enter sleep or exit sleep
+ * - if all the specific module enter sleep, the mcu will enter low voltage
+ *
+ * @param
+ * -module:module name
+ * -sleep_state:0x1:enter sleep;0x0:exit sleep
+ * -sleep_time: sleep time
+ * @return
+ *    - BK_OK: succeed
+ *
+ */
+int pm_module_vote_sleep_ctrl(pm_power_module_name_e module,uint32_t sleep_state,uint32_t sleep_time);
+
+/**
+ * @brief pm module vote power ctrl
+ *
+ * ther module tell pm module, they can enter power on or power off
+ *
+ * @attention
+ *  - This API is used for the module power on and power off.
+ *  - if all the specific module power off, the mcu will enter deep sleep
+ * @param 
+ * -module:module name
+ * -power_state:0x1:power off;0x0:power on
+ * @return
+ * - BK_OK: succeed
+ *
+ */
+int pm_module_vote_power_ctrl(pm_power_module_name_e module,pm_power_module_state_e power_state);
+
+/**
+ * @brief pm suppress ticks and sleep
+ *
+ * when the rtos enter idle task and sleep time > 2*(time per tick),it will call the function enter power manager
+ *
+ * @attention
+ * - This API is used for power manager.
+ *
+ * @param
+ * -sleep_ticks:sleep time using tick unit
+ * @return
+ * - BK_OK: succeed
+ *
+ */
+int pm_suppress_ticks_and_sleep(UINT32 sleep_ticks);
 
 
-/*clock control*/
-/*1. module clock enable*/
-void low_power_clock_ctrl(dev_clk_pwr_id_t module,dev_clk_pwr_ctrl_t clock_state);
-/*2. module clock switch*/
-void low_power_clock_switch(dev_clk_pwr_id_t name,int clksel,int clkdiv);
-/*3. core_bus_clock_enable*/
-void low_power_core_bus_clock_ctrl(high_clock_module_name_t core, int clksel,int clkdiv, high_clock_module_name_t bus,int bus_clksel,int bus_clkdiv);
 
-/*rf control*/
-/*1. RF power on or power off */
-void low_power_rf_power_ctrl (module_name_t module,power_module_state_t power_state);
-/*2. RF power switch */
-void low_power_rf_switch(module_name_t name);
-
-/*enter low power manage*/
-int low_power_suppress_ticks_and_sleep(UINT32 sleep_ticks);
-
-/*for debug log ctrl*/
-void low_power_debug_ctrl(uint32_t debug_en);
 #ifdef __cplusplus
 }
 #endif

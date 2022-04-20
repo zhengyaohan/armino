@@ -19,21 +19,6 @@
 #include "mailbox_channel.h"
 #include "mailbox_driver_base.h"
 
-
-#ifdef CONFIG_SLAVE_CORE
-
-#define SRC_CPU		MAILBOX_CPU1
-#define DST_CPU		MAILBOX_CPU0
-
-#endif
-
-#ifdef CONFIG_MASTER_CORE
-
-#define SRC_CPU		MAILBOX_CPU0
-#define DST_CPU		MAILBOX_CPU1
-
-#endif
-
 #define MB_PHY_CMD_CHNL		(MAILBOX_BOX0)
 #define MB_PHY_ACK_CHNL		(MAILBOX_BOX1)
 
@@ -252,7 +237,7 @@ static void mb_phy_chnl_rx_cmd_isr(mb_phy_chnl_cmd_t *cmd_ptr)
 	/* mb_phy_chnl_tx_ack. */
 
 	/* RE-USE the cmd buffer for ACK !!! */
-	cmd_ptr->hdr.data =  chnl_hdr.data;
+	cmd_ptr->hdr.data  = chnl_hdr.data;
 	cmd_ptr->hdr.ctrl |= CHNL_CTRL_ACK_BOX;			/* ACK msg, use the ACK channel.  */
 
 	if(cmd_ptr->hdr.ctrl & CHNL_CTRL_ACK_BOX)
@@ -274,7 +259,14 @@ static void mb_phy_chnl_rx_cmd_isr(mb_phy_chnl_cmd_t *cmd_ptr)
 
 static void mb_phy_chnl_rx_isr(mailbox_data_t * mb_data)
 {
-	mb_phy_chnl_union_t	*rx_data = (mb_phy_chnl_union_t *)mb_data;
+	mb_phy_chnl_union_t	rx_data;
+
+	rx_data.mb_data.param0 = mb_data->param0;
+	rx_data.mb_data.param1 = mb_data->param1;
+	rx_data.mb_data.param2 = mb_data->param2;
+	rx_data.mb_data.param3 = mb_data->param3;
+	/* the following process will damage the input parameter, 
+	so pass in the pointer of copied parameter instad of the original. */
 
 	/*
 	 *  there are 2 boxes in one MAILBOXn HW, 
@@ -282,13 +274,13 @@ static void mb_phy_chnl_rx_isr(mailbox_data_t * mb_data)
 	 *  so use the CHNL_CTRL_ACK_BOX bit in the msg hdr.ctrl to distinguish where it is from.
 	 *  when CHNL_CTRL_ACK_BOX is set, it means from ack box ( MAILBOXn_BOX1 ).
 	 */
-	if(rx_data->phy_ch_hdr.ctrl & CHNL_CTRL_ACK_BOX)		/* rx ack. */
+	if(rx_data.phy_ch_hdr.ctrl & CHNL_CTRL_ACK_BOX)		/* rx ack. */
 	{
-		mb_phy_chnl_rx_ack_isr(&rx_data->phy_ch_ack);
+		mb_phy_chnl_rx_ack_isr(&rx_data.phy_ch_ack);
 	}
 	else		/* rx cmd. */
 	{
-		mb_phy_chnl_rx_cmd_isr(&rx_data->phy_ch_cmd);
+		mb_phy_chnl_rx_cmd_isr(&rx_data.phy_ch_cmd);
 	}
 }
 
@@ -302,6 +294,8 @@ static void mb_phy_chnl_start_tx(u8 log_chnl)
 	if(phy_chnl_cb.tx_state == CHNL_STATE_ILDE)
 	{
 		phy_chnl_cb.tx_state = CHNL_STATE_BUSY;		/* MUST set channel state to BUSY firstly. */
+		/* start_tx->tx_cmd->tx_isr callback->mb_chnl_write->start_tx, it is a loop. 
+		   break the loop by setting the phy_chnl_cb.tx_state to busy. */
 
 		ret_code = mb_phy_chnl_tx_cmd(log_chnl);
 
@@ -497,7 +491,7 @@ bk_err_t mb_chnl_write(u8 log_chnl, mb_chnl_cmd_t * cmd_buf)
 	memcpy(&log_chnl_cb[log_chnl].chnnl_tx_buff, cmd_buf, write_len);
 
 	/* set to BUSY means there is data in tx-buff. mb_phy_chnl_rx_ack_isr will get it to send. */
-	log_chnl_cb[log_chnl].tx_state = CHNL_STATE_BUSY;
+	log_chnl_cb[log_chnl].tx_state = CHNL_STATE_BUSY;   /* MUST set to BUSY after data was copied. */
 
 	mb_phy_chnl_start_tx(log_chnl);
 

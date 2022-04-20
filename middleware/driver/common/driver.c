@@ -52,6 +52,10 @@
 #include "sdcard.h"
 #endif
 
+#if CONFIG_SDIO_V2P0
+#include "sdio_slave_driver.h"
+#endif
+
 #if CONFIG_QSPI
 #include <driver/qspi.h>
 #endif
@@ -240,10 +244,6 @@ int driver_init(void)
 	power_clk_rf_init();
 #endif
 
-#if CONFIG_SOC_BK7256XX
-	low_power_init();
-#endif
-
 	interrupt_init();
 
 	bk_gpio_driver_init();
@@ -327,6 +327,10 @@ int driver_init(void)
 
 #if CONFIG_SDCARD_HOST
 	sdcard_init();
+#endif
+
+#if CONFIG_SDIO_V2P0
+	bk_sdio_slave_driver_init();
 #endif
 
 #if CONFIG_CALENDAR

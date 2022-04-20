@@ -1,3 +1,5 @@
+#include "ip6_addr.h"
+
 #ifndef _MXCHIP_NETIF_ADDR_H_
 #define _MXCHIP_NETIF_ADDR_H_
 
@@ -12,6 +14,10 @@ typedef enum _wifi_interface_type
 
 #define ADDR_TYPE_STATIC 1
 #define ADDR_TYPE_DHCP   0
+
+#ifdef CONFIG_IPV6
+#define MAX_IPV6_ADDRESSES 3
+#endif
 
 /** This data structure represents an IPv4 address */
 struct ipv4_config {
@@ -28,6 +34,13 @@ struct ipv4_config {
 	/** The system's secondary dns server in network order. */
 	unsigned dns2;
 };
+
+#ifdef CONFIG_IPV6
+struct ipv6_config {
+	ip6_addr_t address;
+	u8 addr_state;
+};
+#endif
 
 /** Network IP configuration.
  *

@@ -22,12 +22,27 @@ extern "C" {
 #include <common/bk_typedef.h>
 #include <driver/mailbox_types.h>
 
+#ifdef CONFIG_SLAVE_CORE
+
+#define SRC_CPU		MAILBOX_CPU1
+#define DST_CPU		MAILBOX_CPU0
+
+#endif
+
+#ifdef CONFIG_MASTER_CORE
+
+#define SRC_CPU		MAILBOX_CPU0
+#define DST_CPU		MAILBOX_CPU1
+
+#endif
+
 /* the bigger the value, the lower the channel priority. */
 enum
 {
 	MB_CHNL_HW_CTRL = 0,
-	MB_CHNL_AUD     = 1,
-	MB_CHNL_LOG     = 2,   /* log chnl should be the LAST one. LOWEST priority. */
+	MB_CHNL_RPC,
+	MB_CHNL_AUD,
+	MB_CHNL_LOG,   /* MB_CHNL_LOG should be the LAST one. LOWEST priority. */
 	MB_LOG_CHNL_NUM,
 };
 

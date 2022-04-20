@@ -36,7 +36,7 @@ void bk_jpeg_dec_driver_deinit(void);
 
 
 /**
- * @brief    This API startjpeg dec
+ * @brief    This API init dec
  *
  * @param
  *     - dec_src_addr: decode data src addr
@@ -46,8 +46,17 @@ void bk_jpeg_dec_driver_deinit(void);
  *     - BK_OK: succeed
  *     - others: other errors.
  */
-bk_err_t bk_jpeg_dec_start_dec(uint32_t * dec_src_addr,  uint32_t *dec_dest_addr);
+bk_err_t bk_jpeg_dec_init(uint32_t * dec_src_addr,  uint32_t *dec_dest_addr);
 
+/**
+ * @brief    This API start dec
+ *
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
+ */
+
+bk_err_t bk_jpeg_dec_start(void);
 
 #if (USE_JPEG_DEC_COMPLETE_CALLBACKS == 1)
 

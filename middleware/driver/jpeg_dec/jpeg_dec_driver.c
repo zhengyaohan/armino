@@ -54,11 +54,12 @@ static void jpeg_decoder_isr_common(void);
 
 bk_err_t bk_jpeg_dec_driver_init(void)
 {
-	jpeg_hal_dec_init();
-	
+	jpeg_hal_dec_sysclk_en(1);
+	jpeg_hal_dec_int_en(1);
 #if (USE_JPEG_DEC_COMPLETE_CALLBACKS == 1)
 	bk_int_isr_register(INT_SRC_JPEG_DEC, jpeg_decoder_isr, NULL);
 #endif
+	jpg_decoder_init();
 
 	return BK_OK;
 }
@@ -70,12 +71,21 @@ void bk_jpeg_dec_driver_deinit(void)
 	bk_int_isr_unregister(INT_SRC_JPEG_DEC);
 }
 
-bk_err_t bk_jpeg_dec_start_dec(uint32_t * dec_src_addr, uint32_t *dec_dest_addr)
+bk_err_t bk_jpeg_dec_init(uint32_t * dec_src_addr, uint32_t *dec_dest_addr)
 {
 	JpegdecInit(&jdec, dec_src_addr);
 	jd_decomp(&jdec, 2, dec_src_addr, dec_dest_addr);
 	return BK_OK;
 }
+
+bk_err_t bk_jpeg_dec_start(void)
+{
+	//hal_jpeg_dec_start();
+	REG_DC_CLR;
+	REG_DEC_START;
+
+	return BK_OK;
+}
 
 /**
  * @brief  bk_jpeg_dec_isr_register
@@ -121,8 +131,7 @@ static void jpeg_decoder_isr(void)
 		REG_JPEG_MCUX= 0;;
 		REG_JPEG_MCUY = 0;;
 		dec_busy2_clr;
-		REG_JPEG_ACC_REG0 = 0;
-
+		//REG_JPEG_ACC_REG0 = 0;
 		jpeg_decoder_isr_common();
 	}
 	else

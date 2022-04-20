@@ -13,35 +13,13 @@
 // limitations under the License.
 
 #pragma once
-
+#include "modules/wifi_types.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-//TODO we should finally remove RW_EVT_ and use EVENT_ instead!!!
-
-typedef enum {
-	/* for station mode */
-	RW_EVT_STA_IDLE = 0,
-	RW_EVT_STA_CONNECTING,
-	RW_EVT_STA_BEACON_LOSE,
-	RW_EVT_STA_PASSWORD_WRONG,
-	RW_EVT_STA_NO_AP_FOUND,
-	RW_EVT_STA_DHCP_TIMEOUT,
-	RW_EVT_STA_ASSOC_FULL,
-	RW_EVT_STA_DISCONNECTED,    /* disconnect with server */
-	RW_EVT_STA_CONNECT_FAILED, /* authentication failed */
-	RW_EVT_STA_CONNECTED,	 /* authentication success */
-	RW_EVT_STA_GOT_IP,
-	/* for softap mode */
-	RW_EVT_AP_CONNECTED,          /* a client association success */
-	RW_EVT_AP_DISCONNECTED,    /* a client disconnect */
-	RW_EVT_AP_CONNECT_FAILED, /* a client association failed */
-	RW_EVT_MAX
-} rw_evt_type;
-
-void mhdr_set_station_status(rw_evt_type val);
-rw_evt_type mhdr_get_station_status(void);
+void mhdr_set_station_status(wifi_linkstate_reason_t info, void *val);
+wifi_linkstate_reason_t mhdr_get_station_status(void);
 void rwm_mgmt_set_vif_netif(uint8_t *mac, void *netif);
 
 #ifdef __cplusplus

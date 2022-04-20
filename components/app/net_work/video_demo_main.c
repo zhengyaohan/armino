@@ -135,7 +135,7 @@ static int video_transfer(int argc, char **argv)
                 /* video_transfer -s ssid key [options] */
                 connect_key = argv[3];
             }
-#if CONFIG_WIFI_P2P
+#if CONFIG_COMPONENTS_P2P
             app_demo_p2p_start(oob_ssid, connect_key);
             video_transfer_mode |= VIDE_MODE_P2P;
 #endif

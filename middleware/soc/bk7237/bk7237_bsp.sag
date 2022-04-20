@@ -2,6 +2,7 @@ USER_SECTIONS	.nds_vector
 USER_SECTIONS	.interrupt.text
 USER_SECTIONS	.interrupt.HalTrapVector.text.HalTrapVector
 USER_SECTIONS	.bt_spec_data
+USER_SECTIONS	.swap_data
 
 CPU0 0x00000000 0x280000
 {
@@ -82,5 +83,10 @@ CPU0 0x00000000 0x280000
         STACK = 0x30058000
 	}
 	
+	SWAP  0x3007fc00 0x400
+	{
+		ADDR NEXT   _swap_start
+		* KEEP (.swap_data)
+	}
 
 }

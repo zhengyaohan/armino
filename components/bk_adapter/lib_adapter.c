@@ -22,6 +22,7 @@
 #include "bk_flash.h"
 #include <os/os.h>
 #include <components/system.h>
+#include "modules/wifi_types.h"
 
 int mcu_suppress_and_sleep(uint32_t sleep_ticks)
 {
@@ -72,10 +73,10 @@ void write_cal_result_to_flash_secure_op2(void)
         #endif
 }
 
-void connection_fail_cb(int val)
+void connection_fail_cb(wifi_linkstate_reason_t info)
 {
 #if (CONFIG_ALIOS)
-	connect_fail_cb(val);
+	connect_fail_cb(info);
 #endif
 }
 

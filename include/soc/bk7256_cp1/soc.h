@@ -50,6 +50,7 @@ extern "C" {
 #define SOC_I2C1_REG_BASE        (0x45890000)
 #define SOC_AUD_REG_BASE         (0x47800000)
 #endif
+#define SOC_SDIO_REG_BASE 		 (0x448B0000)
 
 #define REG_WRITE(_r, _v) ({\
 		(*(volatile uint32_t *)(_r)) = (_v);\

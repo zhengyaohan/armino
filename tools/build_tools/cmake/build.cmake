@@ -163,18 +163,28 @@ function(__build_add_components components_path)
         if(is_component)
             __component_add(${property_dir} ${prefix})
         endif()
-        if(EXISTS ${property_dir}/component.txt)
-            file(GLOB l2_component_dirs ${property_dir}/*)
-            foreach(l2_component_dir ${l2_component_dirs})
-                if(EXISTS ${l2_component_dir}/CMakeLists.txt)
-                    get_filename_component(base_dir ${l2_component_dir} NAME)
-                    __component_dir_quick_check(is_component ${l2_component_dir})
+
+        __component_loop_sub_dirs(is_loop_sub_dirs ${property_dir})
+
+        if(is_loop_sub_dirs)
+            execute_process(COMMAND
+                find ${property_dir} -maxdepth 8 -name "CMakeLists.txt" -exec  dirname {} \;
+                OUTPUT_VARIABLE sub_property_dirs
+                RESULT_VARIABLE result
+            )
+
+            string(REPLACE "\n" ";" sub_dirs_list ${sub_property_dirs})
+
+            foreach(sub_dir ${sub_dirs_list})
+                if(EXISTS ${sub_dir}/CMakeLists.txt)
+                    get_filename_component(base_dir ${sub_dir} NAME)
+                    __component_dir_quick_check(is_component ${sub_dir})
                     if(is_component)
-                        armino_build_component(${l2_component_dir})
+                        armino_build_component(${sub_dir})
                     endif()
                 endif()
             endforeach()
-	endif()
+        endif()
     endforeach()
 endfunction()
 
@@ -214,6 +224,27 @@ function(__build_init armino_path)
 
     #__build_get_armino_git_revision()
     __kconfig_init()
+
+endfunction()
+
+function(__build_check_config)
+    if (NOT BUILD_PROPERTIES_LIB)
+        set(config_check_tool ${armino_path}/components/bk_libs/config_checking.py)
+        set(lib_sdkconfig ${armino_path}/components/bk_libs/${ARMINO_SOC}/config/sdkconfig)
+        set(armino_sdkconfig ${CMAKE_BINARY_DIR}/sdkconfig)
+        execute_process(
+            COMMAND ${config_check_tool} --lib_sdkconfig ${lib_sdkconfig} --armino_sdkconfig ${armino_sdkconfig}
+           RESULT_VARIABLE result 
+        )
+
+        if ("${result}" EQUAL "0")
+            LOGI("sdkconfig checking passed")
+        else()
+            #TODO fix it after optimze bk_private!
+            LOGI("!!!sdkconfig checking failed")
+            #LOGE("sdkconfig checking failed")
+        endif()
+    endif()
 endfunction()
 
 # armino_build_component
@@ -501,6 +532,7 @@ macro(armino_build_process target)
     armino_build_get_property(sdkconfig_default_soc SDKCONFIG_DEFAULT_SOC)
     __kconfig_generate_config("${sdkconfig}" "${sdkconfig_defaults}" "${sdkconfig_default_soc}")
     __build_import_configs()
+    __build_check_config()
 
     # All targets built under this scope is with the BEKEN-ARMINO build system
     set(BEKEN_PLATFORM 1)

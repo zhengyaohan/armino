@@ -165,7 +165,7 @@ bk_err_t bk_jpeg_enc_driver_init(void)
 	}
 #if CONFIG_SYSTEM_CTRL
 	//power on
-	low_power_power_ctrl(POWER_MODULE_NAME_VIDP, POWER_MODULE_STATE_ON);
+	pm_module_vote_power_ctrl(PM_POWER_MODULE_NAME_VIDP, PM_POWER_MODULE_STATE_ON);
 	sys_drv_video_power_en(0);    //temp used
 	delay(100);
 #endif
@@ -186,7 +186,7 @@ bk_err_t bk_jpeg_enc_driver_deinit(void)
 	bk_int_isr_unregister(INT_SRC_JPEG);
 #if CONFIG_SYSTEM_CTRL
 	// power off
-	low_power_power_ctrl(POWER_MODULE_NAME_VIDP, POWER_MODULE_STATE_OFF);
+	pm_module_vote_power_ctrl(PM_POWER_MODULE_NAME_VIDP, PM_POWER_MODULE_STATE_OFF);
 	sys_drv_video_power_en(1);    //temp used
 	delay(100);
 #endif

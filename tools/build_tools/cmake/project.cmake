@@ -503,7 +503,7 @@ macro(project project_name)
     # Add DFU build and flash targets
     __add_dfu_targets()
 
-    if (NOT LINK_ONLY)
+    if (NOT BUILD_PROPERTIES_LIB)
         armino_build_executable(${project_elf})
     endif()
 

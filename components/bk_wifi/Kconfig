@@ -21,12 +21,12 @@ menu "WiFi"
 
 #TODO remove below kconfig
 
-	config MSDU_RESV_HEAD_LEN
+	config MSDU_RESV_HEAD_LENGTH
 		int "MSDU reserved header length"
 		range 1 1500
 		default 96
 
-	config MSDU_RESV_TAIL_LEN
+	config MSDU_RESV_TAIL_LENGTH
 		int "MSDU reserved tail length"
 		range 1 1500
 		default 16
@@ -72,5 +72,13 @@ menu "WiFi"
 
 	config MAC_BSSID
 		bool "Enable Mac bssid"
+		default n
+
+	config BK_COMPONENTS_P2P_GO
+		bool "Enable BK WIFI P2P GO"
+		default n
+
+	config COMPONENTS_STA_VSIE
+		bool "Enable STA VSIE"
 		default n
 endmenu

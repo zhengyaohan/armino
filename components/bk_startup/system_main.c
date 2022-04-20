@@ -144,7 +144,7 @@ void reset_slave_core(uint32 offset, uint32_t reset_value)
 void start_slave_core(void)
 {
 #if (CONFIG_SLAVE_CORE_OFFSET && CONFIG_SLAVE_CORE_RESET_VALUE) 
-	low_power_power_ctrl(POWER_MODULE_NAME_CPU1, POWER_MODULE_STATE_ON);
+	pm_module_vote_power_ctrl(PM_POWER_MODULE_NAME_CPU1, PM_POWER_MODULE_STATE_ON);
 	reset_slave_core(CONFIG_SLAVE_CORE_OFFSET, CONFIG_SLAVE_CORE_RESET_VALUE);
 #endif
 	os_printf("start_slave_core end.\r\n");
@@ -155,7 +155,7 @@ void stop_slave_core(void)
 #if (CONFIG_SLAVE_CORE_OFFSET && CONFIG_SLAVE_CORE_RESET_VALUE) 
 	uint32_t reset_value = ( 0x1) & (~CONFIG_SLAVE_CORE_RESET_VALUE);
 	reset_slave_core(CONFIG_SLAVE_CORE_OFFSET, reset_value);
-	low_power_power_ctrl(POWER_MODULE_NAME_CPU1, POWER_MODULE_STATE_OFF);
+	pm_module_vote_power_ctrl(PM_POWER_MODULE_NAME_CPU1, PM_POWER_MODULE_STATE_OFF);
 #endif
 
 	os_printf("stop_slave_core end.\r\n");

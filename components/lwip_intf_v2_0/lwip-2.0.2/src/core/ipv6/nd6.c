@@ -869,6 +869,13 @@ nd6_tmr(void)
           netif_ip6_addr_set_state(netif, i, IP6_ADDR_PREFERRED);
           /* @todo implement preferred and valid lifetimes. */
         } else if (netif->flags & NETIF_FLAG_UP) {
+        #if LWIP_IPV6_MLD
+          if ((addr_state & IP6_ADDR_TENTATIVE_COUNT_MASK) == 0) {
+            /* Join solicited node multicast group. */
+            ip6_addr_set_solicitednode(&multicast_address, netif_ip6_addr(netif, i)->addr[3]);
+            mld6_joingroup_netif(netif, &multicast_address);
+          }
+		#endif /* LWIP_IPV6_MLD */
           /* Send a NS for this address. */
           nd6_send_ns(netif, netif_ip6_addr(netif, i), ND6_SEND_FLAG_MULTICAST_DEST);
           /* tentative: set next state by increasing by one */

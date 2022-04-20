@@ -180,7 +180,7 @@ extern "C" {
 #define CLI_CFG_SBC			1
 #endif
 
-#if (CONFIG_LCD)
+#if (CONFIG_LCD_TEST)
 #define CLI_CFG_LCD  1
 #endif
 
@@ -194,6 +194,11 @@ extern "C" {
 #define CLI_CFG_FFT         0
 #endif
 #endif
+
+#if (CONFIG_AUDIO_AEC_TEST)
+#define CLI_CFG_AEC         1
+#endif
+
 
 #if (CONFIG_SOC_BK7256XX)
 #define CLI_CFG_VAULT		1

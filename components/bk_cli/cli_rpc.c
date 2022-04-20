@@ -31,20 +31,19 @@
 static void debug_help_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
 
 #if CONFIG_DUAL_CORE
-#include "rpc_mb.h"
+#include "mb_ipc_cmd.h"
 #include <driver/gpio.h>
 
-#include "spinlock.h"
+#include "amp_lock_api.h"
 
+static void debug_ipc_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
 static void debug_rpc_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
 static void debug_rpc_gpio_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
-static void debug_spinlock_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
+static void debug_cpulock_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
 
-spinlock_t		gpio_spinlock;
-spinlock_t  *	gpio_spinlock_ptr;
-
-static u8     rpc_client = 0;
+static u8     ipc_inited = 0;
 static u8     rpc_inited = 0;
+
 #endif
 
 #if CONFIG_ARCH_RISCV
@@ -54,9 +53,10 @@ static void debug_perfmon_command(char *pcWriteBuffer, int xWriteBufferLen, int 
 const struct cli_command debug_cmds[] = {
 	{"help", "list debug cmds", debug_help_command},
 #if CONFIG_DUAL_CORE
-	{"rpc", "rpc {server|client}", debug_rpc_command},
+	{"ipc", "ipc", debug_ipc_command},
+	{"rpc", "rpc", debug_rpc_command},
 	{"gpio_out", "gpio_out gpio_id {0|1}", debug_rpc_gpio_command},
-	{"spin_lock", "spin_lock [timeout 1~20]", debug_spinlock_command},
+	{"cpu_lock", "cpu_lock [timeout 1~20]", debug_cpulock_command},
 #endif
 
 #if CONFIG_ARCH_RISCV
@@ -66,7 +66,7 @@ const struct cli_command debug_cmds[] = {
 
 const int cli_debug_table_size = ARRAY_SIZE(debug_cmds);
 
-static void print_cmd_table(const struct cli_command *cmd_table, int table_items)
+void print_cmd_table(const struct cli_command *cmd_table, int table_items)
 {
 	int i;
 
@@ -82,15 +82,7 @@ static void print_cmd_table(const struct cli_command *cmd_table, int table_items
 	}
 }
 
-static void debug_help_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
-{
-	os_printf("====Debug Commands====\r\n");
-
-	print_cmd_table(debug_cmds, ARRAY_SIZE(debug_cmds));
-}
-
-#if CONFIG_DUAL_CORE
-static void print_cmd_help(const struct cli_command *cmd_table, int table_items, void *func)
+void print_cmd_help(const struct cli_command *cmd_table, int table_items, void *func)
 {
 	int i;
 
@@ -106,6 +98,14 @@ static void print_cmd_help(const struct cli_command *cmd_table, int table_items,
 	}
 }
 
+static void debug_help_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	os_printf("====Debug Commands====\r\n");
+
+	print_cmd_table(debug_cmds, ARRAY_SIZE(debug_cmds));
+}
+
+#if CONFIG_DUAL_CORE
 static void print_debug_cmd_help(void *func)
 {
 	print_cmd_help(debug_cmds, ARRAY_SIZE(debug_cmds), func);
@@ -115,47 +115,63 @@ static void debug_rpc_command(char *pcWriteBuffer, int xWriteBufferLen, int argc
 {
 	int ret_val;
 
-	if (argc < 2)
-	{
-		print_debug_cmd_help(debug_rpc_command);
-	//	os_printf("rpc {server|client}\r\n");
-		return;
-	}
-
 	if(rpc_inited)
 	{
-		os_printf("rpc %s inited\r\n", rpc_client ? "client":"server");
+		os_printf("rpc started\r\n");
 		return;
 	}
 
-	if (os_strcmp(argv[1], "server") == 0)
-	{
+	ret_val = rpc_init();
+	os_printf("rpc init: %d\r\n", ret_val);
+	rpc_inited = 1;
+
 #if CONFIG_MASTER_CORE
-		ret_val = rpc_server_init();
-		os_printf("rpc svr%d\r\n", ret_val);
-		rpc_client = 0;
-		rpc_inited = 1;
-#endif
-	}
-	else if(os_strcmp(argv[1], "client") == 0)
-	{
-#if CONFIG_SLAVE_CORE
-		ret_val = rpc_client_init();
-		os_printf("rpc client%d\r\n", ret_val);
-		rpc_client = 1;
-		rpc_inited = 1;
 
-		client_send_simple_cmd(CPU1_POWER_UP, 0, 0);
-		client_send_simple_cmd(SIMPLE_TEST_CMD, 12, 34);
-		client_send_simple_cmd(GET_SPINLOCK_GPIO, 0, 0);
-#endif
-	}
-	else
+	if(ipc_inited)
 	{
-	//	os_printf("rpc {server|client}\r\n");
-		print_debug_cmd_help(debug_rpc_command);
+		ret_val = ipc_send_test_cmd(0x12);
+		os_printf("ipc server test: ret=%d\r\n", ret_val);
+
+		ret_val = ipc_send_get_ps_flag();
+		os_printf("ipc server ps: ret= 0x%x\r\n", ret_val);
+
+		ret_val = ipc_send_get_heart_rate();
+		os_printf("ipc server hr: ret= 0x%x\r\n", ret_val);
+
+		ret_val = ipc_send_set_heart_rate(0x33);
+		os_printf("ipc server set hr: ret= %d\r\n", ret_val);
+	}
+
+#endif
+
+}
+
+static void debug_ipc_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	int ret_val;
+
+	if(ipc_inited)
+	{
+		os_printf("ipc started\r\n");
 		return;
 	}
+
+	ret_val = ipc_init();
+	os_printf("ipc init: %d\r\n", ret_val);
+	ipc_inited = 1;
+
+#if CONFIG_SLAVE_CORE
+
+	ret_val = ipc_send_power_up();
+	os_printf("ipc client power: %d\r\n", ret_val);
+
+	ret_val = ipc_send_heart_beat(0x34);
+	os_printf("ipc client heartbeat: %d\r\n", ret_val);
+
+	ret_val = ipc_send_test_cmd(0x12);
+	os_printf("ipc client test: %d\r\n", ret_val);
+
+#endif
 }
 
 extern bk_err_t bk_gpio_enable_output_rpc(gpio_id_t gpio_id);
@@ -165,14 +181,11 @@ extern bk_err_t bk_gpio_set_output_low_rpc(gpio_id_t gpio_id);
 static void debug_rpc_gpio_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 #if CONFIG_SLAVE_CORE
+
+	int ret_val;
+
 	u32 gpio_id = 0;
 	u32 level = 0;
-
-	if(rpc_client == 0)
-	{
-		os_printf("Failed: it is not a client.\r\n");
-		return;
-	}
 
 	if (argc < 3)
 	{
@@ -183,23 +196,27 @@ static void debug_rpc_gpio_command(char *pcWriteBuffer, int xWriteBufferLen, int
 	gpio_id = strtoul(argv[1], NULL, 0);
 	level   = strtoul(argv[2], NULL, 0);
 
-	bk_gpio_enable_output_rpc(gpio_id);
+	ret_val = bk_gpio_enable_output_rpc(gpio_id);
+	os_printf("rpc gpio:ret=%d\r\n", ret_val);
 
 	if(level)
-		bk_gpio_set_output_high_rpc(gpio_id);
+		ret_val = bk_gpio_set_output_high_rpc(gpio_id);
 	else
-		bk_gpio_set_output_low_rpc(gpio_id);
+		ret_val = bk_gpio_set_output_low_rpc(gpio_id);
+
+	os_printf("rpc gpio:ret=%d\r\n", ret_val);
+
 #endif
 
 }
 
-static void debug_spinlock_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+static void debug_cpulock_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 	u32 timeout_second = 10;  // 10s
 
-	if(rpc_inited == 0)
+	if(ipc_inited == 0)
 	{
-		os_printf("Failed: no rpc client/server in CPU0/CPU1.\r\n");
+		os_printf("Failed: no ipc client/server in CPU0/CPU1.\r\n");
 		return;
 	}
 
@@ -212,23 +229,32 @@ static void debug_spinlock_command(char *pcWriteBuffer, int xWriteBufferLen, int
 		if(timeout_second == 0)
 			timeout_second = 10;
 	}
-
-	if(rpc_client == 0)
+	else
 	{
-		spinlock_acquire(&gpio_spinlock);
-		os_printf("spinlock acquired %d\r\n", gpio_spinlock.locked);
-		rtos_delay_milliseconds(timeout_second * 1000);
-		spinlock_release(&gpio_spinlock);
-		os_printf("spinlock released %d\r\n", gpio_spinlock.locked);
+		print_debug_cmd_help(debug_cpulock_command);
+		os_printf("default timeout 10s is used.\r\n");
+	}
+
+	int	ret_val = BK_FAIL;
+
+	ret_val = amp_res_init(AMP_RES_ID_GPIO);
+	os_printf("amp res init:ret=%d\r\n", ret_val);
+
+	ret_val = amp_res_acquire(AMP_RES_ID_GPIO, timeout_second * 1000);
+	os_printf("amp res acquire:ret=%d\r\n", ret_val);
+
+	rtos_delay_milliseconds(timeout_second * 1000);
+
+	if(ret_val == 0)
+	{
+		ret_val = amp_res_release(AMP_RES_ID_GPIO);
+		os_printf("amp res release:ret=%d\r\n", ret_val);
 	}
 	else
 	{
-		spinlock_acquire(gpio_spinlock_ptr);
-		os_printf("spinlock acquired %d\r\n", gpio_spinlock_ptr->locked);
-		rtos_delay_milliseconds(timeout_second * 1000);
-		spinlock_release(gpio_spinlock_ptr);
-		os_printf("spinlock released %d\r\n", gpio_spinlock_ptr->locked);
+		os_printf("amp res release: no release\r\n");
 	}
+
 }
 #endif
 

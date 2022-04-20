@@ -20,7 +20,7 @@ if (CONFIG_APP_DEMO_VIDEO_TRANSFER)
 	video_work/video_upd_spd_pub.c
 	)
 endif()
-if (CONFIG_WIFI_P2P)
+if (CONFIG_COMPONENTS_P2P)
 	list(APPEND srcs
 	net_work/video_demo_p2p.c
         )

@@ -30,4 +30,8 @@ menu "Application"
 	config NET_WORK_VIDEO_TRANSFER
 		bool "Enable NET_WORK VIDEO TRANSFER"
 		default n
+
+	config COMPONENTS_P2P
+                bool "Enable NET_WORK P2P"
+                default n
 endmenu

@@ -476,17 +476,17 @@ int wlan_event_handler(int event)
 
 static void wlan_status_callback(void *ctxt)
 {
-	int notice_event = *(unsigned int*)ctxt;
+	wifi_linkstate_reason_t info = *(wifi_linkstate_reason_t info*)ctxt;
 
-	ATSVRLOG("[WLAN]event(%x)\r\n",notice_event);
-	switch(notice_event){
-	case RW_EVT_STA_GOT_IP:
+	ATSVRLOG("[WLAN]event(%x)\r\n", info.state);
+	switch(info.state){
+	case WIFI_LINKSTATE_STA_GOT_IP:
 		atsvr_event_sender(ATSVR_WLAN_GOT_IP);
 		break;
-	case RW_EVT_STA_CONNECTED:
+	case WIFI_LINKSTATE_STA_CONNECTED:
 		atsvr_event_sender(ATSVR_WLAN_CONNECTTED);
 		break;
-	case RW_EVT_STA_DISCONNECTED:
+	case WIFI_LINKSTATE_STA_DISCONNECTED:
 		atsvr_event_sender(ATSVR_WLAN_DISCONNECT);
 		break;
 	default:

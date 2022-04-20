@@ -6,7 +6,7 @@
 #include"core_v5.h"
 #include <os/os.h>
 #include "bk_private/reset_reason.h"
-#include <modules/pm.h>
+#include "bk_pm_internal_api.h"
 
 extern void c_startup(void);
 extern void system_init(void);
@@ -30,7 +30,7 @@ void reset_handler(void)
     /// TODO: DEBUG VERSION close the wdt
 	close_wdt();
 
-	low_power_hardware_init();
+	pm_hardware_init();
 
 #if 1
     //write_csr(NDS_MCACHE_CTL, (read_csr(NDS_MCACHE_CTL) | 0x1)); // Enable  ICache

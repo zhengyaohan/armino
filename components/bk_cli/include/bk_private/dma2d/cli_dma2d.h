@@ -55,6 +55,7 @@ typedef enum
 
 
 /*****************************REG TO MEM VARS**************************************/
+#if(0)
 /**< DMA2D output address in SRAM : this is the buffer displayed on LCD screen ((454*454*2Bytes)=412KB/*/
 //uint32_t RegToMemOutputBuff[(WINDOWS_SIZE_X * WINDOWS_SIZE_Y * TWO_BYTE_PER_PIXEL) / 4];
 #define  RegToMemOutputBuff   0x60000000  //size = 454*454*2 = 412232‬Byte = 412.232KB
@@ -97,6 +98,7 @@ uint32_t  MemToMemInputBuff[(M2M_LAYER_SIZE_X * M2M_LAYER_SIZE_Y * TWO_BYTE_PER_
 		0xEFFFFFF2, 0xAB1FFFF0, 0x0504044E, 0x89ADCDEF, 0x15248722, 0x5201245E, 0x01025FDE, 0xFE010203,
 		0xEFFFFFF2, 0xAB1FFFF0, 0x0504044E, 0x89ADCDEF, 0x15248722, 0x5201245E, 0x01025FDE, 0xFE010203
 	};
+#endif
 
 //320 * 480 *2 = 307200= 0x4B000
 //__attribute__((section(".video_sec_code"))) uint16_t RGB565_320x480[153600];

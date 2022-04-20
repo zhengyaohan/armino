@@ -63,6 +63,17 @@ void sys_hal_set_qspi_io_voltage(uint32_t param);
 void sys_hal_qspi_clk_sel(uint32_t param);
 /** Platform qspi End **/
 
+/** Platform SDIO Start **/
+void sys_hal_set_sdio_clk_en(uint32_t value);
+void sys_hal_set_cpu0_sdio_int_en(uint32_t value);
+void sys_hal_set_cpu1_sdio_int_en(uint32_t value);
+void sys_hal_set_sdio_clk_div(uint32_t value);
+uint32_t sys_hal_get_sdio_clk_div();
+void sys_hal_set_sdio_clk_sel(uint32_t value);
+uint32_t sys_hal_get_sdio_clk_sel();
+/** Platform SDIO End **/
+
+
 /** Platform efuse Start **/
 void sys_hal_efuse_read_byte(uint32_t param);
 

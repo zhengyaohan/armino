@@ -153,6 +153,22 @@ bk_err_t bk_wifi_sta_set_config(const wifi_sta_config_t *sta_config);
 bk_err_t bk_wifi_sta_get_config(wifi_sta_config_t *sta_config);
 
 /**
+ * @brief     Get the WiFi station state of the BK STA.
+ *
+ * @attention the difference between this API and bk_wifi_sta_get_link_status() is
+ *     - This API gets the actual WiFi STA link status and reason code
+	- If sta is idle or connected, reason code will be  WIFI_REASON_MAX
+ *
+ * @param state store the WiFi station state of the BK STA
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - BK_ERR_NULL_PARAM: the parameter config is NULL.
+ *    - others: other errors
+ */
+bk_err_t bk_wifi_sta_get_linkstate_with_reason(wifi_linkstate_reason_t *info);
+
+/**
  * @brief     Get the WiFi link info of the BK STA.
  *
  * Get the actual WiFi link status of the BK STA.
@@ -707,6 +723,38 @@ bk_err_t bk_wifi_sta_pm_enable(void);
  *      - others: real error, used for future.
  */
 bk_err_t bk_wifi_sta_pm_disable(void);
+
+/**
+ * @brief  get current channel ID
+ *         
+ * @param  basically range from 1~13
+ *
+ * @return
+ *      - BK_OK: on succeed
+ *      - others: real error, used for future.
+ */
+bk_err_t bk_wifi_get_channel(void);
+
+/**
+ * @brief  Set Wi-Fi MAC addresses.
+ *
+ * The given MAC address will become the station MAC address.The AP MAC address
+ * (i.e BSSID) will be the same MAC address but with the local bit set.
+ *
+ * @param mac system mac
+
+ * @usage example:
+ *		mac c8478cxxyyzz
+ *		txevm  -e 2  //if needed
+ *
+ * @return
+
+ *		- BK_OK: on succeed
+ *      - others: real error, used for future.
+ *	
+ * @note on some platforms the change of MAC address can only take effect after reboot.
+ */
+void bk_wifi_set_mac_address(char *mac);
 
 /**
  * @}

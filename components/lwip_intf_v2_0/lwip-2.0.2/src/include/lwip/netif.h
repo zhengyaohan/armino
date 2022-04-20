@@ -264,6 +264,9 @@ struct netif {
   /** This function is called when the netif state is set to up or down
    */
   netif_status_callback_fn status_callback;
+#if LWIP_IPV6
+  netif_status_callback_fn status_ip6_callback;
+#endif
 #endif /* LWIP_NETIF_STATUS_CALLBACK */
 #if LWIP_NETIF_LINK_CALLBACK
   /** This function is called when the netif link is set to up or down

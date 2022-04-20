@@ -69,7 +69,12 @@ menu "Cli"
 		depends on CLI
 		bool "Enable AUDIO Test"
 		default n
-		
+
+	config AUDIO_AEC_TEST
+		depends on CLI
+		bool "Enable AUDIO AEC Test"
+		default n
+
 	config TOUCH
 		depends on CLI
 		bool "Enable TOUCH Test"
@@ -113,8 +118,18 @@ menu "Cli"
 	config NET_CTL
 		bool "Enable NET_CTL"
 		default n
-		
 
+	config COMPONENTS_WPA2_ENTERPRISE
+                bool "Enable WPA2 ENTERPRISE"
+                default n
+
+        config COMPONENTS_WPA_TWT_TEST
+                bool "Enable WPA TWT TEST"
+                default n
+
+        config COMPONENTS_WFA_CA
+                bool "WFA_CA"
+                default n
 endmenu
 
 menu "DUAL_CORE"

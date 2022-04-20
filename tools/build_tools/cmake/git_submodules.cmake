@@ -22,8 +22,7 @@ else()
 
         execute_process(
             COMMAND ${GIT_EXECUTABLE} submodule status
-            WORKING_DIRECTORY ${root_path}
-            OUTPUT_VARIABLE submodule_status
+            RESULT_VARIABLE result 
             )
 
         # git submodule status output not guaranteed to be stable,

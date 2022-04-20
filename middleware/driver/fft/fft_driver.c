@@ -136,7 +136,7 @@ bk_err_t bk_fft_driver_init(void)
 	if (s_fft_driver_is_init)
 		return BK_OK;
 	//power on
-	low_power_power_ctrl(POWER_MODULE_NAME_AUDP, POWER_MODULE_STATE_ON);
+	pm_module_vote_power_ctrl(PM_POWER_MODULE_NAME_AUDP, PM_POWER_MODULE_STATE_ON);
 	sys_drv_aud_power_en(0);    //temp used
 
 	//fft_disckg always on

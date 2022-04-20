@@ -118,6 +118,28 @@ function(__component_dir_quick_check var component_dir)
     set(${var} ${res} PARENT_SCOPE)
 endfunction()
 
+
+function(armino_component_register_call_subdirs)
+endfunction()
+
+function(__component_loop_sub_dirs var component_dir)
+    set(res 0)
+
+    if (EXISTS ${component_dir}/CMakeLists.txt)
+        execute_process(COMMAND
+            grep -o "^armino_component_register_call_subdirs" ${component_dir}/CMakeLists.txt
+            OUTPUT_VARIABLE ouput_strings
+            RESULT_VARIABLE result
+        )
+
+        if ("${ouput_strings}" MATCHES "armino_component_register_call_subdirs")
+            set(res 1)
+        endif()
+    endif()
+
+    set(${var} ${res} PARENT_SCOPE)
+endfunction()
+
 #
 # Write a CMake file containing all component and their properties. This is possible because each component
 # keeps a list of all its properties.

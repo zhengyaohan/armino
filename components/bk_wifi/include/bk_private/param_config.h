@@ -76,14 +76,14 @@ typedef struct sta_param {
 	uint8_t fast_connect_set;
 	fast_connect_param_t fast_connect;
 
-#if CONFIG_STA_VSIE
+#if CONFIG_COMPONENTS_STA_VSIE
 	struct {
 		uint8_t len;
 		uint8_t buf[255];
 	} vsies[NUM_WIFI_VENDOR_ELEM_FRAMES];
 #endif
 
-#if CONFIG_WPA2_ENTERPRISE
+#if CONFIG_COMPONENTS_WPA2_ENTERPRISE
 	/* starts of WPA2-Enterprise/WPA3-Enterprise EAP-TLS configuration */
 	char eap[16];					   /**< phase1 authType: TLS/TTLS/SIM */
 	char identity[32];				   /**< user identity */

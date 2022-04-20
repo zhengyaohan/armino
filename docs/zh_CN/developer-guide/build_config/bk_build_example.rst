@@ -452,44 +452,19 @@ TODO
 :example:`示例 <build_system/203_config_only>`
 
 
-204 - 自定义 sdkconfig 默认配置
+204 - 自定义项目配置
 -------------------------------------------------------------
 
 armino 加载 Kconfig 的顺序如下，对于同一配置项，后加载的值会覆盖先加载的值：
 
  - 组 Kconfig 默认配置
- - :middleware:: `<arch/bk7231n/bk7231n.defconfig>` 中目标特定默认配置，bk7231n 可以换成其他目标
- - 项目根目录下 sdkconfig.defaults 项目相关默认配置
- - 项目根目录下 sdkconfig.defaults.bk7231n 获取项目/目标相关默认值
+ - :middleware:: `<arch/bkxxx/bkxxx.defconfig>` 中目标特定默认配置
+ - 项目根目录/config/common.config 中定义项目相关，目标通用的配置
+ - 项目根目录/config/bkxxx.config 中定义的项目相关，特定目标的配置
 
-:example:`示例 <build_system/204_default_sdkconfig>`
+应用可以通过配置 “项目根目录/config/common.config“ 与 ”项目根目录/config/bkxxx.config” 来设置项目/目标相关的配置项，其中 bkxxx 为具体的 SoC，如 bk7256 等。
 
-.. _205_build_project_demo:
-
-205 - 自定义目标相关 sdkconfig 默认配置
--------------------------------------------------------------
-
-.. note:
-
-  应在 project() 之后设置您的编译选项，因为默认的构建规范是在 project() 内设置的。
-
-:example:`示例 <build_system/205_target_default_sdkconfig>`
-
-
-206 - 支持多项目配置
--------------------------------------------------------------
-
-如果同一个项目需要支持多个不同的配置，则可以将特定 sdkconfig 配置文件以参数形式传到 armino 工具::
-
-    armino.py -B build prod1 -D SDKCONFIG_DEFAULTS="sdkconfig.prod_common; sdkconfig.prod1" build
-
-
-.. note:
-
-  覆盖 SDKCONFIG_DEFAULTS 另一种方式是在项目顶层 CMakeLists.txt 中设置该变量。
-
-:example:`示例 <build_system/206_multi_sdkconfig>`
-
+:example:`示例 <build_system/205_project_per_soc_config>`
 
 207 - 通过 Kconfig 禁用组件
 -------------------------------------------------------------
