@@ -569,14 +569,13 @@ typedef void (*ble_notice_cb_t)(ble_notice_t notice, void *param);
  * stack report evt, acl to upper
  *
  * @param
- * - type: see BK_BLE_HCI_TYPE.
  * - buf: payload
  * - len: buf's len
  *
  * @return
  * - BK_ERR_BLE_SUCCESS: succeed
 **/
-typedef ble_err_t (*ble_hci_to_host_cb)(uint8_t type, uint8_t *buf, uint16_t len);
+typedef ble_err_t (*ble_hci_to_host_cb)(uint8_t *buf, uint16_t len);
 
 
 /**

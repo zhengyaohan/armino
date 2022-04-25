@@ -338,6 +338,50 @@ ble_err_t bk_ble_set_scan_rsp_data(uint8_t actv_idx, uint8_t* scan_buff, uint8_t
 ble_err_t bk_ble_set_per_adv_data(uint8_t actv_idx, uint8_t* per_adv_buff, uint8_t per_adv_len, ble_cmd_cb_t callback);
 
 /**
+ * @brief     Read the phy of connection device
+ *
+ * @param
+ *    - conn_idx: the index of connection device
+ *    - callback: register a callback for this action, ble_cmd_t: BLE_CONN_READ_PHY
+ * @attention 1.you must wait callback status, 0 mean success.
+ * @attention 2.must used after after connected
+ *
+ * User example:
+ * @code
+ *     bk_ble_read_phy(conn_idx, ble_at_cmd_cb);
+ * @endcode
+ *
+ * @return
+ *    - BK_ERR_BLE_SUCCESS: succeed
+ *    - others: other errors.
+ */
+ble_err_t bk_ble_read_phy(uint8_t conn_idx, ble_cmd_cb_t callback);
+
+
+/**
+ * @brief     Set the phy of connection device
+ *
+ * @param
+ *    - conn_idx: the index of connection device
+ *    - phy_info: phy parameters
+ *    - callback: register a callback for this action, ble_cmd_t: BLE_CONN_SET_PHY
+ * @attention 1.you must wait callback status, 0 mean success.
+ * @attention 2.must used after after connected
+ *
+ * User example:
+ * @code
+ *     ble_set_phy_t * phy = {0x04, 0x01, 0x01};
+ *     //set tx phy to s2 coded phy, and set rx phy to 1M phy
+ *     bk_ble_set_phy(1, phy, ble_at_cmd_cb);
+ * @endcode
+ *
+ * @return
+ *    - BK_ERR_BLE_SUCCESS: succeed
+ *    - others: other errors.
+ */
+ble_err_t bk_ble_set_phy(uint8_t conn_idx, ble_set_phy_t * phy_info, ble_cmd_cb_t callback);
+
+/**
  * @brief     Update connection parameters
  *
  * @param
@@ -643,7 +687,8 @@ ble_err_t bk_ble_send_noti_value(uint32_t len, uint8_t *buf, uint16_t prf_id, ui
  * @brief     reg hci recv callback
  *
  * @param
- *    - cb: callback function
+ *    - evt_cb: evt callback function
+ *    - acl_cb: acl callback function
  *
  * @attention 1. you must call this after recv BLE_5_STACK_OK evt !
  *
@@ -651,7 +696,7 @@ ble_err_t bk_ble_send_noti_value(uint32_t len, uint8_t *buf, uint16_t prf_id, ui
  *    - BK_ERR_BLE_SUCCESS: succeed
  *    - others: other errors.
  */
-ble_err_t bk_ble_reg_hci_recv_callback(ble_hci_to_host_cb cb);
+ble_err_t bk_ble_reg_hci_recv_callback(ble_hci_to_host_cb evt_cb, ble_hci_to_host_cb acl_cb);
 
 /**
  * @brief send hci to controller.
@@ -669,6 +714,40 @@ ble_err_t bk_ble_reg_hci_recv_callback(ble_hci_to_host_cb cb);
 **/
 ble_err_t bk_ble_hci_to_controller(uint8_t type, uint8_t *buf, uint16_t len);
 
+
+
+/**
+ * @brief send hci cmd to controller.
+ *
+ *
+ * @param
+ * - buf: payload
+ * - len: buf's len
+ *
+ * @attention 1. you must call this after bk_ble_reg_hci_recv_callback !
+ *
+ * @return
+ * - BK_ERR_BLE_SUCCESS: succeed
+**/
+ble_err_t bk_ble_hci_cmd_to_controller(uint8_t *buf, uint16_t len);
+
+/**
+ * @brief send hci acl to controller.
+ *
+ *
+ * @param
+ * - buf: payload
+ * - len: buf's len
+ *
+ * @attention 1. you must call this after bk_ble_reg_hci_recv_callback !
+ *
+ * @return
+ * - BK_ERR_BLE_SUCCESS: succeed
+**/
+ble_err_t bk_ble_hci_acl_to_controller(uint8_t *buf, uint16_t len);
+
+
+
 /*
  * @brief get if stack support central and link count
  *
@@ -676,10 +755,10 @@ ble_err_t bk_ble_hci_to_controller(uint8_t type, uint8_t *buf, uint16_t len);
  * - count: if return true, show how many central link can be support, otherwise not used.
  *
  * @return
- *    - true: support
- *    - false: not support.
+ *    - 1: support
+ *    - 0: not support.
  */
-bool bk_ble_if_support_central(uint8_t *count);
+uint8_t bk_ble_if_support_central(uint8_t *count);
 
 /*
  * @brief get controller stack type
