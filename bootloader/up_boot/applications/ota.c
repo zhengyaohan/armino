@@ -305,14 +305,21 @@ int __attribute__((section(".itcm_write_flash"))) ota_main(void)
 	bk_print_hex(-ret);
 	bk_printf("\r\n");
 
-	if (ret == RET_DM_FAILURE)
-    {
-    	bk_printf("RET_DM_FAILURE!\r\n");
-		return ret;
-    }else if(ret == RET_DM_NO_OTA_DATA){
-		bk_printf("download partition NO_OTA_DATA!\r\n");
-		return ret;
-	}
+        if (ret == RET_DM_FAILURE)
+        {
+                bk_printf("RET_DM_FAILURE!\r\n");
+                return ret;
+        }
+        else if(ret == RET_DM_NO_OTA_DATA)
+        {
+                bk_printf("download partition NO_OTA_DATA!\r\n");
+                return ret;
+        }
+        else if(ret == RET_DM_SUCCESS)
+        {   
+                bk_printf("download partition over!\r\n");
+                wdt_reboot();
+        }
 	
 	set_flash_protect(ALL);
 	return 0;

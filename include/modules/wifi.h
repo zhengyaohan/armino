@@ -223,7 +223,7 @@ bk_err_t bk_wifi_sta_disconnect(void);
  * be raised if the scan is completed. General steps to use this API:
  *  - prepare the scan done event callback, the callback can call bk_wifi_scan_get_result()
  *    to get the scan result and then call bk_wifi_scan_free_result() to free the resource.
- *  - call bk_event_callback_register(EVENT_MOD_WIFI, EVENT_WIFI_SCAN_DONE, ...) to register
+ *  - call bk_event_register_cb(EVENT_MOD_WIFI, EVENT_WIFI_SCAN_DONE, ...) to register
  *    scan done event callback.
  *  - call this API to trigger this the scan.
  *
@@ -244,7 +244,7 @@ bk_err_t bk_wifi_sta_disconnect(void);
  *     //Start the scan
  *     wifi_scan_config_t config = {0};
  *
- *     BK_LOG_ON_ERR(bk_event_callback_register(EVENT_MOD_WIFI, EVENT_WIFI_SCAN_DONE, scan_done_handler, NULL));
+ *     BK_LOG_ON_ERR(bk_event_register_cb(EVENT_MOD_WIFI, EVENT_WIFI_SCAN_DONE, scan_done_handler, NULL));
  *     BK_LOG_ON_ERR(bk_wifi_scan_start(&scan_config));
  *
  * @attention 1. This API triggers an active scan on all channels (TODO double check)
@@ -518,6 +518,26 @@ bk_err_t bk_wifi_monitor_register_cb(const wifi_monitor_cb_t monitor_cb);
 bk_err_t bk_wifi_monitor_set_channel(const wifi_channel_t *chan);
 
 /**
+ * @brief     twt set up
+ * @param     setup_type   suggest/demand
+ * @param     mantissa   wake_int_mantissa
+ * @param     min_twt   min_twt_wake_dur
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors
+ */
+bk_err_t bk_wifi_twt_setup(uint8_t setup_type, uint16_t mantissa, uint8_t min_twt);
+
+/**
+ * @brief    twt tear down
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors
+ */
+bk_err_t bk_wifi_twt_teardown(void);
+
+/**
  * @brief     Set the filter configuration
  *
  * The filter is used to configure what kind of management packets can be received
@@ -754,7 +774,16 @@ bk_err_t bk_wifi_get_channel(void);
  *	
  * @note on some platforms the change of MAC address can only take effect after reboot.
  */
-void bk_wifi_set_mac_address(char *mac);
+bk_err_t bk_wifi_set_mac_address(char *mac);
+
+/**
+ * @brief  Get Wi-Fi Calibration status.
+ *
+ * @return
+ *      - BK_OK: on succeed
+ *      - others: real error, used for future.
+ */
+bk_err_t bk_wifi_manual_cal_rfcali_status(void);
 
 /**
  * @}

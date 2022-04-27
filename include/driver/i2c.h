@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <stdbool.h>
 #include <driver/i2c_types.h>
 
 #ifdef __cplusplus
@@ -101,7 +102,7 @@ bk_err_t bk_i2c_deinit(i2c_id_t id);
  *    - BK_ERR_I2C_ID_NOT_INIT: I2C id not init
  *    - others: other errors.
  */
-bk_err_t bk_i2c_master_write(i2c_id_t id, uint32_t dev_addr, uint8_t *data, uint32_t size, uint32_t timeout_ms);
+bk_err_t bk_i2c_master_write(i2c_id_t id, uint32_t dev_addr, const uint8_t *data, uint32_t size, uint32_t timeout_ms);
 
 /**
  * @brief     I2C read data from I2C buffer,
@@ -138,7 +139,7 @@ bk_err_t bk_i2c_master_read(i2c_id_t id, uint32_t dev_addr, uint8_t *data, uint3
  *    - BK_ERR_I2C_ID_NOT_INIT: I2C id not init
  *    - others: other errors.
  */
-bk_err_t bk_i2c_slave_write(i2c_id_t id, uint8_t *data, uint32_t size, uint32_t timeout_ms);
+bk_err_t bk_i2c_slave_write(i2c_id_t id, const uint8_t *data, uint32_t size, uint32_t timeout_ms);
 
 /**
  * @brief     I2C read data from I2C buffer,
@@ -209,6 +210,41 @@ bk_err_t bk_i2c_memory_read(i2c_id_t id, const i2c_mem_param_t *mem_param);
 bk_err_t bk_i2c_set_baud_rate(i2c_id_t id, uint32_t baud_rate);
 
 /**
+ * @brief     Set slave address when current role is i2c slave
+ *
+ * @param id I2C id
+ * @param slave_addr slave address
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - BK_ERR_I2C_NOT_INIT: I2C driver not init
+ *    - others: other errors.
+ */
+bk_err_t bk_i2c_set_slave_address(i2c_id_t id, uint16_t slave_addr);
+
+/**
+ * @brief    Enable I2C interrupt
+ *
+ * @param id I2C id
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_i2c_enable_interrupt(i2c_id_t id);
+
+/**
+ * @brief    Disable I2C interrupt
+ *
+ * @param id I2C id
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_i2c_disable_interrupt(i2c_id_t id);
+
+/**
  * @brief     Check if I2C is busy
  *
  * @param id I2C id
@@ -226,13 +262,15 @@ bool bk_i2c_is_bus_busy(i2c_id_t id);
  */
 uint32_t bk_i2c_get_cur_action(i2c_id_t id);
 
-/* * @brief	bk_i2c_timer_callback
+/**
+ * @brief     bk_i2c_timer_callback
  *
  * This API set timer call back
  *
  * @return
 */
 void bk_i2c_timer_callback(int id, void* myTimer);
+
 /**
  * @brief	  bk_i2c_get_busstate
  *
@@ -254,7 +292,6 @@ uint8_t bk_i2c_get_busstate ( int id );
  *	  - 0: fail.
  */
 uint8_t bk_i2c_get_transstate ( int id );
-
 
 #ifdef __cplusplus
 }

@@ -420,10 +420,6 @@ menu "Driver"
 	config MAILBOX
 		bool "Enable mail_box"
 		default n
-
-	config VAULT
-		bool "Enable secure vault"
-		default n
 		
 	config LCD
 		bool "Enable LCD Display"

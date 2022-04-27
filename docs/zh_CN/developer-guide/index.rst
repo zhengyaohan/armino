@@ -17,7 +17,7 @@ User and Developer Guide
    出错与日志 <error_log/index>
    系统调试 <debug_trace/index>
    工具 <tools/index>
-   WiFi <wifi/index>
+   Wi-Fi <wifi/index>
    Bluetooth <bluetooth/index>
    用例编写 <examples/index>
    文档系统 <documentation/index>

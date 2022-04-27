@@ -35,6 +35,10 @@ void bk_reboot(void)
 	set_reboot_tag(REBOOT_TAG_REQ);
 #endif
 #if (CONFIG_SYSTEM_CTRL)
+	uint32_t param =0;
+	param = aon_pmu_drv_reg_get(PMU_REG0x41);
+	param &= ~0x3; //select clk_DIVD as lpo_src
+	aon_pmu_drv_reg_set(PMU_REG0x41,param);
 	aon_pmu_drv_wdt_rst_dev_enable();
 #endif
 	bk_misc_update_set_type(RESET_SOURCE_REBOOT);

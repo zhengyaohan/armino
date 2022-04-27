@@ -561,7 +561,7 @@ bk_err_t bk_i2c_deinit(i2c_id_t id)
 	return BK_OK;
 }
 
-bk_err_t bk_i2c_master_write(i2c_id_t id, uint32_t dev_addr, uint8_t *data, uint32_t size, uint32_t timeout_ms)
+bk_err_t bk_i2c_master_write(i2c_id_t id, uint32_t dev_addr, const uint8_t *data, uint32_t size, uint32_t timeout_ms)
 {
 	I2C_RETURN_ON_NOT_INIT();
 	I2C_RETURN_ON_ID_NOT_INIT(id);
@@ -573,7 +573,7 @@ bk_err_t bk_i2c_master_write(i2c_id_t id, uint32_t dev_addr, uint8_t *data, uint
 	s_i2c[id].work_mode = I2C_MASTER_WRITE;
 	s_i2c[id].is_with_mem_addr = false;
 	s_i2c[id].dev_addr = dev_addr;
-	s_i2c[id].data_ptr = data;
+	s_i2c[id].data_ptr = (uint8_t *)data;
 	s_i2c[id].data_size = size;
 	s_i2c[id].data_offset = 0;
 	s_i2c[id].int_status = 0;
@@ -614,7 +614,7 @@ bk_err_t bk_i2c_master_read(i2c_id_t id, uint32_t dev_addr, uint8_t *data, uint3
 	return BK_OK;
 }
 
-bk_err_t bk_i2c_slave_write(i2c_id_t id, uint8_t *data, uint32_t size, uint32_t timeout_ms)
+bk_err_t bk_i2c_slave_write(i2c_id_t id, const uint8_t *data, uint32_t size, uint32_t timeout_ms)
 {
 	I2C_RETURN_ON_NOT_INIT();
 	I2C_RETURN_ON_ID_NOT_INIT(id);
@@ -625,7 +625,7 @@ bk_err_t bk_i2c_slave_write(i2c_id_t id, uint8_t *data, uint32_t size, uint32_t 
 	i2c_hal_set_write_int_mode(&s_i2c[id].hal, size);
 	s_i2c[id].work_mode = I2C_SLAVE_WRITE;
 	s_i2c[id].is_with_mem_addr = false;
-	s_i2c[id].data_ptr = data;
+	s_i2c[id].data_ptr = (uint8_t *)data;
 	s_i2c[id].data_size = size;
 	s_i2c[id].data_offset = 0;
 	s_i2c[id].int_status = 0;
@@ -714,6 +714,33 @@ bk_err_t bk_i2c_set_baud_rate(i2c_id_t id, uint32_t baud_rate)
 {
 	I2C_RETURN_ON_NOT_INIT();
 	i2c_hal_set_baud_rate(&s_i2c[id].hal, baud_rate);
+	return BK_OK;
+}
+
+bk_err_t bk_i2c_set_slave_address(i2c_id_t id, uint16_t slave_addr)
+{
+	I2C_RETURN_ON_NOT_INIT();
+	i2c_hal_set_slave_addr(&s_i2c[id].hal, slave_addr);
+	return BK_OK;
+}
+
+bk_err_t bk_i2c_enable_interrupt(i2c_id_t id)
+{
+#if (CONFIG_SYSTEM_CTRL)
+	i2c_interrupt_enable(id);
+#else
+	icu_enable_i2c_interrupt(id);
+#endif
+	return BK_OK;
+}
+
+bk_err_t bk_i2c_disable_interrupt(i2c_id_t id)
+{
+#if (CONFIG_SYSTEM_CTRL)
+	i2c_interrupt_disable(id);
+#else
+	icu_disable_i2c_interrupt(id);
+#endif
 	return BK_OK;
 }
 

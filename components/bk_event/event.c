@@ -636,32 +636,6 @@ bk_err_t bk_event_post(event_module_t event_module_id, int event_id,
 	return ret;
 }
 
-//TODO temp code for scan event handler
-event_callback_t *s_scan_done_event_callback = 0;
-void *event_callback_arg = NULL;
-bk_err_t bk_event_callback_register(event_module_t event_module, int event_id,
-	event_callback_t *event_callback, void *event_callback_arg)
-{
-	EVENT_LOGD("register event <%d, %d, %p, %p>\n",
-		event_module, event_id, event_callback, event_callback_arg);
-
-	//Currently we only support WiFi event
-	if (event_module >= EVENT_MOD_COUNT) {
-		EVENT_LOGE("unknow event moddule(%d)\n", event_module);
-		return BK_ERR_EVENT_MOD;
-	}
-
-	//TODO Validate event ID
-
-	//TODO should NOT place WiFi event handler to event module, optimize it!!!!
-	if ((event_module == EVENT_MOD_WIFI) && (event_id == EVENT_WIFI_SCAN_DONE)) {
-		s_scan_done_event_callback = event_callback;
-	}
-
-	return BK_OK;
-}
-
-
 bk_err_t bk_event_dump(void)
 {
 #if EVENT_DEBUG

@@ -90,7 +90,9 @@ int cli_dma_init(void);
 int cli_exception_init(void);
 int cli_icu_init(void);
 int cli_at_init(void);
+#if CONFIG_SECURITYIP
 int cli_vault_init(void);
+#endif
 int cli_aud_init(void);
 int cli_fft_init(void);
 int cli_sbc_init(void);

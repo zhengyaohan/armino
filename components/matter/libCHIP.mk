@@ -4,19 +4,25 @@
 
 CROSS_COMPILE_CHOICE=2
 
-ifeq ($(CROSS_COMPILE_CHOICE),1)
-ARM_GCC_TOOLCHAIN = ${FREERTOS_EXEC_PATH}
-CROSS_COMPILE = $(ARM_GCC_TOOLCHAIN)arm-none-eabi-
-else
-RISC_GCC_TOOLCHAIN = /opt/risc-v/nds32le-elf-mculib-v5/bin/
-CROSS_COMPILE = $(RISC_GCC_TOOLCHAIN)riscv32-elf-
+ifndef TOOLCHAIN_PATH
+TOOLCHAIN_PATH = /opt/risc-v/nds32le-elf-mculib-v5/bin
 endif
 
+ifndef BASEDIR
+BASEDIR = $(shell pwd)
+endif
 
-
-BASEDIR := $(shell pwd)
-CHIP_DIR = $(BASEDIR)/components/matter
+ifndef OUTPUT_DIR
 OUTPUT_DIR = $(CHIP_DIR)/config/beken/components/chip
+endif
+
+ifndef TARGET
+TARGET := bk7235
+endif
+
+CROSS_COMPILE = $(TOOLCHAIN_PATH)/$(TOOLCHAIN_PREFIX)
+
+CHIP_DIR = $(BASEDIR)/components/matter
 
 # Compilation tools
 AR = $(CROSS_COMPILE)ar
@@ -44,8 +50,6 @@ endif
 # Include folder list
 # -------------------------------------------------------------------
 INCLUDES =
-#INCLUDES += -I$(BASEDIR)/build/bk7231n/config
-#INCLUDES += -I$(BASEDIR)/build/bk7235/config
 INCLUDES += -I$(BASEDIR)/middleware/arch/bk7256/soc
 
 ifeq ($(CROSS_COMPILE_CHOICE),1)
@@ -140,8 +144,14 @@ INCLUDES += -I$(CHIP_DIR)/src/lib
 #out incluede
 #INCLUDES += -I$(CHIP_DIR)/config/beken/components/chip/out/7231n/gen/include
 #INCLUDES += -I$(CHIP_DIR)/gen/include
+
+# TODO fix it
+# Matter should depends on sdkconfig.h generated in $(CONFIG_DIR), however a lot of 
+# build error if directly use the correct sdkconfig.h, owner need to fix it!
+#INCLUDES += -I$(CONFIG_DIR)
 INCLUDES += -I$(CHIP_DIR)/bk7235
-INCLUDES += -I$(OUTPUT_DIR)/out/7231n/gen/include
+
+INCLUDES += -I$(OUTPUT_DIR)/out/$(TARGET)/gen/include
 INCLUDES += -I$(CHIP_DIR)/src/include
 
 #zzz_generated
@@ -295,34 +305,42 @@ CHIP_CXXFLAGS += $(CXXFLAGS)
 CHIP_CXXFLAGS += $(INCLUDES)
 
 
+export CHIP_ROOT_ENV=$(CHIP_DIR)
+export BUILD_ROOT_ENV=$(CHIP_DIR)/build
 
 #*****************************************************************************#
-#                        RULES TO GENERATE libCHIP.a and libAPP.a             #
+#                        RULES TO GENERATE libCHIP.a and libAPPLICATION.a     #
 #*****************************************************************************#
 
 # Define the Rules to build the core targets
 all: CHIP_CORE APP
-	@cp $(OUTPUT_DIR)/out/7231n/lib/*  $(BASEDIR)/components/bk_libs/common/
 
 CHIP_CORE:
+	@echo "target=$(TARGET)"
+	@echo "toolchain=$(TOOLCHAIN_PATH) prefix=$(TOOLCHAIN_PREFIX)"
+	@echo "base_dir=$(BASEDIR)"
+	@echo "config=$(CONFIG_DIR)"
+	@echo "output_dir=$(OUTPUT_DIR)"
 	if [ ! -d $(OUTPUT_DIR) ]; then \
-		rm -rf $(OUTPUT_DIR);mkdir -p $(OUTPUT_DIR); mkdir -p $(OUTPUT_DIR)/app_obj;\
+		mkdir -p $(OUTPUT_DIR); mkdir -p $(OUTPUT_DIR)/app_obj;\
+	fi
+	if [ ! -d $(OUTPUT_DIR)/app_obj ]; then \
+		mkdir -p $(OUTPUT_DIR)/app_obj;\
 	fi
 	@echo "Compiling CHIP SDK static library"
-	@echo $(BASEDIR)
 	@echo                                   > $(OUTPUT_DIR)/args.gn
 	@echo "import(\"//args.gni\")"          >> $(OUTPUT_DIR)/args.gn
 	@echo target_cflags_c  = [$(foreach word,$(CHIP_CFLAGS),\"$(word)\",)] | sed -e 's/=\"/=\\"/g;s/\"\"/\\"\"/g;'  >> $(OUTPUT_DIR)/args.gn
 	@echo target_cflags_cc = [$(foreach word,$(CHIP_CXXFLAGS),\"$(word)\",)] | sed -e 's/=\"/=\\"/g;s/\"\"/\\"\"/g;'   >> $(OUTPUT_DIR)/args.gn
-	@echo beken_ar = \"${AR}\"    >> $(OUTPUT_DIR)/args.gn
-	@echo beken_cc = \"${CC}\"   >> $(OUTPUT_DIR)/args.gn
-	@echo beken_cxx = \"${CXX}\"  >> $(OUTPUT_DIR)/args.gn
-	cd $(CHIP_DIR)/config/beken/components/chip && gn gen --check --fail-on-unused-args ./out/7231n && cp ./args.gn ./out/7231n/
-	cd $(CHIP_DIR)/config/beken/components/chip ; ninja -C ./out/7231n
+	@echo beken_ar = \"$(AR)\"    >> $(OUTPUT_DIR)/args.gn
+	@echo beken_cc = \"$(CC)\"   >> $(OUTPUT_DIR)/args.gn
+	@echo beken_cxx = \"$(CXX)\"  >> $(OUTPUT_DIR)/args.gn
+	cd $(CHIP_DIR)/config/beken && gn gen --check --fail-on-unused-args $(OUTPUT_DIR)/out/$(TARGET) && cp $(OUTPUT_DIR)/args.gn $(OUTPUT_DIR)/out/$(TARGET)/
+	cd $(CHIP_DIR)/config/beken ; ninja -C $(OUTPUT_DIR)/out/$(TARGET)
 
 APP: $(OBJS)
-	@echo "Archive the libAPP.a"
-	@cd $(OUTPUT_DIR)/app_obj; $(AR) crs libAPP.a $(OBJ_CPP_LIST); mv ./libAPP.a ../out/7231n/lib/
+	@echo "Archive the libAPPLICATION.a"
+	@cd $(OUTPUT_DIR)/app_obj; $(AR) crs libAPPLICATION.a $(OBJ_CPP_LIST); mv ./libAPPLICATION.a ../out/$(TARGET)/lib/
 	@echo "Done"
 .cpp.o:
 	@$(CXX) $(CXXFLAGS) $(CFLAGS) -o $@ -c $< $(INCLUDES)

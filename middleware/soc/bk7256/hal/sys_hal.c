@@ -7706,3 +7706,9 @@ uint32_t sys_hal_get_sdio_clk_sel()
 	return sys_ll_get_cpu_clk_div_mode2_cksel_sdio();
 }
 
+
+void sys_hal_set_ana_vctrl_sysldo(uint32_t value)
+{
+    sys_ll_set_ana_reg5_vctrl_sysldo(value);
+}
+

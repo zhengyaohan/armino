@@ -3,7 +3,6 @@ ARMINO_DIR := $(shell pwd)
 
 ARMINO_TOOL := @$(ARMINO_DIR)/tools/build_tools/armino
 ARMINO_TOOL_WRAPPER := @$(ARMINO_DIR)/tools/build_tools/build.sh
-ENABLE_MATTER :=0
 # 1. soc_targets contains all supported SoCs
 # 2. cmake_supported_targets contains all targets that can directly
 #    passed to armino cmake build system
@@ -23,15 +22,18 @@ export SOC_SUPPORTED_TARGETS := ${soc_targets}
 ARMINO_SOC := $(findstring $(MAKECMDGOALS), $(soc_targets))
 ARMINO_SOC_LIB := $(findstring $(MAKECMDGOALS), $(properties_lib_targets))
 
+ifeq ("$(APP_VERSION)", "")
 APP_VERSION := unknow
+endif
 
+ifeq ("$(PROJECT_DIR)", "")
 ifdef PROJECT
 	# Add script to validate the project dir
 	PROJECT_DIR := projects/$(PROJECT)
 else
 	PROJECT_DIR := projects/legacy_app
 endif
-
+endif
 
 ifeq ("$(ARMINO_SOC)", "")
 ifeq ("$(ARMINO_SOC_LIB)", "")
@@ -73,6 +75,7 @@ common:
 	@echo "armino path=$(ARMINO_DIR)"
 	@echo "armino build path=$(ARMINO_DIR)/$(PROJECT_BUILD_DIR)"
 	@export ARMINO_PATH=$(ARMINO_DIR)
+	@export APP_NAME=$(APP_NAME)
 
 has_lib_src := $(shell $(ARMINO_DIR)/tools/build_tools/detect_internal_lib_src.py)
 
@@ -84,8 +87,6 @@ endif
 liball: $(properties_lib_targets)
 
 $(soc_targets):
-	@rm -f components/bk_libs/common/*
-	if [ $(ENABLE_MATTER) == "1" ]; then make -f components/matter/libCHIP.mk;fi
 	@$(ARMINO_TOOL_WRAPPER) $(ARMINO_DIR) $(PROJECT_DIR) $(PROJECT_BUILD_DIR) $@
 
 all: $(soc_targets)
@@ -98,15 +99,9 @@ relall: $(rel_targets)
 $(cmake_supported_targets): common
 	@$(ARMINO_TOOL) -B ./$(PROJECT_BUILD_DIR) -P ./$(PROJECT_DIR) $(ARMINO_TARGET)
 
-#TODO will move it to matter component
-clean_common:
-	@echo "clean matter"
-	@make -f components/matter/libCHIP.mk clean
-
-$(clean_targets): clean_common
+$(clean_targets):
 	@$(ARMINO_TOOL_WRAPPER) $(ARMINO_DIR) $(PROJECT_DIR) $(PROJECT_NAME) $@
 
-clean: clean_common
-	@for soc in $(soc_targets); do echo "rmove components/bk_libs/$$soc"; rm -rf components/bk_libs/$$soc; done
+clean:
 	@echo "rm ./build"
 	@rm -rf ./build

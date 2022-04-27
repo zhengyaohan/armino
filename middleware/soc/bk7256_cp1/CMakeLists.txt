@@ -68,7 +68,7 @@ if(CONFIG_TRNG_SUPPORT)
 	)
 endif()
 
-if(CONFIG_VAULT)
+if(CONFIG_SECURITYIP)
 	list(APPEND srcs
 		"hal/vault_hal_debug.c"
 		"hal/vault_ll.c"

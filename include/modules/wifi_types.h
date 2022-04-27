@@ -192,8 +192,8 @@ typedef enum {
 	WIFI_REASON_NO_AP_FOUND = 257,       /**< Can't find the target AP */
 	WIFI_REASON_WRONG_PASSWORD = 258,    /**< The password is wrong */
 	WIFI_REASON_DISCONNECT_BY_APP = 259, /**< The BK STA disconnected by application */
-	WIFI_REASON_DHCP_TIMEOUT = 260, /**<The BK STA dhcp timeout, 20s**/
-	WIFI_REASON_MAX,		/**<The BK STA connect success*/
+	WIFI_REASON_DHCP_TIMEOUT = 260,      /**<The BK STA dhcp timeout, 20s**/
+	WIFI_REASON_MAX,                     /**<The BK STA connect success*/
 } wifi_err_reason_t;
 
 typedef enum {
@@ -212,17 +212,18 @@ typedef enum {
 } wifi_security_t;
 
 typedef enum {
-	/* for station mode */
-	WIFI_LINKSTATE_STA_IDLE = 0,	/**< sta mode is idle */
-	WIFI_LINKSTATE_STA_CONNECTING,	/**< sta mode is connecting */
-	WIFI_LINKSTATE_STA_DISCONNECTED,   /**< sta mode is disconnected */
-	WIFI_LINKSTATE_STA_CONNECTED,          /**< sta mode is connected */
-	WIFI_LINKSTATE_STA_GOT_IP,		 /**< sta mode got ip */
-	/* for softap mode */
-	WIFI_LINKSTATE_AP_CONNECTED,          /**< softap mode, a client association success */
-	WIFI_LINKSTATE_AP_DISCONNECTED,    /**< softap mode, a client disconnect */
+	/* for STA mode */
+	WIFI_LINKSTATE_STA_IDLE = 0,      /**< sta mode is idle */
+	WIFI_LINKSTATE_STA_CONNECTING,    /**< sta mode is connecting */
+	WIFI_LINKSTATE_STA_DISCONNECTED,  /**< sta mode is disconnected */
+	WIFI_LINKSTATE_STA_CONNECTED,     /**< sta mode is connected */
+	WIFI_LINKSTATE_STA_GOT_IP,        /**< sta mode got ip */
+
+	/* for AP mode */
+	WIFI_LINKSTATE_AP_CONNECTED,      /**< softap mode, a client association success */
+	WIFI_LINKSTATE_AP_DISCONNECTED,   /**< softap mode, a client disconnect */
 	WIFI_LINKSTATE_AP_CONNECT_FAILED, /**< softap mode, a client association failed */
-	WIFI_LINKSTATE_MAX,	/**<reserved*/
+	WIFI_LINKSTATE_MAX,               /**< reserved */
 	//TODO maybe we can provide more precise link status
 } wifi_link_state_t;
 
@@ -292,9 +293,9 @@ typedef struct {
 } wifi_sta_config_t;
 
 typedef struct {
-	wifi_link_state_t state;	/**<Wifi linkstate*/
-	wifi_err_reason_t reason_code;	/**<Wifi disconnect reason code, success will be WIFI_REASON_MAX*/
-}wifi_linkstate_reason_t;
+	wifi_link_state_t state;           /**<Wifi linkstate*/
+	wifi_err_reason_t reason_code;     /**<Wifi disconnect reason code, success will be WIFI_REASON_MAX*/
+} wifi_linkstate_reason_t;
 
 typedef struct {
 	wifi_link_state_t state;           /**< The WiFi connection status */
@@ -436,7 +437,8 @@ typedef struct {
 } wifi_event_sta_connected_t;
 
 typedef struct {
-	int disconnect_reason;     /**< Disconnect reason of BK STA */
+	int disconnect_reason;                /**< Disconnect reason of BK STA */
+	bool local_generated;                 /**< if disconnect is request by local */
 } wifi_event_sta_disconnected_t;
 
 typedef struct {

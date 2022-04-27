@@ -2,6 +2,6 @@
 
 int main(void)
 {
-	printf("hello component compile options\n");
+	compile_options();
 	return 0;
 }

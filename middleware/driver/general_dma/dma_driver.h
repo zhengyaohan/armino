@@ -15,10 +15,18 @@
 #pragma once
 
 #include <components/log.h>
+#include <driver/dma_types.h>
 
 #define DMA_TAG "dma"
 #define DMA_LOGI(...) BK_LOGI(DMA_TAG, ##__VA_ARGS__)
 #define DMA_LOGW(...) BK_LOGW(DMA_TAG, ##__VA_ARGS__)
 #define DMA_LOGE(...) BK_LOGE(DMA_TAG, ##__VA_ARGS__)
 #define DMA_LOGD(...) BK_LOGD(DMA_TAG, ##__VA_ARGS__)
+
+typedef struct
+{
+	u32		chnl_bitmap;
+	u32		chnl_user[DMA_ID_MAX];
+} dma_chnl_pool_t;
+
 

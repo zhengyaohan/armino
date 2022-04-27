@@ -21,11 +21,12 @@
 #include "gpio_driver.h"
 #include "gpio_driver_base.h"
 #include "icu_driver.h"
+#include "amp_lock_api.h"
 #include <driver/gpio_types.h>
 
 extern gpio_driver_t s_gpio;
 
-
+#define GPIO_REG_LOCK_WAIT_TIME_MS  6
 #define GPIO_RETURN_ON_INVALID_PERIAL_MODE(mode, mode_max) do {\
 				if ((mode) >= (mode_max)) {\
 					return BK_ERR_GPIO_SET_INVALID_FUNC_MODE;\
@@ -34,14 +35,38 @@ extern gpio_driver_t s_gpio;
 
 bk_err_t gpio_dev_map(gpio_id_t gpio_id, gpio_dev_t dev)
 {
+	uint32_t ret_val = 1;
+	
+	ret_val = amp_res_acquire(AMP_RES_ID_GPIO, GPIO_REG_LOCK_WAIT_TIME_MS);
+	GPIO_LOGD("amp_res_acquire:ret=%d\r\n", ret_val);
+	if(ret_val != BK_OK)
+		return ret_val;
+
 	gpio_hal_func_map(&s_gpio.hal, gpio_id, dev);
+
+	ret_val = amp_res_release(AMP_RES_ID_GPIO);
+	GPIO_LOGD("amp res release:ret=%d\r\n", ret_val);
+	if(ret_val != BK_OK)
+		return ret_val;
 
 	return BK_OK;
 }
 
 bk_err_t gpio_dev_unmap(gpio_id_t gpio_id)
 {
+	uint32_t ret_val = 1;
+
+	ret_val = amp_res_acquire(AMP_RES_ID_GPIO, GPIO_REG_LOCK_WAIT_TIME_MS);
+	GPIO_LOGD("amp_res_acquire:ret=%d\r\n", ret_val);
+	if(ret_val != BK_OK)
+		return ret_val;
+
 	gpio_hal_func_unmap(&s_gpio.hal, gpio_id);
+
+	ret_val = amp_res_release(AMP_RES_ID_GPIO);
+	GPIO_LOGD("amp res release:ret=%d\r\n", ret_val);
+	if(ret_val != BK_OK)
+		return ret_val;
 
 	return BK_OK;
 }

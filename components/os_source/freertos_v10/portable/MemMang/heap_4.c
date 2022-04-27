@@ -890,7 +890,7 @@ void xPortDumpMemStats(uint32_t start_tick, uint32_t ticks_since_malloc, const c
 #endif
 	BK_LOG_RAW("\n");
 
-	uint32_t int_level = rtos_disable_int();
+	vTaskSuspendAll();
 
 	list_for_each_entry(pxLink, &xUsed, node) {
 		
@@ -910,7 +910,7 @@ void xPortDumpMemStats(uint32_t start_tick, uint32_t ticks_since_malloc, const c
 		mem_overflow_check(pxLink);
 	}
 
-	rtos_enable_int(int_level);
+	xTaskResumeAll();
 }
 #endif
 

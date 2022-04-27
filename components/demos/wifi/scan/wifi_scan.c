@@ -36,6 +36,7 @@
 #include <common/bk_include.h>
 #include <os/os.h>
 #include <common/bk_err.h>
+#include "components/event.h"
 #include "wlan_ui_pub.h"
 #include "uart_pub.h"
 #include <os/mem.h>
@@ -44,12 +45,15 @@
 
 static beken_semaphore_t scan_handle = NULL;
 
-void scan_ap_cb(void *ctxt, uint8_t param)
+static int scan_ap_cb(void *arg, event_module_t event_module,
+					  int event_id, void *event_data)
 {
     if(scan_handle)
     {
         rtos_set_semaphore( &scan_handle );
     }
+
+	return BK_OK;
 }
 
 void show_scan_ap_result(void)
@@ -129,8 +133,9 @@ void wifi_scan_thread( beken_thread_arg_t arg )
     err = rtos_init_semaphore( &scan_handle, 1 );
     if(err == kNoErr)
     {
-        bk_wlan_scan_ap_reg_cb(scan_ap_cb);
-        bk_wlan_start_scan();
+		bk_event_register_cb(EVENT_MOD_WIFI, EVENT_WIFI_SCAN_DONE,
+								   scan_ap_cb, NULL);
+		bk_wifi_scan_start(NULL);
 
         err = rtos_get_semaphore(&scan_handle, BEKEN_WAIT_FOREVER);
         if(err == kNoErr)

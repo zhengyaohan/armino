@@ -1,1 +1,1 @@
-armino_component_register(SRCS "main.c" REQUIRES cmake_component)
+armino_component_register(SRCS "main.c")

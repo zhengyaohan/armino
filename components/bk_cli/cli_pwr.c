@@ -156,6 +156,7 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 	else if(pm_wake_source == WAKEUP_SOURCE_INT_GPIO)
 	{
 		gpio_wakeup_param.gpio_id = pm_param1;
+		gpio_wakeup_param.gpio_valid = PARAM_DATA_VALID;
 		gpio_wakeup_param.gpio_trigger_interrupt_type = pm_param2;
 		pm_wakeup_source_set(WAKEUP_SOURCE_INT_GPIO, &gpio_wakeup_param);
 	}
@@ -209,16 +210,30 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 	}
 	else if(pm_sleep_mode == LOW_POWER_MODE_LOW_VOLTAGE)
 	{
-		if((pm_vote1 == POWER_MODULE_NAME_BTSP)||(pm_vote2 == POWER_MODULE_NAME_BTSP)||(pm_vote3 == POWER_MODULE_NAME_BTSP))
+		if(pm_vote1 == POWER_MODULE_NAME_BTSP)
 		{
 			pm_module_vote_sleep_ctrl(pm_vote1,0x1,pm_param3);
-			pm_module_vote_sleep_ctrl(pm_vote2,0x1,pm_param3);
-			pm_module_vote_sleep_ctrl(pm_vote3,0x1,pm_param3);
 		}
 		else
 		{
 			pm_module_vote_sleep_ctrl(pm_vote1,0x1,0x0);
+		}
+
+		if(pm_vote2 == POWER_MODULE_NAME_BTSP)
+		{
+			pm_module_vote_sleep_ctrl(pm_vote2,0x1,pm_param3);
+		}
+		else
+		{
 			pm_module_vote_sleep_ctrl(pm_vote2,0x1,0x0);
+		}
+
+		if(pm_vote3 == POWER_MODULE_NAME_BTSP)
+		{
+			pm_module_vote_sleep_ctrl(pm_vote3,0x1,pm_param3);
+		}
+		else
+		{
 			pm_module_vote_sleep_ctrl(pm_vote3,0x1,0x0);
 		}
 	}
@@ -536,7 +551,7 @@ static const struct cli_command s_pwr_commands[] = {
 	{"mac_ps", "mac_ps {func} [param1] [param2]", cli_mac_ps_cmd},
 	{"deep_sleep", "deep_sleep [param]", cli_deep_sleep_cmd},
 #if CONFIG_AON_RTC
-	{"pm", "pm [sleep_mode] [wake_source] [vote1] [vote2] [vote3] [param1] [param2]", cli_pm_cmd},
+	{"pm", "pm [sleep_mode] [wake_source] [vote1] [vote2] [vote3] [param1] [param2] [param3]", cli_pm_cmd},
 	{"dvfs", "dvfs [cksel_core] [ckdiv_core] [ckdiv_bus] [ckdiv_cpu0] [ckdiv_cpu1]", cli_dvfs_cmd},
 	{"pm_vote", "pm_vote [pm_sleep_mode] [pm_vote] [pm_vote_value] [pm_sleep_time]", cli_pm_vote_cmd},
 	{"pm_debug", "pm_debug [debug_en_value]", cli_pm_debug},

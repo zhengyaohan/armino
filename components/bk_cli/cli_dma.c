@@ -23,6 +23,8 @@ static void cli_dma_help(void)
     CLI_LOGI("dma_driver {init|deinit}\n");
     CLI_LOGI("dma {id} {init|deinit|start|stop}\n");
     CLI_LOGI("dma_int {id} {reg|enable|disable}\n");
+    CLI_LOGI("dma_chnl alloc \n");
+    CLI_LOGI("dma_chnl_free {id} \n");
 }
 
 static void cli_dma_driver_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -142,11 +144,53 @@ static void cli_dma_int_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, 
     }
 }
 
+static void cli_dma_chnl_alloc(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+    uint8_t id;
+
+    if (argc < 2) {
+        cli_dma_help();
+        return;
+    }
+
+    if (os_strcmp(argv[1], "alloc") == 0) {
+	 id = bk_dma_alloc(DMA_DEV_MAX);
+        CLI_LOGI("dma channel id:%x\n", id);
+    } else {
+        cli_dma_help();
+        return;
+    }
+}
+
+static void cli_dma_chnl_free(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+    uint32_t id;
+    uint32_t ret;
+
+    if (argc < 2) {
+        cli_dma_help();
+        return;
+    }
+
+    if (os_strcmp(argv[1], "free") == 0) {
+	id = os_strtoul(argv[2], NULL, 10);
+	ret = bk_dma_free(DMA_DEV_MAX, id);
+	CLI_LOGI("dma channel free id:%d\n", ret);
+    } else {
+	CLI_LOGI("cli_dma_chnl_free NOT free\n");
+       cli_dma_help();
+       return;
+    }
+}
+
+
 #define DMA_CMD_CNT (sizeof(s_dma_commands) / sizeof(struct cli_command))
 static const struct cli_command s_dma_commands[] = {
     {"dma_driver", "dma_driver {init|deinit}", cli_dma_driver_cmd},
     {"dma", "dma {id} {init|deinit|start|stop|set_tran_len|get_remain_len}", cli_dma_cmd},
     {"dma_int", "dma_int {id} {reg|enable_hf_fini|disable_hf_fini|enable_fini|disable_fini}", cli_dma_int_cmd},
+    {"dma_chnl", "dma_chnl alloc", cli_dma_chnl_alloc},
+    {"dma_chnl_free", "dma_chnl_free {id}", cli_dma_chnl_free},
 };
 
 int cli_dma_init(void)

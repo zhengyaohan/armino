@@ -608,7 +608,8 @@ int cli_wifi_event_cb(void *arg, event_module_t event_module,
 
 	case EVENT_WIFI_STA_DISCONNECTED:
 		sta_disconnected = (wifi_event_sta_disconnected_t *)event_data;
-		CLI_LOGI("BK STA disconnected, reason(%d)\n", sta_disconnected->disconnect_reason);
+		CLI_LOGI("BK STA disconnected, reason(%d)%s\n", sta_disconnected->disconnect_reason,
+			sta_disconnected->local_generated ? ", local_generated" : "");
 		break;
 
 	case EVENT_WIFI_AP_CONNECTED:
@@ -672,7 +673,7 @@ void cli_wifi_get_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		CLI_LOGI("Usage get xx status\n");
 		return;
 	}
-#if CONFIG_PM_V2
+
 	if(os_strcmp(argv[1], "ps") == 0) {
 		int state = 0;
 		if(os_strcmp(argv[2], "status") == 0) {
@@ -682,32 +683,35 @@ void cli_wifi_get_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 			CLI_LOGI("Usage get ps status\n");
 		}
 	}
-#endif
 }
 
 #ifdef CONFIG_COMPONENTS_WPA_TWT_TEST
 void cli_wifi_twt_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
-	char buf[128];
-	int i, left = sizeof(buf) - 1, len = 0;
+	uint16_t mantissa = 0;
+	uint8_t min_twt = 0;
+	
+	if(os_strcmp(argv[1], "setup") == 0) {
+		int setup_command = 0;
 
-	if (argc <= 2) {
-		CLI_LOGI("Usage: twt_setup [dialog=<token>] [exponent=<exponent>] [mantissa=<mantissa>] [min_twt=<Min TWT>] [setup_cmd=<setup-cmd>] [twt=<u64>] [requestor=0|1] [trigger=0|1] [implicit=0|1] [flow_type=0|1] [flow_id=<3-bit-id>] [protection=0|1] [twt_channel=<twt chanel id>] [control=<control-u8>] | twt_teardown [flags=<value>]");
-		return;
+		if(os_strcmp(argv[2], "suggest") == 0) {
+			setup_command = 1;
+		}
+		else if(os_strcmp(argv[2], "demand") == 0) {
+			setup_command = 2;
+		}
+		else {
+			CLI_LOGI("Usage: twt setup suggest/demand <param...>\n");
+			return;
+		}
+		mantissa = os_strtoul(argv[3], NULL, 10) & 0xFF;
+		min_twt = os_strtoul(argv[4], NULL, 10) & 0xFF;
+		bk_wifi_twt_setup(setup_command, mantissa, min_twt);
 	}
-
-	buf[0] = 0;
-	for (i = 2; i < argc; i++) {
-		len = os_strlen(buf);
-		snprintf(buf + len, left - len, "%s ", argv[i]);
-	}
-	buf[strlen(buf) - 1] = 0;
-
-	if(os_strcmp(argv[1], "setup") == 0)
-		wlan_twt_setup(buf);
 	else if (os_strcmp(argv[1], "teardown") == 0)
-		wlan_twt_teardown(buf);
-
+		bk_wifi_twt_teardown();
+	else
+		CLI_LOGI("Usage: twt setup/teardown \n");
 }
 #endif
 
@@ -729,9 +733,6 @@ static const struct cli_command s_wifi_commands[] = {
 
 #ifdef CONFIG_COMPONENTS_WPA_TWT_TEST
 	{"twt", "twt {setup|teardown}", cli_wifi_twt_cmd},
-	/*{ "twt_setup", "[dialog=<token>] [exponent=<exponent>] [mantissa=<mantissa>] [min_twt=<Min TWT>] [setup_cmd=<setup-cmd>] [twt=<u64>] [requestor=0|1] [trigger=0|1] [implicit=0|1] [flow_type=0|1] [flow_id=<3-bit-id>] [protection=0|1] [twt_channel=<twt chanel id>] [control=<control-u8>] = Send TWT Setup frame",
-	},
-	{ "twt_teardown", "[flags=<value>] = Send TWT Teardown frame", },*/
 #endif
 
 #if CONFIG_COMPONENTS_WFA_CA

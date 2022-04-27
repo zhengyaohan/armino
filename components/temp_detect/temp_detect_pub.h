@@ -17,6 +17,28 @@
 //TODO remove it
 #include "temp_detect.h"
 
+#define TMP_DETECT_DEBUG    1
+
+#if TMP_DETECT_DEBUG
+#define TMP_DETECT_PRT      os_printf
+#define TMP_DETECT_WARN     warning_prf
+#define TMP_DETECT_FATAL    fatal_prf
+#else
+#define TMP_DETECT_PRT      os_printf
+#define TMP_DETECT_WARN     null_prf
+#define TMP_DETECT_FATAL    null_prf
+#endif
+
+#if CFG_USE_TEMPERATURE_DETECT && CFG_USE_VOLTAGE_DETECT
+#define ADC_TMEP_DETECT_INTVAL_CHANGE               (60) // 2 mins
+#else
+#define ADC_TMEP_DETECT_INTVAL_CHANGE               (120) // 2 mins
+#endif
+
+#if (CONFIG_SOC_BK7256) ||(CONFIG_SOC_BK7236) ||(CONFIG_SOC_BK7231N)||(CONFIG_SOC_BK7235)||(CONFIG_SOC_BK7256_CP1)
+#define ADC_VOLT_SENSER_CHANNEL                     0
+#endif
+
 #define BK_ERR_TEMPD_SAMPLE_NO_DATA                 BK_ERR_TEMPD_BASE
 
 void temp_detect_change_configuration(uint32_t intval, uint32_t thre, uint32_t dist);
@@ -26,4 +48,5 @@ int temp_detect_stop(void);
 int temp_detect_start(void);
 bool temp_detect_is_init(void);
 int temp_detect_get_temperature(uint32_t *temperature);
+UINT32 volt_single_get_current_voltage(UINT32 *volt_value);
 

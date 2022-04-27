@@ -312,3 +312,47 @@ ble_err_t bk_ble_set_phy(uint8_t conn_idx, ble_set_phy_t * phy_info, ble_cmd_cb_
 
 
 
+/**
+ * @brief for hci raw data callback.
+ *
+ * stack report type to upper
+ *
+ * @param
+ * - buf: payload, see BK_BLE_HCI_TYPE as buf[0]
+ * - len: buf's len
+ *
+ * @return
+ * - BK_ERR_BLE_SUCCESS: succeed
+**/
+typedef ble_err_t (*ble_hci_raw_to_host_cb)(uint8_t *buf, uint16_t len);
+
+
+/**
+ * @brief     reg hci recv raw data callback
+ *
+ * @param
+ *    - cb: callback function
+ *
+ * @attention 1. you must call this after recv BLE_5_STACK_OK evt !
+ *
+ * @return
+ *    - BK_ERR_BLE_SUCCESS: succeed
+ *    - others: other errors.
+ */
+ble_err_t bk_ble_reg_hci_raw_recv_callback(ble_hci_raw_to_host_cb cb);
+
+
+/**
+ * @brief send hci raw data to controller.
+ *
+ *
+ * @param
+ * - buf: payload, see buf[0] as BK_BLE_HCI_TYPE
+ * - len: buf's len
+ *
+ * @attention 1. you must call this after bk_ble_reg_hci_recv_callback !
+ *
+ * @return
+ * - BK_ERR_BLE_SUCCESS: succeed
+**/
+ble_err_t bk_ble_hci_raw_to_controller(uint8_t *buf, uint16_t len);

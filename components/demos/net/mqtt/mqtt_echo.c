@@ -11,31 +11,21 @@
 #include "MQTTClient.h"
 #include "mqtt_test.h"
 #include "wlan_ui_pub.h"
+#include "common/bk_err.h"
+#include "components/event.h"
 
 #if (defined(MQTT_CLIENT_DEMO) && MQTT_ECHO_TEST)
 
-uint32_t g_echo_wifi_flag = 0;
+static bool g_echo_wifi_flag = false;
 
-extern void user_connected_callback(FUNCPTR fn);
-
-void echo_wifi_connect_cb(void)
+static inline bool echo_is_wifi_connected(void)
 {
-	g_echo_wifi_flag = 1;
-}
-
-void echo_wifi_disconnect_cb(enum rw_evt_type evt_type, void *data)
-{
-	g_echo_wifi_flag = 0;
-}
-
-uint32_t echo_is_wifi_connected(void)
-{
-	return (1 == g_echo_wifi_flag);
+	return g_echo_wifi_flag;
 }
 
 void echo_waiting_for_wifi_connected(void)
 {
-	while(0 == echo_is_wifi_connected())
+	while (!echo_is_wifi_connected())
 	{
 		os_printf("reposing......\r\n");
 		rtos_delay_milliseconds(ECHO_REPOSE_COUNT);
@@ -44,22 +34,49 @@ void echo_waiting_for_wifi_connected(void)
 
 void echo_msg_arrived_cb(MessageData* data)
 {
-	os_printf("Message arrived on topic %.*s: %.*s\n", data->topicName->lenstring.len, data->topicName->lenstring.data,
+	os_printf("Message arrived on topic %.*s: %.*s\n",
+		data->topicName->lenstring.len, data->topicName->lenstring.data,
 		data->message->payloadlen, data->message->payload);
+}
+
+static int echo_wifi_event_cb(void *arg, event_module_t event_module,
+							  int event_id, void *event_data)
+{
+	wifi_event_sta_disconnected_t *sta_disconnected;
+	wifi_event_sta_connected_t *sta_connected;
+
+	switch (event_id) {
+	case EVENT_WIFI_STA_CONNECTED:
+		sta_connected = (wifi_event_sta_connected_t *)event_data;
+		os_printf("BK STA connected %s\n", sta_connected->ssid);
+		g_echo_wifi_flag = true;
+		break;
+
+	case EVENT_WIFI_STA_DISCONNECTED:
+		sta_disconnected = (wifi_event_sta_disconnected_t *)event_data;
+		os_printf("BK STA disconnected, reason(%d)\n", sta_disconnected->disconnect_reason);
+		g_echo_wifi_flag = false;
+		break;
+
+	default:
+		os_printf("rx event <%d %d>\n", event_module, event_id);
+		break;
+	}
+
+	return BK_OK;
 }
 
 static void wifi_cb_init(void)
 {
 	user_callback_register();
-	
-	user_connected_callback(echo_wifi_connect_cb);
-    rw_evt_set_callback(RW_EVT_STA_DISCONNECTED, (void *)echo_wifi_disconnect_cb);
-    rw_evt_set_callback(RW_EVT_STA_CONNECT_FAILED, (void *)echo_wifi_disconnect_cb);
+
+	/* Register WiFi Event Callback */
+	BK_LOG_ON_ERR(bk_event_register_cb(EVENT_MOD_WIFI, EVENT_ID_ALL, echo_wifi_event_cb, NULL));
 }
 
 static void echo_task_handler(void *pvParameters)
 {
-	/* connect to m2m.eclipse.org, subscribe to a topic, send and receive 
+	/* connect to m2m.eclipse.org, subscribe to a topic, send and receive
 	 * messages regularly every 1 second
 	   mqtt server:
 	 			"test.mosquitto.org"  "test.mosca.io"
@@ -75,10 +92,10 @@ static void echo_task_handler(void *pvParameters)
 
 	wifi_cb_init();
 	echo_waiting_for_wifi_connected();
-	
+
 	pvParameters = 0;
-	
-	NetworkInit(&network);	
+
+	NetworkInit(&network);
 	os_printf("[MQTT]mqtt_client_init\r\n");
 	mqtt_client_init(&client, &network, 30000, sendbuf, sizeof(sendbuf), readbuf, sizeof(readbuf));
 
@@ -122,7 +139,7 @@ static void echo_task_handler(void *pvParameters)
 		message.payload = payload;
 		sprintf(payload, "message number %d", count);
 		message.payloadlen = strlen(payload);
-		
+
 		os_printf("[MQTT]Publish\r\n");
 		if ((rc = mqtt_publish(&client, "FreeRTOS/sample/a", &message)) != 0)
 		{
@@ -134,7 +151,7 @@ static void echo_task_handler(void *pvParameters)
 				break;
 			}
 		}
-		
+
 #if !defined(MQTT_TASK)
 		if ((rc = mqtt_yield(&client, 1000)) != 0)
 			os_printf("[MQTT]Return code from yield is %d\n", rc);
@@ -164,7 +181,7 @@ void echo_start_tasks(uint16_t usTaskStackSize, UBaseType_t uxTaskPriority)
 int demo_start(void)
 {
 	echo_start_tasks(ECHO_STACK_SIZE, ECHO_THD_PRORITY);
-	
+
 	return 0;
 }
 

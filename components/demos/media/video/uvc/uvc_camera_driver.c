@@ -84,8 +84,10 @@ void uvc_process_data_packet(void *curptr, uint32_t newlen, uint8_t is_eof, uint
 		uvc_intf.frame_len += frame_len;
 		frame_total_len = uvc_intf.frame_len;
 
-		//if (s_uvc_save == 2)
-			//s_uvc_save = 0;
+		if (bmhead_info & 0x02) {
+			if (uvc_intf.end_frame_handler && uvc_intf.node_len > 0)
+				uvc_intf.end_frame_handler(uvc_intf.frame_len);
+		}
 	} else {
 		uvc_intf.frame_len += frame_len;
 	}
@@ -197,8 +199,6 @@ void fuvc_notify_uvc_configed_callback(void)
 void fuvc_fiddle_rx_vs_callback(void)
 {
 	ddev_control(uvc_hdl, UCMD_UVC_RECEIVE_VSTREAM, 0);
-	if (uvc_intf.end_frame_handler && uvc_intf.node_len > 0)
-		uvc_intf.end_frame_handler(uvc_intf.frame_len);
 }
 
 void fuvc_get_packet_rx_vs_callback(uint8_t *arg, uint32_t count)

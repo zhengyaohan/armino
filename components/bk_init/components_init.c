@@ -46,6 +46,8 @@
 #include "bk_arch.h"
 #include "bk_private/bk_driver.h"
 
+#include "mb_ipc_cmd.h"
+
 #define TAG "init"
 
 //TODO move to better place
@@ -242,6 +244,9 @@ int components_init(void)
     pm_init_todo();
     show_init_info();
     random_init();
+
+	ipc_init();
+
 #else
 	pm_init_todo();
 	driver_init();

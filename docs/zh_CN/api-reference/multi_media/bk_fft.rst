@@ -21,7 +21,7 @@ E.g. if the FFT function is working, the IFFT funtion can not work. And calling 
 
 FFT API Categories
 ----------------------------
-Most of WiFi APIs can be categoried as:
+Most of FFT APIs can be categoried as:
 
  - Common APIs
 

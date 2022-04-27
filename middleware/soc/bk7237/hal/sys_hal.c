@@ -7646,3 +7646,7 @@ void sys_hal_set_ana_vhsel_ldodig(uint32_t value)
 {
     sys_ll_set_ana_reg3_vhsel_ldodig(value);
 }
+void sys_hal_set_ana_vctrl_sysldo(uint32_t value)
+{
+    sys_ll_set_ana_reg5_vctrl_sysldo(value);
+}

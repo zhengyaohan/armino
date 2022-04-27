@@ -207,22 +207,21 @@ void user_connected_callback(FUNCPTR fn)
 
 static void wm_netif_status_static_callback(struct netif *n)
 {
-    if (n->flags & NETIF_FLAG_UP)
-    {
-        // static IP success;
-        LWIP_LOGI("using static ip...\n");
-	wifi_netif_notify_sta_got_ip();
+	if (n->flags & NETIF_FLAG_UP) {
+		// static IP success;
+		LWIP_LOGI("using static ip...\n");
+		wifi_netif_notify_sta_got_ip();
 
-        if(sta_ipup_cb != NULL)
-            sta_ipup_cb(NULL);
+#if !CONFIG_DISABLE_DEPRECIATED_WIFI_API
+		if (sta_ipup_cb != NULL)
+			sta_ipup_cb(NULL);
 
-        if(sta_connected_func != NULL)
-            (*sta_connected_func)();
-    }
-    else
-    {
-    	// static IP fail;
-    }
+		if (sta_connected_func != NULL)
+			(*sta_connected_func)();
+#endif
+	} else {
+		// static IP fail;
+	}
 }
 
 
@@ -234,20 +233,26 @@ static void wm_netif_status_callback(struct netif *n)
 		dhcp = netif_dhcp_data(n);
 
 		if(dhcp != NULL) {
+			/* dhcp success*/
 			if (dhcp->state == DHCP_STATE_BOUND) {
-			//	LWIP_LOGI("ip_addr: "BK_IP4_FORMAT" \r\n", BK_IP4_STR(n->ip_addr.addr));
+				// LWIP_LOGI("ip_addr: "BK_IP4_FORMAT" \r\n", BK_IP4_STR(n->ip_addr.addr));
+#if !CONFIG_DISABLE_DEPRECIATED_WIFI_API
 				wifi_netif_call_status_cb_when_sta_got_ip();
+#endif
 				wifi_netif_notify_sta_got_ip();
 
-				/* dhcp success*/
+#if !CONFIG_DISABLE_DEPRECIATED_WIFI_API
 				if(sta_ipup_cb != NULL)
 					sta_ipup_cb(NULL);
 
 				if(sta_connected_func != NULL)
 					(*sta_connected_func)();
+#endif
 			} else {
 				// dhcp fail
+#if !CONFIG_DISABLE_DEPRECIATED_WIFI_API
 				wifi_netif_call_status_cb_when_sta_dhcp_timeout();
+#endif
 				wifi_netif_notify_sta_dhcp_timeout();
 			}
 		} else {
@@ -375,8 +380,7 @@ void sta_ip_start(void)
 
 	LWIP_LOGI("sta ip start: "BK_IP4_FORMAT" \r\n", BK_IP4_STR(address.ipv4.address));
 	net_get_if_addr(&address, net_get_sta_handle());
-	if(wifi_netif_sta_is_connected()
-		&& (0 != address.ipv4.address)) {
+	if (wifi_netif_sta_is_connected() && (0 != address.ipv4.address)) {
 		wifi_netif_notify_sta_got_ip();
 	}
 }
@@ -765,7 +769,7 @@ int net_wlan_remove_netif(uint8_t *mac)
 	} else {
 		netif->state = NULL;
 	}
-	
+
 	LWIP_LOGI("remove vif%d\n", vifid);
 	return ERR_OK;
 }

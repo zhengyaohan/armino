@@ -16,17 +16,17 @@
 bk_err_t netif_wifi_event_cb(void *arg, event_module_t event_module,
                 int event_id, void *event_data)
 {
-	if (event_module != EVENT_MOD_WIFI_INTERNAL) {
+	if (event_module != EVENT_MOD_WIFI) {
 		return BK_OK;
 	}
 
 	switch (event_id) {
-	case WIFI_INTERNAL_EVENT_STA_CONNECTED:
+	case EVENT_WIFI_STA_CONNECTED:
 #if CONFIG_LWIP
 		sta_ip_start();
 #endif
 		break;
-	case WIFI_INTERNAL_EVENT_STA_DISCONNECTED:
+	case EVENT_WIFI_STA_DISCONNECTED:
 #if CONFIG_LWIP
 		sta_ip_down();
 #endif
@@ -45,7 +45,7 @@ bk_err_t bk_netif_init(void)
 	net_wlan_initial();
 #endif
 
-	BK_LOG_ON_ERR(bk_event_register_cb(EVENT_MOD_WIFI_INTERNAL, EVENT_ID_ALL,
+	BK_LOG_ON_ERR(bk_event_register_cb(EVENT_MOD_WIFI, EVENT_ID_ALL,
 			netif_wifi_event_cb, NULL));
 	return BK_OK;
 }

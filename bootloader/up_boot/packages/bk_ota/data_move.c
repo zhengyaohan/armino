@@ -28,8 +28,9 @@ uint32_t out_buf[DM_CHUNK >> 2];
 uint32_t flash_buf[FLASH_WR_CHUNK >> 2];
 uint32_t pre_encrypt_buf[FLASH_WR_CHUNK >> 2]; /* efuse encrypt buffer*/
 uint8_t remnant[INS_NO_CRC_CHUNK];
+uint8_t remnantx[INSTRUCTION_CRC_CHUNK]={0};
 uint32_t remnant_len = 0;
-
+uint32_t src_offset1=0;
 extern void encrypt(u32 *rx, u8 *tx, u32 num, u32  addr0);
 extern void calc_crc(u32 *buf, u32 packet_num);
 
@@ -259,8 +260,16 @@ int dm_fwrite_tail(uint32_t addr)
 	dm_fwrite(addr, 0, 0, 0);
 
 	return padding_len;
+}	
+void *mem_cpy(void *dest, const void *src, size_t count)
+{
+	char *tmp = dest;
+	const char *s = src;
+ 
+	while (count--)
+		*tmp++ = *s++;
+	return dest;
 }
-
 int data_move_handler(void)
 {
         unsigned have;
@@ -272,26 +281,29 @@ int data_move_handler(void)
         int dl_total_len = 0;
         int rd_len, req_len, wr_ret;
         Bytef *zlib_decompress_ptr;
-
         struct ota_rbl_hdr  rbl_hdr;
         fal_partition_t dest_part = NULL;
         fal_partition_t src_part  = NULL;
-        int i=0;	
+        int handle_count;
+        int padding_len;
+        char  *padding_ptr = NULL;
+        char  *contentx = NULL;
+        int i = 0;
+
         clr_flash_protect(); // 4
-	src_part  = fal_partition_find(RT_BK_DL_PART_NAME);
+        src_part  = fal_partition_find(RT_BK_DL_PART_NAME);
         bk_printf("fal_partition_find over: ");    
         if(data_move_start(src_part))
         {
                 return RET_DM_NO_OTA_DATA;
         }
-	dl_partition_len = src_part->len;
-	//read firmware head from download partition 96 bytes
-	fal_get_fw_hdr(RT_BK_DL_PART_NAME, &rbl_hdr);
-	dest_part = fal_partition_find(rbl_hdr.name);
-	dl_valid_data_len = rbl_hdr.size_package;	
+        dl_partition_len = src_part->len;
+        //read firmware head from download partition 96 bytes
+        fal_get_fw_hdr(RT_BK_DL_PART_NAME, &rbl_hdr);
+        dest_part = fal_partition_find(rbl_hdr.name);
+        dl_valid_data_len = rbl_hdr.size_package;	
         //dm_erase_dest_partition(APP_SEC_BASE, (APP_SEC_LEN + (SM_SECTOR - 1)) / SM_SECTOR * SM_SECTOR);
         dm_erase_dest_partition(dest_part->offset, (dest_part->len + (SM_SECTOR - 1)) / SM_SECTOR * SM_SECTOR);
-        
         dest_addr = dest_part->offset;
         src_addr = src_part->offset+ 0x60; //0x60:rbl head size
         bk_printf("src_address: ");
@@ -299,138 +311,133 @@ int data_move_handler(void)
         bk_printf("\r\n:");
         bk_printf("dest_address: ");
         bk_print_hex(dest_addr);
-        bk_printf("\r\n:");
-        /* decompress until deflate stream ends or end of file */	
-    	//log_i("src_address:0x%x", src_addr);
-    	//log_i("dest_address:0x%x", dest_addr);
+        bk_printf("\r\n:");     
+        /* allocate inflate state */
+        strm.zalloc = Z_NULL;
+        strm.zfree = Z_NULL;
+        strm.opaque = Z_NULL;
+        strm.avail_in = 0;
+        strm.next_in = Z_NULL;
+        log_i("inflateInit:0x%x", &strm);
+        ret = inflateInit(&strm);
+        if (ret != Z_OK)
+            return ret;
         while((dl_valid_data_len > src_offset) && (ret != Z_STREAM_END))
         {
                 req_len = MIN(DM_CHUNK, (dl_valid_data_len - src_offset));
-                bk_printf("req_len: ");
-                bk_print_hex(req_len);
-                bk_printf("\r\n:");
                 rd_len = dm_rd_src_partition(src_addr, (char *)in_buf, req_len);
                 ASSERT(rd_len == req_len);
-                ASSERT(0 == (rd_len & (32 - 1)));       
-                if(rd_len%32 != 0)
-                {
-                	rd_len += (32 - rd_len%32) ;
-                }
-                REG_FLASH_CONFIG  |= FLASH_CONFIG_CPU_WRITE_ENABLE_MASK; //cpu write flash enable
-
-                for(i=0;i < (req_len/4);i++)
-                {
-                        REG_WRITE((USER_APP_ENTRY+src_offset+i*4) ,in_buf[i]);
-                }       
-                REG_READ(0x0);	
+                ASSERT(0 == (rd_len & (32 - 1)));
                 src_addr += rd_len;
                 src_offset += rd_len;
-                dest_addr += rd_len;//new
-                bk_printf("src_offset: ");
+                bk_printf("\r\n");
+                //log_i("src_addr:0x%x:0x%x:0x%x", src_addr, dl_total_len, src_offset);
+                bk_printf("src_addr, src_offset ");
+                bk_print_hex(src_addr);
                 bk_print_hex(src_offset);
                 bk_printf("\r\n:");
-        }
-        REG_FLASH_CONFIG  &= (~(FLASH_CONFIG_CPU_WRITE_ENABLE_MASK)); //cpu write flash disable
-        dm_erase_dest_partition(src_part->offset, (src_part->len + (SM_SECTOR - 1)) / SM_SECTOR * SM_SECTOR);
-        wdt_reboot();
-        return 0;
-     
-#if 0
-    /* allocate inflate state */
-    strm.zalloc = Z_NULL;
-    strm.zfree = Z_NULL;
-    strm.opaque = Z_NULL;
-    strm.avail_in = 0;
-    strm.next_in = Z_NULL;
-	
-	log_i("inflateInit:0x%x", &strm);
-    ret = inflateInit(&strm);
-    if (ret != Z_OK)
-        return ret;
-   while((dl_valid_data_len > src_offset) && (ret != Z_STREAM_END))
-    {
-        req_len = MIN(DM_CHUNK, (dl_valid_data_len - src_offset));
-        rd_len = dm_rd_src_partition(src_addr, (char *)in_buf, req_len);
-        ASSERT(rd_len == req_len);
-        ASSERT(0 == (rd_len & (32 - 1)));
-
-        src_addr += rd_len;
-        src_offset += rd_len;
-		printf("\r\n");
-		//log_i("src_addr:0x%x:0x%x:0x%x", src_addr, dl_total_len, src_offset);
-		bk_printf("src_addr, src_offset ");
-		bk_print_hex(src_addr);
-		bk_print_hex(src_offset);
-		bk_printf("\r\n:");
-        aes_decrypt_handler((char *)in_buf, (char *)out_buf, rd_len);
-
-        strm.avail_in = rd_len;
-        if (strm.avail_in == 0)
-            break;
-        strm.next_in = (Bytef *)out_buf;
-        zlib_decompress_ptr = (Bytef *)in_buf;
-
-        /* run inflate() on input until output buffer not full */
-        do
-        {
-            strm.avail_out = ZLIB_CHUNK;
-            strm.next_out = zlib_decompress_ptr;
-			
-			//log_i("inflate in:0x%x 0x%x out:0x%x 0x%x", strm.avail_in, strm.next_in, strm.avail_out, strm.next_out);
-			bk_printf("strm.avail_in, strm.next_in, strm.avail_out, strm.next_out");
-			bk_print_hex(strm.avail_in);
-			bk_print_hex(strm.next_in);
-			bk_print_hex(strm.avail_out);
-			bk_print_hex(strm.next_out);
-			bk_printf("\r\n:");
-			
-			#if CFG_BEKEN_OTA
-			if(0xaa > strm.avail_in)
-			{
-				dump_hex((uint8_t *)strm.next_in, strm.avail_in);
-			}
-			#endif
-			
-            ret = inflate(&strm, Z_NO_FLUSH);
-            ASSERT(ret != Z_STREAM_ERROR);  /* state not clobbered */
-            switch (ret)
-            {
-            case Z_NEED_DICT:
-                ret = Z_DATA_ERROR;     /* and fall through */
-            case Z_DATA_ERROR:
-            case Z_MEM_ERROR:
-				//log_i("inflateEnd:0x%x", ret);
-				bk_printf("inflateEnd ret");
-				bk_print_hex(ret);
-				bk_printf("\r\n:");
-                (void)inflateEnd(&strm);
-                return ret;
-            }
-            have = ZLIB_CHUNK - strm.avail_out;
-            wr_ret = dm_fwrite(dest_addr, zlib_decompress_ptr, 1, have);
-			
-            dest_addr += wr_ret;
-			log_i("dest_addr:0x%x, %d, %d", dest_addr, wr_ret, strm.avail_out);
-        }while (strm.avail_out == 0);
-        /* done when inflate() says it's done */
-    }
-
-	if(remnant_len)
-	{
-		dm_fwrite_tail(dest_addr);
-	}
-	
-    /* clean up and return */
-	log_i("inflateEnd:0x%x,%d", &strm, remnant_len);
-	
-	ASSERT(0 == remnant_len);
-    (void)inflateEnd(&strm);
-//erase dl partition
-	src_part  = fal_partition_find(RT_BK_DL_PART_NAME);
-    data_move_end(src_part->offset);
-	
-    return ret == Z_STREAM_END ? RET_DM_SUCCESS : RET_DM_DATA_ERROR;
+                //aes_decrypt_handler((char *)in_buf, (char *)out_buf, rd_len);
+                strm.avail_in = rd_len;
+                if (strm.avail_in == 0)
+                        break;
+                strm.next_in = (Bytef *)in_buf;
+                zlib_decompress_ptr = (Bytef *)out_buf;
+            /* run inflate() on input until output buffer not full */
+                do
+                {
+                        strm.avail_out = ZLIB_CHUNK;
+                        strm.next_out = zlib_decompress_ptr;
+                        //log_i("inflate in:0x%x 0x%x out:0x%x 0x%x", strm.avail_in, strm.next_in, strm.avail_out, strm.next_out);
+                        bk_printf("strm.avail_in, strm.next_in, strm.avail_out, strm.next_out");
+                        bk_print_hex(strm.avail_in);
+                        bk_print_hex(strm.next_in);
+                        bk_print_hex(strm.avail_out);
+                        bk_print_hex(strm.next_out);
+                        bk_printf("\r\n:");
+#if CFG_BEKEN_OTA
+                if(0xaa > strm.avail_in)
+                {
+                        dump_hex((uint8_t *)strm.next_in, strm.avail_in);
+                }
 #endif
+                ret = inflate(&strm, Z_NO_FLUSH);
+                ASSERT(ret != Z_STREAM_ERROR);  /* state not clobbered */
+                bk_printf("inflate ret");
+                bk_print_hex(ret);
+                bk_printf("\r\n:");
+                switch (ret)
+                {
+                        case Z_NEED_DICT:
+                                ret = Z_DATA_ERROR;     /* and fall through */
+                        case Z_DATA_ERROR:
+                        case Z_MEM_ERROR:
+                                //log_i("inflateEnd:0x%x", ret);
+                                bk_printf("inflateEnd ret");
+                                bk_print_hex(ret);
+                                bk_printf("\r\n:");
+                                (void)inflateEnd(&strm);
+                                return ret;
+                }
+                have = ZLIB_CHUNK - strm.avail_out;
+                bk_printf("have:");
+                bk_print_hex(have);
+                bk_printf("\r\n:");
+                REG_FLASH_CONFIG  |= FLASH_CONFIG_CPU_WRITE_ENABLE_MASK; //cpu write flash enable       
+                contentx = (char *)&out_buf[0];    
+                padding_len = INS_NO_CRC_CHUNK - remnant_len;
+#if 1//cpu write data start
+                if(remnant_len != 0)
+                {
+                        mem_cpy(&remnantx[remnant_len],&contentx[0],padding_len);
+                        mem_cpy((USER_APP_ENTRY+src_offset1), &remnantx[0], INS_NO_CRC_CHUNK);        
+                        src_offset1 += 32;
+                        handle_count = have -(padding_len)- ((have - (padding_len))%32);
+                        mem_cpy((USER_APP_ENTRY+src_offset1), &contentx[(padding_len)], handle_count);            
+                        src_offset1 += handle_count;
+                        mem_cpy(&remnantx[0],&contentx[(handle_count+padding_len)],(have-handle_count-padding_len));
+                        remnant_len = have-handle_count-padding_len;
+                }
+                else
+                {
+                        if(have%32 ==0)
+                        {
+                                mem_cpy((USER_APP_ENTRY+src_offset1), &contentx[0], have);
+                                src_offset1 += have;
+                        }
+                        else
+                        {
+                                handle_count = have - (have)%32;
+                                mem_cpy((USER_APP_ENTRY+src_offset1), &contentx[0], handle_count);
+                                src_offset1 += handle_count;                   
+                                mem_cpy(&remnantx[0],&contentx[handle_count],have-handle_count);
+                                remnant_len = have-handle_count;                   
+                        }
+                }
+#endif            		
+                }while (strm.avail_out == 0);
+        //__asm volatile ("j .");      
+                /* done when inflate() says it's done */
+        }
+        if(remnant_len != 0)
+        {	
+                padding_len = INS_NO_CRC_CHUNK - remnant_len;
+                padding_ptr = &remnantx[remnant_len];
+                for(i = 0; i < padding_len; i ++)
+                {
+                        padding_ptr[i] = 0xff;
+                }
+                mem_cpy(&remnantx[remnant_len],&padding_ptr[0],padding_len);
+                mem_cpy((USER_APP_ENTRY+src_offset1), &remnantx[0], INS_NO_CRC_CHUNK);
+                remnant_len = 0;
+        }//cpu write data end
+        REG_READ(0x0);        
+        REG_FLASH_CONFIG  &= (~(FLASH_CONFIG_CPU_WRITE_ENABLE_MASK)); //cpu write flash disable
+        /* clean up and return */
+        (void)inflateEnd(&strm);
+        //erase dl partition
+        src_part  = fal_partition_find(RT_BK_DL_PART_NAME);
+        data_move_end(src_part->offset);
+        return ret == Z_STREAM_END ? RET_DM_SUCCESS : RET_DM_DATA_ERROR;
 }
 // eof
 

@@ -190,9 +190,6 @@ bk_err_t bk_event_dump(void);
 typedef bk_err_t (event_callback_t)(void *arg, event_module_t event_module,
 		int event_id, void *event_data);
 
-bk_err_t bk_event_callback_register(event_module_t event_module, int event_id,
-	event_callback_t event_callback, void *event_callback_arg);
-
 #ifdef __cplusplus
 }
 #endif

@@ -100,8 +100,6 @@ endif()
 
 if (CONFIG_DUAL_CORE)
 	list(APPEND srcs
-		mb_ipc_cmd.c
-		amp_res_lock.c
 		rpc_client_gpio.c
 	)
 endif()
@@ -111,10 +109,12 @@ if (CONFIG_SOC_BK7271)
 endif()
 
 if (CONFIG_SOC_BK7256XX)
-	list(APPEND srcs "cli_vault.c")
 	list(APPEND srcs "cli_usb.c")
 	list(APPEND srcs "cli_uvc.c")
+endif()
 
+if (CONFIG_SECURITYIP)
+	list(APPEND srcs "cli_securityip.c")
 endif()
 
 if (CONFIG_QSPI)

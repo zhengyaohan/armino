@@ -89,10 +89,6 @@ uint8_t bk_wlan_ap_get_default_channel(void);
 void app_p2p_rw_event_func(void *new_evt);
 void app_p2p_restart_thread(void);
 #endif
-#ifdef CONFIG_COMPONENTS_WPA_TWT_TEST
-int wlan_twt_setup(char *cmd);
-int wlan_twt_teardown(char *cmd);
-#endif
 #ifdef __cplusplus
 }
 #endif

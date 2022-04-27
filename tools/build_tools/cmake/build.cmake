@@ -116,7 +116,8 @@ function(__build_set_default_build_specifications)
                                     "-Wno-array-bounds"
                                     "-Wno-format"
                                     "-Wno-unknown-pragmas"
-                                    "-Wno-address-of-packed-member"
+                                    "-Wno-address-of-packed-member"  # gcc 5 don't recognize no-address-of-packed-member
+                                    "-Wno-deprecated-declarations"   # prefer to use -Wno-error=deprecated-declarations
 
                                     "-ffunction-sections"
                                     "-fsigned-char"

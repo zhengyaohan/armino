@@ -71,7 +71,9 @@
 #define __hpacked
 #endif
 
+#ifndef __deprecated
 #define __deprecated                 __attribute__((deprecated))
+#endif
 #define __weak                       __attribute__((weak))
 #define __must_check                 __attribute__((warn_unused_result))
 

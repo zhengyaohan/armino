@@ -31,44 +31,24 @@ typedef void (*touch_isr_t)(void *param);
 
 
 typedef enum {
-	BK_TOUCH_0 = 0,			/**< touch channel 0 */
-	BK_TOUCH_1,				/**< touch channel 1 */
-	BK_TOUCH_2,				/**< touch channel 2 */
-	BK_TOUCH_3,				/**< touch channel 3 */
-	BK_TOUCH_4,				/**< touch channel 4 */
-	BK_TOUCH_5,				/**< touch channel 5 */
-	BK_TOUCH_6,				/**< touch channel 6 */
-	BK_TOUCH_7,				/**< touch channel 7 */
-	BK_TOUCH_8,				/**< touch channel 8 */
-	BK_TOUCH_9,				/**< touch channel 9 */
-	BK_TOUCH_10,			/**< touch channel 10 */
-	BK_TOUCH_11,			/**< touch channel 11 */
-	BK_TOUCH_12,			/**< touch channel 12 */
-	BK_TOUCH_13,			/**< touch channel 13 */
-	BK_TOUCH_14,			/**< touch channel 14 */
-	BK_TOUCH_15,			/**< touch channel 15 */
+	BK_TOUCH_0 = 1 << 0,				/**< touch channel 0 */
+	BK_TOUCH_1 = 1 << 1,				/**< touch channel 1 */
+	BK_TOUCH_2 = 1 << 2,				/**< touch channel 2 */
+	BK_TOUCH_3 = 1 << 3,				/**< touch channel 3 */
+	BK_TOUCH_4 = 1 << 4,				/**< touch channel 4 */
+	BK_TOUCH_5 = 1 << 5,				/**< touch channel 5 */
+	BK_TOUCH_6 = 1 << 6,				/**< touch channel 6 */
+	BK_TOUCH_7 = 1 << 7,				/**< touch channel 7 */
+	BK_TOUCH_8 = 1 << 8,				/**< touch channel 8 */
+	BK_TOUCH_9 = 1 << 9,				/**< touch channel 9 */
+	BK_TOUCH_10 = 1 << 10,				/**< touch channel 10 */
+	BK_TOUCH_11 = 1 << 11,				/**< touch channel 11 */
+	BK_TOUCH_12 = 1 << 12,				/**< touch channel 12 */
+	BK_TOUCH_13 = 1 << 13,				/**< touch channel 13 */
+	BK_TOUCH_14 = 1 << 14,				/**< touch channel 14 */
+	BK_TOUCH_15 = 1 << 15,				/**< touch channel 15 */
 	BK_TOUCH_MAX,
 } touch_channel_t;
-
-typedef enum {
-	BK_SCAN_MODE_TOUCH_0 = 1,					/**< touch scan mode channel 0 */
-	BK_SCAN_MODE_TOUCH_1 = 1 << 1,				/**< touch scan mode channel 1 */
-	BK_SCAN_MODE_TOUCH_2 = 1 << 2,				/**< touch scan mode channel 2 */
-	BK_SCAN_MODE_TOUCH_3 = 1 << 3,				/**< touch scan mode channel 3 */
-	BK_SCAN_MODE_TOUCH_4 = 1 << 4,				/**< touch scan mode channel 4 */
-	BK_SCAN_MODE_TOUCH_5 = 1 << 5,				/**< touch scan mode channel 5 */
-	BK_SCAN_MODE_TOUCH_6 = 1 << 6,				/**< touch scan mode channel 6 */
-	BK_SCAN_MODE_TOUCH_7 = 1 << 7,				/**< touch scan mode channel 7 */
-	BK_SCAN_MODE_TOUCH_8 = 1 << 8,				/**< touch scan mode channel 8 */
-	BK_SCAN_MODE_TOUCH_9 = 1 << 9,				/**< touch scan mode channel 9 */
-	BK_SCAN_MODE_TOUCH_10 = 1 << 10,			/**< touch scan mode channel 10 */
-	BK_SCAN_MODE_TOUCH_11 = 1 << 11,			/**< touch scan mode channel 11 */
-	BK_SCAN_MODE_TOUCH_12 = 1 << 12,			/**< touch scan mode channel 12 */
-	BK_SCAN_MODE_TOUCH_13 = 1 << 13,			/**< touch scan mode channel 13 */
-	BK_SCAN_MODE_TOUCH_14 = 1 << 14,			/**< touch scan mode channel 14 */
-	BK_SCAN_MODE_TOUCH_15 = 1 << 15,			/**< touch scan mode channel 15 */
-	BK_SCAN_MODE_TOUCH_MAX,
-} touch_scan_mode_channel_t;
 
 typedef enum {
 	TOUCH_SENSITIVITY_LEVLE_0 = 0,

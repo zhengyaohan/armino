@@ -26,6 +26,7 @@ if (CONFIG_JPEG_DECODE)
 	list(APPEND srcs
 		"jpeg_dec/tjpgd.c"
 		"jpeg_dec/jdev.c"
+		"uvc_lcd_display/uvc_lcd_display.c"
 		)
 endif()
 

@@ -21,6 +21,12 @@
 #include "bk_general_dma.h"
 #include <driver/int.h>
 #include "sys_driver.h"
+#if CONFIG_SLAVE_CORE
+#include "mb_ipc_cmd.h"
+#endif
+
+#define DMA_CPU_MASTER		0
+#define DMA_CPU_SLAVE1		1
 
 static void dma_isr(void) __SECTION(".itcm");
 
@@ -33,6 +39,7 @@ static dma_driver_t s_dma = {0};
 static dma_isr_t s_dma_finish_isr[SOC_DMA_CHAN_NUM_PER_UNIT] = {NULL};
 static dma_isr_t s_dma_half_finish_isr[SOC_DMA_CHAN_NUM_PER_UNIT] = {NULL};
 static bool s_dma_driver_is_init = false;
+static dma_chnl_pool_t s_dma_chnl_pool = {0};
 
 #define DMA_MEMCPY_CHANNEL    DMA_ID_0
 
@@ -87,11 +94,59 @@ static void dma_id_enable_interrupt_common(dma_id_t id)
 #endif
 }
 
+/* used internally, called in context of interrupt disabled. */
+u8 dma_chnl_alloc(u32 user_id)
+{
+	u8		chnl_id;
+
+	for(chnl_id = 0; chnl_id < DMA_ID_MAX; chnl_id++)
+	{
+		if((s_dma_chnl_pool.chnl_bitmap & (0x01 << chnl_id)) == 0)
+		{
+			s_dma_chnl_pool.chnl_bitmap |= (0x01 << chnl_id);
+			s_dma_chnl_pool.chnl_user[chnl_id] = user_id;
+			break;
+		}
+	}
+
+	return chnl_id;
+}
+
+/* used internally, called in context of interrupt disabled. */
+bk_err_t dma_chnl_free(u32 user_id, dma_id_t chnl_id)
+{
+	if( chnl_id >= DMA_ID_MAX )
+		return BK_ERR_DMA_ID;
+	
+	if( s_dma_chnl_pool.chnl_user[chnl_id] != user_id )
+		return BK_ERR_PARAM;
+	
+	s_dma_chnl_pool.chnl_bitmap &= ~(0x01 << chnl_id);
+	s_dma_chnl_pool.chnl_user[chnl_id] = -1;
+
+	return BK_OK;
+}
+
+/* used internally. */
+u32 dma_chnl_user(dma_id_t chnl_id)
+{
+	if( chnl_id >= DMA_ID_MAX )
+		return -1;
+	
+	return s_dma_chnl_pool.chnl_user[chnl_id];
+}
+
 bk_err_t bk_dma_driver_init(void)
 {
     if (s_dma_driver_is_init) {
         return BK_OK;
     }
+
+	s_dma_chnl_pool.chnl_bitmap = 0;
+	for(u8 i = 0; i < DMA_ID_MAX; i++)
+	{
+		s_dma_chnl_pool.chnl_user[i] = -1;
+	}
 
     /* 1)intc_service_register
      * 2)init dma_finish_int handler, dma_half_finish_int handler
@@ -128,6 +183,84 @@ bk_err_t bk_dma_driver_deinit(void)
     s_dma_driver_is_init = false;
 
     return BK_OK;
+}
+
+dma_id_t bk_dma_alloc(u16 user_id)
+{
+    if (!s_dma_driver_is_init)
+	{
+        return DMA_ID_MAX;
+    }
+
+#if CONFIG_SLAVE_CORE
+
+#define DMA_USER_CPU		DMA_CPU_SLAVE1
+
+	u32		dma_user = ((DMA_USER_CPU) << 16) + (u32)user_id;
+
+	return ipc_send_alloc_dma_chnl(dma_user);
+
+#else
+
+#define DMA_USER_CPU		DMA_CPU_MASTER
+
+	u32  int_mask = rtos_disable_int();
+
+	u32		dma_user = ((DMA_USER_CPU) << 16) + (u32)user_id;
+	
+	u8		chnl_id = dma_chnl_alloc(dma_user);
+
+	rtos_enable_int(int_mask);
+
+	return chnl_id;
+
+#endif
+}
+
+bk_err_t bk_dma_free(u16 user_id, dma_id_t chnl_id)
+{
+    if (!s_dma_driver_is_init)
+	{
+        return BK_ERR_DMA_NOT_INIT;
+    }
+
+#if CONFIG_SLAVE_CORE
+
+#define DMA_USER_CPU		DMA_CPU_SLAVE1
+
+	u32		dma_user = ((DMA_USER_CPU) << 16) + (u32)user_id;
+
+	return ipc_send_free_dma_chnl(dma_user, chnl_id);
+
+#else
+
+#define DMA_USER_CPU		DMA_CPU_MASTER
+
+	u32  int_mask = rtos_disable_int();
+
+	u32			dma_user = ((DMA_USER_CPU) << 16) + (u32)user_id;
+	bk_err_t	ret_val = dma_chnl_free(dma_user, chnl_id);
+
+	rtos_enable_int(int_mask);
+
+	return ret_val;
+
+#endif
+}
+
+u32 bk_dma_user(dma_id_t chnl_id)
+{
+    if (!s_dma_driver_is_init)
+	{
+        return -1;
+    }
+
+#if CONFIG_SLAVE_CORE
+	return ipc_send_dma_chnl_user( (u8)chnl_id );
+#else
+	return dma_chnl_user(chnl_id);
+#endif
+
 }
 
 bk_err_t bk_dma_init(dma_id_t id, const dma_config_t *config)
@@ -397,9 +530,6 @@ uint32_t dma_get_dest_write_addr(dma_id_t id)
 
 bk_err_t dma_memcpy(void *out, const void *in, uint32_t len)
 {
-    GLOBAL_INT_DECLARATION();
-    GLOBAL_INT_DISABLE();
-
     dma_config_t dma_config;
 
     os_memset(&dma_config, 0, sizeof(dma_config_t));
@@ -419,11 +549,21 @@ bk_err_t dma_memcpy(void *out, const void *in, uint32_t len)
     dma_config.dst.start_addr = (uint32_t)out;
     dma_config.dst.end_addr = (uint32_t)(out + len);
 
-    bk_dma_init(DMA_MEMCPY_CHANNEL, &dma_config);
-    dma_hal_set_transfer_len(&s_dma.hal, DMA_MEMCPY_CHANNEL, len);
-    dma_hal_start_common(&s_dma.hal, DMA_MEMCPY_CHANNEL);
-    BK_WHILE (dma_hal_get_enable_status(&s_dma.hal, DMA_MEMCPY_CHANNEL));
+	dma_id_t cpy_chnl = bk_dma_alloc(DMA_DEV_DTCM);
+
+	if(cpy_chnl >= DMA_ID_MAX)
+		return BK_FAIL;
+
+    GLOBAL_INT_DECLARATION();
+    GLOBAL_INT_DISABLE();
+
+    bk_dma_init(cpy_chnl, &dma_config);
+    dma_hal_set_transfer_len(&s_dma.hal, cpy_chnl, len);
+    dma_hal_start_common(&s_dma.hal, cpy_chnl);
+    BK_WHILE (dma_hal_get_enable_status(&s_dma.hal, cpy_chnl));
     GLOBAL_INT_RESTORE();
+
+	bk_dma_free(DMA_DEV_DTCM, cpy_chnl);
 
     return BK_OK;
 }
@@ -434,15 +574,15 @@ static void dma_isr(void)
 
     for (int id = 0; id < SOC_DMA_CHAN_NUM_PER_UNIT; id++) {
         if (dma_hal_is_half_finish_interrupt_triggered(hal, id)) {
-            dma_hal_clear_half_finish_interrupt_status(hal, id);
             if (s_dma_half_finish_isr[id]) {
+	            dma_hal_clear_half_finish_interrupt_status(hal, id);
                 s_dma_half_finish_isr[id](id);
             }
         }
 
         if (dma_hal_is_finish_interrupt_triggered(hal, id)) {
-            dma_hal_clear_finish_interrupt_status(hal, id);
             if (s_dma_finish_isr[id]) {
+	            dma_hal_clear_finish_interrupt_status(hal, id);
                 s_dma_finish_isr[id](id);
             }
         }

@@ -15,6 +15,9 @@
 #include <components/system.h>
 #include <modules/wifi.h>
 #include "bk_wifi_wrapper.h"
+#if CONFIG_LWIP
+#include "lwip/ping.h"
+#endif
 
 
 static void at_base_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -168,6 +171,31 @@ void at_wifi_state(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **ar
     }
     os_memcpy(pcWriteBuffer, msg, os_strlen(msg));
 }
+void at_wifi_ping(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	char *msg = NULL;
+	int ret;
+	uint32_t cnt = 4;
+
+	if (argc == 1) {
+		os_printf("Please input: ping <host address>\n");
+		msg = AT_CMD_RSP_ERROR;
+		os_memcpy(pcWriteBuffer, msg, os_strlen(msg));
+		return;
+	}
+	
+	if (argc > 2)
+		cnt = os_strtoul(argv[2], NULL, 10);
+	
+	os_printf("ping IP address:%s\n", argv[1]);
+	ret = ping(argv[1], cnt, 0);
+	if(ret == 0)
+		msg = AT_CMD_RSP_SUCCEED;
+	else
+		msg = AT_CMD_RSP_ERROR;
+	os_memcpy(pcWriteBuffer, msg, os_strlen(msg));
+}
+
 #endif
 
 void videoat_command_handler(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -236,6 +264,7 @@ static const struct cli_command s_at_commands[] = {
     {"AT+WIFISTA", "at sta config", at_wifi_Command_sta},
     {"AT+WIFIAP", "at ap config", at_wifi_Command_ap},
     {"AT+WIFISTATE", "state", at_wifi_state},
+    {"AT+WIFIPING", "state", at_wifi_ping},
 #endif
     {"AT+VIDEO", "video cmd(open/read/close)", videoat_command_handler},
 #if (CONFIG_WIFI_ENABLE)

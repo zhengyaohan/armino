@@ -1,6 +1,6 @@
 menu "HOME SYSTEM"
 
-	config MATTER
+	config SUPPORT_MATTER
 		bool "Enable MATTER"
 		default n
 

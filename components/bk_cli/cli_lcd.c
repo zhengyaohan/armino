@@ -1,6 +1,7 @@
-
-#include <os/os.h>
 #include "cli.h"
+
+#if(0)
+#include <os/os.h>
 #include <driver/int.h>
 #include <common/bk_err.h>
 #include "sdkconfig.h"
@@ -20,7 +21,6 @@
 #include <driver/jpeg_dec.h>
 #include <interrupt_base.h>
 #include "jpeg_dec_macro_def.h"
-
 
 
 volatile uint32_t dma_int_cnt = 0;
@@ -72,7 +72,8 @@ static void lcd_rgb_isr(void)
 {
 	//os_printf("%s, %d\n", __func__, __LINE__);
 	lcd_isr_cnt++;
-	if(lcd_isr_cnt == 400) {
+	if(lcd_isr_cnt == 4000) {
+		lcd_isr_cnt = 0;
 		bk_lcd_rgb_display_en(0);
 		bk_dma_stop(RGB_DATA_TEST_CH);
 		CLI_LOGI("lcd_rgb_close.\r\n");
@@ -88,13 +89,13 @@ static void dma_jpeg_yuv_finish_isr(dma_id_t id)
 	{
 		bk_dma_stop(DMA_ID_0);
 		dma_int_cnt = 0;
-		bk_dma_set_src_addr(DMA_ID_0, (uint32_t)LCD_FRAMEADDR, 0);
+		bk_dma_set_src_start_addr(DMA_ID_0, (uint32_t)LCD_FRAMEADDR);
 		//addGENER_DMA_Reg0x2 =(uint32_t)LCD_FRAMEADDR;
 		dma_int_flag = 1;
 	}
 	else {
 		
-		bk_dma_set_src_addr(DMA_ID_0, ((uint32_t)LCD_FRAMEADDR + (uint32_t)(65280 * dma_int_cnt)), 0);
+		bk_dma_set_src_start_addr(DMA_ID_0, ((uint32_t)LCD_FRAMEADDR + (uint32_t)(65280 * dma_int_cnt)));
 		//addGENER_DMA_Reg0x2 = (uint32_t)LCD_FRAMEADDR + (uint32_t)(65280 * dma_int_cnt);
 		BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(DMA_ID_0));
 		bk_dma_start(DMA_ID_0);
@@ -240,10 +241,16 @@ static void rgb_data_dma_config(uint32_t* src_addr)
 	dma_config.src.dev = DMA_DEV_DTCM;
 	dma_config.src.width = DMA_DATA_WIDTH_32BITS;
 	dma_config.src.start_addr = (uint32_t) src_addr;
-	dma_config.src.end_addr = (uint32_t)src_addr + 80;
+	dma_config.src.end_addr = (uint32_t) src_addr + 80; //if unopen "//"code,data transfer a little, then dma halt
+	dma_config.src.addr_loop_en = DMA_ADDR_LOOP_ENABLE; //
+	dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
 	dma_config.dst.dev = DMA_DEV_LCD_DATA;
+	
+	dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE; //
+	dma_config.dst.addr_loop_en = DMA_ADDR_LOOP_ENABLE; //
 	dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
-	dma_config.dst.start_addr =  (uint32_t) REG_DISP_RGB_FIFO;
+	dma_config.dst.start_addr = (uint32_t) REG_DISP_RGB_FIFO;
+	dma_config.dst.end_addr = (uint32_t) REG_DISP_RGB_FIFO + 4; //
 
 	BK_LOG_ON_ERR(bk_dma_init(RGB_DATA_TEST_CH, &dma_config));
 	BK_LOG_ON_ERR(bk_dma_set_transfer_len(RGB_DATA_TEST_CH, 80));
@@ -260,10 +267,15 @@ void yuv_data_dma_config(void)
 	dma_config.src.dev = DMA_DEV_DTCM;
 	dma_config.src.width = DMA_DATA_WIDTH_16BITS;
 	dma_config.src.start_addr = (uint32) sm1_addr;
-	dma_config.src.end_addr =  (uint32) sm1_addr + 80;
+	dma_config.src.end_addr = (uint32_t) sm1_addr + 80;
+	dma_config.src.addr_loop_en = DMA_ADDR_LOOP_ENABLE;
+	dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
 	dma_config.dst.dev = DMA_DEV_LCD_DATA;
 	dma_config.dst.width = DMA_DATA_WIDTH_16BITS;
 	dma_config.dst.start_addr = (uint32) REG_DISP_RGB_FIFO;
+	dma_config.dst.end_addr = (uint32_t) REG_DISP_RGB_FIFO + 4;
+	dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE;
+	dma_config.dst.addr_loop_en = DMA_ADDR_LOOP_ENABLE;
 
 	BK_LOG_ON_ERR(bk_dma_init(YUV_DATA_TEST_CH, &dma_config));
 	BK_LOG_ON_ERR(bk_dma_set_transfer_len(YUV_DATA_TEST_CH, 80));
@@ -288,11 +300,11 @@ static void flash_to_sram_finish_isr(dma_id_t id)
 		{
 			dma_int_cnt = 0;
 			dma_int_flag = 1;
-			bk_dma_set_src_addr(I8080_TEST_CH, (uint32_t)LCD_FRAMEADDR, 0);
+			bk_dma_set_src_start_addr(I8080_TEST_CH, (uint32_t)LCD_FRAMEADDR);
 		}
 		else {
 			//		addGENER_DMA_Reg0x2 = (uint32)LCD_FRAMEADDR + (uint32_t)(61440 * dma_int_cnt);
-			bk_dma_set_src_addr(I8080_TEST_CH, (uint32)(LCD_FRAMEADDR + (61440 * dma_int_cnt)), 0);
+			bk_dma_set_src_start_addr(I8080_TEST_CH, (uint32)(LCD_FRAMEADDR + (61440 * dma_int_cnt)));
 			BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(I8080_TEST_CH));
 			bk_dma_start(I8080_TEST_CH);
 		}
@@ -308,11 +320,11 @@ static void flash_to_sram_dma_config(void)
 	dma_config.src.dev = DMA_DEV_DTCM;
 	dma_config.src.width = DMA_DATA_WIDTH_32BITS;
 	dma_config.src.start_addr = (uint32_t) &rgb_565[0];
-	dma_config.src.end_addr = (uint32_t) &rgb_565[0] + 640;
+	dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
 	dma_config.dst.dev = DMA_DEV_DTCM;
 	dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
 	dma_config.dst.start_addr = (uint32_t) sm1_addr;
-	dma_config.dst.end_addr = (uint32_t) sm1_addr + 640;
+	dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE;
 
 	BK_LOG_ON_ERR(bk_dma_init(I8080_TEST_CH, &dma_config));
 	BK_LOG_ON_ERR(bk_dma_set_transfer_len(I8080_TEST_CH, 640)); 
@@ -447,7 +459,6 @@ static void lcd_rgb_color(char *pcWriteBuffer, int xWriteBufferLen, int argc, ch
 	}
 	CLI_LOGI("display color is %x\r\n", color_datas[19]);
 	memcpy((void *)rd_buff, &color_datas[0], 80);
-
 	rgb_data_dma_config(rd_buff);
 	bk_lcd_rgb_display_en(1);
 	BK_LOG_ON_ERR(bk_dma_start(RGB_DATA_TEST_CH));
@@ -463,7 +474,7 @@ void dma0_config_yuv_jpeg(void)
 	dma_config.src.dev = DMA_DEV_DTCM;
 	dma_config.src.width = DMA_DATA_WIDTH_32BITS;
 	dma_config.src.start_addr = (uint32) LCD_FRAMEADDR;
-	dma_config.src.end_addr =  (uint32) LCD_FRAMEADDR + 65280;//65280/4
+	dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
 	dma_config.dst.dev = DMA_DEV_LCD_DATA;
 	dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
 	dma_config.dst.start_addr = (uint32) REG_DISP_RGB_FIFO;
@@ -483,10 +494,11 @@ void  dma0_cache_config_yuv_jpeg(void)
 	dma_config.src.dev = DMA_DEV_DTCM;
 	dma_config.src.width = DMA_DATA_WIDTH_32BITS;
 	dma_config.src.start_addr = (uint32) LCD_FRAMEADDR;
-	dma_config.src.end_addr =  (uint32) LCD_FRAMEADDR + 4;//65280/4
+	dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
 	dma_config.dst.dev = DMA_DEV_DTCM ;
 	dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
 	dma_config.dst.start_addr = (uint32) LCD_FRAMEADDR + 0x100;
+	dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE;
 
 	BK_LOG_ON_ERR(bk_dma_init(YUV_JPEG_TEST_CH, &dma_config));
 	BK_LOG_ON_ERR(bk_dma_set_transfer_len(YUV_JPEG_TEST_CH, 4));
@@ -669,12 +681,12 @@ static void dma_pre_config(void)
 	dma_config.chan_prio = 0;
 	dma_config.src.dev = DMA_DEV_DTCM;
 	dma_config.src.width = DMA_DATA_WIDTH_32BITS;
-	
 	dma_config.src.start_addr = (uint32) LCD_FRAMEADDR;
-	dma_config.src.end_addr =  (uint32) LCD_FRAMEADDR + 4;//65280/4
+	dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
 	dma_config.dst.dev = DMA_DEV_DTCM;
 	dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
 	dma_config.dst.start_addr = (uint32_t) LCD_FRAMEADDR + 0x1000;
+	dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE;
 
 	BK_LOG_ON_ERR(bk_dma_init(1, &dma_config));
 	BK_LOG_ON_ERR(bk_dma_set_transfer_len(1, 65280));
@@ -693,7 +705,7 @@ static  void dma_lcd_config(void)
 	dma_config.src.dev = DMA_DEV_DTCM;
 	dma_config.src.width = DMA_DATA_WIDTH_32BITS;
 	dma_config.src.start_addr = (uint32) LCD_FRAMEADDR;
-	dma_config.src.end_addr = (uint32) LCD_FRAMEADDR + 65280;
+	dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
 	dma_config.dst.dev = DMA_DEV_LCD_DATA;
 	dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
 	dma_config.dst.start_addr =  (uint32) REG_DISP_RGB_FIFO;
@@ -708,7 +720,7 @@ static  void dma_lcd_config(void)
 
 void dma0_jpeg_config(void)
 {
-#if(0)
+#if(1)
 	dma_config_t dma_config = {0};
 	dma_config.mode = DMA_WORK_MODE_REPEAT;
 	dma_config.chan_prio = 0;
@@ -718,11 +730,8 @@ void dma0_jpeg_config(void)
 	dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
 	dma_config.src.start_addr = JPEG_RX_FIFO;
 	dma_config.dst.start_addr = (uint32_t)JpegRxBuff;
-	//dma_config.dst.end_addr = (uint32_t)JpegRxBuff + 4;
+	dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE;
 	BK_LOG_ON_ERR(bk_dma_init(0, &dma_config));
-	BK_LOG_ON_ERR(bk_dma_set_src_addr(0, JPEG_RX_FIFO, 0));
-	BK_LOG_ON_ERR(bk_dma_set_dest_addr(0,  (uint32_t)JpegRxBuff, 0));
-	bk_dma_enable_dest_addr_inc(0);
 
 	BK_LOG_ON_ERR(bk_dma_set_transfer_len(0, 65536));
 	BK_LOG_ON_ERR(bk_dma_start(0));
@@ -863,18 +872,24 @@ static void lcd_close(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 			bk_lcd_rgb_deinit();
 		}
 }
+#endif
 
+#if CONFIG_LCD_TEST
+
+extern void lcd_video_jpeg_dec(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
+extern void lcd_video(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
+extern void lcd_8080_init(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
+extern void lcd_close(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
+extern void lcd_help(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
+extern void lcd_rgb_color(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
 
 #define LCD_CNT (sizeof(s_lcd_commands) / sizeof(struct cli_command))
 static const struct cli_command s_lcd_commands[] = {
-	//{"lcd_8080_init", "lcd_8080_init {start|stop}\r\n", lcd_8080_init},
+	{"lcd", "lcd help", lcd_help },
 	{"lcd_8080_init", "lcd_8080_init {start|stop}\r\n", lcd_8080_init},
-	{"lcd_rgb_data_test", "lcd_rgb_data_test {start|stop}", lcd_rgb_data_test},
-	{"printf_log", "printf_log {close|open}", printf_log},
-	{"lcd_rgb_clolor", "lcd_rgb_clolor {close|open}", lcd_rgb_color},
+	{"lcd_rgb_clolor", "lcd_rgb_clolor='color'", lcd_rgb_color},
 	{"lcd_video", "lcd_video=96M,8,25", lcd_video},
 	{"lcd_video_jpeg_dec", "lcd_video_jpeg_dec = 96M,8,25,4", lcd_video_jpeg_dec},
-	{"lcd_video_power", "lcd_video_power = on/off", lcd_video_power},
 	{"lcd_close", "lcd_close", lcd_close},
 };
 
@@ -882,6 +897,7 @@ int cli_lcd_init(void)
 {
 	return cli_register_commands(s_lcd_commands, LCD_CNT);
 }
+#endif
 
 
 

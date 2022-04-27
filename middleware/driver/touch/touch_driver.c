@@ -42,10 +42,24 @@ typedef struct {
 
 static touch_callback_t s_touch_isr[SOC_TOUCH_ID_NUM] = {NULL};
 
+static uint32_t bk_touch_channel_transfer(touch_channel_t touch_id)
+{
+	uint32_t touch_channel = 0;
+	for (touch_channel = 0; touch_channel < 16; touch_channel++)
+	{
+		touch_id = touch_id / 2;
+		if (touch_id == 0 ) {
+			break;
+		}
+	}
+	return touch_channel;
+}
 
 bk_err_t bk_touch_gpio_init(touch_channel_t touch_id)
 {
-	TOUCH_RETURN_ON_INVALID_ID(touch_id);
+	uint32_t touch_select = 0;
+	touch_select = bk_touch_channel_transfer(touch_id);
+	TOUCH_RETURN_ON_INVALID_ID(touch_select);
 	switch(touch_id)
 	{
 		case BK_TOUCH_0:
@@ -154,8 +168,11 @@ bk_err_t bk_touch_gpio_init(touch_channel_t touch_id)
 
 bk_err_t bk_touch_enable(touch_channel_t touch_id)
 {
-	TOUCH_RETURN_ON_INVALID_ID(touch_id);
-	aon_pmu_drv_touch_select(touch_id);
+	uint32_t touch_select = 0;
+	touch_select = bk_touch_channel_transfer(touch_id);
+	TOUCH_RETURN_ON_INVALID_ID(touch_select);
+	aon_pmu_drv_touch_select(touch_select);
+
 	sys_drv_touch_power_down(0);
 
 	return BK_OK;
@@ -225,7 +242,7 @@ bk_err_t bk_touch_manul_mode_disable(void)
 	return BK_OK;
 }
 
-bk_err_t bk_touch_scan_mode_multi_channl_set(touch_scan_mode_channel_t touch_id)
+bk_err_t bk_touch_scan_mode_multi_channl_set(touch_channel_t touch_id)
 {
 	sys_drv_touch_scan_mode_chann_set(touch_id);
 
@@ -237,7 +254,7 @@ bk_err_t bk_touch_int_enable(touch_channel_t touch_id, uint32_t enable)
 	if(enable) {
 		bk_int_isr_register(INT_SRC_TOUCH, touch_isr, NULL);
 		sys_drv_touch_int_enable(1);
-		aon_pmu_drv_touch_int_enable(1 << touch_id);
+		aon_pmu_drv_touch_int_enable(touch_id);
 	} else {
 		sys_drv_touch_int_enable(0);
 		aon_pmu_drv_touch_int_enable(0);
@@ -256,8 +273,10 @@ bk_err_t bk_touch_get_int_status(void)
 
 bk_err_t bk_touch_clear_int(touch_channel_t touch_id)
 {
-	TOUCH_RETURN_ON_INVALID_ID(touch_id);
-	aon_pmu_drv_clear_touch_int(1 << touch_id);
+	uint32_t touch_select = 0;
+	touch_select = bk_touch_channel_transfer(touch_id);
+	TOUCH_RETURN_ON_INVALID_ID(touch_select);
+	aon_pmu_drv_clear_touch_int(touch_id);
 
 	return BK_OK;
 }
@@ -280,11 +299,13 @@ uint32_t bk_touch_get_touch_status(void)
 
 bk_err_t bk_touch_register_touch_isr(touch_channel_t touch_id, touch_isr_t isr, void *param)
 {
-	TOUCH_RETURN_ON_INVALID_ID(touch_id);
+	uint32_t touch_channel = 0;
+	touch_channel = bk_touch_channel_transfer(touch_id);
+	TOUCH_RETURN_ON_INVALID_ID(touch_channel);
 	GLOBAL_INT_DECLARATION();
 	GLOBAL_INT_DISABLE();
-	s_touch_isr[touch_id].callback = isr;
-	s_touch_isr[touch_id].param = param;
+	s_touch_isr[touch_channel].callback = isr;
+	s_touch_isr[touch_channel].param = param;
 	GLOBAL_INT_RESTORE();
 
 	return BK_OK;
@@ -293,17 +314,16 @@ bk_err_t bk_touch_register_touch_isr(touch_channel_t touch_id, touch_isr_t isr, 
 void touch_isr(void)
 {
 	uint32_t int_status = 0;
-	touch_channel_t id = 0;
-
+	uint32_t touch_id = 0;
 	int_status = bk_touch_get_int_status();
 
-	for (id = 0; id < SOC_TOUCH_ID_NUM; id++)
+	for (touch_id = 0; touch_id < SOC_TOUCH_ID_NUM; touch_id++)
 	{
-		if (int_status & (1 << id)) {
-			TOUCH_LOGI("Touch[%d] has been selected!\r\n", id);
-			bk_touch_clear_int(id);
-			if (s_touch_isr[id].callback) {
-				s_touch_isr[id].callback(s_touch_isr[id].param);
+		if (int_status & (1 << touch_id)) {
+			TOUCH_LOGI("Touch[%d] has been selected!\r\n", touch_id);
+			bk_touch_clear_int(1 << touch_id);
+			if (s_touch_isr[touch_id].callback) {
+				s_touch_isr[touch_id].callback(s_touch_isr[touch_id].param);
 			}
 		}
 	}

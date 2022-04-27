@@ -7,7 +7,7 @@ extern "C" {
 /* @brief Overview about this API header
  *
  */
-
+#if(0)
 /**
  * @brief LCD API
  * @defgroup bk_api_lcd LCD API group
@@ -20,8 +20,8 @@ extern "C" {
 #define command_2          0xf0
 #define ploar_convert      0xb4
 #define disp_out_ctrl      0xe8
-#define power_ctrl1         0xc1
-#define power_ctrl2         0xc2
+#define power_ctrl1        0xc1
+#define power_ctrl2        0xc2
 #define vcom_ctrl          0xc5
 #define cathode_ctrl       0xe0
 #define anode_ctrl         0xe1
@@ -36,10 +36,10 @@ extern "C" {
 volatile uint32_t *sm1_addr = (void *)0x30060000;
 
 
-#define I8080_TEST_CH DMA_ID_0
-#define RGB_DATA_TEST_CH DMA_ID_1
+#define I8080_TEST_CH     DMA_ID_0
+#define RGB_DATA_TEST_CH  DMA_ID_1
 #define YUV_DATA_TEST_CH  DMA_ID_1
-#define YUV_JPEG_TEST_CH DMA_ID_0
+#define YUV_JPEG_TEST_CH  DMA_ID_0
 
 const uint16_t rgb_565_green[320] = {
 	0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x07e0,
@@ -78,9 +78,8 @@ const uint16_t rgb_565_green[320] = {
 	
 	0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x07e0,
 	0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x07e0
-
 };
-	
+
 
 const uint32 red_dat[160] = {
 	0xf800f800, 0xf800f800, 0xf800f800, 0xf800f800, 0xf800f800,
@@ -164,8 +163,8 @@ const uint16_t rgb_565[320] = {
 	0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x07e0, 0x07e0,
 	0xffe0, 0xffe0, 0xffe0, 0xffe0, 0xffe0, 0xffe0, 0xffe0, 0xffe0, 0xffe0, 0xffe0,
 	0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff,
-
 };
+#endif
 
 #ifdef __cplusplus
 }

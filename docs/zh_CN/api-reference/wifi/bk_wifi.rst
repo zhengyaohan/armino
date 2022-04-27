@@ -47,14 +47,21 @@ Interface specific WiFi APIs:
  - :cpp:func:`bk_wifi_sta_stop` - stop BK STA
  - :cpp:func:`bk_wifi_sta_set_config` - set **basic** configurations BK STA, such as SSID etc
  - :cpp:func:`bk_wifi_sta_get_config` - get basic configuration of BK STA
+ - :cpp:func:`bk_wifi_sta_get_linkstate_with_reason` - get actual link status of BK STA and reason code
  - :cpp:func:`bk_wifi_sta_get_link_status` - get link status of BK STA
- - :cpp:func:`bk_wifi_sta_get_mac` - get STA MAC address
+ - :cpp:func:`bk_wifi_sta_connect` - connect the BK STA to AP
+ - :cpp:func:`bk_wifi_sta_disconnect` - disconnect the Wi-Fi connection
  - :cpp:func:`bk_wifi_sta_pm_enable` - enable STA power management
  - :cpp:func:`bk_wifi_sta_pm_disable` - disable STA power management
+ - :cpp:func:`bk_wifi_get_channel` - get current channel ID
+ - :cpp:func:`bk_wifi_set_mac_address` - set Wi-Fi MAC address
+ - :cpp:func:`bk_wifi_manual_cal_rfcali_status` - get Wi-Fi Calibration status
  - :cpp:func:`bk_wifi_ap_start` - start BK AP
  - :cpp:func:`bk_wifi_ap_stop` - stop BK AP
  - :cpp:func:`bk_wifi_ap_set_config` - set the **basic** configuration of BK AP, such as SSID etc
  - :cpp:func:`bk_wifi_ap_get_config` - get the basic configuration of BK AP
+ - :cpp:func:`bk_wifi_ap_get_sta_list` - get the STAs connected to BK AP
+ - :cpp:func:`bk_wifi_sta_get_mac` - get STA MAC address
  - :cpp:func:`bk_wifi_ap_get_mac` - get AP MAC address
  - :cpp:func:`bk_wifi_monitor_start` - start the monitor
  - :cpp:func:`bk_wifi_monitor_stop` - stop the monitor

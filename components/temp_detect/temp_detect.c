@@ -22,7 +22,11 @@
 #include <driver/adc.h>
 #include "drv_model.h"
 #include "sys_driver.h"
+#include "flash.h"
 
+#define CFG_USE_TEMPERATURE_DETECT                 1
+#define CFG_SUPPORT_SARADC                         1
+#define CFG_USE_VOLTAGE_DETECT                     0
 //TODO - more optimization for temp detect
 //1. Keep temperature detection related work here, such as detection task, config etc.
 //2. Move temp sensor and adc related work to driver, better implenented temp sensor
@@ -31,6 +35,13 @@
 
 extern void manual_cal_tmp_pwr_init(uint16_t init_temp, uint16_t init_threshold,
 		uint16_t init_dist);
+volatile DD_HANDLE tmp_detect_hdl = DD_HANDLE_UNVALID;
+volatile DD_HANDLE tmp_single_hdl = DD_HANDLE_UNVALID;
+saradc_desc_t tmp_single_desc;
+saradc_desc_t tmp_detect_desc;
+temp_detect_config_t g_temp_detect_config;
+UINT16 tmp_single_buff[ADC_TEMP_BUFFER_SIZE];
+beken_semaphore_t tmp_single_semaphore = NULL;
 
 static uint16_t *s_raw_temperature_data = NULL;
 
@@ -420,6 +431,35 @@ static void tempd_deinit(void)
 	rtos_delete_thread(NULL);
 }
 
+#if CFG_USE_VOLTAGE_DETECT
+static void volt_detect_polling_handler(void)
+{
+    int err;
+    UINT16 cur_val;
+
+    #if (!CONFIG_SOC_BK7231)
+    cur_val = tmp_detect_desc.pData[0] * 4;
+    #else
+    cur_val = tmp_detect_desc.pData[ADC_TEMP_BUFFER_SIZE-1];
+    #endif // (CFG_SOC_NAME != SOC_BK7231)
+
+    ps_switch(PS_UNALLOW, PS_EVENT_TEMP, PM_RF_BIT);
+
+    #if CFG_USE_STA_PS
+    bk_wlan_dtim_rf_ps_mode_do_wakeup();
+    #endif
+
+    rwnx_cal_do_volt_detect(cur_val);
+    ps_switch(PS_ALLOW, PS_EVENT_TEMP, PM_RF_BIT);
+
+    err = rtos_reload_timer(&g_temp_detect_config.detect_timer);
+    if (kNoErr != err)
+    {
+        TMP_DETECT_FATAL("volt_detect_polling_handler, restart detect timer failed\r\n");
+    }
+}
+#endif
+
 static void tempd_main(beken_thread_arg_t data)
 {
 	int err;
@@ -447,7 +487,11 @@ static void tempd_main(beken_thread_arg_t data)
 			case TMPD_TIMER_EXPIRED:
 				tempd_detect_temperature();
 				break;
-
+#if CFG_USE_VOLTAGE_DETECT
+			case VOLT_INT_POLL:
+				volt_detect_polling_handler();
+				break;
+#endif
 			case TMPD_DEINIT:
 				goto tempd_exit;
 
@@ -537,3 +581,151 @@ int temp_detect_get_temperature(uint32_t *temperature)
 	TEMPD_LOGI("get temperature %d\n", cur_temperature);
 	return err;
 }
+
+#if (CONFIG_SOC_BK7256) ||(CONFIG_SOC_BK7236) ||(CONFIG_SOC_BK7231N)||(CONFIG_SOC_BK7235)||(CONFIG_SOC_BK7256_CP1)
+static void temp_single_get_disable(void)
+{
+    UINT32 status = DRV_SUCCESS;
+
+    status = ddev_close(tmp_single_hdl);
+    if(DRV_FAILURE == status )
+    {
+        //TMP_DETECT_PRT("saradc disable failed\r\n");
+        //return;
+    }
+    bk_adc_stop();
+    tmp_single_hdl = DD_HANDLE_UNVALID;
+
+    status = BLK_BIT_TEMPRATURE_SENSOR;
+    sddev_control(DD_DEV_TYPE_SCTRL, CMD_SCTRL_BLK_DISABLE, &status);
+
+    TMP_DETECT_PRT("saradc_open is close \r\n");
+}
+
+static void temp_single_detect_handler(void)
+{
+    if(tmp_single_desc.current_sample_data_cnt >= tmp_single_desc.data_buff_size)
+    {
+#if (!CONFIG_SOC_BK7231)
+        UINT32 sum = 0, sum1, sum2;
+        //turnon_PA_in_temp_dect();
+        temp_single_get_disable();
+        TMP_DETECT_PRT("buff:%p,%d,%d,%d,%d,%d\r\n", tmp_single_desc.pData,
+                       tmp_single_desc.pData[0], tmp_single_desc.pData[1],
+                       tmp_single_desc.pData[2], tmp_single_desc.pData[3],
+                       tmp_single_desc.pData[4]);
+
+#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236) ||(CONFIG_SOC_BK7256)
+        sum1 = tmp_single_desc.pData[6] + tmp_single_desc.pData[7];
+        sum2 = tmp_single_desc.pData[8] + tmp_single_desc.pData[9];
+        sum = sum1 / 2 + sum2 / 2;
+#else
+        sum1 = tmp_single_desc.pData[1] + tmp_single_desc.pData[2];
+        sum2 = tmp_single_desc.pData[3] + tmp_single_desc.pData[4];
+        sum = sum1 / 2 + sum2 / 2;
+#endif
+        sum = sum / 2;
+        sum = sum / 4;
+
+        tmp_single_desc.pData[0] = sum;
+        #else
+        turnon_PA_in_temp_dect();
+        temp_single_get_disable();
+        TMP_DETECT_PRT("buff:%p,%d,%d,%d,%d,%d\r\n", tmp_single_desc.pData,
+                       tmp_single_desc.pData[0], tmp_single_desc.pData[1],
+                       tmp_single_desc.pData[2], tmp_single_desc.pData[3],
+                       tmp_single_desc.pData[4]);
+        #endif // (CFG_SOC_NAME != SOC_BK7231)
+
+        rtos_set_semaphore(&tmp_single_semaphore);
+    }
+}
+
+static void temp_single_get_desc_init(UINT8 channel)
+{
+    os_memset(&tmp_single_buff[0], 0, sizeof(UINT16)*ADC_TEMP_BUFFER_SIZE);
+
+    saradc_config_param_init_for_temp(&tmp_single_desc);
+    tmp_single_desc.channel = channel;
+    tmp_single_desc.pData = &tmp_single_buff[0];
+    tmp_single_desc.data_buff_size = ADC_TEMP_BUFFER_SIZE;
+    tmp_single_desc.p_Int_Handler = temp_single_detect_handler;
+}
+
+static UINT32 temp_single_get_enable(UINT8 channel)
+{
+    UINT32 status;
+
+#if CFG_USE_TEMPERATURE_DETECT
+    while(tmp_detect_hdl != DD_HANDLE_UNVALID)
+    {
+        rtos_delay_milliseconds(10);
+    }
+#endif
+    temp_single_get_desc_init(channel);
+
+    status = BLK_BIT_TEMPRATURE_SENSOR;
+    sddev_control(DD_DEV_TYPE_SCTRL, CMD_SCTRL_BLK_ENABLE, &status);
+
+#if (CONFIG_SOC_BK7231)
+    turnoff_PA_in_temp_dect();
+#endif // (CFG_SOC_NAME == SOC_BK7231)
+
+#if CFG_SUPPORT_SARADC
+    GLOBAL_INT_DECLARATION();
+    GLOBAL_INT_DISABLE();
+    tmp_single_hdl = ddev_open(DD_DEV_TYPE_SARADC, &status, (UINT32)&tmp_single_desc);
+    if(DD_HANDLE_UNVALID == tmp_single_hdl)
+    {
+        GLOBAL_INT_RESTORE();
+        TMP_DETECT_FATAL("Can't open saradc, have you register this device?\r\n");
+        return SARADC_FAILURE;
+    }
+    GLOBAL_INT_RESTORE();
+#endif
+
+    return SARADC_SUCCESS;
+}
+
+UINT32 volt_single_get_current_voltage(UINT32 *volt_value)
+{
+    UINT32 ret;
+    int result;
+    int retry_count = 3;
+
+    *volt_value = 0;
+
+    for (; retry_count > 0; retry_count--) {
+        if(tmp_single_semaphore == NULL) {
+            result = rtos_init_semaphore(&tmp_single_semaphore, 1);
+            BK_ASSERT(kNoErr == result);
+        }
+
+        ret = temp_single_get_enable(ADC_VOLT_SENSER_CHANNEL);
+        if (SARADC_SUCCESS != ret)
+        {
+            continue;
+        }
+
+        ret = 1000; // 1s
+        result = rtos_get_semaphore(&tmp_single_semaphore, ret);
+        if(result == kNoErr) {
+            #if (!CONFIG_SOC_BK7231)
+            *volt_value = tmp_single_desc.pData[0] * 4;
+            #else
+            *volt_value = tmp_single_desc.pData[4];
+            #endif
+            ret = 0;
+        }else {
+            TMP_DETECT_FATAL("volt_single timeout\r\n");
+            ret = 1;
+        }
+
+        if ((ADC_TEMP_VAL_MIN < *volt_value) && (*volt_value < ADC_TEMP_VAL_MAX)) {
+            break;
+        }
+    }
+
+    return ret;
+}
+#endif

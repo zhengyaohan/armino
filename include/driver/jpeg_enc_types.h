@@ -42,11 +42,11 @@ extern "C" {
 #define X_PIXEL_1280    (160) /**< image resolution for hight: Y * 8 = 1280 */
 
 typedef enum {
-	END_OF_YUV = 0,
-	HEAD_OUTPUT,
-	START_OF_FRAME,
-	END_OF_FRAME,
-	VSYNC_NEGEDGE,
+	END_OF_YUV = 0, /**< when work at yuv mode, transfer a complete frame will trigger this isr */
+	HEAD_OUTPUT,    /**< when work at jpeg encode mode, the head output complete will trigger this isr */
+	START_OF_FRAME, /**< when work at jpeg encode mode, detect vsync rising edge after few cycle will trigger this isr */
+	END_OF_FRAME,   /**< when work at jpeg encode mode, transfer a complete frame will trigger this isr */
+	VSYNC_NEGEDGE,  /**< when detect vsync negedge will trigger this isr */
 	ISR_MAX,
 }jpeg_isr_type_t;
 /**

@@ -301,11 +301,12 @@ static void tvideo_config_desc(void)
 	tvideo_st.rx_read_len = 0;
 
 	tvideo_st.sener_cfg = 0;
-	//CMPARAM_SET_PPI(tvideo_st.sener_cfg, VGA_640_480);
-	//CMPARAM_SET_FPS(tvideo_st.sener_cfg, TYPE_20FPS);
-	// only bk7236 support 720P
-	CMPARAM_SET_PPI(tvideo_st.sener_cfg, VGA_1280_720);
-	CMPARAM_SET_FPS(tvideo_st.sener_cfg, TYPE_15FPS);
+	// set for gc0328c
+	CMPARAM_SET_PPI(tvideo_st.sener_cfg, VGA_640_480);
+	CMPARAM_SET_FPS(tvideo_st.sener_cfg, TYPE_20FPS);
+	// set for hm_1055
+	//CMPARAM_SET_PPI(tvideo_st.sener_cfg, VGA_1280_720);
+	//CMPARAM_SET_FPS(tvideo_st.sener_cfg, TYPE_15FPS);
 
 	tvideo_st.node_full_handler = tvideo_rx_handler;
 	tvideo_st.data_end_handler = tvideo_end_frame_handler;

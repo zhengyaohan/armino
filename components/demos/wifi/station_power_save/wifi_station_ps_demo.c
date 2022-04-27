@@ -4,6 +4,7 @@
 #if WIFI_STATION_PS_DEMO
 #include <os/os.h>
 #include <common/bk_err.h>
+#include "components/event.h"
 #include "wlan_ui_pub.h"
 #include "uart_pub.h"
 #include <os/mem.h>
@@ -14,14 +15,15 @@
 static beken_semaphore_t station_ps_scan_handle = NULL;
 beken_timer_t station_ps_timer_handle, station_ps_stop_timer_handle;
 
-
-void wifi_station_ps_scan_ap_cb(void *ctxt, uint8_t param)
+static int wifi_station_ps_scan_ap_cb(void *arg, event_module_t event_module,
+                                      int event_id, void *event_data)
 {
-    if(station_ps_scan_handle)
-    {
-        rtos_set_semaphore( &station_ps_scan_handle );
-    }
+    if (station_ps_scan_handle)
+        rtos_set_semaphore(&station_ps_scan_handle);
+
+    return BK_OK;
 }
+
 
 int wifi_station_ps_scan_result(void)
 {
@@ -38,22 +40,30 @@ int wifi_station_ps_scan_result(void)
     return 1;
 }
 
-int wifi_station_ps_scan_ap(unsigned char *ssid)
+int wifi_station_ps_scan_ap(char *ssid)
 {
     int status = -1;
     bk_err_t err = kNoErr;
+    wifi_scan_config_t scan_config = {0};
 
-    bk_wlan_scan_ap_reg_cb(wifi_station_ps_scan_ap_cb);
-    bk_wlan_start_assign_scan(&ssid, 1);
+    /* Set desired SSID */
+    os_strncpy(scan_config.ssid, ssid, WIFI_SSID_STR_LEN);
 
+    /* register scan done callback */
+    bk_event_register_cb(EVENT_MOD_WIFI, EVENT_WIFI_SCAN_DONE,
+                         wifi_station_ps_scan_ap_cb, NULL);
+
+    /* Start scan with desired ssid */
+    bk_wifi_scan_start(&scan_config);
+
+    /* Wait for scan complete */
     err = rtos_get_semaphore(&station_ps_scan_handle, BEKEN_WAIT_FOREVER);
-    if(err == kNoErr)
-    {
+    if (err == kNoErr)
         status = wifi_station_ps_scan_result();
-    }
 
     return status;
 }
+
 
 int wifi_station_ps_connect_wifi(IN CONST char *ssid, IN CONST char *passwd)
 {
@@ -161,7 +171,7 @@ void wifi_station_ps_main( beken_thread_arg_t arg )
         goto exit;
     }
 
-    status = wifi_station_ps_scan_ap((unsigned char *)ap_ssid);
+    status = wifi_station_ps_scan_ap(ap_ssid);
     if(status < 0)
     {
         os_printf("The ssid(%s) is nothingness\r\n", ap_ssid);

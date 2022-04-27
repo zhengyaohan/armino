@@ -48,6 +48,46 @@ bk_err_t bk_dma_driver_init(void);
 bk_err_t bk_dma_driver_deinit(void);
 
 /**
+ * @brief     Allocate a DMA channel
+ *
+ * @attention: This API can only be called in task context, 
+ *             - and can't be called in context that interrupt is disabled.
+ *
+ * This API should be called before any other dma channel APIs.
+ *
+ * @param user_id DMA channel applicant
+ *
+ * @return DMA channel id.
+ *     -  > DMA_ID_MAX:  no free DMA channel.
+ */
+dma_id_t bk_dma_alloc(u16 user_id);
+
+/**
+ * @brief     Free the DMA channel
+ *
+ * @attention: This API can only be called in task context, 
+ *             - and can't be called in context that interrupt is disabled.
+ *
+ * @param user_id DMA channel applicant, the same as in bk_dma_alloc.
+ * @param id DMA channel
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_dma_free(u16 user_id, dma_id_t id);
+
+/**
+ * @brief     get the user of DMA channel
+ *
+ * @param id DMA channel
+ *
+ * @return DMA channel user_id.
+ *     -  u32:  high u16 is the CPU_ID, low 16 bits is the applicant_id.
+ */
+u32 bk_dma_user(dma_id_t id);
+
+/**
  * @brief     Init the DMA channel
  *
  * @attention 1. the higher channel priority value, the higher the priority

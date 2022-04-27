@@ -200,7 +200,7 @@ extern "C" {
 #endif
 
 
-#if (CONFIG_SOC_BK7256XX)
+#if (CONFIG_SECURITYIP)
 #define CLI_CFG_VAULT		1
 #else
 #define CLI_CFG_vault		0

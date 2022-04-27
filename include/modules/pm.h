@@ -8,6 +8,9 @@ extern "C" {
 
 #include <driver/int.h>
 
+#define PARAM_DATA_VALID  (0xFFFF)
+
+
 typedef enum
 {
 	GPIO_TRIGGER_INTERRUPE_LEVEL_LOW_ACTIVE = 0,
@@ -21,11 +24,13 @@ typedef struct
 	uint32_t gpio_id;
 	gpio_trigger_interrupt_type_e gpio_trigger_interrupt_type;
 	int_group_isr_t isr_callback;
+	uint32_t gpio_valid;  //PARAM_DATA_VALID
 }gpio_wakeup_param_t;
 typedef struct
 {
 	uint32_t  period;
 	int_group_isr_t isr_callback;
+	uint32_t rtc_valid;   //PARAM_DATA_VALID
 }rtc_wakeup_param_t;
 typedef enum
 {
@@ -104,7 +109,7 @@ typedef enum
  * - This API is used to enabel and disable the mcu power manage
  *
  * @param
- * -power_state:0x1:enable the mcu power manage;0x0:diable the mcu power manage
+ * -power_state:0x0:enable the mcu power manage;0x1:disable the mcu power manage
  * @return
  *    - BK_OK: succeed
  *
@@ -122,7 +127,7 @@ int pm_mcu_pm_ctrl(uint32_t power_state);
  * @param
  * none
  * @return
- *-mcu power manage state(0x1:enable the mcu power manage;0x0:diable the mcu power manage)
+ *-mcu power manage state(0x0:enable the mcu power manage;0x1:disable the mcu power manage)
  *
  */
 uint32_t pm_mcu_pm_state_get();

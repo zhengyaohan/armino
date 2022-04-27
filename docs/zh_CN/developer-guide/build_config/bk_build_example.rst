@@ -34,8 +34,8 @@ CMakeLists.txt 说明
 以下这些变量都有默认值，用户可以覆盖这些变量值以自定义构建行为。
 
 - ``COMPONENT_DIRS``：组件的搜索目录，默认为 ``ARMINO_PATH/components``、 ``ARMINO_PATH/middleware``，``PROJECT_DIR/components``、
-  和 ``EXTRA_COMPONENT_DIRS``。如果您不想在这些位置搜索组件，请覆盖此变量。
-- ``EXTRA_COMPONENT_DIRS``：用于搜索组件的其它可选目录列表。路径可以是相对于项目目录的相对路径，也可以是绝对路径。
+  和 ``EXTRA_COMPONENTS_DIRS``。如果您不想在这些位置搜索组件，请覆盖此变量。
+- ``EXTRA_COMPONENTS_DIRS``：用于搜索组件的其它可选目录列表。路径可以是相对于项目目录的相对路径，也可以是绝对路径。
 - ``COMPONENTS``：要构建进项目中的组件名称列表，默认为 ``COMPONENT_DIRS`` 目录下检索到的所有组件。使用此变量可以“精简”项目以缩短构建时间。
   请注意，如果一个组件通过 ``COMPONENT_REQUIRES`` 指定了它依赖的另一个组件，则会自动将其添加到 ``COMPONENTS`` 中。
 
@@ -60,10 +60,10 @@ TODO
 002 - 添加组件搜索目录
 -----------------------------------------
 
-可以在项目顶层 CMakeLists.txt 中设置 EXTRA_COMPONENT_DIRS 来导入除默认组件搜索目录之下的组件::
+可以在项目顶层 CMakeLists.txt 中设置 EXTRA_COMPONENTS_DIRS 来导入除默认组件搜索目录之下的组件::
 
         cmake_minimum_required(VERSION 3.5) 
-        set(EXTRA_COMPONENT_DIRS my_component_dir)
+        set(EXTRA_COMPONENTS_DIRS my_component_dir)
         include($ENV{ARMINO_PATH}/tools/build_tools/cmake/project.cmake)
         project(myProject)
 

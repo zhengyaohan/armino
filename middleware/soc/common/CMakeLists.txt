@@ -84,7 +84,7 @@ if (CONFIG_SDIO_V2P0)
 	)
 endif()
 
-if(CONFIG_VAULT)
+if(CONFIG_SECURITYIP)
 	list(APPEND srcs
 		"hal/vault_hal.c"
 	)

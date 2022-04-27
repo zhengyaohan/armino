@@ -17,6 +17,5 @@
 int cmd_wlan_sta_exec(char *cmd);
 int cmd_wlan_ap_exec(char *cmd);
 int cmd_wlan_p2p_exec(char *cmd);
-#if CONFIG_PM_V2
 int cmd_wlan_get_ps_status();
-#endif
+

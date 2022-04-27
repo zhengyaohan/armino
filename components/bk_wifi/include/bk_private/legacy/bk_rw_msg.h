@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-void mhdr_set_station_status(wifi_linkstate_reason_t info, void *val);
+void mhdr_set_station_status(wifi_linkstate_reason_t info);
 wifi_linkstate_reason_t mhdr_get_station_status(void);
 void rwm_mgmt_set_vif_netif(uint8_t *mac, void *netif);
 

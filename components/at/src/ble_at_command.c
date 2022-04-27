@@ -3,7 +3,6 @@
 #include "at_common.h"
 #if CONFIG_BLE//(CONFIG_BLE_5_X || CONFIG_BTDM_5_2)
 #include "at_ble_common.h"
-#include "bk_wifi_wrapper.h"
 
 enum {
     TEST_IDX_SVC,
@@ -20,21 +19,6 @@ enum {
     TEST_IDX_NB,
 };
 
-enum {
-    BOARDING_IDX_SVC,
-    BOARDING_IDX_CHAR_DECL,
-    BOARDING_IDX_CHAR_VALUE,
-
-	BOARDING_IDX_CHAR_SSID_DECL,
-	BOARDING_IDX_CHAR_SSID_VALUE,
-
-	BOARDING_IDX_CHAR_PASSWORD_DECL,
-	BOARDING_IDX_CHAR_PASSWORD_VALUE,
-
-	BOARDING_IDX_NB,
-};
-
-extern void register_app_sdp_charac_callback(void (*)(uint32_t type,uint8 conidx,uint16_t hdl,uint16_t len,uint8 *data));
 
 static beken_semaphore_t ble_at_cmd_sema = NULL;
 ble_err_t at_cmd_status = BK_ERR_BLE_SUCCESS;
@@ -47,8 +31,6 @@ static uint32 s_test_noti_count = 0;
 //#endif
 static uint16_t s_test_data_len = 20;
 static uint32_t s_test_send_inter = 500;
-static char *s_boarding_ssid = "board_test";
-static char *s_boarding_password = "12345678";
 
 
 uint8_t s_test_conn_ind = ~0;
@@ -99,7 +81,7 @@ int ble_set_phy_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 //#endif
 int ble_delete_adv_activity_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
 int ble_delete_scan_activity_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
-int ble_boarding_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
+extern int ble_boarding_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
 
 const at_command_t ble_at_cmd_table[] = {
     {0, "SETBLENAME", 0, "return ble name", set_ble_name_handle},
@@ -121,7 +103,7 @@ const at_command_t ble_at_cmd_table[] = {
     {14, "GETLOCALADDR", 0, "get ble local address", ble_get_local_addr_handle},
     {15, "SETLOCALADDR", 0, "set ble local address", ble_set_local_addr_handle},
 //#if (CONFIG_BTDM_5_2)
-    {16, "GEGISTERSERVICE", 1, "register a service", ble_register_service_handle},
+    {16, "REGISTERSERVICE", 1, "register a service", ble_register_service_handle},
     {17, "READPHY", 1, "read current tx/rx phy", ble_read_phy_handle},
     {18, "SETPHY", 1, "set current tx/rx phy", ble_set_phy_handle},
 //#endif
@@ -213,33 +195,6 @@ void ble_at_notice_cb(ble_notice_t notice, void *param)
                 break;
             }
         }
-
-		if (bk_ble_get_controller_stack_type() == BK_BLE_CONTROLLER_STACK_TYPE_BTDM_5_2
-            && w_req->prf_id == PRF_TASK_ID_BOARDING) {
-			switch(w_req->att_idx)
-            {
-            case BOARDING_IDX_CHAR_DECL:
-                break;
-            case BOARDING_IDX_CHAR_VALUE:
-                break;
-
-            case BOARDING_IDX_CHAR_SSID_DECL:
-                break;
-            case BOARDING_IDX_CHAR_SSID_VALUE:
-                os_memcpy((uint8_t *)s_boarding_ssid, w_req->value, os_strlen(s_boarding_ssid));
-                break;
-
-            case BOARDING_IDX_CHAR_PASSWORD_DECL:
-                break;
-            case BOARDING_IDX_CHAR_PASSWORD_VALUE:
-                os_memcpy((uint8_t *)s_boarding_password, w_req->value, os_strlen(s_boarding_password));
-				demo_sta_app_init(s_boarding_ssid, s_boarding_password);
-				break;
-
-            default:
-                break;
-            }
-        }
 //#endif
         break;
     }
@@ -276,31 +231,6 @@ void ble_at_notice_cb(ble_notice_t notice, void *param)
 			    case TEST_IDX_CHAR_INTER_VALUE:
 			        r_req->length = sizeof(s_test_send_inter);
 			        os_memcpy(r_req->value, &s_test_send_inter, sizeof(s_test_send_inter));
-			        break;
-
-			    default:
-			        break;
-		    }
-		} else if (r_req->prf_id == PRF_TASK_ID_BOARDING) {
-			switch(r_req->att_idx)
-		    {
-			    case BOARDING_IDX_CHAR_DECL:
-			        break;
-			    case BOARDING_IDX_CHAR_VALUE:
-			        break;
-
-			    case BOARDING_IDX_CHAR_SSID_DECL:
-			        break;
-			    case BOARDING_IDX_CHAR_SSID_VALUE:
-			        r_req->length = os_strlen(s_boarding_ssid);
-			        os_memcpy(r_req->value, s_boarding_ssid, os_strlen(s_boarding_ssid));
-			        break;
-
-			    case BOARDING_IDX_CHAR_PASSWORD_DECL:
-			        break;
-			    case BOARDING_IDX_CHAR_PASSWORD_VALUE:
-			        r_req->length = os_strlen(s_boarding_password);
-			        os_memcpy(r_req->value, s_boarding_password, os_strlen(s_boarding_password));
 			        break;
 
 			    default:
@@ -1640,23 +1570,6 @@ ble_attm_desc_t test_service_db[TEST_IDX_NB] = {
 
 };
 
-ble_attm_desc_t boarding_service_db[BOARDING_IDX_NB] = {
-    //  Service Declaration
-    [BOARDING_IDX_SVC]        = {DECL_PRIMARY_SERVICE_128, BK_BLE_PERM_SET(RD, ENABLE), 0, 0},
-    [BOARDING_IDX_CHAR_DECL]  = {DECL_CHARACTERISTIC_128,  BK_BLE_PERM_SET(RD, ENABLE), 0, 0},
-    // Characteristic Value
-    [BOARDING_IDX_CHAR_VALUE] = {{0x34, 0x12, 0}, BK_BLE_PERM_SET(NTF, ENABLE), BK_BLE_PERM_SET(RI, ENABLE) | BK_BLE_PERM_SET(UUID_LEN, UUID_16), 128},
-
-    //ssid
-    [BOARDING_IDX_CHAR_SSID_DECL]  = {DECL_CHARACTERISTIC_128, BK_BLE_PERM_SET(RD, ENABLE), 0, 0},
-    [BOARDING_IDX_CHAR_SSID_VALUE] = {{0xbc, 0x9a, 0}, BK_BLE_PERM_SET(WRITE_REQ, ENABLE) | BK_BLE_PERM_SET(RD, ENABLE), BK_BLE_PERM_SET(RI, ENABLE) | BK_BLE_PERM_SET(UUID_LEN, UUID_16), 128},
-
-    //password
-    [BOARDING_IDX_CHAR_PASSWORD_DECL]    = {DECL_CHARACTERISTIC_128, BK_BLE_PERM_SET(RD, ENABLE), 0, 0},
-    [BOARDING_IDX_CHAR_PASSWORD_VALUE]   = {{0xf0, 0xde, 0}, BK_BLE_PERM_SET(WRITE_REQ, ENABLE) | BK_BLE_PERM_SET(RD, ENABLE), BK_BLE_PERM_SET(RI, ENABLE) | BK_BLE_PERM_SET(UUID_LEN, UUID_16), 128},
-
-};
-
 int ble_update_mtu_2_max_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
     int err = kNoErr;
@@ -2185,152 +2098,6 @@ error:
 	return err;
 }
 //#endif
-
-int ble_boarding_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
-{
-	int err = kNoErr;
-	char *msg = NULL;
-	uint16 service_uuid = 0xFFFF;
-	uint16 char_uuid = 0x1234;
-	struct bk_ble_db_cfg ble_db_cfg;
-
-	int actv_idx = 0;
-	uint8_t adv_data[31];
-	uint8_t adv_len = 0;
-
-	ble_adv_param_t adv_param;
-
-	if (argc != 2) {
-		os_printf("\nThe number of param is wrong!\n");
-		err = kParamErr;
-		goto error;
-	}
-
-	err = rtos_init_semaphore(&ble_at_cmd_sema, 1);
-    if(err != kNoErr){
-        goto error;
-    }
-
-	os_memcpy(&(boarding_service_db[BOARDING_IDX_CHAR_VALUE].uuid[0]), &char_uuid, 2);
-	os_memset(&ble_db_cfg, 0, sizeof(ble_db_cfg));
-
-	ble_db_cfg.att_db = (ble_attm_desc_t *)boarding_service_db;
-	ble_db_cfg.att_db_nb = BOARDING_IDX_NB;
-	ble_db_cfg.prf_task_id = PRF_TASK_ID_BOARDING;
-	ble_db_cfg.start_hdl = 0;
-	ble_db_cfg.svc_perm = BK_BLE_PERM_SET(SVC_UUID_LEN, UUID_16);
-	os_memcpy(&(ble_db_cfg.uuid[0]), &service_uuid, 2);
-
-	bk_ble_set_notice_cb(ble_at_notice_cb);
-	register_app_sdp_charac_callback(ble_sdp_charac_callback);
-	err = bk_ble_create_db(&ble_db_cfg);
-	if (err != BK_ERR_BLE_SUCCESS) {
-		goto error;
-	} else {
-        err = rtos_get_semaphore(&ble_at_cmd_sema, AT_SYNC_CMD_TIMEOUT_MS);
-        if (err != kNoErr){
-            goto error;
-        } else {
-            if (at_cmd_status == BK_ERR_BLE_SUCCESS) {
-                msg = AT_CMD_RSP_SUCCEED;
-                os_memcpy(pcWriteBuffer, msg, os_strlen(msg));
-            } else {
-                err = at_cmd_status;
-                at_cmd_status = BK_ERR_BLE_SUCCESS;
-                goto error;
-            }
-        }
-    }
-	os_printf("creat boarding service successfully!\r\n");
-
-	os_memset(&adv_param, 0, sizeof(ble_adv_param_t));
-	adv_param.chnl_map = 7;
-	adv_param.adv_intv_min = 120;
-	adv_param.adv_intv_max = 160;
-	adv_param.own_addr_type = BLE_STATIC_ADDR;
-	adv_param.adv_type = 0;
-	adv_param.adv_prop = 3;
-	adv_param.prim_phy = 1;
-	adv_param.second_phy = 1;
-
-	err = bk_ble_create_advertising(actv_idx, &adv_param, ble_at_cmd_cb);
-	if (err != BK_ERR_BLE_SUCCESS) {
-		goto error;
-	} else {
-        err = rtos_get_semaphore(&ble_at_cmd_sema, AT_SYNC_CMD_TIMEOUT_MS);
-        if (err != kNoErr){
-            goto error;
-        } else {
-            if (at_cmd_status == BK_ERR_BLE_SUCCESS) {
-                msg = AT_CMD_RSP_SUCCEED;
-                os_memcpy(pcWriteBuffer, msg, os_strlen(msg));
-            } else {
-                err = at_cmd_status;
-                at_cmd_status = BK_ERR_BLE_SUCCESS;
-                goto error;
-            }
-        }
-    }
-	os_printf("set adv param and creat adv successfully!\r\n");
-
-	adv_len = os_strtoul(argv[1], NULL, 16) & 0xFF;
-	if (adv_len > 31 || adv_len != os_strlen(argv[0]) / 2)
-	{
-		os_printf("input adv len over limited\n");
-		err = kParamErr;
-		goto error;
-	}
-	at_set_data_handle(adv_data, argv[0],  os_strlen(argv[0]));
-
-	err = bk_ble_set_adv_data(actv_idx, adv_data, adv_len, ble_at_cmd_cb);
-	if (err != BK_ERR_BLE_SUCCESS) {
-	   goto error;
-	} else {
-        err = rtos_get_semaphore(&ble_at_cmd_sema, AT_SYNC_CMD_TIMEOUT_MS);
-        if (err != kNoErr){
-            goto error;
-        } else {
-            if (at_cmd_status == BK_ERR_BLE_SUCCESS) {
-                msg = AT_CMD_RSP_SUCCEED;
-                os_memcpy(pcWriteBuffer, msg, os_strlen(msg));
-            } else {
-                err = at_cmd_status;
-                at_cmd_status = BK_ERR_BLE_SUCCESS;
-                goto error;
-            }
-        }
-    }
-	os_printf("set adv data successfully!\r\n");
-
-	err = bk_ble_start_advertising(actv_idx, 0, ble_at_cmd_cb);
-	if (err != BK_ERR_BLE_SUCCESS) {
-	   goto error;
-	} else {
-		if (at_cmd_status == BK_ERR_BLE_SUCCESS)
-		{
-			msg = AT_CMD_RSP_SUCCEED;
-			os_memcpy(pcWriteBuffer, msg, os_strlen(msg));
-			rtos_deinit_semaphore(&ble_at_cmd_sema);
-			os_printf("start adv successfully!\r\n");
-			return err;
-		}
-		else
-		{
-			err = at_cmd_status;
-			at_cmd_status = BK_ERR_BLE_SUCCESS;
-			goto error;
-		}
-	}
-
-
-error:
-	msg = AT_CMD_RSP_ERROR;
-	os_memcpy(pcWriteBuffer, msg, os_strlen(msg));
-	if (ble_at_cmd_sema != NULL)
-		rtos_deinit_semaphore(&ble_at_cmd_sema);
-	return err;
-}
-
 
 int ble_delete_adv_activity_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {

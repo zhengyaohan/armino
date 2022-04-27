@@ -652,16 +652,38 @@ int flush;
     in = have;
     out = left;
     ret = Z_OK;
+    bk_printf("bits,in,out ,have,left\r\n");
+    bk_print_hex(bits);
+    bk_printf("\r\n");
+    bk_print_hex(in);
+    bk_printf("\r\n");
+    bk_print_hex(out);
+    bk_printf("\r\n");
+    bk_print_hex(have);
+    bk_printf("\r\n");
+    bk_print_hex(left);
+    bk_printf("\r\n");
     for (;;)
         switch (state->mode) {
         case HEAD:
+            bk_printf("state->wrap\r\n");
+            bk_print_hex(state->wrap);
+            bk_printf("\r\n");
             if (state->wrap == 0) {
                 state->mode = TYPEDO;
                 break;
             }
             NEEDBITS(16);
+            bk_printf("have,hold,bits\r\n");            
+            bk_print_hex(have);
+            bk_printf("\r\n");
+            bk_print_hex(hold);
+            bk_printf("\r\n");
+            bk_print_hex(bits);
+            bk_printf("\r\n");
 #ifdef GUNZIP
-            if ((state->wrap & 2) && hold == 0x8b1f) {  /* gzip header */
+            if ((state->wrap & 4) && hold == 0x8b1f) {  /* gzip header */
+                bk_printf("15\r\n");
                 if (state->wbits == 0)
                     state->wbits = 15;
                 state->check = crc32(0L, Z_NULL, 0);
@@ -671,6 +693,7 @@ int flush;
                 break;
             }
             state->flags = 0;           /* expect zlib header */
+            bk_printf("17\r\n");
             if (state->head != Z_NULL)
                 state->head->done = -1;
             if (!(state->wrap & 1) ||   /* check if zlib header allowed */
@@ -701,6 +724,7 @@ int flush;
             strm->adler = state->check = adler32(0L, Z_NULL, 0);
             state->mode = hold & 0x200 ? DICTID : TYPE;
             INITBITS();
+            bk_printf("21\r\n");
             break;
 #ifdef GUNZIP
         case FLAGS:

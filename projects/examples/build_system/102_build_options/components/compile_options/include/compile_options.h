@@ -14,4 +14,4 @@
 
 #pragma once
 
-int pure_cmake_public(void);
+int compile_options(void);

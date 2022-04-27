@@ -79,7 +79,7 @@ if(reg&0x10000)
 #endif
     bk_printf("enter\r\n");
     //printf_flash_ID();
-    #if ((CFG_SOC_NAME != SOC_BK7231N) && (CFG_SOC_NAME != SOC_BK7236))
+    #if ((CFG_SOC_NAME != SOC_BK7231N) && (CFG_SOC_NAME != SOC_BK7236)&& (CFG_SOC_NAME != SOC_BK7256))
     while(1)
     {
         bim_uart_temp = uart_buff_write;

@@ -20,6 +20,7 @@
 #include "gpio_driver.h"
 #include <driver/gpio_types.h>
 #include <driver/int.h>
+#include "amp_lock_api.h"
 #if (CONFIG_SYSTEM_CTRL)
 #include "sys_driver.h"
 #endif
@@ -62,6 +63,8 @@ bk_err_t bk_gpio_driver_init(void)
 	bk_int_isr_register(INT_SRC_GPIO, gpio_isr, NULL);
 
 	gpio_hal_init(&s_gpio.hal);
+
+	amp_res_init(AMP_RES_ID_GPIO);
 
 	return BK_OK;
 }

@@ -101,7 +101,7 @@ bk_err_t bk_touch_disable(void);
  * Usage example:
  *
  *		touch_config_t touch_config;
- *      touch_config.sensitivity_level = TOUCH_SENSITIVITY_LEVLE_3;
+ *		touch_config.sensitivity_level = TOUCH_SENSITIVITY_LEVLE_3;
  *		touch_config.detect_threshold = TOUCH_DETECT_THRESHOLD_6;
  *		touch_config.detect_range = TOUCH_DETECT_RANGE_27PF;
  *		bk_touch_config(&touch_config);
@@ -172,12 +172,12 @@ bk_err_t bk_touch_manul_mode_disable(void);
  *
  *
  * @param
- *    - touch_id: the multi channels that need to scan. See the enum of touch_scan_mode_channel_t.
+ *    - touch_id: the multi channels that need to scan. See the enum of touch_channel_t.
  *
  * @return
  *    - BK_OK: succeed
  */
-bk_err_t bk_touch_scan_mode_multi_channl_set(touch_scan_mode_channel_t touch_id);
+bk_err_t bk_touch_scan_mode_multi_channl_set(touch_channel_t touch_id);
 
 /**
  * @brief     enable/disable touch channel interrupt

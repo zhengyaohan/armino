@@ -51,7 +51,7 @@ list(APPEND srcs
 	"hal/flash_ll.c"
 )
 
-if(CONFIG_VAULT)
+if(CONFIG_SECURITYIP)
 	list(APPEND srcs
 		"hal/vault_hal_debug.c"
 		"hal/vault_ll.c"

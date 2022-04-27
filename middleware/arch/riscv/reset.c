@@ -30,9 +30,6 @@ void reset_handler(void)
     /// TODO: DEBUG VERSION close the wdt
 	close_wdt();
 
-	pm_hardware_init();
-
-#if 1
     //write_csr(NDS_MCACHE_CTL, (read_csr(NDS_MCACHE_CTL) | 0x1)); // Enable  ICache
 	//write_csr(NDS_MCACHE_CTL, (read_csr(NDS_MCACHE_CTL) | 0x2)); // Enable  DCache
 	/*
@@ -40,6 +37,9 @@ void reset_handler(void)
 	 * Relocation for any sections that need to be copied from LMA to VMA.
 	 */
 	c_startup();
+
+	/*power manager init*/
+	pm_hardware_init();
 
 #if (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7256_CP1)
 	//clear mannully reboot flag
@@ -58,5 +58,5 @@ void reset_handler(void)
 	
 	/* Entry function */
 	entry_main();
-#endif
+
 }

@@ -3,6 +3,11 @@
 #include "sys_hal.h"
 #include "sys_driver.h"
 
+#if CONFIG_DUAL_CORE
+#include "amp_lock_api.h"
+#define SYSTEM_REG_LOCK_WAIT_TIME_MS  10
+#endif
+
 #define SYS_DRV_DELAY_TIME_10US	              120
 #define SYS_DRV_DELAY_TIME_200US	          3400
 
@@ -11,10 +16,40 @@
 
 /** Platform Misc Start **/
 
+static uint32_t sys_amp_res_acquire()
+{
+#if 0//CONFIG_DUAL_CORE
+	uint32_t ret_val = SYS_DRV_FAILURE;
+	ret_val = amp_res_acquire(AMP_RES_ID_SYS_REG, SYSTEM_REG_LOCK_WAIT_TIME_MS);
+	return ret_val;
+#endif
+	return SYS_DRV_SUCCESS;
+}
+static uint32_t sys_amp_res_release()
+{
+#if 0//CONFIG_DUAL_CORE
+	uint32_t ret_val = SYS_DRV_FAILURE;
+	ret_val = amp_res_release(AMP_RES_ID_SYS_REG);
+	return ret_val;
+#endif
+	return SYS_DRV_SUCCESS;
+}
+
+static uint32_t sys_amp_res_init()
+{
+#if 0//CONFIG_DUAL_CORE
+	uint32_t ret_val = SYS_DRV_FAILURE;
+	ret_val = amp_res_init(AMP_RES_ID_SYS_REG);
+	return ret_val;
+#endif
+	return SYS_DRV_SUCCESS;
+}
+
 void sys_drv_init()
 {
 	uint32_t int_level = rtos_disable_int();
 
+	sys_amp_res_init();
 	sys_hal_init();
 
 	rtos_enable_int(int_level);
@@ -39,8 +74,13 @@ void sys_drv_usb_power_ctrl(bool power_up)
 void sys_drv_usb_clock_ctrl(bool ctrl, void *arg)
 {
 	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_usb_enable_clk(ctrl);
+
+	if(!ret)
+		ret = sys_amp_res_release();
 
 	rtos_enable_int(int_level);
 }
@@ -138,8 +178,13 @@ void sys_drv_usb_charge_cal(sys_drv_charge_step_t step, void *arg)
 void sys_drv_uart_select_clock(uart_id_t id, uart_src_clk_t mode)
 {
 	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_uart_select_clock(id, mode);
+
+	if(!ret)
+		ret = sys_amp_res_release();
 
 	rtos_enable_int(int_level);
 }
@@ -149,8 +194,13 @@ void sys_drv_uart_select_clock(uart_id_t id, uart_src_clk_t mode)
 void sys_drv_pwm_set_clock(uint32_t mode, uint32_t param)
 {
 	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_pwm_set_clock(mode, param);
+
+	if(!ret)
+		ret = sys_amp_res_release();
 
 	rtos_enable_int(int_level);
 }
@@ -158,8 +208,13 @@ void sys_drv_pwm_set_clock(uint32_t mode, uint32_t param)
 void sys_drv_pwm_select_clock(sys_sel_pwm_t num, pwm_src_clk_t mode)
 {
 	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_pwm_select_clock(num, mode);
+
+	if(!ret)
+		ret = sys_amp_res_release();
 
 	rtos_enable_int(int_level);
 }
@@ -168,8 +223,14 @@ void sys_drv_pwm_select_clock(sys_sel_pwm_t num, pwm_src_clk_t mode)
 void sys_drv_timer_select_clock(sys_sel_timer_t num, timer_src_clk_t mode)
 {
 	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_timer_select_clock(num, mode);
+
+	if(!ret)
+		ret = sys_amp_res_release();
+
 
 	rtos_enable_int(int_level);
 }
@@ -274,8 +335,13 @@ void sys_drv_efuse_write_byte(uint32_t param)
 void sys_drv_enter_deep_sleep(void * param)
 {
 	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_enter_deep_sleep(param);
+
+	if(!ret)
+		ret = sys_amp_res_release();
 
 	rtos_enable_int(int_level);
 }
@@ -299,9 +365,16 @@ void sys_drv_enter_normal_wakeup()
 }
 void sys_drv_enter_low_voltage()
 {
-    uint32_t int_level = rtos_disable_int();
-    sys_hal_enter_low_voltage();
-    rtos_enable_int(int_level);
+	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
+
+	sys_hal_enter_low_voltage();
+
+	if(!ret)
+		ret = sys_amp_res_release();
+
+	rtos_enable_int(int_level);
 }
 /*for low power function start*/
 void sys_drv_module_power_ctrl(power_module_name_t module,power_module_state_t power_state)
@@ -370,8 +443,13 @@ void sys_drv_set_cpu1_reset(uint32_t reset_value)
 void sys_drv_enable_mac_wakeup_source()
 {
  	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_enable_mac_wakeup_source();
+
+	if(!ret)
+		ret = sys_amp_res_release();
 
 	rtos_enable_int(int_level);
 }
@@ -1062,8 +1140,13 @@ void sys_drv_mclk_div_set(uint32_t value)
 void sys_drv_bt_power_ctrl(bool power_up)
 {
 	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_bt_power_ctrl(power_up);
+
+	if(!ret)
+		ret = sys_amp_res_release();
 
 	rtos_enable_int(int_level);
 }
@@ -1072,8 +1155,13 @@ void sys_drv_bt_power_ctrl(bool power_up)
 void sys_drv_bt_clock_ctrl(bool en)
 {
 	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_bt_clock_ctrl(en);
+
+	if(!ret)
+		ret = sys_amp_res_release();
 
 	rtos_enable_int(int_level);
 }
@@ -1082,8 +1170,13 @@ void sys_drv_bt_clock_ctrl(bool en)
 void sys_drv_xvr_clock_ctrl(bool en)
 {
  	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_xvr_clock_ctrl(en);
+
+	if(!ret)
+		ret = sys_amp_res_release();
 
 	rtos_enable_int(int_level);
 }
@@ -1165,8 +1258,13 @@ uint32_t sys_drv_bt_rf_status_get(void)
 void sys_drv_bt_sleep_exit_ctrl(bool en)
 {
 	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_bt_sleep_exit_ctrl(en);
+
+	if(!ret)
+		ret = sys_amp_res_release();
 
 	rtos_enable_int(int_level);
 }
@@ -1187,8 +1285,13 @@ void sys_drv_bt_sleep_exit_ctrl(bool en)
 void sys_drv_lcd_set(uint8_t clk_src_sel, uint8_t clk_div_l, uint8_t clk_div_h, uint8_t int_en,uint8_t clk_always_on)
 {
 	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_lcd_disp_clk_en(clk_src_sel, clk_div_l,clk_div_h, int_en, clk_always_on);
+
+	if(!ret)
+		ret = sys_amp_res_release();
 
 	rtos_enable_int(int_level);
 }
@@ -1196,8 +1299,13 @@ void sys_drv_lcd_set(uint8_t clk_src_sel, uint8_t clk_div_l, uint8_t clk_div_h, 
 void sys_drv_lcd_close(void)
 {
 	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_lcd_disp_close();
+
+	if(!ret)
+		ret = sys_amp_res_release();
 
 	rtos_enable_int(int_level);
 }
@@ -1644,22 +1752,32 @@ uint32_t sys_drv_dsp_subsys_reset(void)
 uint32_t sys_drv_mac_power_ctrl(bool power_up)
 {
 	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_mac_power_ctrl(power_up);
 
+	if(!ret)
+		ret = sys_amp_res_release();
+
 	rtos_enable_int(int_level);
-	return SYS_DRV_SUCCESS;
+	return ret;
 }
 
 //CMD_SCTRL_MODEM_POWERDOWN, CMD_SCTRL_MODEM_POWERUP
 uint32_t sys_drv_modem_power_ctrl(bool power_up)
 {
 	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_modem_clk_ctrl(power_up);
 
+	if(!ret)
+		ret = sys_amp_res_release();
+
 	rtos_enable_int(int_level);
-	return SYS_DRV_SUCCESS;
+	return ret;
 }
 
 //CMD_BLE_RF_PTA_EN, CMD_BLE_RF_PTA_DIS
@@ -1710,11 +1828,16 @@ uint32_t sys_drv_mac_bus_clk_ctrl(bool clk_en)
 uint32_t sys_drv_mac_clk_ctrl(bool clk_en)
 {
 	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_mac_clk_ctrl(clk_en);
 
+	if(!ret)
+		ret = sys_amp_res_release();
+
 	rtos_enable_int(int_level);
-	return SYS_DRV_SUCCESS;
+	return ret;
 }
 
 //CMD_SCTRL_SET_VDD_VALUE
@@ -1829,25 +1952,36 @@ uint32_t  sys_drv_enable_modem_rc_int(void)
 //Yantao Add End
 /**  WIFI End **/
 
-
 /**  Audio Start  **/
 
 uint32_t  sys_drv_aud_select_clock(uint32_t value)
 {
 	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_aud_select_clock(value);
+
+	if(!ret)
+		ret = sys_amp_res_release();
 	rtos_enable_int(int_level);
-	return SYS_DRV_SUCCESS;
+
+	return ret;
 }
 
 uint32_t  sys_drv_aud_clock_en(uint32_t value)
 {
 	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_aud_clock_en(value);
+
+	if(!ret)
+		ret = sys_amp_res_release();
+
 	rtos_enable_int(int_level);
-	return SYS_DRV_SUCCESS;
+	return ret;
 }
 
 uint32_t sys_drv_aud_vdd1v_en(uint32_t value)
@@ -2016,11 +2150,16 @@ uint32_t sys_drv_sbc_int_en(uint32_t value)
 uint32_t sys_drv_aud_power_en(uint32_t value)
 {
 	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_aud_power_en(value);
 
+	if(!ret)
+		ret = sys_amp_res_release();
+
 	rtos_enable_int(int_level);
-	return SYS_DRV_SUCCESS;
+	return ret;
 }
 
 
@@ -2052,10 +2191,16 @@ uint32_t sys_drv_cpu_fft_int_en(uint32_t value)
 uint32_t  sys_drv_i2s_select_clock(uint32_t value)
 {
 	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_i2s_select_clock(value);
+
+	if(!ret)
+		ret = sys_amp_res_release();
+
 	rtos_enable_int(int_level);
-	return SYS_DRV_SUCCESS;
+	return ret;
 }
 
 uint32_t  sys_drv_i2s_clock_en(uint32_t value)
@@ -2230,10 +2375,16 @@ uint32_t sys_drv_touch_int_enable(uint32_t value)
 uint32_t sys_drv_mclk_mux_set(uint32_t value)
 {
 	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_mclk_mux_set(value);
+
+	if(!ret)
+		ret = sys_amp_res_release();
+
 	rtos_enable_int(int_level);
-	return SYS_DRV_SUCCESS;
+	return ret;
 }
 
 uint32_t sys_drv_set_jpeg_clk_sel(uint32_t value)
@@ -2248,8 +2399,14 @@ uint32_t sys_drv_set_jpeg_clk_sel(uint32_t value)
 uint32_t sys_drv_set_clk_div_mode1_clkdiv_jpeg(uint32_t value)
 {
 	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_set_clk_div_mode1_clkdiv_jpeg(value);
+
+	if(!ret)
+		ret = sys_amp_res_release();
+
 	rtos_enable_int(int_level);
 	return SYS_DRV_SUCCESS;
 }
@@ -2257,29 +2414,45 @@ uint32_t sys_drv_set_clk_div_mode1_clkdiv_jpeg(uint32_t value)
 uint32_t sys_drv_set_jpeg_disckg(uint32_t value)
 {
 	uint32_t int_level = rtos_disable_int();
-
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 	sys_hal_set_jpeg_disckg(value);
+
+	if(!ret)
+		ret = sys_amp_res_release();
 	rtos_enable_int(int_level);
-	return SYS_DRV_SUCCESS;
+	return ret;
 }
 
 uint32_t sys_drv_set_cpu_clk_div_mode1_clkdiv_bus(uint32_t value)
 {
 	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_set_cpu_clk_div_mode1_clkdiv_bus(value);
+
+	if(!ret)
+		ret = sys_amp_res_release();
+
 	rtos_enable_int(int_level);
-	return SYS_DRV_SUCCESS;
+	return ret;
 }
 
 uint32_t sys_drv_video_power_en(uint32_t value)
 {
 	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_video_power_en(value);
 
+	if(!ret)
+		ret = sys_amp_res_release();
+
+
 	rtos_enable_int(int_level);
-	return SYS_DRV_SUCCESS;
+	return ret;
 }
 
 /**  Jpeg End **/
@@ -2830,8 +3003,13 @@ uint32_t system_driver_get_qspi0_clk_div()
 void sys_driver_set_sdio_clk_en(uint32_t value)
 {
 	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_set_sdio_clk_en(value);
+
+	if(!ret)
+		ret = sys_amp_res_release();
 
 	rtos_enable_int(int_level);
 }
@@ -4001,10 +4179,17 @@ uint32_t system_driver_get_wifi_wakeup_platform_en()
 #if 1
 void system_driver_set_bts_wakeup_platform_en(bool value)
 {
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
+
 	if(value)
 		sys_hal_set_bts_wakeup_platform_en(1);
 	else
 		sys_hal_set_bts_wakeup_platform_en(0);
+
+	if(!ret)
+		ret = sys_amp_res_release();
+
 }
 uint32_t system_driver_get_bts_wakeup_platform_en()
 {
@@ -5705,5 +5890,12 @@ void sys_drv_set_ana_vhsel_ldodig(uint32_t value)
 {
     uint32_t int_level = rtos_disable_int();
     sys_hal_set_ana_vhsel_ldodig(value);
+    rtos_enable_int(int_level);
+}
+
+void sys_drv_set_ana_vctrl_sysldo(uint32_t value)
+{
+    uint32_t int_level = rtos_disable_int();
+    sys_hal_set_ana_vctrl_sysldo(value);
     rtos_enable_int(int_level);
 }

@@ -24,6 +24,7 @@ set(incs
 	saradc
 	pmu
 	mailbox
+	spinlock
 	touch
 	sbc
 	rtc
@@ -66,6 +67,7 @@ set(srcs
 		saradc/adc_statis.c
 		i2c/i2c_driver.c
 		i2c/i2c_statis.c
+		spinlock/amp_res_lock.c
 	)
 
 if (CONFIG_PWM)
@@ -298,6 +300,7 @@ if (CONFIG_MAILBOX)
 	if (CONFIG_DUAL_CORE)
 		list(APPEND srcs
 			mailbox/mailbox_channel.c
+			mailbox/mb_ipc_cmd.c
 		)
 	endif()
 
@@ -308,201 +311,6 @@ if (CONFIG_SOC_BK7251)
 		"spi"
 		)
 endif()
-
-if (CONFIG_SOC_BK7256XX)
-	list(APPEND incs
-		"vault"
-		"eip130/Kit/Log/incl"
-		"eip130/Kit/Log/src/bk_printf"
-		"eip130/Kit/Packages/DriverFramework_v4/DMAResource_API/incl"
-		"eip130/Kit/Packages/DriverFramework_v4/Basic_Defs_API/incl"
-		"eip130/Kit/Packages/DriverFramework_v4/CLib_Abstraction_API/incl"
-		"eip130/Kit/Packages/DriverFramework_v4/Device_API/incl"
-		"eip130/Kit/Packages/EIP130/TokenHelper/incl"
-		"eip130/Kit/Packages/EIP130/TokenHelper/src"
-		"eip130/Kit/Packages/EIP130/MailboxControl/incl"
-		"eip130/Kit/Packages/EIP130/MailboxControl/src"
-		"eip130/Integration/Adapter_GlobalControl/incl"
-		"eip130/Integration/Adapter_GlobalControl/src"
-		"eip130/Integration/DriverFramework/src"
-		"eip130/Integration/DriverFramework/src/BK_Arm"
-		"eip130/Integration/Adapter_Generic/src"
-		"eip130/Integration/Adapter_Generic/src/BK_Arm"
-		"eip130/Integration/Adapter_DriverInit/incl"
-		"eip130/Integration/Adapter_DriverInit/src/BK72XX"
-		"eip130/Integration/Adapter_DriverInit/src"
-		"eip130/Integration/Adapter_VAL/incl"
-		"eip130/Integration/Adapter_VAL/src/BK_Arm"
-		"eip130/Integration/Adapter_VAL/src"
-		"eip130/Integration/Adapter_VEX/src"
-		"eip130/Examples/Driver_BEKEN/build"
-		"eip130/Examples/Driver_BEKEN/build/BK72XX"
-		"eip130/header"
-		)
-
-	list(APPEND srcs
-		"vault/vault_driver.c"
-		"eip130/Kit/Log/src/log.c"
-		"eip130/Kit/Packages/EIP130/TokenHelper/src/eip130_token_common.c"
-		"eip130/Kit/Packages/EIP130/MailboxControl/src/eip130.c"
-		"eip130/Integration/Adapter_GlobalControl/src/adapter_global_eip130.c"
-		"eip130/Integration/DriverFramework/src/dmares_gen.c"
-		"eip130/Integration/DriverFramework/src/BK_Arm/hwpal_dmares_bk.c"
-		"eip130/Integration/DriverFramework/src/BK_Arm/hwpal_device_bk.c"
-		"eip130/Integration/DriverFramework/src/device_generic.c"
-		"eip130/Integration/Adapter_Generic/src/adapter_lock_internal.c"
-		"eip130/Integration/Adapter_Generic/src/adapter_bufmanager.c"
-		"eip130/Integration/Adapter_Generic/src/BK_Arm/adapter_firmware.c"
-		"eip130/Integration/Adapter_Generic/src/BK_Arm/adapter_getpid.c"
-		"eip130/Integration/Adapter_Generic/src/BK_Arm/adapter_lock.c"
-		"eip130/Integration/Adapter_Generic/src/BK_Arm/adapter_sleep.c"
-		"eip130/Integration/Adapter_DriverInit/src/BK72XX/adapter_global_control_init.c"
-		#"eip130/Integration/Adapter_DriverInit/src/BK72XX/adapter_init_val.c"
-		"eip130/Integration/Adapter_DriverInit/src/BK72XX/adapter_init.c"
-		#"eip130/Integration/Adapter_DriverInit/src/adapter_driver_val_init.c"
-		#"eip130/Integration/Adapter_DriverInit/src/adapter_global_init.c"
-		"eip130/Integration/Adapter_DriverInit/src/adapter_driver_init.c"
-		#"eip130/Integration/Adapter_DriverInit/src/adapter_global_driver_init.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_random.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_asym_rsa.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_exchangetoken.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_securetimer.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_asym_eddsa.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_sf_milenage.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_asym_ecc_elgamal.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_asym_ecdh.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_encryptvector.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_asset.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_sym_keywrap.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_hardware.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_sym_hash.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_asym_dh.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_system.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_asym_ecdsa.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_asym_dsa.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_otp.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_sym_common.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_nop.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_claim.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_asym_curve25519.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_publicdata.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_emmc.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_sym_cipher.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_asym_dhdsa.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_service.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_aunlock.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_asym_ecc.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_monotonic.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_asym_pka.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_sym_mac.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_asym_common.c"
-		"eip130/Integration/Adapter_VAL/src/adapter_val_internal.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_asym.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_device.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_trng.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_emmc.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_asym_asset_keywrap.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_init.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_encryptedvector.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_logicaltoken.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_hardware.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_sf.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_lock.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_asym_asset_encrypt.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_nop.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_asym_asset_genkey.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_sym_mac.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_sym_keywrap.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_service.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_system.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_extservice.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_asym_asset_genshared.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_identity.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_sym_cipher.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_sym_hash.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_physicaltoken.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_bufmanager.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_claim.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_asym_pka.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_asym_asset_signverify.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_asym_asset_keycheck.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_mailbox.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_sf_milenage.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_asset.c"
-		"eip130/Integration/Adapter_VEX/src/adapter_vex_aunlock.c"
-		)
-	if (CONFIG_VAULT_SELFTEST)
-	list(APPEND incs
-		"eip130/TestTools/TestTool_VAL/ValTests"
-		"eip130/TestTools/TestTool_VAL/TestVectors/incl"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src"
-		"eip130/TestTools/TestTool_VAL/incl"
-		"eip130/TestTools/TestTool_VAL/build"
-		"eip130/TestTools/TestTool_VAL/src"
-		)
-
-	list(APPEND srcs
-		"eip130/TestTools/TestTool_VAL/ValTests/valtest_asym_ecc_common.c"
-		"eip130/TestTools/TestTool_VAL/ValTests/valtest_asym_eddsa.c"
-		"eip130/TestTools/TestTool_VAL/ValTests/valtest_asset.c"
-		"eip130/TestTools/TestTool_VAL/ValTests/valtest_asym_ecc_elgamal.c"
-		"eip130/TestTools/TestTool_VAL/ValTests/valtest_sym_crypto.c"
-		"eip130/TestTools/TestTool_VAL/ValTests/valtest_parser.c"
-		"eip130/TestTools/TestTool_VAL/ValTests/valtest_asym_ecdh.c"
-		"eip130/TestTools/TestTool_VAL/ValTests/valtest_sym_auth_crypto.c"
-		"eip130/TestTools/TestTool_VAL/ValTests/valtest_securetimer.c"
-		"eip130/TestTools/TestTool_VAL/ValTests/valtest_internal.c"
-		"eip130/TestTools/TestTool_VAL/ValTests/valtest_specialfunctions.c"
-		"eip130/TestTools/TestTool_VAL/ValTests/valtest_asym_dh.c"
-		"eip130/TestTools/TestTool_VAL/ValTests/valtest_random.c"
-		"eip130/TestTools/TestTool_VAL/ValTests/valtest_hash.c"
-		"eip130/TestTools/TestTool_VAL/ValTests/valtest_asym_curve25519.c"
-		"eip130/TestTools/TestTool_VAL/ValTests/valtest_cipher_mac.c"
-		"eip130/TestTools/TestTool_VAL/ValTests/valtest_system.c"
-		"eip130/TestTools/TestTool_VAL/ValTests/valtest_nop.c"
-		"eip130/TestTools/TestTool_VAL/ValTests/valtest_asym_pk.c"
-		"eip130/TestTools/TestTool_VAL/ValTests/valtest_sym_keywrap.c"
-		"eip130/TestTools/TestTool_VAL/ValTests/valtest_fips.c"
-		"eip130/TestTools/TestTool_VAL/ValTests/valtest_service.c"
-		"eip130/TestTools/TestTool_VAL/ValTests/valtest_asym_ecdsa.c"
-		"eip130/TestTools/TestTool_VAL/ValTests/valtest_asym_rsa.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_aes_wrap.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_aria_basic.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_rsa.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_aes_cmac.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_dhdsa_domain.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_dsa.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_chacha20_poly1305_aead.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_chacha20.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_aria_gcm.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_sm4_basic.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_des.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_aes_basic.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_aes_ccm.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_aes_f8.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_aes_gcm.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_aria_cbcmac.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_aria_ccm.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_ecc_curves.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_hash.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_aes_cmac_s2v.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_aes_siv.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_milenage.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_xts_aes.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_eddsa.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_aria_cmac.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_ecc_elgamal.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_ecdsa.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_aes_cbcmac.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_poly1305.c"
-		"eip130/TestTools/TestTool_VAL/TestVectors/src/testvectors_hmac.c"
-		"eip130/TestTools/TestTool_VAL/src/sfzutf.c"
-		"eip130/TestTools/TestTool_VAL/src/test_val.c"
-		)
-endif()#if (CONFIG_VAULT_SELFTEST)
-endif()
-
-
 
 if( "${target}" STREQUAL "bk7231u")
 	set(target "bk7251")

@@ -13,8 +13,8 @@
 
 reset_vector:
 	/* Decide whether this is an NMI or cold reset */
-	//csrr t0, mcause
-	//bnez t0, nmi_handler
+	csrr t0, mcause
+	bnez t0, nmi_handler
 	//csrc mcause
 
 	.global _start
@@ -75,6 +75,7 @@ __platform_init:
 
 	.weak nmi_handler
 nmi_handler:
+	j 0x00010000
 1:	j 1b
 .org  0x100
 .word 0x32374B42

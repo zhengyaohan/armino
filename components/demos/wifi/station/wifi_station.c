@@ -35,6 +35,7 @@
 #if WIFI_STATION_DEMO
 #include <os/os.h>
 #include <common/bk_err.h>
+#include "components/event.h"
 #include "wlan_ui_pub.h"
 #include "uart_pub.h"
 #include <os/mem.h>
@@ -44,12 +45,15 @@
 
 static beken_semaphore_t station_scan_handle = NULL;
 
-void wifi_station_scan_ap_cb(void *ctxt, uint8_t param)
+static int wifi_station_scan_ap_cb(void *arg, event_module_t event_module,
+                int event_id, void *event_data)
 {
     if(station_scan_handle)
     {
         rtos_set_semaphore( &station_scan_handle );
     }
+
+	return BK_OK;
 }
 
 
@@ -229,22 +233,30 @@ int wifi_station_show_scan_result(unsigned char *ssid)
     }
 }
 
-int wifi_station_scan_ap(unsigned char *ssid)
+int wifi_station_scan_ap(char *ssid)
 {
     int status = -1;
     bk_err_t err = kNoErr;
+    wifi_scan_config_t scan_config = {0};
 
-    bk_wlan_scan_ap_reg_cb(wifi_station_scan_ap_cb);
-    bk_wlan_start_assign_scan(&ssid, 1);
+    /* Set desired SSID */
+    os_strncpy(scan_config.ssid, ssid, WIFI_SSID_STR_LEN);
 
+    /* register scan done callback */
+    bk_event_register_cb(EVENT_MOD_WIFI, EVENT_WIFI_SCAN_DONE,
+                         wifi_station_scan_ap_cb, NULL);
+
+    /* Start scan with desired ssid */
+    bk_wifi_scan_start(&scan_config);
+
+    /* Wait for complete */
     err = rtos_get_semaphore(&station_scan_handle, BEKEN_WAIT_FOREVER);
-    if(err == kNoErr)
-    {
+    if (err == kNoErr)
         status = wifi_station_show_scan_result(ssid);
-    }
 
     return status;
 }
+
 
 void wifi_station_thread( beken_thread_arg_t arg )
 {
@@ -260,7 +272,7 @@ void wifi_station_thread( beken_thread_arg_t arg )
         goto exit;
     }
 
-    status = wifi_station_scan_ap((unsigned char *)ap_ssid);
+    status = wifi_station_scan_ap(ap_ssid);
     if(status < 0)
     {
         goto exit;

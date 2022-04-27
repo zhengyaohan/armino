@@ -6,8 +6,10 @@
 #include <os/os.h>
 #include <os/str.h>
 #include "wlan_ui_pub.h"
+#include "common/bk_err.h"
+#include "components/event.h"
 
-#if ((MQTT_CLIENT_DEMO) && (!(MQTT_ECHO_TEST)))
+#if MQTT_CLIENT_DEMO && !MQTT_ECHO_TEST
 static beken_thread_t test_pub_thread = NULL;
 static char *test_pub_data = NULL;
 static MQTT_CLIENT_T mqtt_client;
@@ -16,69 +18,84 @@ static uint32_t sub_count = 0;
 static int recon_count = -1;
 static int test_start_tm = 0;
 static int test_is_started = 0;
-static uint32_t g_mqtt_wifi_flag = 0;
+static bool g_mqtt_wifi_flag = 0;
 
-extern void user_connected_callback(FUNCPTR fn);
-
-void mqtt_wifi_connect_cb(void)
+static inline bool mqtt_is_wifi_connected(void)
 {
-	g_mqtt_wifi_flag = 1;
-}
-
-void mqtt_wifi_disconnect_cb(enum rw_evt_type evt_type, void *data)
-{
-	g_mqtt_wifi_flag = 0;
-}
-
-uint32_t mqtt_is_wifi_connected(void)
-{
-	return (1 == g_mqtt_wifi_flag);
+    return g_mqtt_wifi_flag;
 }
 
 void mqtt_waiting_for_wifi_connected(void)
 {
-	while(0 == mqtt_is_wifi_connected())
-	{
-		os_printf("[mqtt]reposing......\r\n");
-		rtos_delay_milliseconds(100);
-	}
+    while (0 == mqtt_is_wifi_connected())
+    {
+        os_printf("[mqtt]reposing......\r\n");
+        rtos_delay_milliseconds(100);
+    }
+}
+
+static int mqtt_wifi_event_cb(void *arg, event_module_t event_module,
+                              int event_id, void *event_data)
+{
+    wifi_event_sta_disconnected_t *sta_disconnected;
+    wifi_event_sta_connected_t *sta_connected;
+
+    switch (event_id)
+    {
+    case EVENT_WIFI_STA_CONNECTED:
+        sta_connected = (wifi_event_sta_connected_t *)event_data;
+        os_printf("BK STA connected %s\n", sta_connected->ssid);
+        g_mqtt_wifi_flag = true;
+        break;
+
+    case EVENT_WIFI_STA_DISCONNECTED:
+        sta_disconnected = (wifi_event_sta_disconnected_t *)event_data;
+        os_printf("BK STA disconnected, reason(%d)\n", sta_disconnected->disconnect_reason);
+        g_mqtt_wifi_flag = false;
+        break;
+
+    default:
+        os_printf("rx event <%d %d>\n", event_module, event_id);
+        break;
+    }
+
+    return BK_OK;
 }
 
 static void mqtt_wifi_cb_init(void)
 {
-	user_callback_register();
-	
-	user_connected_callback(mqtt_wifi_connect_cb);
-    rw_evt_set_callback(RW_EVT_STA_DISCONNECTED, (void *)mqtt_wifi_disconnect_cb);
-    rw_evt_set_callback(RW_EVT_STA_CONNECT_FAILED, (void *)mqtt_wifi_disconnect_cb);
+    user_callback_register();
+
+	/* Register WiFi Event Callback */
+    BK_LOG_ON_ERR(bk_event_register_cb(EVENT_MOD_WIFI, EVENT_ID_ALL, mqtt_wifi_event_cb, NULL));
 }
 
 static void mqtt_sub_callback(MQTT_CLIENT_T *c, MessageData *msg_data)
 {
     sub_count ++;
-	os_printf("mqtt_sub_callback\r\n");
-	
+    os_printf("mqtt_sub_callback\r\n");
+
     return;
 }
 
 static void mqtt_connect_callback(MQTT_CLIENT_T *c)
 {
-	os_printf("mqtt_connect_callback\r\n");
+    os_printf("mqtt_connect_callback\r\n");
     return;
 }
 
 static void mqtt_online_callback(MQTT_CLIENT_T *c)
 {
     recon_count ++;
-	os_printf("mqtt_online_callback\r\n");
-	
+    os_printf("mqtt_online_callback\r\n");
+
     return;
 }
 
 static void mqtt_offline_callback(MQTT_CLIENT_T *c)
 {
-	os_printf("mqtt_offline_callback\r\n");
-	
+    os_printf("mqtt_offline_callback\r\n");
+
     return;
 }
 /**
@@ -93,7 +110,7 @@ static int mqtt_test_publish(const char *send_str)
     MQTTMessage message;
     const char *msg_str = send_str;
     const char *topic = MQTT_PUBTOPIC;
-	
+
     message.qos = MQTT_TEST_QOS;
     message.retained = 0;
     message.payload = (void *)msg_str;
@@ -116,7 +133,7 @@ static void mqtt_start(void)
 
     os_memset(&mqtt_client, 0, sizeof(MQTT_CLIENT_T));
 
-	os_printf("mqtt_start\r\n");
+    os_printf("mqtt_start\r\n");
     /* config MQTT context param */
     mqtt_client.uri = MQTT_TEST_SERVER_URI;
 
@@ -159,7 +176,7 @@ static void mqtt_start(void)
     mqtt_client.defaultMessageHandler = mqtt_sub_callback;
 
     /* run mqtt client */
-	os_printf("paho_mqtt_start\r\n");
+    os_printf("paho_mqtt_start\r\n");
     paho_mqtt_start(&mqtt_client);
 
     return;
@@ -170,20 +187,20 @@ _exit:
         os_free(mqtt_client.buf);
         mqtt_client.buf = NULL;
     }
-	
+
     if (mqtt_client.readbuf)
     {
         os_free(mqtt_client.readbuf);
         mqtt_client.readbuf = NULL;
     }
-	
+
     return;
 }
 
 static void test_show_info(void)
 {
     char temp[50] = {0};
-	
+
     os_printf("\r==== MQTT Stability test ====\n");
     os_printf("Server: "MQTT_TEST_SERVER_URI"\n");
     os_printf("QoS   : %d\n", MQTT_TEST_QOS);
@@ -211,9 +228,7 @@ static void mqtt_pub_handler(void *parameter)
     while (1)
     {
         if (!mqtt_test_publish(test_pub_data))
-        {
             ++ pub_count;
-        }
 
         rtos_delay_milliseconds(PUB_CYCLE_TM);
 
@@ -225,15 +240,13 @@ static void mqtt_test_start(void)
 {
     bk_err_t ret;
 
-	mqtt_wifi_cb_init();
-	
-    if (test_is_started)
-    {
-        return;
-    }
+    mqtt_wifi_cb_init();
 
-	mqtt_waiting_for_wifi_connected();
-	
+    if (test_is_started)
+        return;
+
+    mqtt_waiting_for_wifi_connected();
+
     mqtt_start();
 
     while (!mqtt_client.is_connected)
@@ -242,7 +255,7 @@ static void mqtt_test_start(void)
         rtos_delay_milliseconds(1000);
     }
 
-	ret = rtos_create_thread(&test_pub_thread,
+    ret = rtos_create_thread(&test_pub_thread,
                              8,
                              "pub_thread",
                              (beken_thread_function_t)mqtt_pub_handler,
@@ -260,9 +273,7 @@ static void mqtt_test_stop(void)
     MQTT_CLIENT_T *local_client = &mqtt_client;
 
     if (test_pub_thread)
-    {
         rtos_delete_thread(&test_pub_thread);
-    }
 
     if (test_pub_data)
     {
@@ -271,9 +282,7 @@ static void mqtt_test_stop(void)
     }
 
     if (local_client)
-    {
         paho_mqtt_stop(local_client);
-    }
 
     /* up the cursor 1 line */
     os_printf("\033[1A");
@@ -284,8 +293,8 @@ static void mqtt_test_stop(void)
     os_printf("\033[10B");
 
     pub_count = 0;
-	sub_count = 0;
-	recon_count = 0;
+    sub_count = 0;
+    recon_count = 0;
     test_is_started = 0;
 
     os_printf("==== MQTT Stability test stop ====\n");
@@ -296,17 +305,11 @@ void mqtt_test(uint8_t argc, char **argv)
     if (argc >= 2)
     {
         if (!os_strcmp(argv[1], "start"))
-        {
             mqtt_test_start();
-        }
         else if (!os_strcmp(argv[1], "stop"))
-        {
             mqtt_test_stop();
-        }
         else
-        {
             os_printf("Please input "CMD_INFO"\n");
-        }
     }
     else
     {
@@ -316,10 +319,11 @@ void mqtt_test(uint8_t argc, char **argv)
 
 int demo_start(void)
 {
-	mqtt_test_start();;
-	
-	return 0;
+    mqtt_test_start();;
+
+    return 0;
 }
 #endif /* PKG_USING_PAHOMQTT_TEST */
 // eof
+
 

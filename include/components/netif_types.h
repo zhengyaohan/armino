@@ -48,15 +48,15 @@ typedef enum {
 } netif_event_t;
 
 typedef struct {
-        char ip[NETIF_IP4_STR_LEN];        /**< Local IP address. */
-        char mask[NETIF_IP4_STR_LEN];      /**< Netmask. */
-        char gateway[NETIF_IP4_STR_LEN];   /**< Gateway IP address. */
-        char dns[NETIF_IP4_STR_LEN];       /**< DNS server IP address. */
+	char ip[NETIF_IP4_STR_LEN];        /**< Local IP address. */
+	char mask[NETIF_IP4_STR_LEN];      /**< Netmask. */
+	char gateway[NETIF_IP4_STR_LEN];   /**< Gateway IP address. */
+	char dns[NETIF_IP4_STR_LEN];       /**< DNS server IP address. */
 } netif_ip4_config_t;
 
 typedef struct {
 	netif_if_t netif_if;               /**< Netif interface ID */
-        char ip[NETIF_IP4_STR_LEN];        /**< Local IP address. */
+	char ip[NETIF_IP4_STR_LEN];        /**< Local IP address. */
 } netif_event_got_ip4_t;
 
 /**

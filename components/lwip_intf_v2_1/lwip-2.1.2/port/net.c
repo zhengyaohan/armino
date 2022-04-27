@@ -185,22 +185,21 @@ void user_connected_callback(FUNCPTR fn)
 
 static void wm_netif_status_static_callback(struct netif *n)
 {
-    if (n->flags & NETIF_FLAG_UP)
-    {
-        // static IP success;
-        LWIP_LOGI("using static ip...\n");
-	wifi_netif_notify_sta_got_ip();
+	if (n->flags & NETIF_FLAG_UP) {
+		// static IP success;
+		LWIP_LOGI("using static ip...\n");
+		wifi_netif_notify_sta_got_ip();
 
-        if(sta_ipup_cb != NULL)
-            sta_ipup_cb(NULL);
+#if !CONFIG_DISABLE_DEPRECIATED_WIFI_API
+		if (sta_ipup_cb != NULL)
+			sta_ipup_cb(NULL);
 
-        if(sta_connected_func != NULL)
-            (*sta_connected_func)();
-    }
-    else
-    {
-    	// static IP fail;
-    }
+		if (sta_connected_func != NULL)
+			(*sta_connected_func)();
+#endif
+	} else {
+		// static IP fail;
+	}
 }
 
 
@@ -232,19 +231,27 @@ static void wm_netif_status_callback(struct netif *n)
 
 
 		if(dhcp != NULL) {
+			/* dhcp success*/
 			if (dhcp->state == DHCP_STATE_BOUND) {
 				LWIP_LOGI("ip_addr: "BK_IP4_FORMAT" \r\n", BK_IP4_STR(ip_addr_get_ip4_u32(&n->ip_addr)));
+#if !CONFIG_DISABLE_DEPRECIATED_WIFI_API
 				wifi_netif_call_status_cb_when_sta_got_ip();
+#endif
 				wifi_netif_notify_sta_got_ip();
 
-				/* dhcp success*/
+#if !CONFIG_DISABLE_DEPRECIATED_WIFI_API
 				if(sta_ipup_cb != NULL)
 					sta_ipup_cb(NULL);
 
 				if(sta_connected_func != NULL)
 					(*sta_connected_func)();
+#endif
 			} else {
 				// dhcp fail
+#if !CONFIG_DISABLE_DEPRECIATED_WIFI_API
+				wifi_netif_call_status_cb_when_sta_dhcp_timeout();
+#endif
+				wifi_netif_notify_sta_dhcp_timeout();
 			}
 		} else {
 			// static IP success;

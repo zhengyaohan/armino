@@ -29,6 +29,7 @@
 #include "bk_sys_ctrl.h"
 #include "sys_driver.h"
 #include "iot_adc.h"
+#include "bk_saradc.h"
 
 static void adc_isr(void) __SECTION(".itcm");
 static bk_err_t adc_read_fifo(void) __SECTION(".itcm");
@@ -65,6 +66,14 @@ static adc_dev_t s_adc_dev = {NULL};
 static adc_buf_t s_adc_buf = {0};
 static adc_callback_t s_adc_read_isr = {NULL};
 static adc_statis_t* s_adc_statis = NULL;
+
+saradc_calibrate_val saradc_val = {
+#if (CONFIG_SOC_BK7256XX)
+    0xD55, 0xAAB /* 1Volt, 2Volt*/
+#else
+    0x55, 0x354
+#endif
+};
 
 adc_config_t g_adc_cfg[10] = {0};
 
@@ -693,5 +702,60 @@ bk_err_t bk_adc_en(void)
 	return BK_OK;
 }
 
+void saradc_config_param_init_for_temp(saradc_desc_t* adc_config)
+{
+    os_memset(adc_config, 0x00, sizeof(saradc_desc_t));
+    adc_config->channel = 1;
+    adc_config->current_read_data_cnt = 0;
+    adc_config->current_sample_data_cnt = 0;
+    adc_config->filter = 0;
+    adc_config->has_data = 0;
+    adc_config->all_done = 0;
+    adc_config->mode = (ADC_CONFIG_MODE_CONTINUE << 0)
+                      |(ADC_CONFIG_MODE_4CLK_DELAY << 2)
+                      |(ADC_CONFIG_MODE_SHOULD_OFF);
+    adc_config->pre_div = 0x10;
+    adc_config->samp_rate = 0x20;
+}
 
+float saradc_calculate(UINT16 adc_val)
+{
+    float practic_voltage;
+#if (CFG_SOC_NAME == SOC_BK7256)
+    /* (adc_val - low) / (practic_voltage - 1Volt) = (high - low) / 1Volt */
+    /* practic_voltage = (adc_val - low) / (high - low) + 1Volt */
+    practic_voltage = (float)(adc_val - saradc_val.low);
+    practic_voltage = (practic_voltage / (float)(saradc_val.high - saradc_val.low)) + 1;
+#elif ( (CFG_SOC_NAME != SOC_BK7271) && (CFG_SOC_NAME != SOC_BK7221U))
+    practic_voltage = ((adc_val - saradc_val.low) * 1.8);
+    practic_voltage = (practic_voltage / (saradc_val.high - saradc_val.low)) + 0.2;
+#else
+	 practic_voltage = (adc_val -(saradc_val.low-4096));
+	 practic_voltage = practic_voltage/(saradc_val.high  - (saradc_val.low-4096));
+	 practic_voltage = 2*practic_voltage;
+#endif
+    return practic_voltage;
+}
+
+UINT32 saradc_set_calibrate_val(uint16_t *value, SARADC_MODE mode)
+{
+    uint32_t irq_level;
+    irq_level = rtos_disable_int();
+    if(SARADC_CALIBRATE_LOW == mode)
+    {
+        saradc_val.low = *value;
+    }
+    else if(SARADC_CALIBRATE_HIGH == mode)
+    {
+        saradc_val.high = *value;
+    }
+    else
+    {
+		rtos_enable_int(irq_level);
+        return SARADC_FAILURE;
+    }
+
+    rtos_enable_int(irq_level);
+    return SARADC_SUCCESS;
+}
 

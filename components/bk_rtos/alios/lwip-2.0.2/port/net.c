@@ -28,7 +28,7 @@
 #include "param_config.h"
 
 struct ipv4_config sta_ip_settings;
-struct ipv4_config uap_ip_settings; 
+struct ipv4_config uap_ip_settings;
 static int up_iface;
 uint32_t sta_ip_start_flag = 0;
 uint32_t uap_ip_start_flag = 0;
@@ -66,7 +66,7 @@ void *net_get_sta_handle(void);
 void *net_get_uap_handle(void);
 err_t lwip_netif_init(struct netif *netif);
 err_t lwip_netif_uap_init(struct netif *netif);
-void handle_data_packet(const u8_t interface, const u8_t *rcvdata,const u16_t datalen);			
+void handle_data_packet(const u8_t interface, const u8_t *rcvdata,const u16_t datalen);
 int net_get_if_ip_addr(uint32_t *ip, void *intrfc_handle);
 int net_get_if_ip_mask(uint32_t *nm, void *intrfc_handle);
 int net_configure_address(struct ipv4_config *addr, void *intrfc_handle);
@@ -116,7 +116,7 @@ void net_ipv4stack_init(void)
 	static bool tcpip_init_done = 0;
 	if (tcpip_init_done)
 		return;
-	
+
 	net_d("Initializing TCP/IP stack\r\n");
 	tcpip_init(NULL, NULL);
 	tcpip_init_done = true;
@@ -201,7 +201,7 @@ static void dhcp_up(uint32_t ip, uint32_t netmask, uint32_t gateway, uint32_t dn
 	unsigned char mac[6];
 	char macstr[14];
 	struct in_addr addr;
-	
+
 	os_memset(pnetpara, 0, sizeof(IPStatusTypedef));
 	bk_wifi_sta_get_mac(mac);
 
@@ -228,7 +228,7 @@ static void wifi_station_changed(int connected)
 
 	if (connected == last_state)
 		return;
-	
+
 	last_state = connected;
 	if (connected) {
 		apinfo_adv_t ap_info;
@@ -237,7 +237,7 @@ static void wifi_station_changed(int connected)
 
 		bk_wlan_get_bssid_info(&ap_info, &key, &key_len);
 		connected_ap_info(&ap_info, key, key_len);
-	
+
 		WifiStatusHandler(1);
 	} else
 		WifiStatusHandler(2);
@@ -249,7 +249,7 @@ void wifi_uap_changed(int connected)
 
 	if (connected == last_state)
 		return;
-	
+
 	last_state = connected;
 	if (connected) {
 		WifiStatusHandler(3);
@@ -270,44 +270,38 @@ static void wm_netif_status_callback(struct netif *n)
 	srand(sed);
 	tcp_init();
 	udp_init();
-    
+
 	if (n->flags & NETIF_FLAG_UP)
 	{
-		dhcp = netif_dhcp_data(n);        
+		dhcp = netif_dhcp_data(n);
 		if(dhcp != NULL)
-		{ 
-			if (dhcp->state == DHCP_STATE_BOUND) 
-            {
+		{
+			if (dhcp->state == DHCP_STATE_BOUND)
+			{
 				// dhcp success
 				os_printf("IP up: %x\r\n", ip_addr_get_ip4_u32(&n->ip_addr));
 				dns_server = (ip_addr_t*)dns_getserver(0);
-				dhcp_up(ip_addr_get_ip4_u32(&n->ip_addr), 
-                    ip_addr_get_ip4_u32(&n->netmask), 
+				dhcp_up(ip_addr_get_ip4_u32(&n->ip_addr),
+                    ip_addr_get_ip4_u32(&n->netmask),
                     ip_addr_get_ip4_u32(&n->gw),
 					ip_addr_get_ip4_u32(dns_server));
 				wifi_station_changed(1);
-				fn = bk_wlan_get_status_cb();
-				if(fn)
-				{
-					val = WIFI_LINKSTATE_STA_GOT_IP;
-					(*fn)(&val);
-				}
-				info.state = WIFI_LINKSTATE_STA_GOT_IP;
-				info.reason_code = WIFI_REASON_MAX;
-				mhdr_set_station_status(info, NULL);
-				/* dhcp success*/
-			} 
-			else 
+#if !CONFIG_DISABLE_DEPRECIATED_WIFI_API
+				wifi_netif_call_status_cb_when_sta_got_ip();
+#endif
+				wifi_netif_notify_sta_got_ip();
+			}
+			else
 			{
 				// dhcp fail
 			}
-		} 
-		else 
+		}
+		else
 		{
 			// static IP success;
 		}
-	} 
-	else 
+	}
+	else
 	{
 		// dhcp fail;
 	}
@@ -409,7 +403,7 @@ void sta_ip_down(void)
 		os_printf("sta_ip_down\r\n");
 		wifi_station_changed(0);
 		sta_ip_start_flag = 0;
-		
+
 		netifapi_netif_set_down(&g_mlan.netif);
 		netif_set_status_callback(&g_mlan.netif, NULL);
 		netifapi_dhcp_stop(&g_mlan.netif);
@@ -421,23 +415,21 @@ void sta_ip_start(void)
     struct wlan_ip_config address = {0};
     wifi_linkstate_reason_t info = mhdr_get_station_status();
 
-	if(!sta_ip_start_flag)
-	{
-		os_printf("sta_ip_start\r\n");
-		sta_ip_start_flag = 1;
-		net_configure_address(&sta_ip_settings, net_get_sta_handle());
-
-		return;
-	}
-	
-	os_printf("sta_ip_start2:0x%x\r\n", address.ipv4.address);	
-    net_get_if_addr(&address, net_get_sta_handle());
-    if((info.state == WIFI_LINKSTATE_STA_CONNECTED)
-		&& (0 != address.ipv4.address))
+    if (!sta_ip_start_flag)
     {
-	 info.state = WIFI_LINKSTATE_STA_GOT_IP;
-	 info.state = WIFI_REASON_MAX;
-        mhdr_set_station_status(info, NULL);
+        os_printf("sta_ip_start\r\n");
+        sta_ip_start_flag = 1;
+        net_configure_address(&sta_ip_settings, net_get_sta_handle());
+
+        return;
+    }
+
+    os_printf("sta_ip_start2:0x%x\r\n", address.ipv4.address);
+    net_get_if_addr(&address, net_get_sta_handle());
+    if ((info.state == WIFI_LINKSTATE_STA_CONNECTED) &&
+		(0 != address.ipv4.address))
+    {
+		wifi_netif_notify_sta_got_ip();
     }
 }
 
@@ -499,7 +491,7 @@ void ip_address_set(int iface, int dhcp, char *ip, char *mask, char*gw, char*dns
 {
 	uint32_t tmp;
 	struct ipv4_config addr;
-	
+
 	memset(&addr, 0, sizeof(struct ipv4_config));
 	if (dhcp == 1) {
 		addr.addr_type = ADDR_TYPE_DHCP;
@@ -586,7 +578,7 @@ int net_configure_address(struct ipv4_config *addr, void *intrfc_handle)
 		 */
 		 up_iface = 1;
 		 wifi_station_changed(1);
-        
+
          // we always set sta netif as the default.
          sta_set_default_netif();
 	} else {
@@ -676,7 +668,7 @@ int net_get_if_gw_addr(uint32_t *ip, void *intrfc_handle)
 	struct interface *if_handle = (struct interface *)intrfc_handle;
 
 	*ip = ip_addr_get_ip4_u32(&if_handle->netif.gw);
-    
+
 	return 0;
 }
 
@@ -693,7 +685,7 @@ void net_configure_dns(struct wlan_ip_config *ip)
 	ip_addr_t tmp;
 
 	if (ip->ipv4.addr_type == ADDR_TYPE_STATIC) {
-		
+
 		if (ip->ipv4.dns1 == 0)
 			ip->ipv4.dns1 = ip->ipv4.gw;
 		if (ip->ipv4.dns2 == 0)
@@ -739,10 +731,10 @@ void net_wlan_add_netif(void *mac)
 	}
 
     ip_addr_set_ip4_u32(&wlan_if->ipaddr, INADDR_ANY);
-    
+
 	err = netifapi_netif_add(&wlan_if->netif, &wlan_if->ipaddr,
 				 &wlan_if->ipaddr, &wlan_if->ipaddr, (void*)vif,
-				 ethernetif_init, tcpip_input); 
+				 ethernetif_init, tcpip_input);
 
 	if (err) {
     		os_printf("net_wlan_add_netif failed\r\n");
@@ -758,7 +750,7 @@ void net_wlan_remove_netif(void *mac)
 	struct netif *netif = NULL;
 	void *vif;
 	err_t err;
-	u8 vifid;    
+	u8 vifid;
 
     	vifid = wifi_netif_mac_to_vifid(mac);
 	vif = wifi_netif_mac_to_vif(mac);
@@ -768,13 +760,13 @@ void net_wlan_remove_netif(void *mac)
 	}
 
 	netif = (struct netif *)wifi_netif_get_vif_private_data(vif);
-	
+
     if(!netif) {
         os_printf("net_wlan_remove_netif netif is null\r\n");
         return;
     }
 
-    err = netifapi_netif_remove(netif); 
+    err = netifapi_netif_remove(netif);
     if(err != ERR_OK) {
         os_printf("net_wlan_remove_netif failed\r\n");
     } else {

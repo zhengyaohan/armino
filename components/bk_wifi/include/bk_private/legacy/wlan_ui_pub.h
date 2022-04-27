@@ -58,6 +58,7 @@ extern "C" {
  *    - kNotInitializedErr: WiFi is not initialized
  *    - kParamErr: invalid argument
  */
+__deprecated
 bk_err_t bk_wlan_set_country(const wifi_country_t *country);
 
 /**
@@ -70,6 +71,7 @@ bk_err_t bk_wlan_set_country(const wifi_country_t *country);
   *    - kNotInitializedErr: WiFi is not initialized
   *    - kParamErr: invalid argument
   */
+__deprecated
 bk_err_t bk_wlan_get_country(wifi_country_t *country);
 
 /** @brief  Connect or establish a Wi-Fi network in normal mode (station or soft ap mode).
@@ -90,6 +92,7 @@ bk_err_t bk_wlan_get_country(wifi_country_t *country);
  *  @return In station mode, allways retrurn kWlanNoErr.
  *          In soft ap mode, return kWlanXXXErr
  */
+__deprecated
 bk_err_t bk_wlan_start(network_InitTypeDef_st* inNetworkInitPara);
 
 /**
@@ -101,6 +104,7 @@ bk_err_t bk_wlan_start(network_InitTypeDef_st* inNetworkInitPara);
   *    - kNoErr: succeed
   *    - otherwise: fail
   */
+__deprecated
 int bk_wlan_stop(char mode);
 
 /** @brief  Connect to a Wi-Fi network with advantage settings (station mode only)
@@ -121,6 +125,7 @@ int bk_wlan_stop(char mode);
  *  @return Allways return kWlanNoErr although error occurs in first fast try
  *          kWlanTimeoutErr: DHCP client timeout
  */
+__deprecated
 bk_err_t bk_wlan_start_sta_adv(network_InitTypeDef_adv_st* inNetworkInitParaAdv);
 
 /** @brief  Read current IP status on a network interface.
@@ -134,6 +139,7 @@ bk_err_t bk_wlan_start_sta_adv(network_InitTypeDef_adv_st* inNetworkInitParaAdv)
  *      - kNoErr: on success.
  *      - kGeneralErr: if an error occurred
  */
+__deprecated
 bk_err_t bk_wlan_get_ip_status(IPStatusTypedef *outNetpara, WiFi_Interface inInterface);
 
 /** @brief  Read current wireless link status on station interface.
@@ -144,6 +150,7 @@ bk_err_t bk_wlan_get_ip_status(IPStatusTypedef *outNetpara, WiFi_Interface inInt
  *      - kNoErr        : on success.
  *      - kGeneralErr   : fail
  */
+__deprecated
 bk_err_t bk_wlan_get_link_status(LinkStatusTypeDef *outStatus);
 
 /**
@@ -154,6 +161,7 @@ bk_err_t bk_wlan_get_link_status(LinkStatusTypeDef *outStatus);
  *
  * TODO add more about how to use scan, backgroud scan, passive or active scan etc?
  */
+__deprecated
 void bk_wlan_start_scan(void);
 
 /**
@@ -168,6 +176,7 @@ void bk_wlan_start_scan(void);
  * @param ssid_array SSIDs to be scaned
  * @param ssid_num SSID number in ssid_ary
  */
+__deprecated
 void bk_wlan_start_assign_scan(UINT8 **ssid_array, UINT8 ssid_num);
 
 /**
@@ -178,6 +187,7 @@ void bk_wlan_start_assign_scan(UINT8 **ssid_array, UINT8 ssid_num);
  *
  * @param ind_cb scan callback
  */
+__deprecated
 void bk_wlan_scan_ap_reg_cb(FUNC_2PARAM_PTR ind_cb);
 
 /**
@@ -187,6 +197,7 @@ void bk_wlan_scan_ap_reg_cb(FUNC_2PARAM_PTR ind_cb);
  *
  * @return return the number of found APs
  */
+__deprecated
 unsigned char bk_wlan_get_scan_ap_result_numbers(void);
 
 /**
@@ -199,6 +210,7 @@ unsigned char bk_wlan_get_scan_ap_result_numbers(void);
  *
  * @return return the actual number of returned APs
  */
+__deprecated
 int bk_wlan_get_scan_ap_result(SCAN_RST_ITEM_PTR scan_result_table,unsigned char ap_num);
 
 /**
@@ -217,6 +229,7 @@ int bk_wlan_get_scan_ap_result(SCAN_RST_ITEM_PTR scan_result_table,unsigned char
  *    - kNoErr: success
  *    - otherwise: fail
  */
+__deprecated
 int bk_wlan_send_80211_raw_frame(uint8_t *buffer, int len);
 
 /**
@@ -233,6 +246,7 @@ int bk_wlan_send_80211_raw_frame(uint8_t *buffer, int len);
  *      - kNoErr        : on success.
  *      - kGeneralErr   : fail
  */
+__deprecated
 void bk_wlan_set_monitor_filter(unsigned char filter);
 
 /**
@@ -247,6 +261,7 @@ void bk_wlan_set_monitor_filter(unsigned char filter);
  *      - true : if filter_type is set
  *      - false : if filter_type is not set
  */
+__deprecated
 int bk_wlan_monitor_filter(unsigned char filter_type);
 
 /** @brief  Start wifi monitor mode
@@ -257,6 +272,7 @@ int bk_wlan_monitor_filter(unsigned char filter_type);
  *      - kNoErr        : on success.
  *      - kGeneralErr   : fail
  */
+__deprecated
 int bk_wlan_start_monitor(void);
 
 /** @brief  Stop wifi monitor mode
@@ -265,6 +281,7 @@ int bk_wlan_start_monitor(void);
  *      - kNoErr        : on success.
  *      - kGeneralErr   : fail
  */
+__deprecated
 int bk_wlan_stop_monitor(void);
 
 /** @brief  Set the monitor channel synchronous
@@ -278,6 +295,7 @@ int bk_wlan_stop_monitor(void);
  *      - kNoErr        : on success.
  *      - kGeneralErr   : fail
  */
+__deprecated
 int bk_wlan_set_channel_sync(int channel);
 
 /**
@@ -289,6 +307,7 @@ int bk_wlan_set_channel_sync(int channel);
  *      - kNoErr        : on success.
  *      - kGeneralErr   : fail
  */
+__deprecated
 int bk_wlan_set_channel(int channel);
 
 /**
@@ -303,6 +322,7 @@ int bk_wlan_set_channel(int channel);
  *      - kNoErr        : on success.
  *      - kGeneralErr   : fail
  */
+__deprecated
 bk_err_t bk_wlan_start_sta(network_InitTypeDef_st *inNetworkInitPara);
 
 /**
@@ -316,6 +336,7 @@ bk_err_t bk_wlan_start_sta(network_InitTypeDef_st *inNetworkInitPara);
  *      - kNoErr        : on success.
  *      - kGeneralErr   : fail
  */
+__deprecated
 bk_err_t bk_wlan_start_ap(network_InitTypeDef_st *inNetworkInitPara);
 
 /**
@@ -330,6 +351,7 @@ bk_err_t bk_wlan_start_ap(network_InitTypeDef_st *inNetworkInitPara);
  *      - kNoErr        : on success.
  *      - kGeneralErr   : fail
  */
+__deprecated
 bk_err_t bk_wlan_start_ap_adv(network_InitTypeDef_ap_st *inNetworkInitParaAP);
 
 /**
@@ -339,6 +361,7 @@ bk_err_t bk_wlan_start_ap_adv(network_InitTypeDef_ap_st *inNetworkInitParaAP);
  *
  * @param  channel AP channel
  */
+__deprecated
 void bk_wlan_ap_set_default_channel(uint8_t channel);
 
 /**
@@ -346,6 +369,7 @@ void bk_wlan_ap_set_default_channel(uint8_t channel);
  *
  * @param  ap_info store the configuration got from WiFi driver
  */
+__deprecated
 void bk_wlan_ap_para_info_get(network_InitTypeDef_ap_st *ap_info);
 
 /**
@@ -360,6 +384,7 @@ void bk_wlan_ap_para_info_get(network_InitTypeDef_ap_st *ap_info);
  *      - kNoErr        : on success.
  *      - kGeneralErr   : fail
  */
+__deprecated
 bk_err_t bk_wlan_set_ip_status(IPStatusTypedef *inNetpara, WiFi_Interface inInterface);
 
 /**
@@ -388,6 +413,7 @@ typedef void (*monitor_cb_t)(uint8_t *data, int len, wifi_link_info_t *info);
  *      - kNoErr        : on success.
  *      - kGeneralErr   : fail
  */
+__deprecated
 void bk_wlan_register_monitor_cb(monitor_cb_t fn);
 
 
@@ -432,6 +458,7 @@ void bk_enter_deep_sleep(UINT32 gpio_index_map,
  *      - kNoErr   : on success.
  *      - otherwise: fail
  */
+__deprecated
 int bk_wlan_ps_enable(void );
 
 /**
@@ -441,6 +468,7 @@ int bk_wlan_ps_enable(void );
  *      - kNoErr   : on success.
  *      - otherwise: fail
  */
+__deprecated
 int bk_wlan_ps_disable(void);
 
 /**
@@ -452,6 +480,7 @@ int bk_wlan_ps_disable(void);
  *      - kNoErr  : on success.
  *      - oterwise: fail
  */
+__deprecated
 int bk_wlan_ps_timer_start(void);
 
 /**
@@ -463,6 +492,7 @@ int bk_wlan_ps_timer_start(void);
  *      - kNoErr   : on success.
  *      - otherwise: fail
  */
+__deprecated
 int bk_wlan_ps_timer_pause(void);
 
 /**
@@ -478,6 +508,7 @@ int bk_wlan_ps_timer_pause(void);
  *      - kNoErr   : on success.
  *      - otherwise: fail
  */
+__deprecated
 int bk_wlan_mcu_ps_mode_enable(void);
 
 /**
@@ -489,6 +520,7 @@ int bk_wlan_mcu_ps_mode_enable(void);
  *      - kNoErr   : on success.
  *      - otherwise: fail
  */
+__deprecated
 int bk_wlan_mcu_ps_mode_disable(void);
 
 /**
@@ -500,6 +532,7 @@ int bk_wlan_mcu_ps_mode_disable(void);
  *
  * @param cb status change callback function
  */
+__deprecated
 void bk_wlan_status_register_cb(FUNC_1PARAM_PTR cb);
 
 /**
@@ -507,6 +540,7 @@ void bk_wlan_status_register_cb(FUNC_1PARAM_PTR cb);
  *
  * @return return status callback
  */
+__deprecated
 FUNC_1PARAM_PTR bk_wlan_get_status_cb(void);
 
 /**
@@ -522,6 +556,7 @@ typedef void (*bk_ap_no_password_cb_t)(void);
  *
  * @return return status callback
  */
+__deprecated
 void bk_ap_no_password_connected_register_cb(bk_ap_no_password_cb_t func);
 
 /**
@@ -529,6 +564,7 @@ void bk_ap_no_password_connected_register_cb(bk_ap_no_password_cb_t func);
  *
  * @param mac store the system MAC
  */
+__deprecated
 void bk_wifi_get_mac_address(char *mac);
 
 /**
@@ -537,6 +573,7 @@ void bk_wifi_get_mac_address(char *mac);
  * TODO add more description about the power level
  *
  */
+__deprecated
 uint32_t bk_wlan_max_power_level_get(void);
 
 /**
@@ -550,6 +587,7 @@ uint32_t bk_wlan_max_power_level_get(void);
  *    - kNoErr: success
  *    - others: otherwise
  */
+__deprecated
 bk_err_t bk_wlan_get_bssid_info(apinfo_adv_t *ap, uint8_t **key, int *key_len);
 
 #ifdef CONFIG_AOS_MESH

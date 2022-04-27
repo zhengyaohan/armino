@@ -320,7 +320,7 @@ macro(project project_name)
     endif()
 
     # The actual call to project()
-    __project(${project_name} C CXX ASM)
+    __project("app" C CXX ASM)
 
     # Generate compile_commands.json (needs to come after project call).
     set(CMAKE_EXPORT_COMPILE_COMMANDS 1)

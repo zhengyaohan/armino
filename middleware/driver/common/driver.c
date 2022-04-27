@@ -282,6 +282,8 @@ int driver_init(void)
 
 #if CONFIG_FLASH
 	bk_flash_driver_init();
+	extern int hal_flash_init();
+	hal_flash_init();
 #endif
 
 #if CONFIG_PWM

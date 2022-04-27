@@ -107,6 +107,10 @@ menu "Cli"
 		bool "Enable ICU"
 		default y
 
+	config SECURITYIP
+		bool "Enable securityIP"
+		default n
+
 	config MATTER_NAMEKEY
 		bool "Enable MATTER_NAMEKEY"
 		default n

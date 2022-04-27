@@ -39,6 +39,7 @@ typedef struct {
 #define i2c_hal_is_stop_triggered(hal, int_status) i2c_ll_is_stop_triggered(&(hal)->hw, (hal)->id, int_status)
 #define i2c_hal_reset_config_to_default(hal) i2c_ll_reset_config_to_default(&(hal)->hw, (hal)->id)
 #define i2c_hal_set_clk_src(hal, clk_src) i2c_ll_set_clk_src(&(hal)->hw, (hal)->id, clk_src)
+#define i2c_hal_set_slave_addr(hal, slave_addr)i2c_ll_set_slave_addr(&(hal)->hw, (hal)->id, slave_addr)
 
 #define i2c_hal_get_write_empty_fifo_num(hal) i2c_ll_get_write_empty_fifo_num(&(hal)->hw, (hal)->id)
 #define i2c_hal_get_read_fifo_num(hal) i2c_ll_get_read_fifo_num(&(hal)->hw, (hal)->id)
