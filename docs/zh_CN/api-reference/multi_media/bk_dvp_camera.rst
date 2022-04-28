@@ -9,8 +9,9 @@ DVP_CAMERA APIs
 
 DVP_CAMERA Interface
 ----------------------------
+
    Current software version support two types dvp sensor: gc0328c and hm1055, they are comunicate by i2c with chip.
-gc0328c have 20pins interface, hm1055 have 24pins interface.
+   gc0328c have 20pins interface, hm1055 have 24pins interface.
 
    gc0328c support different image resolution and frame rate:
    1. WQVGA(480*272)

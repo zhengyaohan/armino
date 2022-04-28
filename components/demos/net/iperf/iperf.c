@@ -90,13 +90,14 @@ static void iperf_report_init(void)
 	s_pkt_delta = 0;
 }
 
-static void iperf_report(uint32_t pkt_len)
+static void iperf_report(int pkt_len)
 {
 	uint32_t tick_now = 0;
 
 	beken_time_get_time(&tick_now);
 	tick_now /= 1000;
-	s_pkt_delta += pkt_len;
+	if (pkt_len > 0)
+		s_pkt_delta += pkt_len;
 
 	if ((tick_now - s_tick_last) >= IPERF_REPORT_INTERVAL) {
 		int f;

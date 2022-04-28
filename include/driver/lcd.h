@@ -249,6 +249,17 @@ bk_err_t bk_lcd_rgb_int_enable(bool is_sof_en, bool is_eof_en);
 bk_err_t bk_lcd_isr_register(lcd_int_type_t int_type, lcd_isr_t isr);
 
 /**
+ * @brief open lcd power,always set in the modile init
+ *
+ * @param is_lcd_power_on 1:power on,  0:power down
+ *
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
+ */
+bk_err_t bk_lcd_power_on_ctrl(bool is_lcd_power_on);
+
+/**
   * @}
   */
 

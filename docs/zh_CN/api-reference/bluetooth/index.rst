@@ -7,5 +7,4 @@
     :maxdepth: 1
 
     BLE <ble>
-
-
+    BT <bt>

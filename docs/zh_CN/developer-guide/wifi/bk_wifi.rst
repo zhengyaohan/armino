@@ -92,8 +92,19 @@ Armino Wi-Fi失败代码原因
 .. image:: ../../../_static/reason_codes.png
 
 Armino Wi-Fi MAC地址配置
---------------------------------------
+-------------------------------------------------------
+Wi-Fi MAC地址配置位于"bk_system/mac.c", 分为base_mac、sta_mac、ap_mac,配置
+STA MAC地址有以下几种方式:
 
+- 通过EFUSE写入
+- 随机数产生,需使能bk72xx.defconfig配置文件中CONFIG_RANDOM_MAC_ADDR宏定义
+- 使用[MAC地址配置工具]:bk_writer烧写MAC地址到FLASH
+- 使用mac命令写入flash,使用方式如下：
+
+::
+
+    mac c8478caabbcc
+    txevm -e 2
 
 :link_to_translation:`en:[English]`
 

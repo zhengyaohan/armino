@@ -29,8 +29,7 @@ typedef void (*lcd_isr_t)(void);
  */
 #define REG_DISP_DAT_FIFO                 LCD_DISP_I8080_DAT_FIFO_ADDR /**<define 8080 data fifo addr */
 #define REG_DISP_RGB_FIFO                 LCD_DISP_RGB_FIFO_ADDR       /**<define rgb fifo addr */
-#define LCD_FRAMEADDR                      0x60000000                  /**<define frame base addr */
-#define JPEG_RX_FIFO        JPEG_R_RX_FIFO
+#define JPEG_RX_FIFO                      JPEG_R_RX_FIFO
 
 /**
  * @}

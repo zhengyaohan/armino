@@ -89,6 +89,8 @@ static void cli_spi_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 		}
 #if CONFIG_SPI_DMA
 		config.dma_mode = os_strtoul(argv[10], NULL, 10);
+		config.spi_tx_dma_chan = os_strtoul(argv[11], NULL, 10);
+		config.spi_rx_dma_chan = os_strtoul(argv[12], NULL, 10);
 #endif
 		BK_LOG_ON_ERR(bk_spi_init(spi_id, &config));
 		CLI_LOGI("spi init, spi_id=%d\n", spi_id);

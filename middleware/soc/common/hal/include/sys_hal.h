@@ -230,6 +230,7 @@ void sys_hal_bt_sleep_exit_ctrl(bool en);
 void sys_hal_lcd_disp_clk_en(uint8_t clk_src_sel, uint8_t clk_div_l, uint8_t clk_div_h, uint8_t int_en,uint8_t clk_always_on);
 void sys_hal_lcd_disp_close(void);
 void sys_hal_dma2d_clk_en(uint8_t clk_always_on,  uint8_t sys_int_en);
+void sys_hal_jpeg_dec_ctrl(bool clk_always_on, bool int_en);
 
 /**  Video End **/
 

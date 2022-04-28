@@ -365,6 +365,7 @@ static bk_err_t i2c_master_write_byte(i2c_id_t id, uint8_t data)
 	return BK_OK;
 }
 
+#if (CONFIG_FM_I2C)
 static uint8_t i2c_master_read_byte(i2c_id_t id)
 {
 	return i2c_hal_read_byte(&s_i2c[id].hal);
@@ -383,6 +384,7 @@ static bk_err_t i2c0_master_write_data(i2c_id_t id)
 	}
 	return BK_OK;
 }
+#endif
 
 static bk_err_t i2c1_master_write_data(i2c_id_t id)
 {
@@ -412,6 +414,8 @@ static bk_err_t i2c1_master_write_data(i2c_id_t id)
 	return BK_OK;
 }
 
+
+#if (CONFIG_FM_I2C)
 static bk_err_t i2c0_master_read_data(i2c_id_t id)
 {
 	i2c_hal_set_rx_mode(&s_i2c[id].hal);
@@ -434,6 +438,7 @@ static bk_err_t i2c0_master_read_data(i2c_id_t id)
 	}
 	return BK_OK;
 }
+#endif
 
 bk_err_t i2c1_master_read_data(i2c_id_t id)
 {
@@ -775,7 +780,12 @@ static void i2c_master_isr_common(i2c_id_t id)
 		break;
 	case I2C_TX_DATA: {
 		if (id == I2C_ID_0) {
+#if (CONFIG_FM_I2C)
 			i2c0_master_write_data(id);
+#else
+			i2c1_master_write_data(id);
+#endif
+
 		} else {
 			i2c1_master_write_data(id);
 		}
@@ -783,7 +793,11 @@ static void i2c_master_isr_common(i2c_id_t id)
 	}
 	case I2C_RX_DATA: {
 		if (id == I2C_ID_0) {
+#if (CONFIG_FM_I2C)
 			i2c0_master_read_data(id);
+#else
+			i2c1_master_read_data(id);
+#endif
 		} else {
 			i2c1_master_read_data(id);
 		}

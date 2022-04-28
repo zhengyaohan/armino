@@ -339,6 +339,7 @@ void cli_aud_cp0_sdcard_to_dac_test_cmd(char *pcWriteBuffer, int xWriteBufferLen
 	aud_dac_config_t dac_config;
 	dma_config_t dma_config;
 	uint32_t dac_fifo_addr;
+	dma_id_t dma_id = DMA_ID_MAX;
 
 	char file_name[50];
 	FRESULT fr;
@@ -418,11 +419,16 @@ void cli_aud_cp0_sdcard_to_dac_test_cmd(char *pcWriteBuffer, int xWriteBufferLen
 		ret = bk_dma_driver_init();
 
 		//init dma channel
-		ret = bk_dma_init(DMA_ID_2, &dma_config);
+		dma_id = bk_dma_alloc(DMA_DEV_AUDIO);
+		if ((dma_id < DMA_ID_0) || (dma_id >= DMA_ID_MAX)) {
+			os_printf("malloc dma fail \r\n");
+			return;
+		}
+		ret = bk_dma_init(dma_id, &dma_config);
 
-		bk_dma_register_isr(DMA_ID_2, NULL, cli_aud_dma_isr);
-		bk_dma_enable_finish_interrupt(DMA_ID_2);
-		bk_dma_set_transfer_len(DMA_ID_2, 0x10000);
+		bk_dma_register_isr(dma_id, NULL, cli_aud_dma_isr);
+		bk_dma_enable_finish_interrupt(dma_id);
+		bk_dma_set_transfer_len(dma_id, 0x10000);
 
 		/*open pcm file*/
 		os_memset(file_name, 0, sizeof(file_name));
@@ -440,7 +446,7 @@ void cli_aud_cp0_sdcard_to_dac_test_cmd(char *pcWriteBuffer, int xWriteBufferLen
 				os_printf("read file fail.\r\n");
 				break;
 			} else {
-				ret = bk_dma_start(DMA_ID_2);
+				ret = bk_dma_start(dma_id);
 				bk_aud_start_dac();
 				if (ret != BK_OK)
 					return;
@@ -454,8 +460,11 @@ void cli_aud_cp0_sdcard_to_dac_test_cmd(char *pcWriteBuffer, int xWriteBufferLen
 			if(uiTemp == 0) {
 				bk_aud_stop_dac();
 				bk_aud_driver_deinit();
-				bk_dma_stop(DMA_ID_2);
+				bk_dma_stop(dma_id);
 				bk_dma_driver_deinit();
+				ret = bk_dma_free(DMA_DEV_AUDIO, dma_id);
+				if (ret == BK_OK)
+					os_printf("free dma: %d success\r\n", dma_id);
 				rtos_deinit_semaphore(&sdcard_play_sem);
 				break;
 			}

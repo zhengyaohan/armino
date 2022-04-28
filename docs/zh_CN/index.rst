@@ -15,10 +15,8 @@
     开发者指南 <developer-guide/index>
     OS 相关参考 <os/index>
     支持单板 <boards/index>
-    API 用例介绍 <examples/index>
-    应用开发 <application/index>
+    样例演示 <examples/index>
     解决方案 <projects/index>
-    云平台 <clounds/index>
     开发与贡献代码流程 <process/index>
     版本 <release-notes/index>
 

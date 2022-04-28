@@ -76,9 +76,9 @@ bk_err_t gpio_spi_sel(gpio_spi1_map_mode_t mode)
 {
 	GPIO_RETURN_ON_INVALID_PERIAL_MODE(mode, GPIO_SPI_MAP_MODE_MAX);
 
-	GPIO_MAP_TABLE(GPIO_SPI1_USED_GPIO_NUM, GPIO_SPI_MAP_MODE_MAX, spi_gpio_map) = GPIO_SPI1_MAP_TABLE;
+	GPIO_MAP_TABLE(GPIO_SPI0_USED_GPIO_NUM, GPIO_SPI_MAP_MODE_MAX, spi_gpio_map) = GPIO_SPI0_MAP_TABLE;
 
-	gpio_hal_devs_map(&s_gpio.hal, spi_gpio_map[mode].gpio_bits, spi_gpio_map[mode].devs, GPIO_SPI1_USED_GPIO_NUM);
+	gpio_hal_devs_map(&s_gpio.hal, spi_gpio_map[mode].gpio_bits, spi_gpio_map[mode].devs, GPIO_SPI0_USED_GPIO_NUM);
 
 	GPIO_LOGI("Warning bk7256 USE PLIC  NOT icu\n");
 

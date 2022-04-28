@@ -107,6 +107,11 @@ BK7256 的工具链被打包放置在armino/tools/toolchains/risc-v.tar.bz2
     sudo pip3 install sphinx_rtd_theme future breathe blockdiag sphinxcontrib-seqdiag sphinxcontrib-actdiag sphinxcontrib-nwdiag sphinxcontrib.blockdiag
 
 
+创建PYTHON3超链接::
+
+    sudo ln -s /usr/bin/python3 /usr/bin/python
+
+
 编译工程
 ------------------------------------
 

@@ -5,4 +5,5 @@ Projects and Solutions
    :maxdepth: 1
 
    Audio Solution <audio/index>
+   Video Solution <video/index>
    IoT Solution <iot/index>

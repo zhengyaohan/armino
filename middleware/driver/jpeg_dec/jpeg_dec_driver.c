@@ -54,8 +54,10 @@ static void jpeg_decoder_isr_common(void);
 
 bk_err_t bk_jpeg_dec_driver_init(void)
 {
-	jpeg_hal_dec_sysclk_en(1);
-	jpeg_hal_dec_int_en(1);
+	if(sys_drv_jpeg_dec_set(1, 1) != 0) {
+		os_printf("jpeg dec sys clk config error \r\n");
+		return BK_FAIL;
+	}
 #if (USE_JPEG_DEC_COMPLETE_CALLBACKS == 1)
 	bk_int_isr_register(INT_SRC_JPEG_DEC, jpeg_decoder_isr, NULL);
 #endif
@@ -65,10 +67,14 @@ bk_err_t bk_jpeg_dec_driver_init(void)
 }
 
 
-void bk_jpeg_dec_driver_deinit(void)
+bk_err_t bk_jpeg_dec_driver_deinit(void)
 {
-	jpeg_hal_dec_deinit();
+	if(sys_drv_jpeg_dec_set(0, 0) != 0) {
+		os_printf("jpeg dec sys clk config error \r\n");
+		return BK_FAIL;
+	}
 	bk_int_isr_unregister(INT_SRC_JPEG_DEC);
+	return BK_OK;
 }
 
 bk_err_t bk_jpeg_dec_init(uint32_t * dec_src_addr, uint32_t *dec_dest_addr)
@@ -107,7 +113,7 @@ bk_err_t bk_jpeg_dec_complete_cb(jpeg_dec_isr_t isr, void *param)
 
 static void jpeg_decoder_isr(void)
 {
-	//addAON_GPIO_Reg0x2 = 0x2;
+	//bk_gpio_set_output_high(GPIO_4);
 	uint8_t  bm4;
 
 	mcu_y_num = mcu_y_num +1;
@@ -124,6 +130,9 @@ static void jpeg_decoder_isr(void)
 		REG_JPEG_DCUV = 0x1;
 	else
 		REG_JPEG_DCUV = 0x0;
+	if(mcu_idex == (3000)) {
+		jpeg_decoder_isr_common();
+	}
 
 	if(mcu_idex == (4080))
 	{
@@ -131,15 +140,15 @@ static void jpeg_decoder_isr(void)
 		REG_JPEG_MCUX= 0;;
 		REG_JPEG_MCUY = 0;;
 		dec_busy2_clr;
-		//REG_JPEG_ACC_REG0 = 0;
-		jpeg_decoder_isr_common();
+		REG_DC_CLR;
+		//jpeg_decoder_isr_common();
 	}
 	else
 	{
 		REG_DEC_START;
 		dec_busy2_clr;
 	}
-	//addAON_GPIO_Reg0x2 = 0x0;
+	//bk_gpio_set_output_low(GPIO_4);
 }
 
 static void jpeg_decoder_isr_common(void)

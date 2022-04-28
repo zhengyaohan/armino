@@ -61,11 +61,6 @@ static void cli_aon_rtc_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, 
 	uint32_t tick;
 	uint32_t period;
 
-	if (argc != 3) {
-		cli_aon_rtc_help();
-		return;
-	}
-
 	aon_rtc_id = os_strtoul(argv[1], NULL, 10);
 	if (os_strcmp(argv[2], "create") == 0) {
 		tick = os_strtoul(argv[3], NULL, 10);
@@ -75,6 +70,21 @@ static void cli_aon_rtc_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, 
 	} else if (os_strcmp(argv[2], "destroy") == 0) {
 		BK_LOG_ON_ERR(bk_aon_rtc_destroy(aon_rtc_id));
 		CLI_LOGI("aon_rtc id:%d bk_aon_rtc_destroy\n", aon_rtc_id);
+	} else if (os_strcmp(argv[2], "init") == 0) {
+		BK_LOG_ON_ERR(bk_aon_rtc_tick_init());
+		CLI_LOGI("aon_rtc id:%d bk_aon_rtc_tick_init\n", aon_rtc_id);
+	} else if (os_strcmp(argv[2], "deinit") == 0) {
+		BK_LOG_ON_ERR(bk_aon_rtc_destroy(aon_rtc_id));
+		CLI_LOGI("aon_rtc id:%d bk_aon_rtc_deinit\n", aon_rtc_id);
+	} else if (os_strcmp(argv[2], "set") == 0) {
+		tick = os_strtoul(argv[3], NULL, 10);
+		tick = 32 * 1000 * tick;
+		BK_LOG_ON_ERR(bk_aon_rtc_create(0, tick, 1));
+		CLI_LOGI("aon_rtc id:%d set rtc period = %d s.\n", aon_rtc_id, tick);
+	} else if (os_strcmp(argv[2], "get") == 0) {
+		tick = bk_aon_rtc_get_current_tick();
+		tick = tick / 32000;
+		CLI_LOGI("aon_rtc id:%d get rtc tick time = %d s.\n", aon_rtc_id, tick);
 	} else {
 		cli_aon_rtc_help();
 		return;

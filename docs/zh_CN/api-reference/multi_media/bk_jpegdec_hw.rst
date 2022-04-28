@@ -1,7 +1,10 @@
 Hardware JPEGDEC APIs
-================
+=======================
 
 :link_to_translation:`en:[English]`
+
+JPEGDEC API Categories
+----------------------------
 
 JPEGDEC APIs:
  - :cpp:func:`bk_jpeg_dec_driver_init` - init jpeg decode hardware module

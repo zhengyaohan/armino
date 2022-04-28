@@ -54,25 +54,6 @@ static const uint16_t Ipsf[64] = {	/* See also aa_idct.png */
 	(uint16_t)(0.27590*8192), (uint16_t)(0.38268*8192), (uint16_t)(0.36048*8192), (uint16_t)(0.32442*8192), (uint16_t)(0.27590*8192), (uint16_t)(0.21678*8192), (uint16_t)(0.14932*8192), (uint16_t)(0.07612*8192)
 };
 
-void jpeg_hal_dec_sysclk_en(bool en)
-{
-	/*jpeg dec clk config*/
-	sys_ll_set_cpu_mode_disckg1_jpeg_dec_disckg(1);
-}
-
-void jpeg_hal_dec_deinit(void)
-{
-	//addSYSTEM_Reg0xe &= ~0x80000000;
-	sys_ll_set_cpu_mode_disckg1_jpeg_dec_disckg(0);
-}
-
-void jpeg_hal_dec_int_en(bool en)
-{
-	sys_ll_set_cpu1_int_0_31_en_cpu1_jpegdec_int_en(en);
-
-	//addSYSTEM_Reg0x22   |= 0x4000000 ;  //enable cpu0 jpegdec_int
-}
-
 
 void hal_jpeg_dec_start(void)
 {

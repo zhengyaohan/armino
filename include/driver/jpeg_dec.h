@@ -32,7 +32,7 @@ bk_err_t bk_jpeg_dec_driver_init(void);
 * @brief	 this api close the jpeg decode clk
 *          - disable jpeg decode
 */
-void bk_jpeg_dec_driver_deinit(void);
+bk_err_t bk_jpeg_dec_driver_deinit(void);
 
 
 /**

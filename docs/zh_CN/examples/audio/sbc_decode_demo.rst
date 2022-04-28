@@ -11,32 +11,38 @@ SBC模块包含SBC和MSBC两种编解码，由于本SDK API只支持音频解码
 2、sbc解码常见参数
 --------------------------
 - 采样率
+
  - 16KHz
  - 32KHz
  - 44.1KHz
  - 48KHz
 
 - 通道模式
+
  - 单通道
  - 双通道
  - 立体声
  - 联合立体声
 
 - Blocks
+
  - 4
  - 8
  - 12
  - 16
  
 - Subbands
+
  - 4
  - 8
  
 - 分配方式
+
  - SNR
  - Loudness
 
 - 同步字
+
  - 0x9C(SBC)
  - 0xAD(MSBC)
 

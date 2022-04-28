@@ -1265,6 +1265,12 @@ void sys_hal_dma2d_clk_en(uint8_t clk_always_on, uint8_t sys_int_en)
 	sys_ll_set_cpu0_int_0_31_en_cpu0_dma2d_int_en(sys_int_en);
 }
 
+void sys_hal_jpeg_dec_ctrl(bool clk_always_on, bool int_en)
+{
+	sys_ll_set_cpu_mode_disckg1_jpeg_dec_disckg(clk_always_on);
+	sys_ll_set_cpu0_int_0_31_en_cpu0_jpegdec_int_en(int_en);
+}
+
 /**  Video End **/
 
 

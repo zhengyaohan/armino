@@ -1,4 +1,4 @@
-Audio Development Guide (TBC)
+Audio Development Guide
 ======================================
 
 :link_to_translation:`zh_CN:[中文]`

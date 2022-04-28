@@ -174,6 +174,8 @@ bk_err_t bk_aon_rtc_driver_deinit(void)
 	return BK_OK;
 }
 
+extern void delay_ms(UINT32 ms_count);
+
 bk_err_t bk_aon_rtc_create(aon_rtc_id_t id, uint32_t tick, bool period)
 {
 	//Avoid APP call this function before driver has done bk_aon_rtc_driver_init
@@ -216,6 +218,7 @@ bk_err_t bk_aon_rtc_create(aon_rtc_id_t id, uint32_t tick, bool period)
 	//start to run
 	aon_rtc_hal_start_counter(&s_aon_rtc[id].hal);
 	aon_rtc_hal_reset_counter(&s_aon_rtc[id].hal);	//maybe the start value isn't 0
+	delay_ms(1);
 	aon_rtc_hal_clear_reset_counter(&s_aon_rtc[id].hal);
 
 	//TOTO: Exit critical protect

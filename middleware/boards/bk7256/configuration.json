@@ -8,21 +8,21 @@
             "version": "2M.1220",
             "partition": "bootloader",
             "start_addr": "0x00000000",
-            "size": "65280"
+            "size": "68k"
         },
         {
             "firmware": "app.bin",
             "version": "2M.1220",
             "partition": "app",
             "start_addr": "0x00011000",
-            "size": "2632K"
+            "size": "1836K"
         },
         {
             "firmware": "bk7256_cpu1.bin",
             "version": "2M.1220",
             "partition": "cpu1",
-            "start_addr": "0x00030E000",
-            "size": "952K"
+            "start_addr": "0x0001DC000",
+            "size": "476K"
         }
     ]
 }

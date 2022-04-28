@@ -103,9 +103,6 @@ JRESULT jd_prepare (JDEC*, uint16_t(*)(JDEC*,uint8_t*,uint16_t), void*, uint16_t
 JRESULT jd_decomp (JDEC* jd, uint8_t size, uint32_t* dec_src_addr, uint32_t* dec_dest_addr);
 
 
-void jpeg_hal_dec_sysclk_en(bool en);
-void jpeg_hal_dec_deinit(void);
-void jpeg_hal_dec_int_en(bool en);
 void hal_jpeg_dec_start(void);
 
 void jpegenc_en(void);

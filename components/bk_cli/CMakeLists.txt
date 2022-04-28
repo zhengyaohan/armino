@@ -139,22 +139,17 @@ endif()
 if (CONFIG_AT_CMD)
 	list(APPEND srcs "cli_at.c")
 endif()
-if (CONFIG_SOC_BK7256XX OR CONFIG_SOC_BK7256_CP1)
+
 if (CONFIG_LCD_TEST)
-	list(APPEND incs
-		"include/bk_private/lcd")
 	list(APPEND srcs
 		"cli_lcd.c")
 endif() #CONFIG_LCD_TEST
 if (CONFIG_DMA2D_TEST)
-	list(APPEND incs
-		"include/bk_private/dma2d"
-	)
 	list(APPEND srcs
 		"cli_dma2d.c"
 	)
 endif() #CONFIG_DMA2D_TEST
-endif()
+
 
 if (CONFIG_AUDIO_TEST AND CONFIG_AUDIO_RISCV_IP_V1_0)
 	list(APPEND srcs "cli_aud.c")

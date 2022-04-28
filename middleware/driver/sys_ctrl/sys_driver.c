@@ -1282,7 +1282,7 @@ void sys_drv_bt_sleep_exit_ctrl(bool en)
 
 
 /**  Video Start **/
-void sys_drv_lcd_set(uint8_t clk_src_sel, uint8_t clk_div_l, uint8_t clk_div_h, uint8_t int_en,uint8_t clk_always_on)
+uint32_t sys_drv_lcd_set(uint8_t clk_src_sel, uint8_t clk_div_l, uint8_t clk_div_h, uint8_t int_en,uint8_t clk_always_on)
 {
 	uint32_t int_level = rtos_disable_int();
 	uint32_t ret = SYS_DRV_FAILURE;
@@ -1294,9 +1294,11 @@ void sys_drv_lcd_set(uint8_t clk_src_sel, uint8_t clk_div_l, uint8_t clk_div_h, 
 		ret = sys_amp_res_release();
 
 	rtos_enable_int(int_level);
+
+	return ret;
 }
 
-void sys_drv_lcd_close(void)
+uint32_t sys_drv_lcd_close(void)
 {
 	uint32_t int_level = rtos_disable_int();
 	uint32_t ret = SYS_DRV_FAILURE;
@@ -1308,16 +1310,40 @@ void sys_drv_lcd_close(void)
 		ret = sys_amp_res_release();
 
 	rtos_enable_int(int_level);
+
+	return ret;
 }
 
-void sys_drv_dma2d_set(uint8_t clk_always_on, uint8_t sys_int_en)
+uint32_t sys_drv_dma2d_set(uint8_t clk_always_on, uint8_t sys_int_en)
 {
 	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
 
 	sys_hal_dma2d_clk_en(clk_always_on, sys_int_en);
+	if(!ret)
+		ret = sys_amp_res_release();
 
 	rtos_enable_int(int_level);
+
+	return ret;
 }
+
+uint32_t sys_drv_jpeg_dec_set(uint8_t clk_always_on, uint8_t int_en)
+{
+	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+	ret = sys_amp_res_acquire();
+
+	sys_hal_jpeg_dec_ctrl(clk_always_on, int_en);
+	if(!ret)
+		ret = sys_amp_res_release();
+	rtos_enable_int(int_level);
+
+	return ret;
+}
+
+
 
 
 /**  Video End **/

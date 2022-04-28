@@ -145,9 +145,10 @@ bk_err_t spi_hal_set_baud_rate(spi_hal_t *hal, uint32_t baud_rate)
 		clk_div = (src_clk / spi_clk - 1) & SPI_F_CLK_DIV_M;
 	} else {
 #if (CONFIG_SYSTEM_CTRL)
-		HAL_LOGI("spi select src_clk apll\r\n");
-		src_clk = CONFIG_APLL_FREQ; /* The spi clock is derived from the apll clock */
-		sys_hal_spi_select_clock(hal->id, SPI_CLK_APLL);
+		//APLL is for i2s
+		HAL_LOGI("spi select src_clk xtal\r\n");
+		src_clk = CONFIG_XTAL_FREQ;
+		sys_hal_spi_select_clock(hal->id, SPI_CLK_XTAL);
 		clk_div = ((src_clk / spi_clk) - 1) & SPI_F_CLK_DIV_M;
 #else
 		HAL_LOGI("spi select src_clk dco\r\n");

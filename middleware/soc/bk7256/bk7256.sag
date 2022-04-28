@@ -7,11 +7,11 @@ USER_SECTIONS	.dtcm_sec_bss
 USER_SECTIONS	.bt_spec_data
 USER_SECTIONS	.swap_data
 
-CPU0 0x00000000 0x280000
+CPU0 0x00000000 0x1B0000
 {
 
     FLASH 0x00000000
-	{	
+	{
 		* (.nds_vector)
 		* KEEP (.interrupt.text)
 		* KEEP (.interrupt.HalTrapVector.text.HalTrapVector)

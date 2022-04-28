@@ -1,5 +1,5 @@
 Lcd_display(Camera_lcd_display)
-========================
+=================================
 
 :link_to_translation:`en:[English]`
 

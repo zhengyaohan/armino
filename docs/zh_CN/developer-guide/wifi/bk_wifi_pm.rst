@@ -16,7 +16,7 @@ Armino 支持 WiFi-6 标准中定义的 TWT 省电模式与协议中定义的其
 省电流程
 ++++++++++++++++++++++++++++++++++++++++++++
 
-.. figure:: ../../../_static/Based on DTIM.png
+.. figure:: ../../../_static/Based_on_DTIM.png
     :align: center
     :alt: Based on DTIM
     :figclass: align-center
@@ -43,7 +43,7 @@ Armino 支持 WiFi-6 标准中定义的 TWT 省电模式与协议中定义的其
 当 DTIM 值很小时（如 DTIM 为 1 时）；为降低 STA 醒来频率，Armino 提供了一种机制：仅在 listen interval 间隔醒来。
 流程如下：
 
-.. figure:: ../../../_static/Based on Listen Interval.png
+.. figure:: ../../../_static/Based_on_Listen_Interval.png
     :align: center
     :alt: Based on Listen Interval
     :figclass: align-center

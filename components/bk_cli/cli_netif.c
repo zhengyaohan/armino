@@ -92,6 +92,14 @@ void cli_ping_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **arg
 #endif
 }
 
+#if CONFIG_ALI_MQTT
+extern void test_mqtt_start(void);
+void cli_ali_mqtt_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	os_printf("start test mqtt...\n");
+	test_mqtt_start();
+}
+#endif
 #define NETIF_CMD_CNT (sizeof(s_netif_commands) / sizeof(struct cli_command))
 static const struct cli_command s_netif_commands[] = {
 	{"ip", "ip [sta|ap][{ip}{mask}{gate}{dns}]", cli_ip_cmd},
@@ -106,6 +114,9 @@ static const struct cli_command s_netif_commands[] = {
 
 #if CONFIG_TCP_SERVER_TEST
 	{"tcp_server", "tcp_server [ip] [port]", make_tcp_server_command },
+#endif
+#if CONFIG_ALI_MQTT
+	{"mqttali", "paho mqtt test", cli_ali_mqtt_cmd},
 #endif
 };
 

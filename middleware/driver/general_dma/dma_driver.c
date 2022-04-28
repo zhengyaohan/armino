@@ -530,59 +530,43 @@ uint32_t dma_get_dest_write_addr(dma_id_t id)
 
 bk_err_t dma_memcpy(void *out, const void *in, uint32_t len)
 {
+    GLOBAL_INT_DECLARATION();
+    GLOBAL_INT_DISABLE();
     dma_config_t dma_config;
-
     os_memset(&dma_config, 0, sizeof(dma_config_t));
-
     dma_config.mode = DMA_WORK_MODE_SINGLE;
     dma_config.chan_prio = 0;
-
     dma_config.src.dev = DMA_DEV_DTCM;
     dma_config.src.width = DMA_DATA_WIDTH_32BITS;
     dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
     dma_config.src.start_addr = (uint32_t)in;
     dma_config.src.end_addr = (uint32_t)(in + len);
-
     dma_config.dst.dev = DMA_DEV_DTCM;
     dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
     dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE;
     dma_config.dst.start_addr = (uint32_t)out;
     dma_config.dst.end_addr = (uint32_t)(out + len);
-
-	dma_id_t cpy_chnl = bk_dma_alloc(DMA_DEV_DTCM);
-
-	if(cpy_chnl >= DMA_ID_MAX)
-		return BK_FAIL;
-
-    GLOBAL_INT_DECLARATION();
-    GLOBAL_INT_DISABLE();
-
-    bk_dma_init(cpy_chnl, &dma_config);
-    dma_hal_set_transfer_len(&s_dma.hal, cpy_chnl, len);
-    dma_hal_start_common(&s_dma.hal, cpy_chnl);
-    BK_WHILE (dma_hal_get_enable_status(&s_dma.hal, cpy_chnl));
+    bk_dma_init(DMA_MEMCPY_CHANNEL, &dma_config);
+    dma_hal_set_transfer_len(&s_dma.hal, DMA_MEMCPY_CHANNEL, len);
+    dma_hal_start_common(&s_dma.hal, DMA_MEMCPY_CHANNEL);
+    BK_WHILE (dma_hal_get_enable_status(&s_dma.hal, DMA_MEMCPY_CHANNEL));
     GLOBAL_INT_RESTORE();
-
-	bk_dma_free(DMA_DEV_DTCM, cpy_chnl);
-
     return BK_OK;
 }
 
 static void dma_isr(void)
 {
     dma_hal_t *hal = &s_dma.hal;
-
     for (int id = 0; id < SOC_DMA_CHAN_NUM_PER_UNIT; id++) {
         if (dma_hal_is_half_finish_interrupt_triggered(hal, id)) {
+            dma_hal_clear_half_finish_interrupt_status(hal, id);
             if (s_dma_half_finish_isr[id]) {
-	            dma_hal_clear_half_finish_interrupt_status(hal, id);
                 s_dma_half_finish_isr[id](id);
             }
         }
-
         if (dma_hal_is_finish_interrupt_triggered(hal, id)) {
+            dma_hal_clear_finish_interrupt_status(hal, id);
             if (s_dma_finish_isr[id]) {
-	            dma_hal_clear_finish_interrupt_status(hal, id);
                 s_dma_finish_isr[id](id);
             }
         }

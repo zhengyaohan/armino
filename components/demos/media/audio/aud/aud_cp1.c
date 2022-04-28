@@ -118,6 +118,8 @@ static uint32_t adc_to_pcm_test_status = 0;
 static uint32_t sd_exist_status = 1;
 static psram_block_status_t psram_block = {IDLE, 0};
 static uint32_t psram_block_id = 0;
+dma_id_t dma_id = DMA_ID_MAX;
+static uint32_t dma_free_flag = 0;
 
 extern void delay(int num);//TODO fix me
 static void cli_aud_dma_finish_isr(void *param);
@@ -140,30 +142,30 @@ static void cli_aud_help(void)
 
 static void mic_dma_config(uint32_t dst_start_addr, uint32_t dst_end_addr)
 {
-	bk_dma_set_dest_addr(DMA_ID_0, dst_start_addr, dst_end_addr);
+	bk_dma_set_dest_addr(dma_id, dst_start_addr, dst_end_addr);
 
 	//register isr
-	//bk_dma_register_isr(DMA_ID_0, NULL, (void *)cli_aud_dma_finish_isr);
-	bk_dma_register_isr(DMA_ID_0, NULL, (void *)cli_aud_dma_finish_isr);
-	bk_dma_enable_finish_interrupt(DMA_ID_0);
+	//bk_dma_register_isr(dma_id, NULL, (void *)cli_aud_dma_finish_isr);
+	bk_dma_register_isr(dma_id, NULL, (void *)cli_aud_dma_finish_isr);
+	bk_dma_enable_finish_interrupt(dma_id);
 	//start dma
-	bk_dma_set_transfer_len(DMA_ID_0, 0xFFFF);
-	//bk_dma_set_transfer_len(DMA_ID_0, 0x20);
-	bk_dma_start(DMA_ID_0);
+	bk_dma_set_transfer_len(dma_id, 0xFFFF);
+	//bk_dma_set_transfer_len(dma_id, 0x20);
+	bk_dma_start(dma_id);
 }
 
 static void mic_dma_pcm_config(uint32_t dst_start_addr, uint32_t dst_end_addr)
 {
-	bk_dma_set_dest_addr(DMA_ID_0, dst_start_addr, dst_end_addr);
+	bk_dma_set_dest_addr(dma_id, dst_start_addr, dst_end_addr);
 
 	//register isr
-	//bk_dma_register_isr(DMA_ID_0, NULL, (void *)cli_aud_dma_finish_isr);
-	bk_dma_register_isr(DMA_ID_0, NULL, (void *)cli_aud_dma_pcm_finish_isr);
-	bk_dma_enable_finish_interrupt(DMA_ID_0);
+	//bk_dma_register_isr(dma_id, NULL, (void *)cli_aud_dma_finish_isr);
+	bk_dma_register_isr(dma_id, NULL, (void *)cli_aud_dma_pcm_finish_isr);
+	bk_dma_enable_finish_interrupt(dma_id);
 	//start dma
-	bk_dma_set_transfer_len(DMA_ID_0, AUD_DMA_SIZE);
-	//bk_dma_set_transfer_len(DMA_ID_0, 0x20);
-	bk_dma_start(DMA_ID_0);
+	bk_dma_set_transfer_len(dma_id, AUD_DMA_SIZE);
+	//bk_dma_set_transfer_len(dma_id, 0x20);
+	bk_dma_start(dma_id);
 }
 
 static void cli_aud_adcl_isr(void *param)
@@ -184,7 +186,7 @@ static void cli_aud_dma_finish_isr(void *param)
 {
 	//notify cpu0 to read psram data by mailbox
 	os_printf("dma finish \r\n");
-	bk_dma_disable_finish_interrupt(DMA_ID_0);
+	bk_dma_disable_finish_interrupt(dma_id);
 	if (adc_data_count < 20) {
 		mic_dma_config(0x60000000 + 0xFFFF*adc_data_count, 0x60000000 + 0xFFFF*(adc_data_count+1));
 		adc_data_count++;
@@ -345,13 +347,18 @@ void cli_aud_adc_dma_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc
 		os_printf("source_addr:0x%x, dest_addr:0x%x\r\n", dma_config.src.start_addr, dma_config.dst.start_addr);
 
 		//init dma channel
-		ret = bk_dma_init(DMA_ID_0, &dma_config);
+		dma_id = bk_dma_alloc(DMA_DEV_AUDIO);
+		if ((dma_id < DMA_ID_0) || (dma_id >= DMA_ID_MAX)) {
+			os_printf("malloc dma fail \r\n");
+			return;
+		}
+		ret = bk_dma_init(dma_id, &dma_config);
 		if (ret != BK_OK) {
 			os_printf("dma init failed\r\n");
 			return;
 		}
-		bk_dma_set_transfer_len(DMA_ID_0, 4);
-		ret = bk_dma_start(DMA_ID_0);
+		bk_dma_set_transfer_len(dma_id, 4);
+		ret = bk_dma_start(dma_id);
 
 		//start adc and dac
 		bk_aud_start_adc();
@@ -372,8 +379,11 @@ void cli_aud_adc_dma_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc
 		bk_aud_stop_dac();
 		bk_aud_driver_deinit();
 		//stop dma
-		bk_dma_stop(DMA_ID_0);
-		bk_dma_deinit(DMA_ID_0);
+		bk_dma_stop(dma_id);
+		bk_dma_deinit(dma_id);
+		ret = bk_dma_free(DMA_DEV_AUDIO, dma_id);
+		if (ret == BK_OK)
+			os_printf("free dma: %d success\r\n", dma_id);
 		os_printf("audio adc test stop successful\n");
 	} else {
 		cli_aud_help();
@@ -1028,7 +1038,12 @@ void cli_aud_pcm_dma_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc
 		//os_printf("source_addr:0x%x, dest_addr:0x%x\r\n", dma_config.src.start_addr, dma_config.src.end_addr);
 
 		//init dma channel
-		ret = bk_dma_init(DMA_ID_0, &dma_config);
+		dma_id = bk_dma_alloc(DMA_DEV_AUDIO);
+		if ((dma_id < DMA_ID_0) || (dma_id >= DMA_ID_MAX)) {
+			os_printf("malloc dma fail \r\n");
+			return;
+		}
+		ret = bk_dma_init(dma_id, &dma_config);
 		if (ret != BK_OK) {
 			os_printf("dma init failed\r\n");
 			return;
@@ -1037,8 +1052,8 @@ void cli_aud_pcm_dma_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc
 		//start adc
 		ret = bk_aud_start_dac();
 
-		bk_dma_set_transfer_len(DMA_ID_0, aud_len);
-		ret = bk_dma_start(DMA_ID_0);
+		bk_dma_set_transfer_len(dma_id, aud_len);
+		ret = bk_dma_start(dma_id);
 		if (ret != BK_OK)
 			return;
 
@@ -1054,10 +1069,11 @@ void cli_aud_pcm_dma_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc
 		bk_aud_dac_deinit();
 
 		//stop dma
-		bk_dma_stop(DMA_ID_0);
-		bk_dma_deinit(DMA_ID_0);
-		if (ret != BK_OK)
-			return;
+		bk_dma_stop(dma_id);
+		bk_dma_deinit(dma_id);
+		ret = bk_dma_free(DMA_DEV_AUDIO, dma_id);
+		if (ret == BK_OK)
+			os_printf("free dma: %d success\r\n", dma_id);
 		os_printf("audio pcm dma test stop successfully\r\n");
 	} else {
 		cli_aud_help();
@@ -1157,21 +1173,26 @@ void cli_aud_adc_to_file_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int 
 		//os_printf("source_addr:0x%x, dest_addr:0x%x\r\n", dma_config.src.start_addr, dma_config.dst.start_addr);
 
 		//init dma channel
-		ret = bk_dma_init(DMA_ID_0, &dma_config);
+		dma_id = bk_dma_alloc(DMA_DEV_AUDIO);
+		if ((dma_id < DMA_ID_0) || (dma_id >= DMA_ID_MAX)) {
+			os_printf("malloc dma fail \r\n");
+			return;
+		}
+		ret = bk_dma_init(dma_id, &dma_config);
 		if (ret != BK_OK) {
 			os_printf("dma init failed\r\n");
 			return;
 		}
 		//start dma
-		bk_dma_set_transfer_len(DMA_ID_0, test_size * 4);
-		bk_dma_start(DMA_ID_0);
+		bk_dma_set_transfer_len(dma_id, test_size * 4);
+		bk_dma_start(dma_id);
 
 		//start adc and dac
 		bk_aud_start_adc();
 
 		if (pcm_data[test_size - 1] != 0) {
 			bk_aud_stop_adc();
-			bk_dma_stop(DMA_ID_0);
+			bk_dma_stop(dma_id);
 		}
 		os_printf("enable adc successful\n");
 
@@ -1185,7 +1206,10 @@ void cli_aud_adc_to_file_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int 
 	} else if (os_strcmp(argv[1], "stop") == 0) {
 		os_printf("audio adc to file test stop\n");
 		bk_aud_driver_deinit();
-		bk_dma_deinit(DMA_ID_0);
+		bk_dma_deinit(dma_id);
+		ret = bk_dma_free(DMA_DEV_AUDIO, dma_id);
+		if (ret == BK_OK)
+			os_printf("free dma: %d success\r\n", dma_id);
 		os_memset(pcm_data, 0, test_size);
 		adc_test_mode = ADC_TEST_MODE_NULL;
 		os_printf("audio adc to file test stop successful\n");
@@ -1331,18 +1355,23 @@ void cli_aud_adc_to_sd_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int ar
 		os_printf("source_addr:0x%x, dest_addr:0x%x\r\n", dma_config.src.start_addr, dma_config.dst.start_addr);
 
 		//init dma channel
-		ret = bk_dma_init(DMA_ID_0, &dma_config);
+		dma_id = bk_dma_alloc(DMA_DEV_AUDIO);
+		if ((dma_id < DMA_ID_0) || (dma_id >= DMA_ID_MAX)) {
+			os_printf("malloc dma fail \r\n");
+			return;
+		}
+		ret = bk_dma_init(dma_id, &dma_config);
 		if (ret != BK_OK) {
 			os_printf("dma init failed\r\n");
 			return;
 		}
 		//register isr
-		bk_dma_register_isr(DMA_ID_0, NULL, (void *)cli_aud_dma_finish_isr);
-		bk_dma_enable_finish_interrupt(DMA_ID_0);
+		bk_dma_register_isr(dma_id, NULL, (void *)cli_aud_dma_finish_isr);
+		bk_dma_enable_finish_interrupt(dma_id);
 		//start dma
-		bk_dma_set_transfer_len(DMA_ID_0, 0xFFFF);
-		//bk_dma_set_transfer_len(DMA_ID_0, 0x20);
-		bk_dma_start(DMA_ID_0);
+		bk_dma_set_transfer_len(dma_id, 0xFFFF);
+		//bk_dma_set_transfer_len(dma_id, 0x20);
+		bk_dma_start(dma_id);
 
 		//start adc and dac
 		bk_aud_start_adc();
@@ -1355,7 +1384,10 @@ void cli_aud_adc_to_sd_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int ar
 	} else if (os_strcmp(argv[1], "stop") == 0) {
 		os_printf("audio adc to file test stop\n");
 		bk_aud_driver_deinit();
-		bk_dma_deinit(DMA_ID_0);
+		bk_dma_deinit(dma_id);
+		ret = bk_dma_free(DMA_DEV_AUDIO, dma_id);
+		if (ret == BK_OK)
+			os_printf("free dma: %d success\r\n", dma_id);
 		os_memset(pcm_data, 0, test_size);
 		adc_test_mode = ADC_TEST_MODE_NULL;
 		os_printf("audio adc to file test stop successful\n");
@@ -1512,13 +1544,18 @@ void cli_aud_eq_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, cha
 		}
 
 		//init dma channel
-		ret = bk_dma_init(DMA_ID_0, &dma_config);
+		dma_id = bk_dma_alloc(DMA_DEV_AUDIO);
+		if ((dma_id < DMA_ID_0) || (dma_id >= DMA_ID_MAX)) {
+			os_printf("malloc dma fail \r\n");
+			return;
+		}
+		ret = bk_dma_init(dma_id, &dma_config);
 		if (ret != BK_OK) {
 			os_printf("dma init failed\r\n");
 			return;
 		}
-		bk_dma_set_transfer_len(DMA_ID_0, 4);
-		ret = bk_dma_start(DMA_ID_0);
+		bk_dma_set_transfer_len(dma_id, 4);
+		ret = bk_dma_start(dma_id);
 
 		//start adc and dac
 		bk_aud_start_adc();
@@ -1534,8 +1571,11 @@ void cli_aud_eq_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, cha
 		bk_aud_stop_dac();
 		bk_aud_driver_deinit();
 		//stop dma
-		bk_dma_stop(DMA_ID_0);
-		bk_dma_deinit(DMA_ID_0);
+		bk_dma_stop(dma_id);
+		bk_dma_deinit(dma_id);
+		ret = bk_dma_free(DMA_DEV_AUDIO, dma_id);
+		if (ret == BK_OK)
+			os_printf("free dma: %d success\r\n", dma_id);
 		os_printf("audio adc test stop successful\n");
 	} else {
 		cli_aud_help();
@@ -1578,7 +1618,7 @@ static void cli_aud_dma_pcm_finish_isr(void *param)
 		bk_aud_stop_adc();
 		adc_to_pcm_test_status = 0;
 	} else {
-		bk_dma_disable_finish_interrupt(DMA_ID_0);
+		bk_dma_disable_finish_interrupt(dma_id);
 		if (psram_block_id) {
 			dst_addr_start = PSRAM_AUD_ADDR_BASE + (AUD_DMA_SIZE+1)*psram_block_id;
 			dst_addr_end = PSRAM_AUD_ADDR_BASE + (AUD_DMA_SIZE+1)*(psram_block_id+1) - 1;
@@ -1617,12 +1657,12 @@ static void cp1_mailbox_tx_cmpl_isr(aud_mb_t *aud_mb, mb_chnl_ack_t *cmd_buf)
 		mb_cmd.param3 = 0;
 		ret = mb_chnl_write(MB_CHNL_AUD, &mb_cmd);
 		if (ret != BK_OK) {
-
-	os_printf("cpu1->cpu0: send stop test mailbox msg fail: %x \r\n", ret);
+			os_printf("cpu1->cpu0: send stop test mailbox msg fail: %x \r\n", ret);
 		}
 
 		bk_aud_driver_deinit();
-		bk_dma_deinit(DMA_ID_0);
+		bk_dma_deinit(dma_id);
+		dma_free_flag = 1;
 		return;
 	}
 }
@@ -1784,18 +1824,23 @@ void cli_aud_mic_to_pcm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, 
 		os_printf("source_addr:0x%x, dest_addr:0x%x\r\n", dma_config.src.start_addr, dma_config.dst.start_addr);
 
 		//init dma channel
-		ret = bk_dma_init(DMA_ID_0, &dma_config);
+		dma_id = bk_dma_alloc(DMA_DEV_AUDIO);
+		if ((dma_id < DMA_ID_0) || (dma_id >= DMA_ID_MAX)) {
+			os_printf("malloc dma fail \r\n");
+			return;
+		}
+		ret = bk_dma_init(dma_id, &dma_config);
 		if (ret != BK_OK) {
 			os_printf("dma init failed\r\n");
 			return;
 		}
 		//register isr
-		bk_dma_register_isr(DMA_ID_0, NULL, (void *)cli_aud_dma_pcm_finish_isr);
-		bk_dma_enable_finish_interrupt(DMA_ID_0);
+		bk_dma_register_isr(dma_id, NULL, (void *)cli_aud_dma_pcm_finish_isr);
+		bk_dma_enable_finish_interrupt(dma_id);
 		//start dma
-		bk_dma_set_transfer_len(DMA_ID_0, AUD_DMA_SIZE);
-		//bk_dma_set_transfer_len(DMA_ID_0, 0x20);
-		bk_dma_start(DMA_ID_0);
+		bk_dma_set_transfer_len(dma_id, AUD_DMA_SIZE);
+		//bk_dma_set_transfer_len(dma_id, 0x20);
+		bk_dma_start(dma_id);
 
 		//start adc and dac
 		bk_aud_start_adc();
@@ -1809,7 +1854,17 @@ void cli_aud_mic_to_pcm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, 
 		os_printf("cp1: audio mic data to file test stop\n");
 		//change test status to "0"
 		adc_to_pcm_test_status = 0;
+		os_printf("wait dma_free_flag to 1 \r\n");
 
+		//wait dma_free_flag to "1"
+		while (!dma_free_flag)
+		{
+			delay(10);
+		}
+		os_printf("dma_free_flag to 1 \r\n");
+		ret = bk_dma_free(DMA_DEV_AUDIO, dma_id);
+		if (ret == BK_OK)
+			os_printf("free dma: %d success\r\n", dma_id);
 		os_printf("cp1: audio mic data to file test stop successful\n");
 	} else {
 		cli_aud_help();
