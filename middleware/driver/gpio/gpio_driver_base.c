@@ -62,13 +62,6 @@ bk_err_t bk_gpio_driver_init(void)
 
 	bk_int_isr_register(INT_SRC_GPIO, gpio_isr, NULL);
 
-	//interrupt to CPU enable
-#if (CONFIG_SYSTEM_CTRL)
-	sys_drv_int_group2_enable(GPIO_INTERRUPT_CTRL_BIT);
-#else
-	icu_enable_gpio_interrupt();
-#endif
-
 	gpio_hal_init(&s_gpio.hal);
 
 	amp_res_init(AMP_RES_ID_GPIO);
@@ -78,7 +71,6 @@ bk_err_t bk_gpio_driver_init(void)
 
 bk_err_t bk_gpio_driver_deinit(void)
 {
-	//interrupt to CPU disable
 #if (CONFIG_SYSTEM_CTRL)
 	sys_drv_int_group2_disable(GPIO_INTERRUPT_CTRL_BIT);
 #else
@@ -167,7 +159,7 @@ bool bk_gpio_get_input(gpio_id_t gpio_id)
 {
 	GPIO_RETURN_ON_INVALID_ID(gpio_id);
 
-	return gpio_hal_get_input(&s_gpio.hal, gpio_id);
+	return gpio_hal_get_iutput(&s_gpio.hal, gpio_id);
 }
 
 //MAX capactiy:3
@@ -198,25 +190,37 @@ bk_err_t bk_gpio_register_isr(gpio_id_t gpio_id, gpio_isr_t isr)
 	return BK_OK;
 }
 
-//This function just enable the select GPIO can report IRQ to CPU
 bk_err_t bk_gpio_enable_interrupt(gpio_id_t gpio_id)
 {
 	GPIO_RETURN_ON_INVALID_ID(gpio_id);
 
-	return gpio_hal_enable_interrupt(&s_gpio.hal, gpio_id);
+	if(!gpio_hal_enable_interrupt(&s_gpio.hal, gpio_id)) {
+		GPIO_LOGI("Warning bk7256 USE PLIC  NOT icu\n");
+#if (CONFIG_SYSTEM_CTRL)
+		sys_drv_int_group2_enable(GPIO_INTERRUPT_CTRL_BIT);
+#else
+		icu_enable_gpio_interrupt();
+#endif
+	}
+
+	return BK_OK;
 }
 
 bk_err_t bk_gpio_disable_interrupt(gpio_id_t gpio_id)
 {
 	GPIO_RETURN_ON_INVALID_ID(gpio_id);
 
-	//WARNING:We can't call icu_enable_gpio_interrupt/sys_drv_int_group2_disable in this function
-	//If more then one GPIO_ID enable interrupt, here disable the IRQ to CPU, it caused other GPIO ID can't work
-
 	gpio_hal_disable_interrupt(&s_gpio.hal, gpio_id);
 
+	GPIO_LOGI("Warning bk7256 USE PLIC  NOT icu\n");
+#if (CONFIG_SYSTEM_CTRL)
+	sys_drv_int_group2_disable(GPIO_INTERRUPT_CTRL_BIT);
+#else
+	icu_disable_gpio_interrupt();
+#endif
 	return BK_OK;
 }
+
 
 bk_err_t bk_gpio_set_interrupt_type(gpio_id_t gpio_id, gpio_int_type_t type)
 {

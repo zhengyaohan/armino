@@ -471,6 +471,14 @@ CONFIG_SECURITYIP=y
 # end of securityip config
 #
 
+CONFIG_LCD=n
+CONFIG_DMA2D=n
+CONFIG_DMA2D_TEST=n
+CONFIG_JPEG_DEC=n
+
+#
+# end of lcd 
+#
 
 #
 # i2c

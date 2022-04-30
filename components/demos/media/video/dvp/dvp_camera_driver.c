@@ -26,6 +26,7 @@
 #include "dvp_camera_config.h"
 #include "bk_drv_model.h"
 
+#define EJPEG_DMA_CHANNEL              DMA_ID_4
 #define EJPEG_DELAY_HTIMER_CHANNEL     5
 #define EJPEG_DELAY_HTIMER_VAL         (2)  // 2ms
 #define EJPEG_I2C_DEFAULT_BAUD_RATE    I2C_BAUD_RATE_100KHZ
@@ -126,12 +127,7 @@ static void camera_intf_config_ejpeg(void *data)
 
 #if CONFIG_GENERAL_DMA
 	ejpeg_cfg.dma_rx_handler = camera_intf_ejpeg_rx_handler;
-	ejpeg_cfg.dma_channel = bk_dma_alloc(DMA_DEV_JPEG);
-	if ((ejpeg_cfg.dma_channel < DMA_ID_0) || (ejpeg_cfg.dma_channel >= DMA_ID_MAX)) {
-		CAMERA_LOGE("malloc dma fail \r\n");
-		return;
-	}
-	CAMERA_LOGI("malloc lcd dma ch is DMA_ch%x \r\n", ejpeg_cfg.dma_channel);
+	ejpeg_cfg.dma_channel = EJPEG_DMA_CHANNEL;
 #endif
 }
 
@@ -420,7 +416,6 @@ bk_err_t bk_camera_init(void *data)
 	}
 
 	jpeg_config.dma_rx_finish_handler = ejpeg_cfg.dma_rx_handler;
-	jpeg_config.dma_channel = ejpeg_cfg.dma_channel;
 
 	bk_jpeg_enc_init(&jpeg_config);
 	bk_jpeg_enc_register_isr(END_OF_FRAME, camera_intf_ejpeg_end_handler, NULL);
@@ -448,9 +443,6 @@ bk_err_t bk_camera_init(void *data)
 bk_err_t bk_camera_deinit(void)
 {
 	bk_jpeg_enc_deinit();
-
-	bk_dma_deinit(ejpeg_cfg.dma_channel);
-	bk_dma_free(DMA_DEV_JPEG, ejpeg_cfg.dma_channel);
 
 	bk_i2c_deinit(CONFIG_CAMERA_I2C_ID);
 

@@ -70,18 +70,10 @@ void aon_pmu_hal_touch_int_en(uint32_t value)
 	uint32_t int_state = 0;
 	int_state = aon_pmu_ll_get_reg1_touch_int_en();
 	int_state |= value;
-	aon_pmu_ll_set_reg1_touch_int_en(int_state);
+	aon_pmu_ll_set_reg1_touch_int_en( int_state);
 }
 
-void aon_pmu_hal_touch_int_disable(uint32_t value)
-{
-	uint32_t int_state = 0;
-	int_state = aon_pmu_ll_get_reg1_touch_int_en();
-	int_state &= ~value;
-	aon_pmu_ll_set_reg1_touch_int_en(int_state);
-}
-
- uint32_t aon_pmu_hal_get_adc_cal(void)
+ uint32_t aon_pmu_hal_get_adc_cal()
 {
 	return aon_pmu_ll_get_reg7d_adc_cal();
 }

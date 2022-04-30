@@ -43,7 +43,6 @@ CONFIG_NO_HOSTED=y
 # Components Configuration
 #
 
-
 #
 # Application
 #
@@ -63,6 +62,7 @@ CONFIG_AUDIO_ADC=y
 CONFIG_AUDIO_DAC=y
 CONFIG_AUDIO_DSP_IP_V1_0=y
 # end of Audio
+CONFIG_DMA2D_TEST=n
 #
 # Video transfer
 #

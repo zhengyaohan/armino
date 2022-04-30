@@ -17,8 +17,8 @@ The BK LCD Display Driver supports following interfaces:
     1) 项目中使用的屏幕Driving IC ST7282.
     2) 接口支持的数据包括RGB565,YUYV,UYVY,YYUV,UVYY,VUYY
 
-LCD API Categories
-----------------------------
+LCD API Overview
+------------------
 
 +-------------------------------------------+----------------------------------------------+
 | Commom API                                |                 Description                  |
@@ -60,7 +60,7 @@ LCD API Categories
 | :cpp:func:`bk_lcd_rgb_int_enable`         | Enable rgb lcd interrupt                     |
 +-------------------------------------------+----------------------------------------------+
 
-LCD Work Config
+DMA2D Work Config
 -----------------
 
 LCD 8080 Config

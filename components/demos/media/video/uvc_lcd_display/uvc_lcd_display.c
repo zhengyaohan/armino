@@ -25,12 +25,13 @@
 #include "test_fatfs.h"
 #endif
 
+#define JPEGEDC_TO_LCD_DMA    DMA_ID_1
 #define JPEGDEC_DATA_ADDR     0x60010000
 #define PSRAM_BASEADDR        (0x6000000)
 #define DMA_TRANSFER_LEN      (640 * 480 / 5)
 
 static uint8_t dma_int_cnt = 0;
-static uint8_t dma_channel_id = 0;
+//static uint8_t dma_int_flag = 0;
 static bool g_uvc_enable = false;
 
 static void cli_jpegdec_help(void)
@@ -51,20 +52,20 @@ static void dma_jpeg_dec_to_lcdfifo_isr(dma_id_t id)
 		//dma_int_flag = 1;
 		if (g_uvc_enable) {
 			dma_int_cnt = 0;
-			bk_dma_stop(dma_channel_id);
+			bk_dma_stop(JPEGEDC_TO_LCD_DMA);
 			source_start_addr = (uint32_t)JPEGDEC_DATA_ADDR;
-			bk_dma_set_src_addr(dma_channel_id, source_start_addr, 0);
+			bk_dma_set_src_addr(JPEGEDC_TO_LCD_DMA, source_start_addr, 0);
 		} else {
 			dma_int_cnt = 0;
 			source_start_addr = (uint32_t)JPEGDEC_DATA_ADDR;
-			bk_dma_set_src_addr(dma_channel_id, source_start_addr, 0);
-			bk_dma_start(dma_channel_id);
+			bk_dma_set_src_addr(JPEGEDC_TO_LCD_DMA, source_start_addr, 0);
+			bk_dma_start(JPEGEDC_TO_LCD_DMA);
 		}
 	}
 	else {
 		source_start_addr = (uint32_t)JPEGDEC_DATA_ADDR + (uint32_t)(DMA_TRANSFER_LEN * dma_int_cnt);
-		bk_dma_set_src_addr(dma_channel_id, source_start_addr, 0);
-		bk_dma_start(dma_channel_id);
+		bk_dma_set_src_addr(JPEGEDC_TO_LCD_DMA, source_start_addr, 0);
+		bk_dma_start(JPEGEDC_TO_LCD_DMA);
 	}
 }
 
@@ -82,18 +83,11 @@ static void dma_jpeg_dec_to_lcdfifo(void)
 	dma_config.dst.dev = DMA_DEV_LCD_DATA;
 	dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
 	dma_config.dst.start_addr =  (uint32) REG_DISP_RGB_FIFO;
+	BK_LOG_ON_ERR(bk_dma_init(JPEGEDC_TO_LCD_DMA, &dma_config));
 
-	dma_channel_id = bk_dma_alloc(DMA_DEV_DTCM);
-	if ((dma_channel_id < DMA_ID_0) || (dma_channel_id >= DMA_ID_MAX)) {
-		os_printf("malloc dma fail \r\n");
-		return;
-	}
-	os_printf("malloc dma:%d \r\n", dma_channel_id);
-	BK_LOG_ON_ERR(bk_dma_init(dma_channel_id, &dma_config));
-
-	BK_LOG_ON_ERR(bk_dma_set_transfer_len(dma_channel_id, DMA_TRANSFER_LEN));
-	BK_LOG_ON_ERR(bk_dma_register_isr(dma_channel_id, NULL, dma_jpeg_dec_to_lcdfifo_isr));
-	BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(dma_channel_id));
+	BK_LOG_ON_ERR(bk_dma_set_transfer_len(JPEGEDC_TO_LCD_DMA, DMA_TRANSFER_LEN));
+	BK_LOG_ON_ERR(bk_dma_register_isr(JPEGEDC_TO_LCD_DMA, NULL, dma_jpeg_dec_to_lcdfifo_isr));
+	BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(JPEGEDC_TO_LCD_DMA));
 }
 
 static void uvc_jpegdec_frame_end_callback(void)
@@ -141,7 +135,7 @@ static void uvc_jpegdec_frame_end_callback(void)
 	}
 #else
 	bk_lcd_rgb_display_en(1);
-	bk_dma_start(dma_channel_id);
+	bk_dma_start(JPEGEDC_TO_LCD_DMA);
 #if CONFIG_USB_UVC
 	if (g_uvc_enable) {
 		if (kNoErr != bk_uvc_set_start()) {
@@ -311,7 +305,7 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		filename = argv[2];
 
 		// step 1: stop dma from jpeg_dec data to rgb fifo, if rgb display is working
-		bk_dma_stop(dma_channel_id);
+		bk_dma_stop(JPEGEDC_TO_LCD_DMA);
 		dma_int_cnt = 0;
 
 		// step 2: read picture from sd to psram
@@ -355,7 +349,7 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 #endif
 	} else if (os_strcmp(argv[1], "stop_display") == 0) {
 		// step 1: stop dma
-		bk_dma_stop(dma_channel_id);
+		bk_dma_stop(JPEGEDC_TO_LCD_DMA);
 		dma_int_cnt = 0;
 	} else if (os_strcmp(argv[1], "uvc_dispaly_init") == 0) {
 #if CONFIG_USB_UVC
@@ -371,7 +365,7 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		fps = os_strtoul(argv[4], NULL, 10) & 0xFF;
 
 		// step 1: stop dma from jpeg_dec data to rgb fifo, if rgb display is working
-		bk_dma_stop(dma_channel_id);
+		bk_dma_stop(JPEGEDC_TO_LCD_DMA);
 		dma_int_cnt = 0;
 
 		// step 2: init uvc
@@ -405,7 +399,7 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 			return;
 		}
 		// step 1: stop dma
-		bk_dma_stop(dma_channel_id);
+		bk_dma_stop(JPEGEDC_TO_LCD_DMA);
 		dma_int_cnt = 0;
 
 		// step 2: enable uvc_enable flag
@@ -446,19 +440,11 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		}
 
 		// step 1: stop dma and deinit
-		err = bk_dma_deinit(dma_channel_id);
+		err = bk_dma_deinit(JPEGEDC_TO_LCD_DMA);
 		if (err != kNoErr) {
 			os_printf("dma deinit failed!\r\n");
 			return;
 		}
-
-		err = bk_dma_free(DMA_DEV_DTCM, dma_channel_id);
-		if (err != BK_OK) {
-			os_printf("dma free failed!\r\n");
-			return;
-		}
-
-		dma_channel_id = 0;
 		dma_int_cnt = 0;
 
 		// step 2: deinit jpeg_dec

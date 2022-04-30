@@ -45,7 +45,6 @@ extern void delay(INT32 num);
 
 DD_HANDLE uvc_hdl = DD_HANDLE_UNVALID;
 uvc_desc_t uvc_intf;
-statuc uint8_t uvc_dma_channel = 0;
 static uint8_t s_uvc_save = 1;
 static uint8_t uvc_data[512 * 4];
 static uint32_t frame_total_len = 0;
@@ -165,11 +164,7 @@ static void uvc_intfer_config_desc()
 
 #if CONFIG_GENERAL_DMA
 	uvc_intf.dma_rx_handler = uvc_intf_node_rx_handler;
-	uvc_intf.dma_channel = bk_dma_alloc(DMA_DEV_DTCM);
-	if ((uvc_intf.dma_channel < DMA_ID_0) || (uvc_intf.dma_channel >= DMA_ID_MAX)) {
-		os_printf("malloc dma fail \r\n");
-		return;
-	}
+	uvc_intf.dma_channel = UVCDMA_CHANNEL;
 #endif
 }
 
@@ -400,20 +395,6 @@ bk_err_t bk_uvc_deinit(void)
 	status = ddev_close(uvc_hdl);
 	if (status != kNoErr) {
 		os_printf("uvc close error!\r\n");
-		status = kOptionErr;
-		return status;
-	}
-
-	status = bk_dma_deinit(uvc_intf.dma_channel);
-	if (status != BK_OK) {
-		os_printf("uvc deinit dma error!\r\n");
-		status = kOptionErr;
-		return status;
-	}
-
-	status = bk_dma_free(DMA_DEV_DTCM, uvc_intf.dma_channel);
-	if (status != BK_OK) {
-		os_printf("uvc free dma error!\r\n");
 		status = kOptionErr;
 		return status;
 	}
