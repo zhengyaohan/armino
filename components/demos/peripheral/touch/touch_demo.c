@@ -32,9 +32,9 @@ static void cli_touch_help(void)
 
 static void cli_touch_isr(void *param)
 {
-	uint32_t int_status = 0;
-	int_status = bk_touch_get_int_status();
-	TOUCH_LOGI("interrupt status = %x\r\n", int_status);
+//	uint32_t int_status = 0;
+//	int_status = bk_touch_get_int_status();
+//	TOUCH_LOGI("interrupt status = %x\r\n", int_status);
 }
 
 void cli_touch_single_channel_calib_mode_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)

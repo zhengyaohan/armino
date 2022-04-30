@@ -201,7 +201,6 @@ static inline void gpio_ll_enable_interrupt(gpio_hw_t *hw, uint32 index)
 		REG_SET_BIT(&hw->gpio_0_31_int_enable, 1 << index);
 	else
 		REG_SET_BIT(&hw->gpio_32_47_int_enable, 1 << (index-GPIO_32));
-
 }
 
 static inline void gpio_ll_disable_interrupt(gpio_hw_t *hw, uint32 index)
@@ -211,14 +210,13 @@ static inline void gpio_ll_disable_interrupt(gpio_hw_t *hw, uint32 index)
 	else
 		REG_MCHAN_SET_FIELD(index-GPIO_32, &hw->gpio_32_47_int_enable, GPIO_F_INT_EN, 0);
 }
-#define GPIO_LL_REG_BASE2  (0x44000400)//temp modify   
+
 static inline uint32 gpio_ll_get_interrupt_status(gpio_hw_t *hw, gpio_interrupt_status_t* gpio_status)
 {
-	gpio_status->gpio_0_31_int_status = REG_READ(GPIO_LL_REG_BASE2+0x45*4);//REG_READ(&hw->gpio_0_31_int_st);//temp modify
-	gpio_status->gpio_32_64_int_status = REG_READ(GPIO_LL_REG_BASE2+0x46*4);//REG_READ(&hw->gpio_32_47_int_st);//temp modify
+	gpio_status->gpio_0_31_int_status = REG_READ(&hw->gpio_0_31_int_st);
+	gpio_status->gpio_32_64_int_status = REG_READ(&hw->gpio_32_47_int_st);
 
 	return 0;
-
 }
 
 static inline void gpio_ll_clear_interrupt_status(gpio_hw_t *hw, gpio_interrupt_status_t *gpio_status)

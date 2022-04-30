@@ -130,9 +130,6 @@ static void jpeg_decoder_isr(void)
 		REG_JPEG_DCUV = 0x1;
 	else
 		REG_JPEG_DCUV = 0x0;
-	if(mcu_idex == (3000)) {
-		jpeg_decoder_isr_common();
-	}
 
 	if(mcu_idex == (4080))
 	{
@@ -141,7 +138,7 @@ static void jpeg_decoder_isr(void)
 		REG_JPEG_MCUY = 0;;
 		dec_busy2_clr;
 		REG_DC_CLR;
-		//jpeg_decoder_isr_common();
+		jpeg_decoder_isr_common();
 	}
 	else
 	{

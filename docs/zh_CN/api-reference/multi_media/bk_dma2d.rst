@@ -15,8 +15,9 @@ DMA2D Features
        Part or all of the two source images with different pixel formats are mixed,
        and the result is copied to the part or the entire target :image with different color formats
 
-DMA2D API Overview
-------------------------
+DMA2D API Categories
+----------------------------
+
 
 +-------------------------------------------+----------------------------------------------+
 | DMA2D API                                 |                 Description                  |
@@ -93,5 +94,5 @@ API Reference
 .. include:: ../../_build/inc/dma2d.inc
 
 API Typedefs
----------------------
+-------------------------------------------------
 .. include:: ../../_build/inc/hal_dma2d_types.inc

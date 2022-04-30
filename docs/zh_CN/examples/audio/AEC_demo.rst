@@ -1,4 +1,4 @@
-回声消除库(AEC_demo)
+回声消除库(AEC)
 ========================
 
 :link_to_translation:`en:[English]`

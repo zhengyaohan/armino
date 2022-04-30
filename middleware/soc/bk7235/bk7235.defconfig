@@ -119,7 +119,7 @@ CONFIG_SHELL_ASYNCLOG=y
 CONFIG_AUDIO_TEST=n
 CONFIG_FFT_TEST=n
 CONFIG_I2S_TEST=n
-CONFIG_DMA2D_TEST=n
+
 # end of Cli
 
 #
@@ -473,12 +473,7 @@ CONFIG_SECURITYIP=y
 # end of securityip config
 #
 
-CONFIG_LCD=n
-CONFIG_JPEG_DEC=n
-CONFIG_DMA2D=n
-#
-# end of lcd 
-#
+
 
 #
 # timer

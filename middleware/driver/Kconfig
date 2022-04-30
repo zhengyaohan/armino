@@ -423,15 +423,15 @@ menu "Driver"
 		
 	config LCD
 		bool "Enable LCD Display"
-		default y
+		default n
 		
 	config DMA2D
-		bool "Enable LCD Display"
-		default y
+		bool "Enable DMA2D "
+		default n
 
 	config JPEG_DEC
-		bool "Enable LCD Display"
-		default y
+		bool "Enable JPEGDEC Display"
+		default n
 
 	config FLASH
 		bool "Enable flash"

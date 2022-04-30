@@ -920,10 +920,24 @@ static void uart_isr_common(uart_id_t id)
 					s_uart_sema[id].rx_blocked = false;
 				}
 			}
-		}
+			if (s_uart_rx_isr[id].callback) {
+				s_uart_rx_isr[id].callback(id, s_uart_rx_isr[id].param);
+			}
+		}  else {
+			if (s_uart_rx_isr[id].callback) {
+				s_uart_rx_isr[id].callback(id, s_uart_rx_isr[id].param);
+			} else {
+				int ret = 0;
+				uint8_t rx_data;
 
-		if (s_uart_rx_isr[id].callback) {
-			s_uart_rx_isr[id].callback(id, s_uart_rx_isr[id].param);
+				/* read all data from rx-FIFO. */
+			 	while (1) {
+					ret = uart_read_byte_ex(id, &rx_data);
+					if (ret == -1) {
+						break;
+					}
+				}
+			}
 		}
 	}
 	if (uart_hal_is_tx_interrupt_triggered(&s_uart[id].hal, id, status)) {

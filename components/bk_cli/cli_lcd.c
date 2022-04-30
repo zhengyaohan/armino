@@ -1,7 +1,5 @@
 #include "cli.h"
 
-#if CONFIG_LCD_TEST
-
 extern void lcd_video_jpeg_dec(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
 extern void lcd_video(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
 extern void lcd_8080_init(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
@@ -23,7 +21,6 @@ int cli_lcd_init(void)
 {
 	return cli_register_commands(s_lcd_commands, LCD_CNT);
 }
-#endif
 
 
 
