@@ -1,0 +1,23 @@
+cp /home/ming.liu/armino/build/armino/bk7011_cal/libbk7011_cal.a .
+cp /home/ming.liu/armino/build/armino/bk_airkiss/libbk_airkiss.a .
+cp /home/ming.liu/armino/build/armino/bk_coex/libbk_coex.a .
+cp /home/ming.liu/armino/build/armino/bk_hostapd/libbk_hostapd.a .
+cp /home/ming.liu/armino/build/armino/bk_wifi_impl/libbk_wifi_impl.a .
+cp /home/ming.liu/armino/build/armino/ble_cli/libble_cli.a .
+cp /home/ming.liu/armino/build/armino/ble_pub/libble_pub.a .
+cp /home/ming.liu/armino/build/armino/ble_wifi_exchange/libble_wifi_exchange.a .
+cp /home/ming.liu/armino/build/armino/controller/libcontroller.a .
+cp /home/ming.liu/armino/build/armino/hci/libhci.a .
+cp /home/ming.liu/armino/build/armino/host/libhost.a .
+cp /home/ming.liu/armino/build/armino/ip_ax/libip_ax.a .
+cp /home/ming.liu/armino/build/armino/mac_tx_cache/libmac_tx_cache.a .
+cp /home/ming.liu/armino/build/armino/modules/libmodules.a .
+cp /home/ming.liu/armino/build/armino/net_param_intf/libnet_param_intf.a .
+cp /home/ming.liu/armino/build/armino/platform/libplatform.a .
+cp /home/ming.liu/armino/build/armino/power_save/libpower_save.a .
+cp /home/ming.liu/armino/build/armino/rf_test/librf_test.a .
+cp /home/ming.liu/armino/build/armino/rwnx_intf/librwnx_intf.a .
+cp /home/ming.liu/armino/build/armino/sensor/libsensor.a .
+cp /home/ming.liu/armino/build/armino/uart_debug/libuart_debug.a .
+cp /home/ming.liu/armino/build/armino/wpa_supplicant-2.9/libwpa_supplicant-2.9.a .
+

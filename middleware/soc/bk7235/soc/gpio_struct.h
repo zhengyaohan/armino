@@ -42,7 +42,7 @@ typedef volatile struct {
 		} cfg;
 	} gpio_num[SOC_GPIO_NUM];
 
-	uint32_t reserved_2[17];
+	uint32_t reserved_2[16];
 
 	//reg0x40 int_type1
 	union {

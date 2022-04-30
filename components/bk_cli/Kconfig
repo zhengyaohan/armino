@@ -177,5 +177,5 @@ menu "DUAL_CORE"
 		
 	config DMA2D_TEST
 		bool "Enable dma2d Test"
-		default y
+		default n
 endmenu

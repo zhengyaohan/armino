@@ -49,7 +49,7 @@ bk_err_t gpio_hal_monitor_input_enable(gpio_hal_t *hal, gpio_id_t gpio_id, uint3
 
 bk_err_t gpio_hal_set_capacity(gpio_hal_t *hal, gpio_id_t gpio_id, uint32 capacity);
 bk_err_t gpio_hal_set_output_value(gpio_hal_t *hal, gpio_id_t gpio_id, uint32 output_value);
-bk_err_t gpio_hal_get_iutput(gpio_hal_t *hal, gpio_id_t gpio_id);
+bk_err_t gpio_hal_get_input(gpio_hal_t *hal, gpio_id_t gpio_id);
 
 bk_err_t gpio_hal_set_int_type(gpio_hal_t *hal, gpio_id_t gpio_id, gpio_int_type_t type);
 
@@ -66,6 +66,7 @@ bk_err_t gpio_hal_wakeup_enable(int64_t index, uint64_t type_l, uint64_t type_h)
 bk_err_t gpio_hal_wakeup_interrupt_clear();
 
 #define gpio_hal_disable_interrupt(hal, id)			gpio_ll_disable_interrupt((hal)->hw, id)
+
 #define gpio_hal_get_interrupt_status(hal, status)		gpio_ll_get_interrupt_status((hal)->hw, status)
 #define gpio_hal_clear_interrupt_status(hal,status)		gpio_ll_clear_interrupt_status((hal)->hw, status)
 #define gpio_hal_is_interrupt_triggered(hal, id,status)		gpio_ll_is_interrupt_triggered((hal)->hw, id, status)

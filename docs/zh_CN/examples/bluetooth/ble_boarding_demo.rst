@@ -6,6 +6,7 @@
 概述
 --------------------------
 蓝牙配网就是通过蓝牙功能将未配网设备加入网络，使其成为网络中的节点的过程。该功能主要定义了使用蓝牙的GATT Service来实现蓝牙Master(通常为手机APP或小程序)传入配网过程中WIFI连接所需的SSID和PASSWORD，从而实现未配网设备获取到连接网络的信息去进行WIFI连接。
+本小节将通过蓝牙配网demo来介绍蓝牙配网的使用。
 
 demo简介
 --------------------------
@@ -35,7 +36,7 @@ demo简介
 
 demo示例
 --------------------------
- - 蓝牙配网demo使用的API接口详细说明请参考/api-reference/bluetooth/ble.html
+ - 蓝牙配网demo使用的API接口详细说明请参考 ``/api-reference/bluetooth/ble.html``
 
  - 蓝牙配网demo具体的示例代码详见bluetooth/ble_boarding_demo.c
 
