@@ -266,6 +266,9 @@ void user_except_handler (unsigned long mcause, SAVED_CONTEXT *context) {
 	BK_DUMP_OUT("***********************************************************************************************\r\n");
 	BK_DUMP_OUT("************************************user except handler end************************************\r\n");
 	BK_DUMP_OUT("***********************************************************************************************\r\n");
+
+	// bk_reboot();
+
 }
 
 void set_reboot_tag(uint32_t tag) {
@@ -273,18 +276,15 @@ void set_reboot_tag(uint32_t tag) {
 	*((uint32_t *)p_tag) = tag;
 }
 
-uint32_t get_reboot_tag(void) {
-	uint32_t p_tag = REBOOT_TAG_ADDR;
-	return *((uint32_t *)p_tag);
+inline uint32_t get_reboot_tag(void) {
+	return *((uint32_t *)REBOOT_TAG_ADDR);
 }
 
 extern void close_wdt(void);
 
 void user_nmi_handler(unsigned long mcause) {
-	uint32_t tag = 0;
 	if(mcause == MCAUSE_CAUSE_WATCHDOG) {
-		tag = get_reboot_tag();
-		if( REBOOT_TAG_REQ == tag ) {
+		if( REBOOT_TAG_REQ == get_reboot_tag() ) {
 			BK_DUMP_OUT("Wait reboot.\r\n");
 			while(1);
 		}

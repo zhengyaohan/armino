@@ -299,6 +299,15 @@ bk_err_t bk_dma_stop(dma_id_t id)
     return BK_OK;
 }
 
+uint32_t bk_dma_get_enable_status(dma_id_t id)
+{
+    DMA_RETURN_ON_NOT_INIT();
+    DMA_RETURN_ON_ID_NOT_INIT(id);
+    uint32_t ret;
+    ret = dma_hal_get_enable_status(&s_dma.hal, id);
+    return ret;
+}
+
 /* DTCM->peripheral
  */
 bk_err_t bk_dma_write(dma_id_t id, const uint8_t *data, uint32_t size)

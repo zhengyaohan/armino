@@ -2,16 +2,16 @@
 
 .. _armino_1.0:
 
-Armino 1.0.0
+Armino 1.2.0
 ========================
 
-We are pleased to announce the release of Armino version 1.0.0.
+We are pleased to announce the release of Armino version 1.2.0.
 
 .. note::
 
- Armino is not designed from scratch, the baseline of Armino 1.0.0 is Beken Wi-Fi SDK v3.0,
+ Armino is not designed from scratch, the baseline of Armino 1.2.0 is Beken Wi-Fi SDK v3.0,
  which has been used by many customers around the world. A lot of enhancements and changes
- have been made in Armino 1.0.0 compares to it's baseline, that's what we annouced in this
+ have been made in Armino 1.2.0 compares to it's baseline, that's what we annouced in this
  release notes.
  
 Major enhancements with this release include:

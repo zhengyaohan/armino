@@ -45,6 +45,12 @@ void sys_drv_usb_power_down(void);
 
 void sys_drv_usb_clock_ctrl(bool ctrl, void *arg);
 
+uint32_t sys_drv_usb_analog_phy_en(bool ctrl, void *arg);
+
+uint32_t sys_drv_usb_analog_speed_en(bool ctrl, void *arg);
+
+uint32_t sys_drv_usb_analog_ckmcu_en(bool ctrl, void *arg);
+
 void sys_drv_usb_charge_ctrl(bool ctrl, void *arg);
 
 void sys_drv_usb_charge_cal(sys_drv_charge_step_t step, void *arg);

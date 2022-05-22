@@ -124,7 +124,7 @@ bk_err_t bk_jpeg_dec_sw_deinit(void)
 	jpgdec_buf - output jpgdec_buf data buffer(the buffer should be freed by caller function)
 	pic_size - input jpge file size
 */
-bk_err_t bk_jpeg_dec_sw_fun(uint8_t *jpg_buf,uint8_t * jpgdec_buf, uint32_t pic_size)
+bk_err_t bk_jpeg_dec_sw_fun(uint8_t *jpg_buf, uint8_t *jpgdec_buf, uint32_t pic_size)
 {
 	jpegdec_config_t jdec; /* Decompression object */
 	int ret;

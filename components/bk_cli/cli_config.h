@@ -68,8 +68,13 @@ extern "C" {
 #define CLI_CFG_SPI         1
 #define CLI_CFG_MICO        1
 #define CLI_CFG_REG         1
-#define CLI_CFG_DMA         1
 #define CLI_CFG_EXCEPTION   1
+
+#if(CONFIG_GENERAL_DMA)
+#define CLI_CFG_DMA         1
+#else
+#define CLI_CFG_DMA         0
+#endif
 
 #if(CONFIG_PWM)
 #define CLI_CFG_PWM         1
@@ -89,7 +94,11 @@ extern "C" {
 #define CLI_CFG_ICU         0
 #endif
 
+#if CONFIG_I2C
 #define CLI_CFG_I2C         1
+#else
+#define CLI_CFG_I2C         0
+#endif
 
 #if CONFIG_QSPI
 #define CLI_CFG_QSPI        1
@@ -205,6 +214,19 @@ extern "C" {
 #else
 #define CLI_CFG_vault		0
 #endif
+
+#if (CONFIG_SOC_BK7256XX && CONFIG_USB_HOST && CONFIG_USB_UVC)
+#define CLI_CFG_UVC        1
+#else
+#define CLI_CFG_UVC        0
+#endif
+
+#if ((CONFIG_CAMERA || CONFIG_SPIDMA) && CONFIG_APP_DEMO_VIDEO_TRANSFER && CONFIG_SDCARD_HOST)
+#define CLI_CFG_DVP        1
+#else
+#define CLI_CFG_DVP        0
+#endif
+
 #ifdef __cplusplus
 }
 #endif

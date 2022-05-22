@@ -1,10 +1,3 @@
-/*
- *  Copyright (C) 2008-2015, Marvell International Ltd.
- *  All Rights Reserved.
- */
-
-/** dhcp-server-main.c: CLI based APIs for the DHCP Server
- */
 #include <string.h>
 #include <os/os.h>
 #include "dhcp-priv.h"

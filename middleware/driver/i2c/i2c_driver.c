@@ -251,6 +251,8 @@ static void i2c_id_deinit_common(i2c_id_t id)
 	s_i2c[id].addr_mode = 0;
 	rtos_deinit_semaphore(&(s_i2c[id].tx_sema));
 	rtos_deinit_semaphore(&(s_i2c[id].rx_sema));
+	s_i2c[id].tx_sema = NULL;
+	s_i2c[id].rx_sema = NULL;
 	s_i2c[id].id_init_bits &= ~BIT(id);
 }
 

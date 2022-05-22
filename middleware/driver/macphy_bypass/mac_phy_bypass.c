@@ -110,6 +110,14 @@ static UINT32 mpb_select_tx_rate(UINT32 rate)
 
 UINT32 g_mod_format = 0;
 
+void mpb_tx_mode_close_for_ate(void)
+{
+	UINT32 reg;
+	reg = bk_wifi_get_mpb_ctrl();
+	reg &= 0x00;
+	bk_wifi_set_mpb_ctrl(reg);
+}
+
 static void mpb_set_tx_packet_num(UINT32 *num_ptr)
 {
 	if (num_ptr) {

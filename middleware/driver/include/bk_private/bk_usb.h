@@ -20,6 +20,7 @@ extern "C" {
 
 #include <common/bk_include.h>
 
+
 #define UVC_DEMO_SUPPORT102
 
 #define USB_FAILURE                (1)
@@ -146,7 +147,26 @@ extern void fuvc_notify_uvc_configed(void);
 extern void fuvc_fiddle_rx_vs(void);
 extern void printf_test_buff(void);
 extern void fuvc_get_packet_rx_vs(uint8_t *arg, uint32_t count);
-
+extern bk_err_t bk_usb_open (uint32_t usb_mode);
+extern bk_err_t bk_usb_close (void);
+extern bk_err_t bk_uvc_start(void);
+extern bk_err_t bk_uvc_stop(void);
+extern bk_err_t bk_uvc_set_parameter(uint32_t resolution_id, uint32_t fps);
+extern bk_err_t bk_uvc_register_rx_vstream_buffptr(void *param);
+extern bk_err_t bk_uvc_register_rx_vstream_bufflen(uint32_t param);
+extern bk_err_t bk_uvc_receive_video_stream();
+extern bk_err_t bk_uvc_register_config_callback(void *param);
+extern bk_err_t bk_uvc_register_VSrxed_callback(void *param);
+extern bk_err_t bk_uvc_register_VSrxed_packet_callback(void *param);
+extern bk_err_t bk_uvc_register_link(uint32_t param);
+extern bk_err_t bk_uvc_set_cur(uint32_t attribute, uint32_t param);
+extern uint32_t bk_uvc_get_cur(uint32_t attribute);
+extern uint32_t bk_uvc_get_min(uint32_t attribute);
+extern uint32_t bk_uvc_get_max(uint32_t attribute);
+extern uint32_t bk_uvc_get_res(uint32_t attribute);
+extern uint32_t bk_uvc_get_len(uint32_t attribute);
+extern uint32_t bk_uvc_get_info(uint32_t attribute);
+extern uint32_t bk_uvc_get_def(uint32_t attribute);
 
 #if (CONFIG_SOC_BK7251) || (CONFIG_SOC_BK7271)
 #define USB_PLUG_FAILURE                (1)

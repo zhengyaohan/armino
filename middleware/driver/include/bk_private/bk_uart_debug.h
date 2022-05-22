@@ -26,6 +26,7 @@ extern "C" {
 UINT32 udebug_has_ctrlc(void);
 UINT32 udebug_wait_ctrlc_exit(void);
 UINT32 uart_debug_init(void);
+extern int bkreg_run_command1(const char *content, int cnt);
 
 #ifdef __cplusplus
 }

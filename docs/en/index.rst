@@ -18,7 +18,6 @@ This is the documentation for Beken Armino Development Framework.
     Samples and Demos <examples/index>
     Application Development <application/index>
     Projects and Solutions <projects/index>
-    Clound Frameworks <clounds/index>
     Development and Contribution Process <process/index>
     Release Notes <release-notes/index>
 

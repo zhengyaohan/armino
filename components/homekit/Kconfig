@@ -1,6 +1,0 @@
-#TODO add depens for CONFIG_HOST (bk7231u)
-menu "HOMEKIT CONFIG"
-	config HOMEKIT
-		bool "Enable HOMEKIT"
-		default n
-endmenu

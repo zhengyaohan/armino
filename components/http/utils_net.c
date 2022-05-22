@@ -160,7 +160,7 @@ int32_t HAL_TCP_Write(uintptr_t fd, const char *buf, uint32_t len, uint32_t time
 
 int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
 {
-	int ret, err_code, data_over;
+	int ret, err_code = 0, data_over;
 	uint32_t len_recv;
 	uint32_t t_end, t_left;
 	fd_set sets;
@@ -174,8 +174,11 @@ int32_t HAL_TCP_Read(uintptr_t fd, char *buf, uint32_t len, uint32_t timeout_ms)
 	do {
 		t_left = utils_time_left(t_end, utils_time_get_ms());
 
-		if (0 == t_left)
-			return ERROR_HTTP_CONN;
+		if (0 == t_left) {
+			// timeout
+			break;
+		}
+
 		FD_ZERO(&sets);
 		FD_SET(fd, &sets);
 

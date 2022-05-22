@@ -1,7 +1,3 @@
-/*
- *  Copyright (C) 2008-2015, Marvell International Ltd.
- *  All Rights Reserved.
- */
 #ifndef __DHCP_BOOTP_H_
 #define __DHCP_BOOTP_H_
 

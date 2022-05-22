@@ -467,7 +467,11 @@ The STM32F107 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 
 #define MEM_LIBC_MALLOC                (0)
 
+#if (CONFIG_LWIP_MEM_REDUCE)
 #define DEFAULT_UDP_RECVMBOX_SIZE       3 //each udp socket max buffer 3 packets.
+#else
+#define DEFAULT_UDP_RECVMBOX_SIZE       16 //each udp socket max buffer 16 packets.
+#endif
 
 #define MEMP_MEM_MALLOC (0)
 #define TCP_MSL (TCP_TMR_INTERVAL)

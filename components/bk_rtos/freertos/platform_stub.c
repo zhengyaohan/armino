@@ -25,6 +25,7 @@
 
 #include <os/mem.h>
 #include "bk_uart.h"
+#include "common/bk_assert.h"
 
 
 
@@ -84,6 +85,22 @@ int __wrap_strlen (char *src)
 
     return ret;
 }
+
+int __wrap_strncmp(const char *s1, const char *s2, size_t n)
+{
+    BK_ASSERT(s1 && s2);
+
+    if(0 == n) return 0;
+
+    while(--n && *s1 && (*s1 == *s2))
+    {
+        s1++;
+        s2++;
+    }
+
+    return *s1 - *s2;
+}
+
 
 void __wrap_printf(const char *fmt, ...)
 {

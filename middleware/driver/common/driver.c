@@ -123,7 +123,9 @@ void power_clk_rf_init()
    /*cpu0:26m ,matrix:26m*/
    //sys_drv_core_bus_clock_ctrl(HIGH_FREQUECY_CLOCK_MODULE_CPU0, 1,0, HIGH_FREQUECY_CLOCK_MODULE_CPU0_MATRIX,0,0);
    /*cpu0:120m ,matrix:120m*/
-   sys_drv_core_bus_clock_ctrl(HIGH_FREQUECY_CLOCK_MODULE_CPU0, 3,0, HIGH_FREQUECY_CLOCK_MODULE_CPU0_MATRIX,0,0);
+   //sys_drv_core_bus_clock_ctrl(HIGH_FREQUECY_CLOCK_MODULE_CPU0, 3,0, HIGH_FREQUECY_CLOCK_MODULE_CPU0_MATRIX,0,0);
+   /*cpu0:240m ,matrix:120m*/
+	sys_drv_core_bus_clock_ctrl(HIGH_FREQUECY_CLOCK_MODULE_CPU0, 0,0, HIGH_FREQUECY_CLOCK_MODULE_CPU0_MATRIX,0,0);
 
    /*5.config the analog*/
    //sys_drv_analog_set(ANALOG_REG0, param);
@@ -266,32 +268,39 @@ int driver_init(void)
 
 	g_dd_init();
 
-#if CONFIG_POWER_SAVE
-#if CONFIG_SOC_BK7256XX
-	//dev_pm_init();
-	extern void rf_ps_pm_init(void);
-	rf_ps_pm_init();
-#else
-	dev_pm_init();
-#endif
-#endif
-
-#if CONFIG_SECURITY
-	bk_secrity_init();
-#endif
-
 #if CONFIG_FLASH
 	bk_flash_driver_init();
 	extern int hal_flash_init();
 	hal_flash_init();
 #endif
 
+#if CONFIG_POWER_CLOCK_RF
+	extern void rf_ps_pm_init(void);
+	rf_ps_pm_init();
+#else
+	#if CONFIG_SLAVE_CORE
+
+	#else
+	dev_pm_init();
+	#endif
+#endif
+
+#if CONFIG_SECURITY
+	bk_secrity_init();
+#endif
+
 #if CONFIG_PWM
 	bk_pwm_driver_init();
 #endif
 
+#if CONFIG_TIMER
 	bk_timer_driver_init();
+#endif
+
+#if CONFIG_GENERAL_DMA
 	bk_dma_driver_init();
+#endif
+
 	bk_wdt_driver_init();
 
 #if CONFIG_TRNG_SUPPORT
@@ -307,7 +316,9 @@ int driver_init(void)
 #endif
 
 	bk_spi_driver_init();
+#if CONFIG_I2C
 	bk_i2c_driver_init();
+#endif
 
 #if CONFIG_QSPI
 	bk_qspi_driver_init();

@@ -23,6 +23,12 @@
 #include "flash_hal.h"
 #include "sys_driver.h"
 
+#if CONFIG_FLASH_QUAD_ENABLE
+#include "flash_bypass.h"
+extern UINT8 flash_get_line_mode(void);
+extern void flash_set_line_mode(UINT8 mode);
+#endif
+
 typedef struct {
 	flash_hal_t hal;
 	uint32_t flash_id;
@@ -53,11 +59,21 @@ static const flash_config_t flash_config[] = {
 	{0x1C7015,   1,               FLASH_SIZE_2M, FLASH_LINE_MODE_TWO, 0,        2,            0x1F,         0x1F,        0x00,         0x0d,         0x0d,                 0,            0,           0xA5,                          0x01}, //en_25qh16b
 	{0x0B4014,   2,               FLASH_SIZE_1M, FLASH_LINE_MODE_TWO, 14,       2,            0x1F,         0x1F,        0x00,         0x0C,         0x101,                9,            1,           0xA0,                          0x01}, //xtx_25f08b
 	{0x0B4015,   2,               FLASH_SIZE_2M, FLASH_LINE_MODE_TWO, 14,       2,            0x1F,         0x1F,        0x00,         0x0D,         0x101,                9,            1,           0xA0,                          0x01}, //xtx_25f16b
+#if CONFIG_FLASH_QUAD_ENABLE
+	{0x0B4016,   2,               FLASH_SIZE_4M, FLASH_LINE_MODE_FOUR, 14,      2,            0x1F,         0x1F,        0x00,         0x0E,         0x101,                9,           1,            0xA0,                          0x02}, //xtx_25f32b
+#else
 	{0x0B4016,   2,               FLASH_SIZE_4M, FLASH_LINE_MODE_TWO, 14,       2,            0x1F,         0x1F,        0x00,         0x0E,         0x101,                9,            1,           0xA0,                          0x01}, //xtx_25f32b
+#endif
 	{0x0B4017,   2,               FLASH_SIZE_8M, FLASH_LINE_MODE_TWO, 14,       2,            0x1F,         0x05,        0x00,         0x0E,         0x109,                9,            1,           0xA0,                          0x01}, //xtx_25f64b
 	{0x0E4016,   2,               FLASH_SIZE_4M, FLASH_LINE_MODE_TWO, 14,       2,            0x1F,         0x1F,        0x00,         0x0E,         0x101,                9,            1,           0xA0,                          0x01}, //xtx_FT25H32
 	{0xC84015,   2,               FLASH_SIZE_2M, FLASH_LINE_MODE_TWO, 14,       2,            0x1F,         0x1F,        0x00,         0x0D,         0x101,                9,            1,           0xA0,                          0x01}, //gd_25q16c
+#if CONFIG_FLASH_QUAD_ENABLE
+	{0xC84016,   2,               FLASH_SIZE_4M, FLASH_LINE_MODE_FOUR, 14,      2,            0x1F,         0x1F,        0x00,         0x0E,         0x00E,                9,            1,           0xA0,                          0x02}, //gd_25q32c
+#else
 	{0xC84016,   1,               FLASH_SIZE_4M, FLASH_LINE_MODE_TWO, 0,        2,            0x1F,         0x1F,        0x00,         0x0E,         0x00E,                0,            0,           0xA0,                          0x01}, //gd_25q32c
+#endif
+	{0xC86515,   2,               FLASH_SIZE_2M, FLASH_LINE_MODE_TWO, 14,       2,            0x1F,         0x1F,        0x00,         0x0D,         0x101,                9,            1,           0xA0,                          0x01}, //gd_25w16e
+
 	{0xEF4016,   2,               FLASH_SIZE_4M, FLASH_LINE_MODE_TWO, 14,       2,            0x1F,         0x1F,        0x00,         0x00,         0x101,                9,            1,           0xA0,                          0x01}, //w_25q32(bfj)
 	{0x204016,   2,               FLASH_SIZE_4M, FLASH_LINE_MODE_TWO, 14,       2,            0x1F,         0x1F,        0x00,         0x0E,         0x101,                9,            1,           0xA0,                          0x01}, //xmc_25qh32b
 	{0xC22315,   1,               FLASH_SIZE_2M, FLASH_LINE_MODE_TWO, 0,        2,            0x0F,         0x0F,        0x00,         0x0A,         0x00E,                6,            1,           0xA5,                          0x01}, //mx_25v16b
@@ -242,6 +258,17 @@ static void flash_set_qe(void)
 		return;
 	}
 
+#if CONFIG_FLASH_QUAD_ENABLE
+	if (FLASH_ID_GD25Q32C == s_flash.flash_id) {
+		uint32_t param = 0;
+		flash_bypass_quad_enable();
+		while (flash_hal_is_busy(&s_flash.hal));
+		param = flash_hal_read_status_reg(&s_flash.hal, s_flash.flash_cfg->status_reg_size);
+		BK_ASSERT(param & (s_flash.flash_cfg->quad_en_val << s_flash.flash_cfg->quad_en_post));
+		return;
+	}
+#endif
+
 	flash_hal_set_qe(&s_flash.hal, s_flash.flash_cfg->quad_en_val, s_flash.flash_cfg->quad_en_post);
 	flash_hal_write_status_reg(&s_flash.hal, s_flash.flash_cfg->status_reg_size, sr_size);
 }
@@ -354,7 +381,10 @@ bk_err_t bk_flash_driver_init(void)
 	if (s_flash_is_init) {
 		return BK_OK;
 	}
-
+#if CONFIG_FLASH_QUAD_ENABLE
+	if (FLASH_LINE_MODE_FOUR == flash_get_line_mode())
+		flash_set_line_mode(FLASH_LINE_MODE_TWO);
+#endif
 	os_memset(&s_flash, 0, sizeof(s_flash));
 	flash_hal_init(&s_flash.hal);
 	s_flash.flash_id = flash_hal_get_id(&s_flash.hal);
@@ -366,6 +396,11 @@ bk_err_t bk_flash_driver_init(void)
 #endif
 	bk_flash_set_line_mode(s_flash.flash_cfg->line_mode);
 	flash_hal_set_default_clk(&s_flash.hal);
+#if CONFIG_FLASH_SRC_CLK_60M
+	sys_drv_flash_set_clk_div(FLASH_DIV_VALUE_TWO);
+	sys_drv_flash_set_dco();
+#endif
+
 	flash_init_common();
 	s_flash_is_init = true;
 
@@ -488,7 +523,14 @@ uint16_t bk_flash_read_status_reg(void)
 bk_err_t bk_flash_write_status_reg(uint16_t status_reg_data)
 {
 	flash_ps_suspend(NORMAL_PS);
+#if CONFIG_FLASH_QUAD_ENABLE
+	uint8_t flash_sr_write_size = 0;
+	if (FLASH_ID_GD25Q32C == s_flash.flash_id)
+		flash_sr_write_size = 1;
+	flash_hal_write_status_reg(&s_flash.hal, flash_sr_write_size, status_reg_data);
+#else
 	flash_hal_write_status_reg(&s_flash.hal, s_flash.flash_cfg->status_reg_size, status_reg_data);
+#endif
 	flash_ps_resume(NORMAL_PS);
 	return BK_OK;
 }

@@ -47,7 +47,11 @@ extern "C" {
 #endif
 
 #if CFG_CLI_DEBUG
+#if CONFIG_ATE_TEST
+#define CLI_GETCHAR_TIMEOUT           (1)
+#else
 #define CLI_GETCHAR_TIMEOUT           (120000)
+#endif
 #define CLI_COMMAND_IS_RUNNING        (1)
 #else
 #define CLI_GETCHAR_TIMEOUT           BEKEN_NEVER_TIMEOUT
@@ -69,7 +73,7 @@ struct cli_st
     int initialized;
     const struct cli_command *commands[MAX_COMMANDS];
     unsigned int num_commands;
-#if (!CONFIG_SHELL_ASYNCLOG)
+#if ((!CONFIG_SHELL_ASYNCLOG) || CONFIG_ATE_TEST)
     int echo_disabled;
 
     unsigned int bp;	/* buffer pointer */

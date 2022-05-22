@@ -22,6 +22,7 @@
 #include <os/mem.h>
 #include "uart_pub.h"
 #include <os/os.h>
+#include "common/bk_assert.h"
 
 
 /************** wrap C library functions **************/
@@ -83,8 +84,20 @@ int __wrap_strlen (char *src)
     return ret;
 }
 
+int __wrap_strncmp(const char *s1, const char *s2, size_t n)
+{
+    BK_ASSERT(s1 && s2);
 
+    if(0 == n) return 0;
 
+    while(--n && *s1 && (*s1 == *s2))
+    {
+        s1++;
+        s2++;
+    }
+
+    return *s1 - *s2;
+}
 void __assert_func(const char *file, int line, const char *func, const char *failedexpr)
 {
 	os_printf("%s %d func %s expr %s\n", file, line, func, failedexpr);

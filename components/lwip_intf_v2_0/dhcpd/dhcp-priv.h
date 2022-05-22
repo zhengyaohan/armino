@@ -1,8 +1,3 @@
-/* 
- *  Copyright (C) 2008-2015, Marvell International Ltd.
- *  All Rights Reserved.
- */
-
 #ifndef __DHCP_PRIV_H__
 #define __DHCP_PRIV_H__
 

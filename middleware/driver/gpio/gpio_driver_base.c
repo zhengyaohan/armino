@@ -218,6 +218,17 @@ bk_err_t bk_gpio_disable_interrupt(gpio_id_t gpio_id)
 	return BK_OK;
 }
 
+bk_err_t bk_gpio_clear_interrupt(gpio_id_t gpio_id)
+{
+	GPIO_RETURN_ON_INVALID_ID(gpio_id);
+
+	//WARNING:We can't call icu_enable_gpio_interrupt/sys_drv_int_group2_disable in this function
+	//If more then one GPIO_ID enable interrupt, here disable the IRQ to CPU, it caused other GPIO ID can't work
+
+	gpio_hal_clear_chan_interrupt_status(&s_gpio.hal, gpio_id);
+
+	return BK_OK;
+}
 bk_err_t bk_gpio_set_interrupt_type(gpio_id_t gpio_id, gpio_int_type_t type)
 {
 	GPIO_RETURN_ON_INVALID_ID(gpio_id);

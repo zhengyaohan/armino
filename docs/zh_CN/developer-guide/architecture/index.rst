@@ -7,8 +7,9 @@
 概述
 ******************
 
-    Armino软件，以中间层，组件层，工程层的组合形式，在硬件层面上，抽象层与层的关系，做到真正意义上的软件货架化。
-	通过这种货架化设计，以及丰富的SDK API，给SDK开发者带来更高质量，更高效率的开发设计。
+	Armino软件分为中间件层，组件层和应用层。Armino抽象了软件对硬件平台的耦合依赖，实现软件平台货架化。
+	通过这种货架化设计和丰富的SDK API，使SDK开发者能更高效的进行设计和开发。
+
 
 .. figure:: ../../../_static/armino_architecture.png
     :align: center
@@ -17,12 +18,19 @@
 
     Architecture Overview
 
-解决方案
+软件架构
 ******************
 
-    Armino，支持多种形式的解决方案
-	一种，基于Armino SDK公开发布的解决方案。该解决方案整体框架，参见《Architecture Overview》图例。
-	该解决方案中，我们已经添加了对不同操作系统的适配，将FreeRTOS，LiteOS作为Armino解决方案的货架化的其中一个选择。
+	Armino SDK能灵活支持不同的产品软件架构。
+	
+	一，基于Armino SDK自有软件架构。
+	该解决方案整体框架，参见《Architecture Overview》图例。 该解决方案中，已经实现了对操作系统解耦和适配。
+	当前Armino解决方案支持FreeRTOS，LiteOS。
+
+
+	二，基于开发者自有软件架构。
+	Armino SDK能兼容多种软件生态系统，方便开发者把Armino芯片解决方案集成到自有成熟产品软件架构中。
+
 
 .. figure:: ../../../_static/armino_os_solution.png
     :align: center
@@ -30,8 +38,6 @@
     :figclass: align-center
 
     Armino OS solution
-
-    另一种，基于开发者自己的软件架构，需要把我们的芯片解决方案，放到开发者自己的系统中。
 
 .. figure:: ../../../_static/armino_custiomer_solution.png
     :align: center
@@ -43,7 +49,7 @@
 硬件层
 ******************
 
-    Hardware层，即硬件层，这里具体指的是我们解决方案的硬件。
+    Hardware层，即硬件层，这里具体指的是BEKEN解决方案的硬件。
 
 
 中间层
@@ -70,7 +76,7 @@
 
     Components层，即组件层，它是包含众多第三方开源，或者armino自行开发的服务组件。开发者可以通过在middleware层配置defconfig，开关相关的组件服务。
 	
-项目层
+应用层
 ******************
 
-    Porject层，即项目层，它是差异化，不同解决方案的配置集合。
+    应用层，组织在projects目录下，最后一级CmakeList目录，为一个完整的解决方案的构建入口。它承载着没，不同项目之前的差异化，不同产品解决方案的配置集合。

@@ -56,7 +56,7 @@ static void jpeg_enc_end_of_yuv_cb(jpeg_unit_t id, void *param)
 #if (debug)
 	bk_gpio_set_output_high(GPIO_2);
 #endif
-	BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(lcd_dma_id));
+
 	BK_LOG_ON_ERR(bk_dma_start(lcd_dma_id));
 #if (debug)
 	bk_gpio_set_output_low(GPIO_2);
@@ -70,15 +70,12 @@ static void jpeg_enc_end_of_frame_cb(jpeg_unit_t id, void *param)
 	bk_gpio_set_output_high(GPIO_2);
 #endif
 	//jpeg enc off
-	bk_jpeg_enc_set_enable(0);
+	//bk_jpeg_enc_set_enable(0);
 	bk_dma_stop(jpeg_dma_id);
 
 	//jpeg dec on
-	if( bk_jpeg_dec_init(jpeg_buff, jpeg_dec_buff) != BK_OK) {
-		os_printf("jpeg dec error\r\n");
-		return;
-	}	
-	bk_jpeg_dec_start();
+	bk_jpeg_dec_init(jpeg_buff, jpeg_dec_buff);
+
 #if (debug)
 	bk_gpio_set_output_low(GPIO_2);
 #endif
@@ -87,19 +84,12 @@ static void jpeg_enc_end_of_frame_cb(jpeg_unit_t id, void *param)
 
 static void jpeg_dec_end_of_frame_cb()
 {
-#if (debug)
-	bk_gpio_set_output_high(GPIO_4);
-#endif
 	//lcd display open
-	bk_lcd_rgb_display_en(1);
 	bk_dma_start(lcd_dma_id);
 
 	//jpeg enc open
-	bk_jpeg_enc_set_enable(1);
+	//bk_jpeg_enc_set_enable(1);
 	bk_dma_start(jpeg_dma_id);
-#if (debug)
-	bk_gpio_set_output_low(GPIO_4);
-#endif
 }
 
 
@@ -321,9 +311,11 @@ void lcd_video(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 	i2c_config_t i2c_config = {0};
 	uint32_t fps;
 	uint32_t psram_mode = 0x00054043;
-	s_dma_transfer_param.dma_frame_end_flag = 0;
+
+	s_dma_transfer_param.dma_int_cnt = 0;
 	s_dma_transfer_param.dma_transfer_len = 65280;
 	s_dma_transfer_param.dma_transfer_cnt = 4;
+
 
 	lcd_dma_id = bk_dma_alloc(DMA_DEV_LCD_DATA);
 	if ((lcd_dma_id < DMA_ID_0) || (lcd_dma_id >= DMA_ID_MAX)) {
@@ -359,7 +351,7 @@ void lcd_video(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 
 	os_printf("lcd rgb reg init.\r\n");
 	bk_lcd_rgb_init(rgb_clk_div, X_PIXEL_RGB, Y_PIXEL_RGB, ORGINAL_YUYV_DATA);
-
+	bk_lcd_rgb_display_en(1);
 	dma_rgb_config(lcd_dma_id);
 
 	jpeg_config.yuv_mode = 1;
@@ -394,6 +386,7 @@ void lcd_video(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 		os_printf("jpeg init error\n");
 		return;
 	}
+
 	i2c_config.baud_rate = 100000;// 400k
 	i2c_config.addr_mode = 0;
 	err = bk_i2c_init(CONFIG_CAMERA_I2C_ID, &i2c_config);
@@ -409,9 +402,6 @@ void lcd_video(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 	}
 
 	bk_camera_sensor_config();
-
-	os_printf("open jpeg yuv\r\n");
-	bk_lcd_rgb_display_en(1);
 }
 
 void lcd_video_jpeg_dec(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -422,9 +412,11 @@ void lcd_video_jpeg_dec(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 	i2c_config_t i2c_config = {0};
 	uint32_t fps;
 	uint32_t psram_mode = 0x00054043;
+
 	s_dma_transfer_param.dma_transfer_len = 65280;
 	s_dma_transfer_param.dma_transfer_cnt = 4;
 	s_dma_transfer_param.dma_frame_end_flag = 0;
+	s_dma_transfer_param.dma_int_cnt = 0;
 
 #if (debug)
 	bk_gpio_enable_output(GPIO_2);	//output
@@ -468,6 +460,7 @@ void lcd_video_jpeg_dec(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 	os_printf("lcd rgb reg init.\r\n");
 	bk_lcd_driver_init(LCD_96M);
 	bk_lcd_rgb_init(rgb_clk_div, X_PIXEL_RGB, Y_PIXEL_RGB, VUYY_DATA);
+	bk_lcd_rgb_display_en(1);
 
 	os_printf("dma_lcd_config \r\n");
 	dma_rgb_config(lcd_dma_id);
@@ -525,12 +518,6 @@ void lcd_video_jpeg_dec(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 		return;
 	}
 	bk_camera_sensor_config();
-
-//	err = bk_jpeg_dec_init(jpeg_buff, jpeg_dec_buff);
-//	if (err != BK_OK) {
-//		os_printf("jpeg dec error\r\n");
-//		return;
-//	}
 }
 
 
@@ -571,15 +558,11 @@ void lcd_close(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 		os_printf("rgb lcd closed. \r\n");
 	}
 	else if (os_strcmp(argv[1], "yuv_display") == 0) {
-		
 		if (bk_dma_deinit(lcd_dma_id) == BK_OK) {
 			os_printf("deinit lcd dma \r\n");
 		}
 		if (bk_dma_free(DMA_DEV_LCD_DATA, lcd_dma_id) ==  BK_OK) {
 			os_printf("free lcd dma: %d success\r\n", lcd_dma_id);
-		}
-		if (bk_lcd_rgb_deinit() == BK_OK) {
-			os_printf("deinit rgb lcd \r\n");
 		}
 		if( bk_i2c_deinit(CONFIG_CAMERA_I2C_ID) !=  BK_OK) {
 			os_printf("i2c deinit error\n");
@@ -588,10 +571,13 @@ void lcd_close(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 		if (bk_jpeg_enc_dvp_deinit() == BK_OK) {
 			os_printf("deinit jpeg enc \r\n");
 		}
-		bk_psram_deinit();
-
-		os_printf("rgb lcd closed. \r\n");
-	}
+		if (bk_lcd_rgb_deinit() == BK_OK) {
+			os_printf("deinit rgb lcd \r\n");
+		}
+		if (bk_psram_deinit() == BK_OK) {
+			os_printf("rgb lcd closed. \r\n");
+		}
+	} 
 	else if (os_strcmp(argv[1], "jpeg_display") == 0) {
 		if (bk_dma_deinit(lcd_dma_id) == BK_OK) {
 			os_printf("deinit lcd dma \r\n");
@@ -605,22 +591,22 @@ void lcd_close(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 		if (bk_dma_free(DMA_DEV_JPEG, jpeg_dma_id) == BK_OK) {
 			os_printf("free jpeg dma: %d success\r\n", jpeg_dma_id);
 		}
-		if (bk_lcd_rgb_deinit() == BK_OK) {
-			os_printf("deinit rgb \r\n");
+		if( bk_i2c_deinit(CONFIG_CAMERA_I2C_ID) !=  BK_OK) {
+			os_printf("i2c deinit error\n");
 		}
 		if (bk_jpeg_enc_dvp_deinit() == BK_OK) {
 			os_printf("deinit jpeg enc  \r\n");
-		}
-		if( bk_i2c_deinit(CONFIG_CAMERA_I2C_ID) !=  BK_OK) {
-			os_printf("i2c deinit error\n");
 		}
 		os_printf("I2c deinit ok!\n");
 		if (bk_jpeg_dec_driver_deinit() == BK_OK) {
 			os_printf("deinit jpeg dec \r\n");
 		}
-		bk_psram_deinit();
-
-		os_printf("rgb lcd closed. \r\n");
+		if (bk_lcd_rgb_deinit() == BK_OK) {
+			os_printf("deinit rgb \r\n");
+		}
+		if (bk_psram_deinit() == BK_OK) {
+			os_printf("rgb lcd closed. \r\n");
+		}
 	} else {
 		os_printf("cmd: lcd_close=8080|yuv_display|jpeg_display\r\n");
 	}

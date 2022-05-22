@@ -389,7 +389,7 @@ menu "Driver"
 
 	      config TIMER
 			bool "Enable TIMER"
-			default n
+			default y
 
 		config TIMER_SUPPORT_ID_BITS
 			int "timer support id bits"

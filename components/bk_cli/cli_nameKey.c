@@ -16,7 +16,7 @@ void matter_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv
     os_printf("start matter\r\n");
     rtos_create_thread(&matter_thread_handle,
 							 BEKEN_DEFAULT_WORKER_PRIORITY,
-							 "xxx",
+							 "matter",
 							 (beken_thread_function_t)ChipTest,
 							 8192,
 							 0);

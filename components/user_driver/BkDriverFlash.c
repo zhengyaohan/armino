@@ -462,6 +462,29 @@ bk_err_t test_flash_read(volatile uint32_t start_addr, uint32_t len)
 	return kNoErr;
 }
 
+bk_err_t test_flash_read_without_print(volatile uint32_t start_addr, uint32_t len)
+{
+	UINT32 status;
+	DD_HANDLE flash_hdl;
+	uint32_t tmp;
+	u8 buf[256];
+	uint32_t addr = start_addr;
+	uint32_t length = len;
+	tmp = addr + length;
+
+	flash_hdl = ddev_open(DD_DEV_TYPE_FLASH, &status, 0);
+	if (DD_HANDLE_UNVALID == flash_hdl) {
+		os_printf("%s open failed\r\n", __FUNCTION__);
+		return kOpenErr;
+	}
+	for (; addr < tmp; addr += 256) {
+		os_memset(buf, 0, 256);
+		ddev_read(flash_hdl, (char *)buf, 256, addr);
+	}
+
+	return kNoErr;
+}
+
 bk_err_t test_flash_read_time(volatile uint32_t start_addr, uint32_t len)
 {
 	UINT32 status, time_start, time_end;

@@ -1,7 +1,3 @@
-/*
- *  Copyright (C) 2008-2015, Marvell International Ltd.
- *  All Rights Reserved.
- */
 #ifndef __DNS_H__
 #define __DNS_H__
 

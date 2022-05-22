@@ -1,5 +1,3 @@
-/** dhcp-server.c: The DHCP Server
- */
 #include <string.h>
 #include <os/os.h>
 #include "dhcp-bootp.h"

@@ -142,7 +142,6 @@ void uvc_get_param(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **ar
 		return;
 	}
 	uint32_t attribute = 0x00;
-	uint32_t handle = ((DD_DEV_TYPE_USB & DD_HANDLE_ID_MASK) + DD_HANDLE_MAGIC_WORD);
 
 	if (os_strcmp(argv[1], "backlight") == 0) {
 		attribute = 0x01;
@@ -185,20 +184,21 @@ void uvc_get_param(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **ar
 		return;
 	}
 
+
 	if (os_strcmp(argv[2], "cur") == 0) {
-		ddev_control(handle, UCMD_UVC_GET_CUR, (void *)&attribute);
+		bk_uvc_get_cur(attribute);
 	} else if (os_strcmp(argv[2], "min") == 0) {
-		ddev_control(handle, UCMD_UVC_GET_MIN, (void *)&attribute);
+		bk_uvc_get_min(attribute);
 	} else if (os_strcmp(argv[2], "max") == 0) {
-		ddev_control(handle, UCMD_UVC_GET_MAX, (void *)&attribute);
+		bk_uvc_get_max(attribute);
 	} else if (os_strcmp(argv[2], "info") == 0) {
-		ddev_control(handle, UCMD_UVC_GET_INFO, (void *)&attribute);
+		bk_uvc_get_info(attribute);
 	} else if (os_strcmp(argv[2], "len") == 0) {
-		ddev_control(handle, UCMD_UVC_GET_LEN, (void *)&attribute);
+		bk_uvc_get_len(attribute);
 	} else if (os_strcmp(argv[2], "res") == 0) {
-		ddev_control(handle, UCMD_UVC_GET_RES, (void *)&attribute);
+		bk_uvc_get_res(attribute);
 	} else if (os_strcmp(argv[2], "def") == 0) {
-		ddev_control(handle, UCMD_UVC_GET_DEF, (void *)&attribute);
+		bk_uvc_get_def(attribute);
 	} else {
 		cli_usb_help();
 		return;
@@ -214,7 +214,7 @@ void uvc_set_param(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **ar
 		return;
 	}
 	uint32_t attribute = 0x00;
-	uint32_t handle = ((DD_DEV_TYPE_USB & DD_HANDLE_ID_MASK) + DD_HANDLE_MAGIC_WORD);
+	uint32_t param = 0;
 
 	if (os_strcmp(argv[1], "backlight") == 0) {
 		attribute = 0x01;
@@ -257,24 +257,8 @@ void uvc_set_param(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **ar
 		return;
 	}
 
-	if (os_strcmp(argv[2], "0") == 0) {
-		ddev_control(handle, UCMD_UVC_SET_CUR, (void *)&attribute);
-	} else if (os_strcmp(argv[2], "11") == 0) {
-		ddev_control(handle, UCMD_UVC_SET_CUR, (void *)&attribute);
-	} else if (os_strcmp(argv[2], "22") == 0) {
-		ddev_control(handle, UCMD_UVC_SET_CUR, (void *)&attribute);
-	} else if (os_strcmp(argv[2], "33") == 0) {
-		ddev_control(handle, UCMD_UVC_SET_CUR, (void *)&attribute);
-	} else if (os_strcmp(argv[2], "44") == 0) {
-		ddev_control(handle, UCMD_UVC_SET_CUR, (void *)&attribute);
-	} else if (os_strcmp(argv[2], "55") == 0) {
-		ddev_control(handle, UCMD_UVC_SET_CUR, (void *)&attribute);
-	} else if (os_strcmp(argv[2], "1000") == 0) {
-		ddev_control(handle, UCMD_UVC_SET_CUR, (void *)&attribute);
-	} else {
-		cli_usb_help();
-		return;
-	}
+	param = os_strtoul(argv[2], NULL, 10);
+	bk_uvc_set_cur(attribute, param);
 
 }
 
@@ -284,13 +268,11 @@ void uvc_start_stream(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		cli_usb_help();
 		return;
 	}
-	uint32_t attribute = 0x00;
-	uint32_t handle = ((DD_DEV_TYPE_USB & DD_HANDLE_ID_MASK) + DD_HANDLE_MAGIC_WORD);
 
 	if (os_strcmp(argv[1], "start") == 0) {
-		ddev_control(handle, UCMD_UVC_START_STREAM, (void *)&attribute);
+		bk_uvc_start();
 	} else if(os_strcmp(argv[1], "stop") == 0) {
-		ddev_control(handle, UCMD_UVC_STOP_STREAM, (void *)&attribute);
+		bk_uvc_stop();
 	}
 	else {
 		cli_usb_help();

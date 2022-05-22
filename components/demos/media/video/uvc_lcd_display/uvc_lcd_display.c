@@ -12,12 +12,7 @@
 #include <driver/gpio.h>
 #include <driver/psram.h>
 #include <components/jpeg_decode.h>
-
-
-
-//#if CONFIG_USB_UVC
 #include <components/uvc_camera.h>
-//#endif
 
 #if (CONFIG_SDCARD_HOST || CONFIG_USB_HOST)
 #include "ff.h"
@@ -25,9 +20,12 @@
 #include "test_fatfs.h"
 #endif
 
-#define JPEGDEC_DATA_ADDR     0x60010000
-#define PSRAM_BASEADDR        (0x6000000)
-#define DMA_TRANSFER_LEN      (640 * 480 / 5)
+
+#define JPEGDEC_DATA_ADDR     (0x60010000)
+#define PSRAM_BASEADDR        (0x60000000)
+#define DMA_TRANSFER_LEN      0xF000//640*480/5;480*272/2;
+
+extern void delay(INT32 num);
 
 static uint8_t dma_int_cnt = 0;
 static uint8_t dma_channel_id = 0;
@@ -40,6 +38,12 @@ static void cli_jpegdec_help(void)
 
 static void lcd_display_frame_isr(void)
 {
+#if CONFIG_USB_UVC
+	if (g_uvc_enable) {
+		bk_lcd_rgb_display_en(0);// close rgb display
+		bk_uvc_set_mem_status(UVC_MEM_IDLE);
+	}
+#endif
 }
 
 static void dma_jpeg_dec_to_lcdfifo_isr(dma_id_t id)
@@ -48,7 +52,6 @@ static void dma_jpeg_dec_to_lcdfifo_isr(dma_id_t id)
 	dma_int_cnt++;
 	if(dma_int_cnt == 10)
 	{
-		//dma_int_flag = 1;
 		if (g_uvc_enable) {
 			dma_int_cnt = 0;
 			bk_dma_stop(dma_channel_id);
@@ -88,7 +91,7 @@ static void dma_jpeg_dec_to_lcdfifo(void)
 		os_printf("malloc dma fail \r\n");
 		return;
 	}
-	os_printf("malloc dma:%d \r\n", dma_channel_id);
+
 	BK_LOG_ON_ERR(bk_dma_init(dma_channel_id, &dma_config));
 
 	BK_LOG_ON_ERR(bk_dma_set_transfer_len(dma_channel_id, DMA_TRANSFER_LEN));
@@ -98,67 +101,13 @@ static void dma_jpeg_dec_to_lcdfifo(void)
 
 static void uvc_jpegdec_frame_end_callback(void)
 {
-#if 0
-	uint8_t  bm4;
-
-	mcu_y_num = mcu_y_num +1;
-	if(mcu_y_num == 640/4)
-	{
-		mcu_y_num = 0;
-		//REG_JPEG_MCUY = REG_JPEG_MCUY + 8;
-		bk_jpegdec_set_mcuy((bk_jpegdec_get_mcuy() + 8));
-	}
-	mcu_idex++;
-	bm4 = mcu_idex % 4;
-	//REG_JPEG_MCUX = (mcu_y_num >> 2) * 16;
-	bk_jpegdec_set_mcux((mcu_y_num >> 2) * 16);
-
-	if((bm4 == 2) || (bm4 == 3))
-		bk_jpegdec_set_dcuv(1);
-	else
-		bk_jpegdec_set_dcuv(0);
-
-	if(mcu_idex == (6000))
-	{
-		//addAON_GPIO_Reg0x5 = 0x2;
-		bk_lcd_rgb_display_en(1);
-		bk_dma_start(JPEGEDC_TO_LCD_DMA);
-#if CONFIG_USB_UVC
-		uvc_set_start();
-#endif
-		//addAON_GPIO_Reg0x5 = 0x0;
-	}
-
-	if(mcu_idex == (9600))
-	{
-		//addAON_GPIO_Reg0x5 = 0x2;
-		mcu_idex = 0;
-		bk_jpegdec_close();
-	}
-	else
-	{
-		bk_jpegdec_start();
-	}
-#else
 	bk_lcd_rgb_display_en(1);
 	bk_dma_start(dma_channel_id);
-#if CONFIG_USB_UVC
-	if (g_uvc_enable) {
-		if (kNoErr != bk_uvc_set_start()) {
-			os_printf("uvc start failed!\r\n");
-			return;
-		}
-	}
-#endif
-#endif// 0
 }
 
 #if CONFIG_USB_UVC
 static void uvc_jpeg_frame_end_callback(uint32_t pic_size)
 {
-	// stop uvc
-	bk_uvc_set_stop();
-	// start dec
 	bk_jpeg_dec_sw_fun((uint8_t *)PSRAM_BASEADDR, (uint8_t *)JPEGDEC_DATA_ADDR, pic_size);
 }
 #endif // CONFIG_USB_UVC
@@ -166,7 +115,7 @@ static void uvc_jpeg_frame_end_callback(uint32_t pic_size)
 void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 	int err = 0;
-	uint32_t psram = 0x60000000;
+	uint32_t rgb_clk_div = 0;
 	uint16_t width = 640, height = 480;
 	uint8_t ratio = 0;
 
@@ -177,7 +126,7 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 
 	if (os_strcmp(argv[1], "init") == 0) {
 		uint32_t mode = 0x00054043;
-		if (argc != 5) {
+		if (argc < 5) {
 			os_printf("init: width height ratio\r\n");
 			return;
 		}
@@ -185,6 +134,7 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		width = os_strtoul(argv[2], NULL, 10);
 		height = os_strtoul(argv[3], NULL, 10);
 		ratio = os_strtoul(argv[4], NULL, 10);
+		rgb_clk_div = os_strtoul(argv[5], NULL, 10);
 
 		// step 1: init psram
 		err = bk_psram_init(mode);
@@ -198,9 +148,10 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 
 		// step 3: init lcd
 		bk_lcd_driver_init(LCD_96M);
-		bk_lcd_rgb_init(8, width, height, YYUV_DATA);
+		if (rgb_clk_div == 0)
+			rgb_clk_div = 25;
+		bk_lcd_rgb_init(rgb_clk_div, width, height, YYUV_DATA);
 
-		bk_lcd_rgb_int_enable(0,1);
 		bk_lcd_isr_register(RGB_OUTPUT_EOF, lcd_display_frame_isr);
 
 		// step 4: init lcd_dma, jpeg_dec to rgb_fifo
@@ -227,7 +178,7 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		FIL file;
 		FRESULT fr;
 		FSIZE_t size_64bit = 0;
-		char *ucRdTemp = (char *)psram;
+		char *ucRdTemp = (char *)PSRAM_BASEADDR;
 		unsigned int uiTemp = 0;
 
 		if (argc != 4) {
@@ -264,7 +215,7 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 
 		// step 2: start jpeg_dec
 		bk_jpeg_dec_sw_register_finish_callback(NULL);
-		err = bk_jpeg_dec_sw_fun((uint8_t *)psram, (uint8_t *)JPEGDEC_DATA_ADDR, total_size);
+		err = bk_jpeg_dec_sw_fun((uint8_t *)PSRAM_BASEADDR, (uint8_t *)JPEGDEC_DATA_ADDR, total_size);
 		if (err != kNoErr) {
 			os_printf("jpeg_decoder failed\r\n");
 			return;
@@ -300,7 +251,7 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		FIL file;
 		FRESULT fr;
 		FSIZE_t size_64bit = 0;
-		char *ucRdTemp = (char *)psram;
+		char *ucRdTemp = (char *)PSRAM_BASEADDR;
 		unsigned int uiTemp = 0;
 
 		if (argc != 3) {
@@ -345,7 +296,7 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		bk_jpeg_dec_sw_register_finish_callback(uvc_jpegdec_frame_end_callback);
 
 		// step 5: start jpeg_dec
-		err = bk_jpeg_dec_sw_fun((uint8_t *)psram, (uint8_t *)JPEGDEC_DATA_ADDR, total_size);
+		err = bk_jpeg_dec_sw_fun((uint8_t *)PSRAM_BASEADDR, (uint8_t *)JPEGDEC_DATA_ADDR, total_size);
 		if (err != kNoErr) {
 			os_printf("jpeg_decoder failed\r\n");
 			return;
@@ -357,7 +308,10 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		// step 1: stop dma
 		bk_dma_stop(dma_channel_id);
 		dma_int_cnt = 0;
-	} else if (os_strcmp(argv[1], "uvc_dispaly_init") == 0) {
+
+		// step 2: stop display
+		bk_lcd_rgb_display_en(0);
+	} else if (os_strcmp(argv[1], "uvc_display_init") == 0) {
 #if CONFIG_USB_UVC
 		uint8_t fps = 0;
 		uint16_t ppi = 0;
@@ -367,8 +321,8 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 			return;
 		}
 
-		ppi = os_strtoul(argv[3], NULL, 10) & 0xFFFF;
-		fps = os_strtoul(argv[4], NULL, 10) & 0xFF;
+		ppi = os_strtoul(argv[2], NULL, 10) & 0xFFFF;
+		fps = os_strtoul(argv[3], NULL, 10) & 0xFF;
 
 		// step 1: stop dma from jpeg_dec data to rgb fifo, if rgb display is working
 		bk_dma_stop(dma_channel_id);
@@ -445,7 +399,19 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 			return;
 		}
 
-		// step 1: stop dma and deinit
+		// step 1: deinit uvc if need
+#if CONFIG_USB_UVC
+		err = bk_uvc_deinit();
+		if (err != kNoErr) {
+			os_printf("uvc deinit failed!\r\n");
+			return;
+		}
+#else
+
+		// step 2: deinit jpeg_dec
+		bk_jpeg_dec_sw_deinit();
+
+		// step 3: stop dma and deinit
 		err = bk_dma_deinit(dma_channel_id);
 		if (err != kNoErr) {
 			os_printf("dma deinit failed!\r\n");
@@ -461,28 +427,14 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		dma_channel_id = 0;
 		dma_int_cnt = 0;
 
-		// step 2: deinit jpeg_dec
-		bk_jpeg_dec_sw_deinit();
-
 		// step 3: deinit lcd
+		bk_lcd_rgb_display_en(0);
 
 		// step 4: video power off
 		sys_drv_module_power_ctrl(POWER_MODULE_NAME_VIDP,POWER_MODULE_STATE_OFF);
 
-		// step 5: deinit uvc if need
-#if CONFIG_USB_UVC
-		err = bk_uvc_deinit();
-		if (err != kNoErr) {
-			os_printf("uvc deinit failed!\r\n");
-			return;
-		}
-#else
 		// step 5: deinit psram
-		int timer = 0;
-		do {
-			timer++;
-		}while(timer < 0xFFFF);
-
+		delay(2000);
 		err = bk_psram_deinit();
 		if (err != kNoErr) {
 			os_printf("uvc deinit failed!\r\n");

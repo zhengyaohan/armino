@@ -19,30 +19,44 @@ void memp_dump_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 	SYS_ARCH_DECL_PROTECT(old_level);
 	SYS_ARCH_PROTECT(old_level);
 
-	cmd_printf("%-16s total used addr       size\r\n", "Name");
-	cmd_printf("----------------------------------------------------\r\n");
+	os_printf("%-16s total used addr       size\r\n", "Name");
+	os_printf("----------------------------------------------------\r\n");
 	for (i = 0; i < MEMP_MAX; i++) {
 		tmp = (struct memp_desc *)memp_pools[i];
-		cmd_printf("%-16s %-5d %-4d 0x%08x %-4d\r\n",
+		os_printf("%-16s %-5d %-4d 0x%08x %-4d\r\n",
 				   tmp->desc, tmp->num, tmp->stats->used,
 				   (unsigned int)tmp->base, tmp->size);
 	}
 
-	cmd_printf("===== MEM ======\r\n");
-	cmd_printf("avail %d, used %d, max %d\r\n",
+	os_printf("===== MEMP_PUBF_POOL ======\r\n");
+	os_printf("avail %d, used %d, max %d, err %d\r\n",
+			   lwip_stats.memp[MEMP_PBUF_POOL]->avail,
+			   lwip_stats.memp[MEMP_PBUF_POOL]->used,
+			   lwip_stats.memp[MEMP_PBUF_POOL]->max,
+			   lwip_stats.memp[MEMP_PBUF_POOL]->err);
+
+	os_printf("========== MEM ============\r\n");
+	os_printf("avail %d, used %d, max %d, err %d\r\n",
 			   lwip_stats.mem.avail,
 			   lwip_stats.mem.used,
-			   lwip_stats.mem.max);
+			   lwip_stats.mem.max,
+			   lwip_stats.mem.err);
 
 	SYS_ARCH_UNPROTECT(old_level);
 }
-
+void cli_lwip_stats(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+#if LWIP_STATS_DISPLAY
+	stats_display_short();
+#endif
+}
 extern void iperf(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
 
 #define IPERF_CMD_CNT (sizeof(s_lwip_commands) / sizeof(struct cli_command))
 static const struct cli_command s_lwip_commands[] = {
 #if CONFIG_LWIP
 	{"memp", "print memp list", memp_dump_command},
+	{"lwip_stats", "print lwip protocal information", cli_lwip_stats},
 #endif
 };
 

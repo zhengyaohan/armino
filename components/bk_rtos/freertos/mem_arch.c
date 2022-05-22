@@ -93,6 +93,22 @@ void os_free(void *ptr)
 	if (ptr)
 		vPortFree(ptr);
 }
+
+void *os_malloc_debug(const char *func_name, int line, size_t size, int need_zero)
+{
+	if (need_zero) {
+		return (void *)os_zalloc(size);
+	}
+	return (void *)os_malloc(size);
+}
+
+
+void *os_free_debug(const char *func_name, int line, void *pv)
+{
+	os_free(pv);
+	return NULL;
+}
+
 #else
 
 extern void xPortDumpMemStats(uint32_t start_tick, uint32_t ticks_since_malloc, const char* task);

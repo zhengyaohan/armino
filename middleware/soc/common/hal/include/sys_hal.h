@@ -28,6 +28,9 @@ bk_err_t sys_hal_init(void);
 
 /** Platform USB Start **/
 void sys_hal_usb_enable_clk(bool en);
+void sys_hal_usb_analog_phy_en(bool en);
+void sys_hal_usb_analog_speed_en(bool en);
+void sys_hal_usb_analog_ckmcu_en(bool en);
 void sys_hal_usb_enable_charge(bool en);
 void sys_hal_usb_charge_vlcf_cal();
 void sys_hal_usb_charge_icp_cal();

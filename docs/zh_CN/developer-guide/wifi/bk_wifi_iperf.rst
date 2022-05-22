@@ -8,7 +8,7 @@ Wi-Fi iPerf示例说明
 
 工程示例及配置说明
 -----------------------------------------------
-IPERF的配置文件在"components/demos/net/iperf/iperf.c",支持四种模式：
+iPerf的配置文件在 ``components/demos/net/iperf/iperf.c`` ,支持四种模式：
 TCP_SERVER、TCP_CLIENT、UDP_SERVER、UDP_CLIENT
 
 - IPERF_REPORT_INTERVAL 吞吐测试上报间隔,一般设置为1
