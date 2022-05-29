@@ -2079,11 +2079,15 @@ static void mqtt_recv_thread( void *arg )
     log_info("mqtt_recv_thread start.\n");
 
     while(1) {
-
-        int ret = IOT_MQTT_Yield(pClient, pClient->connect_data.keepAliveInterval * 1000);
-        if (ret) {
-            log_err("IOT_MQTT_Yield: ret(%d).\n", ret);
-            rtos_delay_milliseconds(10);
+        iotx_mc_state_t currentState = iotx_mc_get_client_state(pClient);
+        if (IOTX_MC_STATE_CONNECTED == currentState) {
+            int ret = IOT_MQTT_Yield(pClient, pClient->connect_data.keepAliveInterval * 1000);
+            if (ret) {
+                log_err("IOT_MQTT_Yield: ret(%d).\n", ret);
+                iotx_mc_set_client_state(pClient, IOTX_MC_STATE_DISCONNECTED);
+            }
+        } else {
+            rtos_delay_milliseconds(1000);
         }
 
         cb_recv_timeout(pClient);
@@ -2104,7 +2108,8 @@ static void start_mqtt_recv_thread(void *arg)
     int ret = 0;
     os_printf("start mqtt recv thread.\r\n");
     if(NULL != s_mqtt_recv_thread) {
-        stop_mqtt_recv_thread();
+        os_printf("start mqtt recv thread already started.\r\n");
+        return;
     }
 
     ret = rtos_create_thread(&s_mqtt_recv_thread,

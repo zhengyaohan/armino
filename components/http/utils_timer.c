@@ -7,7 +7,7 @@
 #include "bk_uart.h"
 #include <os/os.h>
 
-#if CONFIG_OTA_HTTP
+#if CONFIG_HTTP
 
 void iotx_time_start(iotx_time_t *timer)
 {

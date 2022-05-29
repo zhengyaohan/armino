@@ -33,7 +33,7 @@ extern "C" {
 
 #define NUM_BUFFERS		              1
 #define MAX_COMMANDS	              255
-#ifdef CONFIG_HOMEKIT
+#ifdef CONFIG_KEYVALUE
 #define INBUF_SIZE                    1024
 #else
 #define INBUF_SIZE                    128
@@ -47,11 +47,7 @@ extern "C" {
 #endif
 
 #if CFG_CLI_DEBUG
-#if CONFIG_ATE_TEST
-#define CLI_GETCHAR_TIMEOUT           (1)
-#else
 #define CLI_GETCHAR_TIMEOUT           (120000)
-#endif
 #define CLI_COMMAND_IS_RUNNING        (1)
 #else
 #define CLI_GETCHAR_TIMEOUT           BEKEN_NEVER_TIMEOUT

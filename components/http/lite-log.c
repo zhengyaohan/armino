@@ -8,7 +8,7 @@
 #include <os/str.h>
 #include <os/mem.h>
 
-#if CONFIG_OTA_HTTP
+#if CONFIG_HTTP
 
 #define LITE_HEXDUMP_DRAWLINE(start_mark, len, end_mark)    \
 	do { \

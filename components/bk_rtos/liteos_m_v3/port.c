@@ -93,3 +93,23 @@ uint32_t  platform_is_in_interrupt_context( void )
 {
 	return ((uint32_t)HalIsIntActive());
 }
+/*
+ * disable mie Interrupts
+ */
+unsigned int port_disable_mie_flag(void)
+{
+	uint32_t uxSavedStatusValue;
+	uxSavedStatusValue = read_csr(NDS_MIE);
+	clear_csr(NDS_MIE, MIP_MEIP | MIP_MTIP | MIP_MSIP);
+
+	return uxSavedStatusValue;
+}
+
+/*
+ * Enable mie Interrupts
+ */
+void port_enable_mie_flag(uint32_t val)
+{
+	set_csr(NDS_MIE, val);
+}
+

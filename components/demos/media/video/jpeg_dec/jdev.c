@@ -80,7 +80,6 @@ static uint16_t output_func (
 			return 0;
 	}
 
-	
 	do {	/* Copy the rectangular to the frame buffer */
 		xc = nbx;
 		do {
@@ -154,7 +153,7 @@ bk_err_t bk_jpeg_dec_sw_fun(uint8_t *jpg_buf, uint8_t *jpgdec_buf, uint32_t pic_
 			jpeg_dec_st.line_wbyte = xs;//only output Y
 			break;
 		default:
-			os_printf("--- pre-decoder error,ret = %x---\r\n", ret);
+			os_printf("--- input format error\r\n");
 			return kParamErr;
 	}
 
@@ -174,7 +173,9 @@ bk_err_t bk_jpeg_dec_sw_fun(uint8_t *jpg_buf, uint8_t *jpgdec_buf, uint32_t pic_
 			jpeg_dec_st.jpg_dec_end_isr();
 		}
 		return kNoErr;
-	} else
+	} else {
+		os_printf("jpg dec failed:%d\r\n", ret);
 		return kOptionErr;
+	}
 }
 

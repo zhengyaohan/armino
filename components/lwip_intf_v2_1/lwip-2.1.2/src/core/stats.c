@@ -179,6 +179,22 @@ void stats_display_short(void)
   UDP_STATS_DISPLAY();
   TCP_STATS_DISPLAY();
 }
+void stats_reset_short(void)
+{
+  LINK_STATS_RESET();
+  ETHARP_STATS_RESET();
+  IPFRAG_STATS_RESET();
+  IP6_FRAG_STATS_RESET();
+  IP_STATS_RESET();
+  ND6_STATS_RESET();
+  IP6_STATS_RESET();
+  IGMP_STATS_RESET();
+  MLD6_STATS_RESET();
+  ICMP_STATS_RESET();
+  ICMP6_STATS_RESET();
+  UDP_STATS_RESET();
+  TCP_STATS_RESET();
+}
 
 #endif /* LWIP_STATS_DISPLAY */
 

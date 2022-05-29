@@ -20,6 +20,7 @@
 #include "gpio_driver_base.h"
 #include "sys_types.h"
 #include <driver/aon_rtc.h>
+#include "platform.h"
 
 static sys_hal_t s_sys_hal;
 uint32 sys_hal_get_int_group2_status(void);
@@ -208,8 +209,25 @@ void sys_hal_enter_low_voltage(void)
 	uint32_t  previous_tick = 0;
 	uint32_t  current_tick = 0;
 	uint32_t  clk_div_temp = 0;
-	/*mask all interner interrupt*/
-	//clear_csr(NDS_MIE, MIP_MTIP);
+	uint32_t  int_state1 = 0;
+	uint32_t  int_state2 = 0;
+
+	int_state1 = sys_ll_get_cpu0_int_0_31_en_value();
+	int_state2 = sys_ll_get_cpu0_int_32_63_en_value();
+	sys_ll_set_cpu0_int_0_31_en_value(0x0);
+	sys_ll_set_cpu0_int_32_63_en_value(0x0);
+	__asm volatile( "nop" );
+	__asm volatile( "nop" );
+	__asm volatile( "nop" );
+	__asm volatile( "nop" );
+	__asm volatile( "nop" );
+	__asm volatile( "nop" );
+	__asm volatile( "nop" );
+	__asm volatile( "nop" );
+	__asm volatile( "nop" );
+	__asm volatile( "nop" );
+
+      /*mask all interner interrupt*/
 	sys_ll_set_cpu0_int_halt_clk_op_cpu0_int_mask(1);
 
 	//gpio_disable_output();
@@ -221,17 +239,7 @@ void sys_hal_enter_low_voltage(void)
 	sys_ll_set_cpu_clk_div_mode1_cksel_core(0);
 	sys_ll_set_cpu_clk_div_mode1_clkdiv_core(0);
 	sys_ll_set_cpu_clk_div_mode1_clkdiv_bus(0);
-	#if 0
-	clock_value = sys_ll_get_cpu_clk_div_mode1_value();
-	clock_value &=  ~(SYS_CPU_CLK_DIV_MODE1_CKSEL_CORE_MASK << SYS_CPU_CLK_DIV_MODE1_CKSEL_CORE_POS);
-	sys_ll_set_cpu_clk_div_mode1_value(clock_value);
 
-	clock_value = 0;
-	clock_value = sys_ll_get_cpu_clk_div_mode1_value();
-	clock_value &= ~(SYS_CPU_CLK_DIV_MODE1_CLKDIV_CORE_MASK << SYS_CPU_CLK_DIV_MODE1_CLKDIV_CORE_POS);
-	clock_value &= ~(SYS_CPU_CLK_DIV_MODE1_CLKDIV_BUS_MASK << SYS_CPU_CLK_DIV_MODE1_CLKDIV_BUS_POS);
-	sys_ll_set_cpu_clk_div_mode1_value(clock_value);
-	#endif
     //__asm volatile( "j ." );
 
 	/*2.switch flash clock to xtal26m*/
@@ -264,9 +272,13 @@ void sys_hal_enter_low_voltage(void)
 	pmu_val2 |= BIT(BIT_SLEEP_FLAG_LOW_VOLTAGE);
 	aon_pmu_hal_reg_set(PMU_REG2,pmu_val2);
 
+	sys_ll_set_cpu0_int_0_31_en_value(int_state1);
+	sys_ll_set_cpu0_int_32_63_en_value(int_state2);
+
+	set_csr(NDS_MIE, MIP_MTIP);
 	/*6.mask all interner interrupt*/
 	//sys_ll_set_cpu0_int_halt_clk_op_cpu0_int_mask(1);
-
+	//__asm volatile( "wfi" );
        /*get interrupt */
 	while(1)
 	{

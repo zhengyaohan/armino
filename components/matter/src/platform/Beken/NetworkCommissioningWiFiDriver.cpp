@@ -93,7 +93,6 @@ CHIP_ERROR BekenWiFiDriver::RevertConfiguration()
 {
     ChipLogProgress(NetworkProvisioning, "BekenWiFiDriver::RevertConfiguration\r\n");
     mStagingNetwork = mSavedNetwork;
-    DeviceLayer::Internal::BekenConfig::WriteConfigValue( DeviceLayer::Internal::BekenConfig::kConfigKey_FailSafeArmed ,true);
     return CHIP_NO_ERROR;
 }
 
@@ -215,12 +214,13 @@ CHIP_ERROR GetConnectedNetwork(Network & network)
 
 void BekenWiFiDriver::OnNetworkStatusChange()
 {
+    ChipLogProgress(NetworkProvisioning, "BekenWiFiDriver::OnNetworkStatusChange\r\n");
     Network configuredNetwork = {0};
 
     VerifyOrReturn(mpStatusChangeCallback != nullptr);
     GetConnectedNetwork(configuredNetwork);
 
-    if (configuredNetwork.networkID[0])
+    if (configuredNetwork.networkIDLen)
     {
         mpStatusChangeCallback->OnNetworkingStatusChange(
             Status::kSuccess, MakeOptional(ByteSpan(configuredNetwork.networkID, configuredNetwork.networkIDLen)), NullOptional);
@@ -233,14 +233,14 @@ void BekenWiFiDriver::OnNetworkStatusChange()
 
 CHIP_ERROR BekenWiFiDriver::SetLastDisconnectReason(const ChipDeviceEvent * event)
 {
-    //VerifyOrReturnError(event->Type == DeviceEventType::kRtkWiFiStationDisconnectedEvent, CHIP_ERROR_INVALID_ARGUMENT);
-    //mLastDisconnectedReason = wifi_get_last_error();
-    //TODO
+    ChipLogProgress(NetworkProvisioning, "BekenWiFiDriver::SetLastDisconnectReason\r\n");
+    mLastDisconnectedReason = event->Platform.BKSystemEvent.Data.WiFiStaDisconnected;
     return CHIP_NO_ERROR;
 }
 
 int32_t BekenWiFiDriver::GetLastDisconnectReason()
 {
+    ChipLogProgress(NetworkProvisioning, "BekenWiFiDriver::GetLastDisconnectReason\r\n");
     return mLastDisconnectedReason;
 }
 
@@ -259,14 +259,14 @@ CHIP_ERROR BekenWiFiDriver::StartScanWiFiNetworks(ByteSpan ssid)
 {
     ChipLogProgress(NetworkProvisioning, "BekenWiFiDriver::StartScanWiFiNetworks\r\n");
     wifi_scan_config_t config = {0};
-    os_memcpy( config.ssid, ssid.data(), ssid.size() );
-    if (4 == ssid.size() && 0 == memcmp(ssid.data(), "null", ssid.size() ) ) //non-directed scanning
+    if (ssid.data() == NULL) //non-directed scanning
     {
         ChipLogProgress(NetworkProvisioning, "non-directed scanning...\r\n" );
         BK_LOG_ON_ERR(bk_wifi_scan_start(NULL));
     }
     else//directed scanning
     {
+        os_memcpy( config.ssid, ssid.data(), ssid.size() );
         ChipLogProgress(NetworkProvisioning, "directed scanning... ssid:%s ; %d \r\n",config.ssid,ssid.size());
         BK_LOG_ON_ERR(bk_wifi_scan_start(&config));
     }

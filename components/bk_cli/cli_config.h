@@ -58,10 +58,10 @@ extern "C" {
 #else
 #define CLI_CFG_KEYVALUE    0
 #endif
-#if(CONFIG_MATTER_NAMEKEY)
-#define CLI_CFG_NAMEKEY     1
+#if(CONFIG_SUPPORT_MATTER)
+#define CLI_CFG_MATTER      1
 #else
-#define CLI_CFG_NAMEKEY     0
+#define CLI_CFG_MATTER      0
 #endif
 #define CLI_CFG_UART        1
 #define CLI_CFG_ADC         1
@@ -208,6 +208,9 @@ extern "C" {
 #define CLI_CFG_AEC         1
 #endif
 
+#if (CONFIG_AUDIO_G711_TEST)
+#define CLI_CFG_G711         1
+#endif
 
 #if (CONFIG_SECURITYIP)
 #define CLI_CFG_VAULT		1

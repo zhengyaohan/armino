@@ -2189,7 +2189,7 @@ mdns_resp_rename_netif(struct netif *netif, const char *hostname)
  * @return service_id if the service was added to the netif, an err_t otherwise
  */
 s8_t
-mdns_resp_add_service(struct netif *netif, const char *name, const char *service, enum mdns_sd_proto proto, u16_t port, u32_t dns_ttl, service_get_txt_fn_t txt_fn, void *txt_data)
+mdns_resp_add_service(struct netif *netif, const char *name, const char *service, enum mdns_sd_proto proto, u16_t port, u32_t dns_ttl, service_get_txt_fn_t txt_fn, void *txt_data, struct mdns_service **dns_service)
 {
   s8_t i;
   s8_t slot = -1;
@@ -2225,6 +2225,8 @@ mdns_resp_add_service(struct netif *netif, const char *name, const char *service
   srv->dns_ttl = dns_ttl;
 
   mdns->services[slot] = srv;
+  if(dns_service != NULL)
+    *dns_service = srv;
 
   mdns_resp_restart(netif);
 
@@ -2307,6 +2309,36 @@ mdns_resp_add_service_txtitem(struct mdns_service *service, const char *txt, u8_
   /* Use a mdns_domain struct to store txt chunks since it is the same encoding */
   return mdns_domain_add_label(&service->txtdata, txt, txt_len);
 }
+
+err_t
+mdns_resp_add_service_txtall(struct mdns_service *service, const char *txt, u8_t txt_len)
+{
+  LWIP_ASSERT("mdns_resp_add_service_txtitem: service != NULL", service);
+
+  /* Use a mdns_domain struct to store txt chunks since it is the same encoding */
+  if (txt_len > sizeof(service->txtdata.name))
+  {
+      bk_printf("!!!mdns txt_len too long = %u \r\n", txt_len);
+      txt_len = (u8_t)sizeof(service->txtdata.name);
+  }
+  MEMCPY(service->txtdata.name, txt, txt_len);
+  service->txtdata.length = txt_len;
+
+  return ERR_OK;
+}
+
+
+err_t 
+mdns_resp_update_service_txt_userdata(struct mdns_service *service, void *userdata)
+{
+  LWIP_ASSERT("mdns_resp_add_service_txtitem: service != NULL", service);
+
+  /* Use a mdns_domain struct to store txt chunks since it is the same encoding */
+  service->txt_userdata = userdata;
+
+  return ERR_OK;
+}
+
 
 /**
  * @ingroup mdns

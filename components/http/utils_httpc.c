@@ -15,7 +15,7 @@
 #include "bk_flash.h"
 #endif
 
-#if CONFIG_OTA_HTTP
+#if CONFIG_HTTP
 #define HTTPCLIENT_MIN(x,y) (((x)<(y))?(x):(y))
 #define HTTPCLIENT_MAX(x,y) (((x)>(y))?(x):(y))
 

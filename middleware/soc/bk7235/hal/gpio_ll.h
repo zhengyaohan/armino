@@ -291,8 +291,8 @@ static inline void gpio_ll_reg_save(uint32_t*  gpio_cfg)
 		return;
 	
     for(i = 0; i < GPIO_NUM_MAX; i ++)
-    {       
-        if(GPIO_EXIST & BIT(i))
+    {
+        //if(GPIO_EXIST & BIT(i))//temp modify
         {
             gpio_cfg[i] = REG_READ(GPIO_LL_REG_BASE+i*4);
         }
@@ -306,8 +306,8 @@ static inline void gpio_ll_reg_restore(uint32_t*  gpio_cfg)
     if(gpio_cfg == NULL)
         return;
     for(i = 0; i < GPIO_NUM_MAX; i ++)
-    {       
-        if(GPIO_EXIST & BIT(i))
+    {
+        //if(GPIO_EXIST & BIT(i))//temp modify
         {
             REG_WRITE(GPIO_LL_REG_BASE+i*4, gpio_cfg[i]);
         }
@@ -390,9 +390,10 @@ static inline void gpio_ll_wakeup_enable(uint64_t index, uint64_t type_l, uint64
 	
 	REG_WRITE(GPIO_LL_REG_BASE+0x42*4, rdata);
 
-	REG_WRITE(GPIO_LL_REG_BASE+0x47*4, 0xffffffff);        
-	REG_WRITE(GPIO_LL_REG_BASE+0x48*4, 0xff); 
-
+extern void delay(INT32 num);
+	delay(10);
+	REG_WRITE(GPIO_LL_REG_BASE+0x47*4, 0xffffffff);
+	REG_WRITE(GPIO_LL_REG_BASE+0x48*4, 0xffffffff);
 
     index = index_ini;
     rdata = 0;
@@ -458,6 +459,11 @@ static inline void gpio_ll_wakeup_interrupt_clear()
 	
 	REG_WRITE(GPIO_LL_REG_BASE+0x47*4, (REG_READ(GPIO_LL_REG_BASE+0x47*4))|int_state); 
 	REG_WRITE(GPIO_LL_REG_BASE+0x48*4, (REG_READ(GPIO_LL_REG_BASE+0x48*4))|(int_state >> 32)); 
+
+	extern void delay(INT32 num);
+	delay(10);
+	REG_WRITE(GPIO_LL_REG_BASE+0x47*4, 0xffffffff);
+	REG_WRITE(GPIO_LL_REG_BASE+0x48*4, 0xffffffff);
 
 }
 #define gpio_ll_set_gpio_perial_mode(hw, index, mode)	gpio_ll_set_perial_mode(hw, index, mode)

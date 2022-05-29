@@ -141,15 +141,7 @@ INCLUDES += -I$(CHIP_DIR)/src
 INCLUDES += -I$(CHIP_DIR)/src/app/server
 INCLUDES += -I$(CHIP_DIR)/src/lib
 
-#out incluede
-#INCLUDES += -I$(CHIP_DIR)/config/beken/components/chip/out/7231n/gen/include
-#INCLUDES += -I$(CHIP_DIR)/gen/include
-
-# TODO fix it
-# Matter should depends on sdkconfig.h generated in $(CONFIG_DIR), however a lot of 
-# build error if directly use the correct sdkconfig.h, owner need to fix it!
-#INCLUDES += -I$(CONFIG_DIR)
-INCLUDES += -I$(CHIP_DIR)/bk7235
+INCLUDES += -I$(CONFIG_DIR)
 
 INCLUDES += -I$(OUTPUT_DIR)/out/$(TARGET)/gen/include
 INCLUDES += -I$(CHIP_DIR)/src/include

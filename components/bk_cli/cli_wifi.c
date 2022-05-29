@@ -20,6 +20,7 @@
 #include "bk_wifi_netif.h"
 #include "bk_wifi.h"
 #endif
+#include "bk_wifi_rw.h"
 
 #define TAG "wifi_cli"
 #define CMD_WLAN_MAX_BSS_CNT	50
@@ -689,6 +690,21 @@ void cli_wifi_get_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 			CLI_LOGI("ps status: %s \n", (state?"sleep":"active"));
 		} else {
 			CLI_LOGI("Usage get ps status\n");
+		}
+	}
+	else if (os_strcmp(argv[1], "mac_trx") == 0) {
+
+		bool reset_status = false;
+
+		if ((argc == 4) && (os_strcmp(argv[3], "-r") == 0))
+		{
+			reset_status = true;
+		}
+
+		if(os_strcmp(argv[2], "status") == 0) {
+			bk_wifi_get_mac_trx_status(reset_status);
+		} else {
+			CLI_LOGI("Usage get MAC TRX status\n");
 		}
 	}
 }

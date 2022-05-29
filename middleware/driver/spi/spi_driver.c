@@ -134,9 +134,11 @@ static void spi_clock_enable(spi_id_t id)
 		case SPI_ID_0:
 			sys_drv_dev_clk_pwr_up(CLK_PWR_ID_SPI_1, CLK_PWR_CTRL_PWR_UP);
 			break;
+#if (SOC_SPI_UNIT_NUM > 1)
 		case SPI_ID_1:
 			sys_drv_dev_clk_pwr_up(CLK_PWR_ID_SPI_2, CLK_PWR_CTRL_PWR_UP);
 			break;
+#endif
 		default:
 			break;
 	}
@@ -149,9 +151,11 @@ static void spi_clock_disable(spi_id_t id)
 		case SPI_ID_0:
 			sys_drv_dev_clk_pwr_up(CLK_PWR_ID_SPI_1, CLK_PWR_CTRL_PWR_DOWN);
 			break;
+#if (SOC_SPI_UNIT_NUM > 1)
 		case SPI_ID_1:
 			sys_drv_dev_clk_pwr_up(CLK_PWR_ID_SPI_2, CLK_PWR_CTRL_PWR_DOWN);
 			break;
+#endif
 		default:
 			break;
 	}
@@ -164,9 +168,11 @@ static void spi_interrupt_enable(spi_id_t id)
 		case SPI_ID_0:
 			sys_drv_int_enable(SPI_INTERRUPT_CTRL_BIT);
 			break;
+#if (SOC_SPI_UNIT_NUM > 1)
 		case SPI_ID_1:
 			sys_drv_int_enable(SPI1_INTERRUPT_CTRL_BIT);
 			break;
+#endif
 		default:
 			break;
 	}
@@ -179,9 +185,11 @@ static void spi_interrupt_disable(spi_id_t id)
 		case SPI_ID_0:
 			sys_drv_int_disable(SPI_INTERRUPT_CTRL_BIT);
 			break;
+#if (SOC_SPI_UNIT_NUM > 1)
 		case SPI_ID_1:
 			sys_drv_int_disable(SPI1_INTERRUPT_CTRL_BIT);
 			break;
+#endif
 		default:
 			break;
 	}

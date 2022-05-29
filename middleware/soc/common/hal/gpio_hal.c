@@ -122,7 +122,22 @@ bk_err_t gpio_hal_enable_interrupt(gpio_hal_t *hal, gpio_id_t gpio_id)
 
 static bk_err_t gpio_hal_map_check(gpio_hal_t *hal, gpio_id_t gpio_id)
 {
-	const gpio_map_t *gpio_map = &gpio_map_table[gpio_id];
+	const gpio_map_t *gpio_map = NULL;
+
+	//special for BK7235:the GPIO ID isn't from 0~47, some of the GPIO are not exist.
+	for(int i = 0; i < sizeof(gpio_map_table)/sizeof(gpio_map_t); i++)
+	{
+		if(gpio_map_table[i].id == gpio_id)
+		{
+			gpio_map = &gpio_map_table[i];
+			break;
+		}
+	}
+	if(gpio_map == NULL)
+	{
+		HAL_LOGE("gpio id=%d is not exist\r\n", gpio_id);
+		return BK_ERR_GPIO_INVALID_ID;
+	}
 
 	//TODO check gpio is busy
 	if(gpio_ll_check_func_mode_enable(hal->hw, gpio_id)) {
@@ -140,7 +155,22 @@ static bk_err_t gpio_hal_map_check(gpio_hal_t *hal, gpio_id_t gpio_id)
 
 bk_err_t gpio_hal_func_map(gpio_hal_t *hal, gpio_id_t gpio_id, gpio_dev_t dev)
 {
-	const gpio_map_t *gpio_map = &gpio_map_table[gpio_id];
+	const gpio_map_t *gpio_map = NULL;
+
+	//special for BK7235:the GPIO ID isn't from 0~47, some of the GPIO are not exist.
+	for(int i = 0; i < sizeof(gpio_map_table)/sizeof(gpio_map_t); i++)
+	{
+		if(gpio_map_table[i].id == gpio_id)
+		{
+			gpio_map = &gpio_map_table[i];
+			break;
+		}
+	}
+	if(gpio_map == NULL)
+	{
+		HAL_LOGE("gpio id=%d is not exist\r\n", gpio_id);
+		return BK_ERR_GPIO_INVALID_ID;
+	}
 
 	if(gpio_hal_map_check(hal, gpio_id)) {
 		return BK_ERR_GPIO_INTERNAL_USED;

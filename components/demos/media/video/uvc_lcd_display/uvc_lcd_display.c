@@ -23,17 +23,73 @@
 
 #define JPEGDEC_DATA_ADDR     (0x60010000)
 #define PSRAM_BASEADDR        (0x60000000)
-#define DMA_TRANSFER_LEN      0xF000//640*480/5;480*272/2;
+#define YUV_RESIZE_ADDR       (0x61000000)
+#define DMA_TRANSFER_LEN      0xFF00//480*272/2;
 
 extern void delay(INT32 num);
 
 static uint8_t dma_int_cnt = 0;
 static uint8_t dma_channel_id = 0;
 static bool g_uvc_enable = false;
+static uint32_t g_image_width = 640;
+static uint32_t g_image_height = 480;
 
 static void cli_jpegdec_help(void)
 {
-	os_printf("lcd_jpegdec {init|display_picture|stop_display|uvc_dispaly_init|start_uvc|close_uvc|deinit}\n");
+	os_printf("lcd_jpegdec {init|jdec_to_sd|display_picture|stop_display|uvc_dispaly_init|start_uvc|close_uvc|yuvresize|display_uvc|deinit}\n");
+	os_printf("-init---------------(init power/sdcard/dma/lcd)-----\r\n");
+	os_printf("       width--------(input image width, 640/1280)---\r\n");
+	os_printf("       hight--------(input image hight, 480/720)----\r\n");
+	os_printf("       ratio--------(decode output image size, 0)---\r\n");
+	os_printf("       rgb_clk_div--(rgb clk div, 8/25)-------------\r\n");
+	os_printf("\r\n-jdec_to_sd----(jdec data save to sdcard, yuv422)---\r\n");
+	os_printf("       input_path--(input image name)-------------------\r\n");
+	os_printf("       ouput_path--(output image name)------------------\r\n");
+	os_printf(" (op)  resize_path-(resize output image name)-----------\r\n");
+	os_printf("\r\n-display_picture---(display yuv422 image, 480*272)-----------\r\n");
+	os_printf("       input_path------(input image name)------------------------\r\n");
+	os_printf("\r\n-stop_display---(rgb stop display)--------\r\n");
+	os_printf("\r\n-uvc_dispaly_init---(init uvc)--------------\r\n");
+	os_printf("       width------------(uvc width, 640/1280)---\r\n");
+	os_printf("       hight------------(uvc hight, 480/720)----\r\n");
+	os_printf("\r\n-start_uvc---(start uvc)----\r\n");
+	os_printf("\r\n-close_uvc-- (stop uvc)----\r\n");
+	os_printf("\r\n-yuvresize-- (resize original yuv422 to 480*272 and display)----\r\n");
+	os_printf("       input_path--(input image name)-------------------------------\r\n");
+	os_printf("       ouput_path--(output image name)------------------------------\r\n");
+	os_printf("\r\n-display_uvc-- (display 480*272 yyuv image)----\r\n");
+	os_printf("       input_path--(input image name)--------------\r\n");
+	os_printf("\r\n-dinit-- (deinit all modules)----\r\n");
+}
+
+static void image_resize_to_480_272(uint32_t input_size, uint8_t *input_ptr, uint8_t *output_ptr)
+{
+	uint8_t *left_top_ptr = NULL;
+	uint32_t left_top_x = 0;
+	uint32_t left_top_y = 0;
+	uint32_t width = 0;
+	uint32_t compy_length = 480 * 2; // every col have 480 pixel
+	switch (input_size) {
+	case 720:
+		left_top_x = 400;
+		left_top_y = 224;
+		width = 1280;
+		break;
+	case 480:
+		left_top_x = 80;
+		left_top_y = 104;
+		width = 640;
+		break;
+	default:
+		return;
+	}
+
+	left_top_ptr = ((left_top_y - 1) * width + left_top_x) * 2 + input_ptr;
+	for (uint32_t col = left_top_y; col < (left_top_y + 272); col++) {
+		os_memcpy(output_ptr, left_top_ptr, compy_length);
+		left_top_ptr += width * 2;
+		output_ptr += compy_length;
+	}
 }
 
 static void lcd_display_frame_isr(void)
@@ -50,22 +106,22 @@ static void dma_jpeg_dec_to_lcdfifo_isr(dma_id_t id)
 {
 	uint32_t source_start_addr;
 	dma_int_cnt++;
-	if(dma_int_cnt == 10)
+	if(dma_int_cnt == 4)
 	{
 		if (g_uvc_enable) {
 			dma_int_cnt = 0;
 			bk_dma_stop(dma_channel_id);
-			source_start_addr = (uint32_t)JPEGDEC_DATA_ADDR;
+			source_start_addr = (uint32_t)YUV_RESIZE_ADDR;
 			bk_dma_set_src_addr(dma_channel_id, source_start_addr, 0);
 		} else {
 			dma_int_cnt = 0;
-			source_start_addr = (uint32_t)JPEGDEC_DATA_ADDR;
+			source_start_addr = (uint32_t)YUV_RESIZE_ADDR;
 			bk_dma_set_src_addr(dma_channel_id, source_start_addr, 0);
 			bk_dma_start(dma_channel_id);
 		}
 	}
 	else {
-		source_start_addr = (uint32_t)JPEGDEC_DATA_ADDR + (uint32_t)(DMA_TRANSFER_LEN * dma_int_cnt);
+		source_start_addr = (uint32_t)YUV_RESIZE_ADDR + (uint32_t)(DMA_TRANSFER_LEN * dma_int_cnt);
 		bk_dma_set_src_addr(dma_channel_id, source_start_addr, 0);
 		bk_dma_start(dma_channel_id);
 	}
@@ -79,8 +135,8 @@ static void dma_jpeg_dec_to_lcdfifo(void)
 	dma_config.chan_prio = 0;
 	dma_config.src.dev = DMA_DEV_DTCM;
 	dma_config.src.width = DMA_DATA_WIDTH_32BITS;
-	dma_config.src.start_addr = (uint32) JPEGDEC_DATA_ADDR;
-	dma_config.src.end_addr = (uint32) JPEGDEC_DATA_ADDR + DMA_TRANSFER_LEN;
+	dma_config.src.start_addr = (uint32) YUV_RESIZE_ADDR;
+	dma_config.src.end_addr = (uint32) YUV_RESIZE_ADDR + DMA_TRANSFER_LEN;
 	dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
 	dma_config.dst.dev = DMA_DEV_LCD_DATA;
 	dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
@@ -101,6 +157,7 @@ static void dma_jpeg_dec_to_lcdfifo(void)
 
 static void uvc_jpegdec_frame_end_callback(void)
 {
+	image_resize_to_480_272(g_image_height, (uint8_t *)JPEGDEC_DATA_ADDR, (uint8_t *)YUV_RESIZE_ADDR);
 	bk_lcd_rgb_display_en(1);
 	bk_dma_start(dma_channel_id);
 }
@@ -108,7 +165,11 @@ static void uvc_jpegdec_frame_end_callback(void)
 #if CONFIG_USB_UVC
 static void uvc_jpeg_frame_end_callback(uint32_t pic_size)
 {
-	bk_jpeg_dec_sw_fun((uint8_t *)PSRAM_BASEADDR, (uint8_t *)JPEGDEC_DATA_ADDR, pic_size);
+	bk_err_t ret = BK_OK;
+	ret = bk_jpeg_dec_sw_fun((uint8_t *)PSRAM_BASEADDR, (uint8_t *)JPEGDEC_DATA_ADDR, pic_size);
+	if (ret != BK_OK) {
+		bk_uvc_set_mem_status(UVC_MEM_IDLE);
+	}
 }
 #endif // CONFIG_USB_UVC
 
@@ -116,7 +177,6 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 {
 	int err = 0;
 	uint32_t rgb_clk_div = 0;
-	uint16_t width = 640, height = 480;
 	uint8_t ratio = 0;
 
 	if (argc < 2) {
@@ -131,8 +191,8 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 			return;
 		}
 
-		width = os_strtoul(argv[2], NULL, 10);
-		height = os_strtoul(argv[3], NULL, 10);
+		g_image_width = os_strtoul(argv[2], NULL, 10);
+		g_image_height = os_strtoul(argv[3], NULL, 10);
 		ratio = os_strtoul(argv[4], NULL, 10);
 		rgb_clk_div = os_strtoul(argv[5], NULL, 10);
 
@@ -150,7 +210,8 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		bk_lcd_driver_init(LCD_96M);
 		if (rgb_clk_div == 0)
 			rgb_clk_div = 25;
-		bk_lcd_rgb_init(rgb_clk_div, width, height, YYUV_DATA);
+
+		bk_lcd_rgb_init(rgb_clk_div, X_PIXEL_RGB, Y_PIXEL_RGB, YYUV_DATA);
 
 		bk_lcd_isr_register(RGB_OUTPUT_EOF, lcd_display_frame_isr);
 
@@ -158,7 +219,7 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		dma_jpeg_dec_to_lcdfifo();
 
 		// step 5: init jpeg_dec
-		err = bk_jpeg_dec_sw_init(width, height, ratio);
+		err = bk_jpeg_dec_sw_init(g_image_width, g_image_height, ratio);
 		if (err != kNoErr) {
 			os_printf("init jpeg_decoder failed\r\n");
 			return;
@@ -170,7 +231,7 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 #if (CONFIG_SDCARD_HOST || CONFIG_USB_HOST)
 		test_mount(DISK_NUMBER_SDIO_SD);
 #endif
-	} else if (os_strcmp(argv[1], "picture_jpegdec_to_sdcard") == 0) {
+	} else if (os_strcmp(argv[1], "jdec_to_sd") == 0) {
 #if (CONFIG_SDCARD_HOST || CONFIG_USB_HOST)
 		char *filename = NULL;
 		char *fileout = NULL;
@@ -181,8 +242,8 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		char *ucRdTemp = (char *)PSRAM_BASEADDR;
 		unsigned int uiTemp = 0;
 
-		if (argc != 4) {
-			os_printf("picture_jpegdec_to_sdcard: picture_name output_file_name\r\n");
+		if (argc < 4) {
+			os_printf("jdec_to_sd: picture_name output_file_name\r\n");
 			return;
 		}
 
@@ -230,7 +291,7 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 			return;
 		}
 
-		fr = f_write(&file, (char *)JPEGDEC_DATA_ADDR, width * height * 2, &uiTemp);
+		fr = f_write(&file, (char *)JPEGDEC_DATA_ADDR, g_image_width * g_image_height * 2, &uiTemp);
 		if (fr != FR_OK) {
 			os_printf("write %s fail.\r\n", fileout);
 			return;
@@ -240,6 +301,34 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		if (fr != FR_OK) {
 			os_printf("close %s fail!\r\n", fileout);
 			return;
+		}
+
+		if (argc == 5) {
+			char * yuv_resize = argv[4];
+
+			image_resize_to_480_272(g_image_height, (uint8_t *)JPEGDEC_DATA_ADDR, (uint8_t *)YUV_RESIZE_ADDR);
+			sprintf(cFileName, "%d:/%s", DISK_NUMBER_SDIO_SD, yuv_resize);
+
+			fr = f_open(&file, cFileName, FA_OPEN_APPEND | FA_WRITE);
+			if (fr != FR_OK) {
+				os_printf("open %s fail.\r\n", yuv_resize);
+				return;
+			}
+
+			fr = f_write(&file, (char *)YUV_RESIZE_ADDR, 480 * 272 * 2, &uiTemp);
+			/*for (uint32_t k = 0; k < (480 * 272 * 2); k++) {
+				f_printf(&file, "%02x\n", *((uint8_t *)YUV_RESIZE_ADDR + k));
+			}*/
+			if (fr != FR_OK) {
+				os_printf("write %s fail.\r\n", yuv_resize);
+				return;
+			}
+
+			fr = f_close(&file);
+			if (fr != FR_OK) {
+				os_printf("close %s fail!\r\n", yuv_resize);
+				return;
+			}
 		}
 #else
 		os_printf("Not support\r\n");
@@ -393,6 +482,113 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 #else
 		os_printf("Not support\r\n");
 #endif
+	}else if (os_strcmp(argv[1], "yuvresize") == 0) {
+		char *filename = NULL;
+		char *fileout = NULL;
+		char cFileName[FF_MAX_LFN];
+		FIL file;
+		FRESULT fr;
+		FSIZE_t size_64bit = 0;
+		char *ucRdTemp = (char *)PSRAM_BASEADDR;
+		unsigned int uiTemp = 0;
+	
+		filename = argv[2];
+		fileout = argv[3];
+
+		// step 1: read picture from sd to psram
+		sprintf(cFileName, "%d:/%s", DISK_NUMBER_SDIO_SD, filename);
+
+		fr = f_open(&file, cFileName, FA_OPEN_EXISTING | FA_READ);
+		if (fr != FR_OK) {
+			os_printf("open %s fail.\r\n", filename);
+			return;
+		}
+
+		size_64bit = f_size(&file);
+
+		uint32_t total_size = (uint32_t)size_64bit;// total byte
+		fr = f_read(&file, ucRdTemp, total_size, &uiTemp);
+		if (fr != FR_OK) {
+			os_printf("read file fail.\r\n");
+			return;
+		}
+
+		fr = f_close(&file);
+		if (fr != FR_OK) {
+			os_printf("close %s fail!\r\n", filename);
+			return;
+		}
+
+		// step 2: start resize
+		image_resize_to_480_272(g_image_height, (uint8_t *)PSRAM_BASEADDR, (uint8_t *)YUV_RESIZE_ADDR);
+
+		// step 3: save jpeg_dec data to sdcard
+		sprintf(cFileName, "%d:/%s", DISK_NUMBER_SDIO_SD, fileout);
+
+		fr = f_open(&file, cFileName, FA_OPEN_APPEND | FA_WRITE);
+		if (fr != FR_OK) {
+			os_printf("open %s fail.\r\n", fileout);
+			return;
+		}
+
+		fr = f_write(&file, (char *)YUV_RESIZE_ADDR, 480 * 272 * 2, &uiTemp);
+		if (fr != FR_OK) {
+			os_printf("write %s fail.\r\n", fileout);
+			return;
+		}
+
+		fr = f_close(&file);
+		if (fr != FR_OK) {
+			os_printf("close %s fail!\r\n", fileout);
+			return;
+		}
+
+		g_uvc_enable = false;
+		dma_int_cnt = 0;
+
+		bk_lcd_rgb_display_en(1);
+		bk_dma_start(dma_channel_id);
+	} else if (os_strcmp(argv[1], "display_uvc") == 0) {
+		char *filename = NULL;
+		char cFileName[FF_MAX_LFN];
+		FIL file;
+		FRESULT fr;
+		FSIZE_t size_64bit = 0;
+		char *ucRdTemp = (char *)YUV_RESIZE_ADDR;
+		unsigned int uiTemp = 0;
+	
+		filename = argv[2];
+
+		// step 1: read picture from sd to psram
+		sprintf(cFileName, "%d:/%s", DISK_NUMBER_SDIO_SD, filename);
+
+		fr = f_open(&file, cFileName, FA_OPEN_EXISTING | FA_READ);
+		if (fr != FR_OK) {
+			os_printf("open %s fail.\r\n", filename);
+			return;
+		}
+
+		size_64bit = f_size(&file);
+
+		uint32_t total_size = (uint32_t)size_64bit;// total byte
+		fr = f_read(&file, ucRdTemp, total_size, &uiTemp);
+		if (fr != FR_OK) {
+			os_printf("read file fail.\r\n");
+			return;
+		}
+
+		fr = f_close(&file);
+		if (fr != FR_OK) {
+			os_printf("close %s fail!\r\n", filename);
+			return;
+		}
+
+		g_uvc_enable = false;
+		dma_int_cnt = 0;
+
+		bk_lcd_rgb_display_en(1);
+		bk_dma_start(dma_channel_id);
+
 	}else if (os_strcmp(argv[1], "deinit") == 0) {
 		if (argc != 2) {
 			os_printf("deinit: error\r\n");

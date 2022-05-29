@@ -1214,6 +1214,15 @@ void rtos_enable_int(uint32_t int_level)
 {
 	port_enable_interrupts_flag(int_level);
 }
+uint32_t rtos_disable_mie_int(void)
+{
+    return port_disable_mie_flag();
+}
+
+void rtos_enable_mie_int(uint32_t int_level)
+{
+	port_enable_mie_flag(int_level);
+}
 
 void rtos_stop_int(void)
 {
@@ -1252,12 +1261,11 @@ void rtos_dump_task_list(void)
 
 size_t rtos_get_free_heap_size(void)
 {	
-	//TODO
-	// UINT32 OsMemGetFreeSize(VOID *pool);
-	
-	//OsMemInfoPrint(m_aucSysMem0);
+	UINT32 OsMemGetFreeSize(VOID *pool);
+
+	OsMemInfoPrint(m_aucSysMem0);
 	LOS_MemFreeNodeShow(m_aucSysMem0);
-	return 0; // OsMemGetFreeSize(m_aucSysMem0);
+	return OsMemGetFreeSize(m_aucSysMem0);
 }
 // eof
 

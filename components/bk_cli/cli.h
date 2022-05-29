@@ -70,7 +70,7 @@ int cli_ota_init(void);
 int cli_flash_init(void);
 int cli_flash_test_init(void);
 int cli_keyVaule_init(void);
-int cli_nameKey_init(void);
+int cli_matter_init(void);
 
 int cli_uart_init(void);
 int cli_adc_init(void);
@@ -107,6 +107,7 @@ int cli_aud_cp0_init(void);
 int cli_calendar_init(void);
 int cli_jpegdec_init(void);
 int cli_aec_init(void);
+int cli_g711_init(void);
 int cli_dvp_init(void);
 
 extern int hexstr2bin(const char *hex, u8 *buf, size_t len);

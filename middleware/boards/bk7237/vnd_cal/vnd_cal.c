@@ -2,6 +2,7 @@
 
 
 #define DEFAULT_TXID_XTAL           (0x10)
+#define PWR_GAIN_BASE_BLE           (0x40691000)
 
 #define TXPWR_ELEM_INUSED                 (0)
 #define TXPWR_ELEM_UNUSED                 (1)
@@ -163,6 +164,7 @@ TMP_PWR_ST tmp_pwr_tab_overlay[TMP_PWR_TAB_LEN] = {
 };
 
 UINT32 g_xtal_overlay = DEFAULT_TXID_XTAL;
+uint32 g_pwr_gain_base_ble_overlay = PWR_GAIN_BASE_BLE;
 
 INT16 shift_tab_b_overlay[4] = {0, 0, 0, 0}; // 11M base,5.5M,2M,1M
 // 54M base -54M,48M,36M,24M,18M,12M,9M,6M
@@ -197,6 +199,7 @@ void vnd_cal_overlay(void)
     vnd_cal_tmp_pwr_tab_overlay(tmp_pwr_tab_overlay);
 #endif
     vnd_cal_gxtal_overlay(g_xtal_overlay);
+    vnd_cal_pwr_gain_base_ble_overlay(g_pwr_gain_base_ble_overlay);
 }
 
 

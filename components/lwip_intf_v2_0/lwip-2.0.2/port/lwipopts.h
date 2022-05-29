@@ -44,7 +44,7 @@
 #define LWIP_LOOPBACK_MAX_PBUFS         8
 
 #define TCPIP_THREAD_NAME               "tcp/ip"
-#ifdef CONFIG_HOMEKIT
+#ifdef CONFIG_KEYVALUE
 #define TCPIP_THREAD_STACKSIZE          1024
 #else
 #define TCPIP_THREAD_STACKSIZE          512
@@ -101,6 +101,7 @@
 #define SNMP_MSG_DEBUG                  LWIP_DBG_OFF
 #define SNMP_MIB_DEBUG                  LWIP_DBG_OFF
 #define DNS_DEBUG                       LWIP_DBG_OFF
+#define MDNS_DEBUG                      LWIP_DBG_OFF
 
 //#define LWIP_COMPAT_MUTEX      		    1
 /**

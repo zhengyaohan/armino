@@ -750,9 +750,7 @@ bk_err_t bk_uart_read_bytes(uart_id_t id, void *data, uint32_t size, uint32_t ti
 				}
 				s_uart_sema[id].rx_blocked = false;
 				GLOBAL_INT_RESTORE();
-#if (!CONFIG_ATE_TEST)
 				UART_LOGW("recv data timeout:%d\n", timeout_ms);
-#endif
 				UART_STATIS_INC(uart_statis->recv_timeout_cnt);
 				return BK_ERR_UART_RX_TIMEOUT;
 			}

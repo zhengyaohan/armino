@@ -1,6 +1,6 @@
 #include <string.h>
 #include <common/bk_include.h>
-#if CONFIG_OTA_HTTP
+#if CONFIG_HTTP
 #include "utils_net.h"
 #include "lite-log.h"
 #include "lwip/errno.h"

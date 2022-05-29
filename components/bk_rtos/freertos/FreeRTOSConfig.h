@@ -123,15 +123,15 @@
 #endif
 
 #if CONFIG_SOC_BK7256XX || CONFIG_SOC_BK7256_CP1
-#define configDYNAMIC_HEAP_SIZE                     0
+#define configDYNAMIC_HEAP_SIZE                     1
 #else
 #define configDYNAMIC_HEAP_SIZE                     1
 #endif
 
 #if (CONFIG_SOC_BK7256_CP1)
-#define configTOTAL_HEAP_SIZE                       ( ( size_t ) ( 30 * 1024 ) )
+#define configTOTAL_HEAP_SIZE                       ( ( size_t ) ( 45 * 1024 ) )
 #else
-#define configTOTAL_HEAP_SIZE                       ( ( size_t ) ( 120 * 1024 ) )
+#define configTOTAL_HEAP_SIZE                       ( ( size_t ) ( 140 * 1024 ) )
 #endif
 /* Queue & Semaphore & Mutex */
 #define configQUEUE_REGISTRY_SIZE                   0

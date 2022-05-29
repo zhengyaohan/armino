@@ -300,32 +300,65 @@ int handle_shell_input(char *inbuf, int in_buf_size, char * outbuf, int out_buf_
 }
 
 #elif CONFIG_ATE_TEST
+static beken_semaphore_t ate_test_semaphore = NULL;
+static void ate_uart_rx_isr(uart_id_t id, void *param)
+{
+	int ret;
+
+	ret = rtos_set_semaphore(&ate_test_semaphore);
+	if(kNoErr !=ret)
+		os_printf("ate_uart_rx_isr: ATE set sema failed\r\n");
+}
 
 static void cli_ate_main(uint32_t data)
 {
 
 	char *msg = NULL;
+	int ret = -1;
 	int cnt = 0;
+	uint8_t rx_data;
 
+        if(NULL == ate_test_semaphore)
+    	{
+              ret = rtos_init_semaphore(&ate_test_semaphore, 1);
+        	if (kNoErr != ret)
+            		os_printf("cli_ate_main: ATE create background sema failed\r\n");
+    	}
+
+	bk_uart_disable_sw_fifo(CONFIG_UART_PRINT_PORT);
+	bk_uart_register_rx_isr(CONFIG_UART_PRINT_PORT, (uart_isr_t)ate_uart_rx_isr, NULL);
 	bk_uart_enable_rx_interrupt(CONFIG_UART_PRINT_PORT);
 
 	while (1) {
-		while(cli_getchar(&(pCli->inbuf[cnt])) == 1) {
-			cnt++;
-		}
 
-		bkreg_run_command1(pCli->inbuf, cnt);
+		ret = rtos_get_semaphore(&ate_test_semaphore, BEKEN_WAIT_FOREVER);
+		if(kNoErr == ret)
+        	{
+			while(1)  /* read all data from rx-FIFO. */
+			{
+				ret = uart_read_byte_ex(CONFIG_UART_PRINT_PORT, &rx_data);
+				if (ret == -1)
+					break;
+
+				pCli->inbuf[cnt] = (char)rx_data;
+				cnt++;
+
+				if(cnt >= INBUF_SIZE)
+					break;
+			}
+
+			bkreg_run_command1(pCli->inbuf, cnt);
+
+			if (cnt > 0) {
+				for (int i = 0;i < cnt; i++)
+					pCli->inbuf[i] = 0;
+				cnt = 0;
+			}
+        	}
 
 		msg = pCli->inbuf;
-		if (cnt > 0) {
-			for (int i = 0;i <= cnt; i++)
-				pCli->inbuf[i] = 0;
-			cnt = 0;
-		}
-
 		if (os_strcmp(msg, EXIT_MSG) == 0)
 				break;
-
 	}
 
 	os_printf("CLI exited\r\n");
@@ -1246,8 +1279,8 @@ int bk_cli_init(void)
     cli_keyVaule_init();
 #endif
 
-#if (CLI_CFG_NAMEKEY == 1)
-    cli_nameKey_init();
+#if (CLI_CFG_MATTER == 1)
+    cli_matter_init();
 #endif
 
 #if (CLI_CFG_UART == 1)
@@ -1403,6 +1436,10 @@ int bk_cli_init(void)
 
 #if (CLI_CFG_AEC == 1)
 	cli_aec_init();
+#endif
+
+#if (CLI_CFG_G711 == 1)
+	cli_g711_init();
 #endif
 
 #if (CLI_CFG_DVP == 1)

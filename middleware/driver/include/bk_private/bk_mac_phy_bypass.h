@@ -71,7 +71,6 @@ typedef struct mbps_txs_mfr_st {
 
 void mpb_init(void);
 void mpb_exit(void);
-extern void mpb_tx_mode_close_for_ate(void);
 extern UINT32 mpb_ctrl(UINT32 cmd, void *param);
 #ifdef __cplusplus
 }

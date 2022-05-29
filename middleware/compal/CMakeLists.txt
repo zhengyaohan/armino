@@ -4,8 +4,13 @@ set(incs homekit matter)
 set(srcs 
 	homekit/key_value.c
 	homekit/func_convert.c
-	matter/flash_namespace_value.c
 	)
+
+if(CONFIG_SUPPORT_MATTER)
+	list(APPEND srcs
+                                matter/flash_namespace_value.c
+	)
+endif()
 
 if(CONFIG_COMMON_IO)
 	list(APPEND incs

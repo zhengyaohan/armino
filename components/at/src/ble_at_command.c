@@ -1304,8 +1304,8 @@ int ble_create_connect_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc
 
     bk_ble_set_notice_cb(ble_at_notice_cb);
 
-    actv_idx = bk_ble_find_master_state_idx_handle(AT_INIT_STATE_CREATED);
-    if (actv_idx == AT_BLE_MAX_CONN)
+    /*actv_idx = bk_ble_find_master_state_idx_handle(AT_INIT_STATE_CREATED);
+    if (actv_idx == AT_BLE_MAX_CONN)*/
     {
         /// Do not create actv
         actv_idx = bk_ble_get_idle_conn_idx_handle();
@@ -1341,7 +1341,7 @@ int ble_create_connect_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc
             }
         }
     }
-    else
+    /*else
     {
         /// have created actv, this happend in which connection have been disconnected
         err = ble_start_connect_handle(actv_idx, peer_addr_type, &bdaddr, ble_at_cmd_cb);
@@ -1351,7 +1351,7 @@ int ble_create_connect_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc
         os_memcpy(pcWriteBuffer, msg, os_strlen(msg));
         rtos_deinit_semaphore(&ble_at_cmd_sema);
         return err;
-    }
+    }*/
 
 error:
     msg = AT_CMD_RSP_ERROR;
@@ -2695,8 +2695,8 @@ int ble_connect_by_name_handle(char *pcWriteBuffer, int xWriteBufferLen, int arg
         }
     }
 
-    actv_idx = bk_ble_find_master_state_idx_handle(AT_INIT_STATE_CREATED);
-    if (actv_idx == AT_BLE_MAX_CONN)
+    /*actv_idx = bk_ble_find_master_state_idx_handle(AT_INIT_STATE_CREATED);
+    if (actv_idx == AT_BLE_MAX_CONN)*/
     {
         /// Do not create actv
         actv_idx = bk_ble_get_idle_conn_idx_handle();
@@ -2732,7 +2732,7 @@ int ble_connect_by_name_handle(char *pcWriteBuffer, int xWriteBufferLen, int arg
             }
         }
     }
-    else
+/*    else
     {
         /// have created actv, this happend in which connection have been disconnected
         err = ble_start_connect_handle(actv_idx, g_peer_dev.addr_type, &(g_peer_dev.bdaddr), ble_at_cmd_cb);
@@ -2743,7 +2743,7 @@ int ble_connect_by_name_handle(char *pcWriteBuffer, int xWriteBufferLen, int arg
         rtos_deinit_semaphore(&ble_at_cmd_sema);
         return err;
     }
-
+*/
 error:
     msg = AT_CMD_RSP_ERROR;
     g_peer_dev.state = STATE_IDLE;

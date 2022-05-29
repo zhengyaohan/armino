@@ -75,6 +75,11 @@ menu "Cli"
 		bool "Enable AUDIO AEC Test"
 		default n
 
+	config AUDIO_G711_TEST
+		depends on CLI
+		bool "Enable AUDIO G711 Test"
+		default n
+
 	config TOUCH
 		depends on CLI
 		bool "Enable TOUCH Test"
@@ -110,17 +115,9 @@ menu "Cli"
 	config SECURITYIP
 		bool "Enable securityIP"
 		default n
-
-	config MATTER_NAMEKEY
-		bool "Enable MATTER_NAMEKEY"
-		default n
 		
 	config KEYVALUE
 		bool "Enable KEYVALUE"
-		default n	
-		
-	config NET_CTL
-		bool "Enable NET_CTL"
 		default n
 
 	config COMPONENTS_WPA2_ENTERPRISE

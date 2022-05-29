@@ -233,7 +233,15 @@ void user_except_handler (unsigned long mcause, SAVED_CONTEXT *context) {
 	BK_DUMP_OUT("***********************************************************************************************\r\n");
 
 	arch_dump_cpu_registers(mcause, context);
-	
+
+	if(NULL != s_wifi_dump_func) {
+		s_wifi_dump_func();
+	}
+
+	if(NULL != s_ble_dump_func) {
+		s_ble_dump_func();
+	}
+
 	BK_DUMP_OUT("System will dump memory in 5s, please ready to save whole log.........\r\n");
 
 	sys_delay_sync(SYS_DELAY_TIME_5S);
@@ -255,13 +263,6 @@ void user_except_handler (unsigned long mcause, SAVED_CONTEXT *context) {
 
 	arch_dump_cpu_registers(mcause, context);
 
-	if(NULL != s_ble_dump_func) {
-		s_ble_dump_func();
-	}
-
-	if(NULL != s_wifi_dump_func) {
-		s_wifi_dump_func();
-	}
 
 	BK_DUMP_OUT("***********************************************************************************************\r\n");
 	BK_DUMP_OUT("************************************user except handler end************************************\r\n");

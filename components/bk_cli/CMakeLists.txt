@@ -66,9 +66,9 @@ if (CONFIG_I2C)
 	)
 endif()
 
-if (CONFIG_MATTER_NAMEKEY)
+if (CONFIG_SUPPORT_MATTER)
 	list(APPEND srcs
-		cli_nameKey.c
+		cli_matter.c
 	)
 endif()
 
@@ -198,6 +198,10 @@ endif()
 
 if (CONFIG_AUDIO_AEC_TEST)
 	list(APPEND srcs "cli_aec.c")
+endif()
+
+if (CONFIG_AUDIO_G711_TEST)
+	list(APPEND srcs "cli_g711.c")
 endif()
 
 if (CONFIG_FFT_TEST)

@@ -540,6 +540,7 @@ flash_protect_type_t bk_flash_get_protect_type(void)
 	uint32_t type = 0;
 	uint16_t protect_value = 0;
 
+	flash_ps_suspend(NORMAL_PS);
 	protect_value = flash_hal_get_protect_value(&s_flash.hal, s_flash.flash_cfg->status_reg_size,
 												s_flash.flash_cfg->protect_post, s_flash.flash_cfg->protect_mask,
 												s_flash.flash_cfg->cmp_post);
@@ -554,12 +555,15 @@ flash_protect_type_t bk_flash_get_protect_type(void)
 	else
 		type = -1;
 
+	flash_ps_resume(NORMAL_PS);
 	return type;
 }
 
 bk_err_t bk_flash_set_protect_type(flash_protect_type_t type)
 {
+	flash_ps_suspend(NORMAL_PS);
 	flash_set_protect_type(type);
+	flash_ps_resume(NORMAL_PS);
 	return BK_OK;
 }
 

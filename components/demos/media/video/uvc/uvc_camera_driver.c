@@ -116,12 +116,14 @@ static void uvc_process_data_packet(void *curptr, uint32_t newlen, uint8_t is_eo
 		//os_printf("frame_len1:%d\r\n", uvc_intf.frame_len);
 		if ((uvc_intf.end_frame_handler != NULL) && (uvc_intf.frame_len > 0)) {
 			uvc_intf.mem_status = UVC_MEM_BUSY;
+			//s_uvc_save = 0;
 			uvc_send_msg(UVC_EOF, uvc_intf.frame_len);
 		}
 
 		if (uvc_intf.capture_enable == 1) {
 			uvc_intf.capture_enable = 0;
 			uvc_intf.mem_status = UVC_MEM_BUSY;
+			//s_uvc_save = 0;
 			uvc_send_msg(UVC_CAPTURE, uvc_intf.frame_len);
 		}
 	}
@@ -172,6 +174,8 @@ static void uvc_intfer_config_desc()
 		os_printf("malloc dma fail \r\n");
 		return;
 	}
+
+	os_printf("%s, uvc_dma_id:%d\r\n", __func__, uvc_intf.dma_channel);
 #endif
 }
 
@@ -212,25 +216,28 @@ static void uvc_fiddle_rx_vs_callback(void)
 
 static void uvc_get_packet_rx_vs_callback(uint8_t *arg, uint32_t count)
 {
-	uint32_t start_addr = (uint32_t)arg;
-	uint32_t left_len = 0;
-	GLOBAL_INT_DECLARATION();
-	bk_dma_set_src_addr(uvc_intf.dma_channel, start_addr, 0);
+	//if (uvc_intf.mem_status == UVC_MEM_IDLE) {
+		uint32_t start_addr = (uint32_t)arg;
+		uint32_t left_len = 0;
+		GLOBAL_INT_DECLARATION();
+		bk_dma_set_src_addr(uvc_intf.dma_channel, start_addr, 0);
 
-	GLOBAL_INT_DISABLE();
-	uvc_intf.node_len = count;
-	GLOBAL_INT_RESTORE();
-	left_len = uvc_intf.rxbuf_len - uvc_intf.rx_read_len;
-	if (left_len < uvc_intf.node_len) {
 		GLOBAL_INT_DISABLE();
-		uvc_intf.rx_read_len = 0;
+		uvc_intf.node_len = count;
 		GLOBAL_INT_RESTORE();
-	}
+		left_len = uvc_intf.rxbuf_len - uvc_intf.rx_read_len;
+		if (left_len < uvc_intf.node_len) {
+			GLOBAL_INT_DISABLE();
+			uvc_intf.rx_read_len = 0;
+			GLOBAL_INT_RESTORE();
+		}
 
-	uint32_t dest_start_addr = (uint32_t)&uvc_intf.rxbuf[0] + uvc_intf.rx_read_len;
-	bk_dma_set_dest_addr(uvc_intf.dma_channel, dest_start_addr, 0);
-	bk_dma_set_transfer_len(uvc_intf.dma_channel, uvc_intf.node_len);
-	bk_dma_start(uvc_intf.dma_channel);
+		uint32_t dest_start_addr = (uint32_t)&uvc_intf.rxbuf[0] + uvc_intf.rx_read_len;
+		bk_dma_set_dest_addr(uvc_intf.dma_channel, dest_start_addr, 0);
+		bk_dma_set_transfer_len(uvc_intf.dma_channel, uvc_intf.node_len);
+		bk_dma_start(uvc_intf.dma_channel);
+	//} else
+	//		return;
 }
 
 static void uvc_capture_frame(uint32_t data)
@@ -256,6 +263,7 @@ static void uvc_capture_frame(uint32_t data)
 		os_printf("can not write file:%s!\n", cFileName);
 		return;
 	}
+	os_printf("%s, length:%d\r\n", __func__, data);
 
 	fr = f_close(&fp1);
 	if (fr != FR_OK) {
@@ -346,8 +354,8 @@ static bk_err_t uvc_camera_deinit(void)
 {
 	// uvc deinit
 	bk_err_t status = 0;
-	//status = bk_uvc_stop();//bk_usb_close
 	g_uvc_start = 0;
+	delay(100);
 
 	bk_dma_stop(uvc_intf.dma_channel);
 	status = bk_dma_deinit(uvc_intf.dma_channel);
@@ -415,18 +423,15 @@ static void uvc_set_stop(uint32_t data)
 { 
 	uvc_intf.mem_status = UVC_MEM_BUSY;
 	g_uvc_start = 0;
-	/*status = bk_uvc_stop();
-	if (status != BK_OK) {
-		os_printf("start uvc error!\r\n");
-		uvc_send_msg(UVC_EXIT, 0);
-	}*/
-
 	uvc_intf.rx_read_len = 0;
 }
 
 static void uvc_process_eof(uint32_t data)
 {
-	uvc_intf.end_frame_handler(data);
+	//if (uvc_intf.end_frame_handler)
+		uvc_intf.end_frame_handler(data);
+	//else
+	//	uvc_intf.mem_status = UVC_MEM_IDLE;
 }
 
 static void uvc_process_main(void)
@@ -518,9 +523,15 @@ bk_err_t bk_uvc_set_ppi_fps(uint16_t ppi, uint8_t fps)
 		case 480:
 			ppi = UVC_FRAME_640_480;
 			break;
-		/*case 272:
-			ppi = UVC_FRAME_480_272;
-			break;*/
+		case 540:
+			ppi = UVC_FRAME_960_540;
+			break;
+		case 600:
+			ppi = UVC_FRAME_800_600;
+			break;
+		case 720:
+			ppi = UVC_FRAME_1280_720;
+			break;
 		default:
 			os_printf("Set PPI unknow: %d\r\n", ppi);
 			status = kParamErr;

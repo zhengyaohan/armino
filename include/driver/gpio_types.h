@@ -42,6 +42,7 @@ extern "C" {
 #define BK_ERR_GPIO_BITS_NUM			(BK_ERR_GPIO_BASE - 8) /**< gpio map bit num is error */
 #define BK_ERR_GPIO_INTERNAL_USED		(BK_ERR_GPIO_BASE - 9) /**< gpio map was be map to a device */
 #define BK_ERR_GPIO_MAP_PWMS_CHAN		(BK_ERR_GPIO_BASE - 10) /**< gpio map to pwm pwms' channel is invalid*/
+#define BK_ERR_GPIO_INVALID_ID		(BK_ERR_GPIO_BASE - 11) /**< gpio id is invalid */
 
 
 /**
