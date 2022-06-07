@@ -3,7 +3,7 @@
 
 :link_to_translation:`en:[English]`
 
-本文档以 BK7256 开发板为例，通过一个简单的示例项目向您展示
+本文档以 BK7237 开发板为例，通过一个简单的示例项目向您展示
 
  - 如何构建Armino编译环境；
  - 以及如何配置 Armino 工程；
@@ -14,7 +14,7 @@
 
 硬件：
 
- - BK7256 开发板
+ - BK7237 开发板
  - 串口烧录工具
  - 电脑（Windows 与 Ubuntu）
 
@@ -41,7 +41,7 @@
     :maxdepth: 1
 
         BK7231N <../boards/bk7231n>
-        BK7256 <../boards/bk7256>
+        BK7237 <../boards/bk7237>
 
 
 
@@ -89,9 +89,9 @@ BK7256工具链下载路径如下：
 
 .. note::
 
-    默认工具链在tools/build_tools/cmake/toolchain-bk7256.cmake文件中定义，
+    默认工具链在tools/build_tools/cmake/toolchain-bk7237.cmake文件中定义，
     如果您将工具链放置到其他目录下，那么在编译 Armino 时需要显式指定工具链绝对路径，
-    例如: make BK7256 TOOLCHAIN_DIR=/usr/risc-v/nds32le-elf-mculib-v5/bin
+    例如: make bk7237 TOOLCHAIN_DIR=/usr/risc-v/nds32le-elf-mculib-v5/bin
 
 程序编译依赖库安装
 *****************
@@ -122,11 +122,11 @@ BK7256工具链下载路径如下：
 在终端下输入下述命令编译 Armino 默认工程，PROJECT为可选参数，默认为legacy_app，默认工程为启动 WiFi，BLE，初始化常见驱动，并启动 Armino 默认 Cli 程序::
 
     cd ~/armino
-    make bk7256
+    make bk7237
 
-BK7256为双CPU核系统，默认配置为双核，目前需要分别编译cpu1系统和cpu0系统(这一步后续会优化，修改为一起编译)
+BK7237为双CPU核系统，默认配置为双核，目前需要分别编译cpu1系统和cpu0系统(这一步后续会优化，修改为一起编译)
 
-- 编译BK7256平台CPU1系统::
+- 编译BK7237平台CPU1系统::
 
     cd ~/armino
     make bk7256_cp1
@@ -135,10 +135,10 @@ BK7256为双CPU核系统，默认配置为双核，目前需要分别编译cpu1�
 
     cp build/app.bin tools/env_tools/beken_packager/bk7256_cpu1.bin
 
-- 编译BK7256平台CPU0系统，会将CPU0，CPU1系统一起打包::
+- 编译BK7237平台CPU0系统，会将CPU0，CPU1系统一起打包::
 
     cd ~/armino
-    make bk7256
+    make bk7237
 
 - BK7256平台默认工程使用的是FreeRTOS V10.4系统::
 
@@ -147,12 +147,12 @@ BK7256为双CPU核系统，默认配置为双核，目前需要分别编译cpu1�
 - BK7256平台支持鸿蒙OS V3.0.1系统，可编译harmony工程::
 
     cd ~/armino
-    make bk7256 PROJECT=harmony
+    make bk7237 PROJECT=harmony
 
 - 当然您也可以编译任何其他 armino/projects 下的工程，命令如下::
 
     cd ~/armino
-    make BK7256 PROJECT=examples/get-started/hello_world
+    make bk7237 PROJECT=examples/get-started/hello_world
 
 
 配置工程
@@ -166,14 +166,13 @@ BK7256为双CPU核系统，默认配置为双核，目前需要分别编译cpu1�
 - 您也可以直接通过工程配置文件来进行差异化配置::
 
     工程配置文件 Override 芯片配置文件 Override 默认配置
-    如： sdkconfig.default >> bk7256.defconfig >> KConfig
+    如： sdkconfig.default >> bk7237.defconfig >> KConfig
     + 工程配置文件示例：
         projects/legacy_app/sdkconfig.defaults
         projects/harmony/sdkconfig.defaults
     + 芯片配置文件示例：
-        middleware/arch/bk7256/bk7256.defconfig
+        middleware/arch/bk7237/bk7237.defconfig
         middleware/arch/bk7256_cp1/bk7256_cp1.defconfig
-        middleware/arch/bk7231n/bk7231n.defconfig
     + KConfig配置文件示例：
         middleware/arch/riscv/Kconfig
         components/bk_cli/Kconfig
@@ -251,7 +250,7 @@ bk_writer.exe 界面及相关配置如下图所示：
 串口Log及Command Line
 ------------------------------------
 
-- 目前BK7256平台，串口Log及Command Line命令输入在UART1口；可通过help命令查看支持命令列表；
+- 目前BK7237平台，串口Log及Command Line命令输入在UART1口；可通过help命令查看支持命令列表；
 - CPU1的Log也通过CPU0的UART1串口输出，CPU1的Log带“cpu1”标记；
 - CPU1的Command Line可通过CPU0的UART1执行，如::
 

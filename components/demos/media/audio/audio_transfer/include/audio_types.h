@@ -33,7 +33,7 @@ extern "C" {
 
 /* G711 decoder 每帧数据为一个字节，所以可以设置很小来节约memory，但是从系统task调度考虑，不易太小，*/
 #define PSRAM_AUD_DECD_RING_BUFF_BASE        PSRAM_AUD_ENCD_RING_BUFF_BASE + AUD_AEC_8K_FRAME_SAMP_SIZE*2
-#define PSRAM_AUD_DECD_RING_BUFF_SIZE        160     //根据解码器decoder每帧数据处理的尺寸设置，2*DECD_Frame_Size
+#define PSRAM_AUD_DECD_RING_BUFF_SIZE        640     //根据解码器decoder每帧数据处理的尺寸设置，2*DECD_Frame_Size
 #define AUD_DECD_FRAME_SAMP_SIZE             PSRAM_AUD_DECD_RING_BUFF_SIZE/2
 
 //#define AUD_DMA_SIZE    0xFFFF

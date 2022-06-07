@@ -153,6 +153,8 @@ extern void fuvc_notify_uvc_configed(void);
 extern void fuvc_fiddle_rx_vs(void);
 extern void printf_test_buff(void);
 extern void fuvc_get_packet_rx_vs(uint8_t *arg, uint32_t count);
+extern bk_err_t bk_usb_init(void);
+extern bk_err_t bk_usb_deinit(void);
 extern bk_err_t bk_usb_open (uint32_t usb_mode);
 extern bk_err_t bk_usb_close (void);
 extern bk_err_t bk_uvc_start(void);

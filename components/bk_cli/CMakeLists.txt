@@ -141,7 +141,10 @@ endif()
 
 if (CONFIG_SOC_BK7256XX)
 	list(APPEND srcs "cli_usb.c")
-if (CONFIG_USB_HOST AND CONFIG_USB_UVC)
+endif()
+
+if (CONFIG_SOC_BK7256XX OR CONFIG_USB_UVC)
+if (CONFIG_DUAL_CORE)
 	list(APPEND srcs "cli_uvc.c")
 endif()
 endif()
@@ -238,6 +241,10 @@ if (CONFIG_CAMERA OR CONFIG_SPIDMA)
 if (CONFIG_APP_DEMO_VIDEO_TRANSFER)
 	list(APPEND srcs "cli_dvp.c")
 endif()
+endif()
+
+if (CONFIG_DOORBELL AND CONFIG_DUAL_CORE)
+	list(APPEND srcs cli_doorbell.c)
 endif()
 
 armino_component_register(SRCS "${srcs}"

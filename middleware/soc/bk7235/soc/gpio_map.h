@@ -73,6 +73,14 @@ extern "C" {
 		}
 #define GPIO_I2C1_USED_GPIO_NUM 2
 
+#if CONFIG_GPIO_WAKEUP_SUPPORT
+#define GPIO_STATIC_WAKEUP_SOURCE_MAP  \
+{\
+	/* {GPIO_1, GPIO_INT_TYPE_LOW_LEVEL}, */ \
+	{GPIO_10, GPIO_INT_TYPE_LOW_LEVEL},\
+	/* {GPIO_40, GPIO_INT_LEVEL_LOW}, */ \
+}
+#endif
 #ifdef __cplusplus
 }
 #endif

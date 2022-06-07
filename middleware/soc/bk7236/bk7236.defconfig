@@ -380,6 +380,7 @@ CONFIG_AP_HT_IE=y
 CONFIG_AP_VHT=y
 CONFIG_AP_HE=y
 CONFIG_COMPONENTS_WPA_TWT_TEST=y
+CONFIG_STA_AUTO_RECONNECT=y
 # CONFIG_WPA_LOG is not set
 # end of Supplicant
 # end of Components Configuration

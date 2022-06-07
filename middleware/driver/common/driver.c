@@ -102,7 +102,7 @@ void power_clk_rf_init()
 		sys_drv_module_power_ctrl(POWER_MODULE_NAME_BTSP,POWER_MODULE_STATE_OFF);
 		sys_drv_module_power_ctrl(POWER_MODULE_NAME_WIFIP_MAC,POWER_MODULE_STATE_OFF);
 		sys_drv_module_power_ctrl(POWER_MODULE_NAME_WIFI_PHY,POWER_MODULE_STATE_OFF);
-		//sys_drv_module_power_ctrl(POWER_MODULE_NAME_CPU1,POWER_MODULE_STATE_OFF);
+		sys_drv_module_power_ctrl(POWER_MODULE_NAME_CPU1,POWER_MODULE_STATE_OFF);
 	#else
 	    power_module_name_t module = POWER_MODULE_NAME_MEM1;
         for(module = POWER_MODULE_NAME_MEM1 ; module < POWER_MODULE_NAME_NONE ; module++)
@@ -356,8 +356,12 @@ int driver_init(void)
 #endif
 
 #if CONFIG_USB
-	usb_init();
-	fusb_init();
+	bk_usb_init();
+#if CONFIG_USB_HOST
+	bk_usb_open(0);
+#else
+	bk_usb_open(1);
+#endif
 #endif
 
 	os_printf("driver_init end\r\n");

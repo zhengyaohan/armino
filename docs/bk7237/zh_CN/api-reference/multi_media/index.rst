@@ -8,7 +8,7 @@ Multi-Media
 
    Audio <bk_audio>
    Display <bk_display>
-   DMA2D <bk_dma2d>
+   DMA2D  <bk_dma2d>
    FFT <bk_fft>
    I2S <bk_i2s>
    SBC <bk_sbc>

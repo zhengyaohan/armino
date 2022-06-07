@@ -740,6 +740,7 @@ void *pvPortMalloc( size_t xWantedSize )
 	vTaskSuspendAll();
 	pvReturn = malloc_without_lock(xWantedSize + MEM_CHECK_TAG_LEN);
 	#if CONFIG_MALLOC_STATIS || CONFIG_MEM_DEBUG
+	if(pvReturn)
 	{
 		BlockLink_t *pxLink = (BlockLink_t *)((u8*)pvReturn - xHeapStructSize);
 		if(pvReturn && call_func_name) {

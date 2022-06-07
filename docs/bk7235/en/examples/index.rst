@@ -7,5 +7,4 @@ Samples and Demos (TBC)
    :maxdepth: 1
    
    video <video/index>
-   audio <audio/index>
    bluetooth <bluetooth/index>

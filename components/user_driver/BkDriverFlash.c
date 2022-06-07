@@ -168,10 +168,10 @@ const bk_logic_partition_t bk7231_partitions[BK_PARTITION_MAX] = {
 	{
 		.partition_owner           = BK_FLASH_EMBEDDED,
 		.partition_description     = "RF Firmware",
-#if (CONFIG_FLASH_SIZE_2M)
-		.partition_start_addr      = 0x1e0000,// bootloader unused space for rf cal+mac related info.
-#elif (CONFIG_FLASH_SIZE_4M)
+#if (CONFIG_FLASH_SIZE_4M)
 		.partition_start_addr      = 0x3FE000,
+#else 
+		.partition_start_addr      = 0x1e0000,// bootloader unused space for rf cal+mac related info.
 #endif
 		.partition_length          = 0x1000,
 		.partition_options         = PAR_OPT_READ_EN | PAR_OPT_WRITE_DIS,
@@ -180,10 +180,10 @@ const bk_logic_partition_t bk7231_partitions[BK_PARTITION_MAX] = {
 	{
 		.partition_owner           = BK_FLASH_EMBEDDED,
 		.partition_description     = "NET info",
-#if (CONFIG_FLASH_SIZE_2M)
-		.partition_start_addr      = 0x1FF000,// for net related info
-#elif (CONFIG_FLASH_SIZE_4M)
+#if (CONFIG_FLASH_SIZE_4M)
 		.partition_start_addr      = 0x3FF000,
+#else 
+		.partition_start_addr      = 0x1e1000,// for net related info
 #endif
 		.partition_length          = 0x1000,
 		.partition_options         = PAR_OPT_READ_EN | PAR_OPT_WRITE_DIS,

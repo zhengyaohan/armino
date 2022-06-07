@@ -37,7 +37,7 @@ static struct cli_st *pCli = NULL;
 beken_semaphore_t log_rx_interrupt_sema = NULL;
 #endif
 
-static uint8_t s_running_command_index = MAX_COMMANDS;
+static uint16_t s_running_command_index = MAX_COMMANDS;
 #if CFG_CLI_DEBUG
 static uint8_t s_running_status = 0;
 #endif
@@ -328,6 +328,8 @@ static void cli_ate_main(uint32_t data)
 	bk_uart_disable_sw_fifo(CONFIG_UART_PRINT_PORT);
 	bk_uart_register_rx_isr(CONFIG_UART_PRINT_PORT, (uart_isr_t)ate_uart_rx_isr, NULL);
 	bk_uart_enable_rx_interrupt(CONFIG_UART_PRINT_PORT);
+
+	send_device_id();
 
 	while (1) {
 
@@ -1445,6 +1447,13 @@ int bk_cli_init(void)
 #if (CLI_CFG_DVP == 1)
 	cli_dvp_init();
 #endif
+
+#if (CONFIG_DOORBELL == 1)
+#if (CONFIG_DUAL_CORE)
+	cli_doorbell_init();
+#endif
+#endif
+
 
 	/* sort cmds after registered all cmds. */
 	cli_sort_command(NULL, 0, 0, NULL);

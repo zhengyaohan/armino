@@ -1,1 +1,0 @@
-.. include:: ../../../zh_CN/examples/audio/sbc_decode_demo.rst

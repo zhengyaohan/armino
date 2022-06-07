@@ -11,6 +11,4 @@ video(图像处理)
    SPI_Camera <bk_spi_config>
    UVC_Camera <bk_uvc_config>
    图传 <bk_video_transfer>
-   UVC屏显 <bk_uvc_lcd>
-   Lcd_display <bk_lcd_display>
    Image_Capture <bk_image_capture>

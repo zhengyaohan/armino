@@ -29,11 +29,6 @@
 #include <driver/psram.h>
 #endif
 
-#if (CONFIG_SDCARD_HOST || CONFIG_USB_HOST)
-#include "ff.h"
-#include "test_fatfs.h"
-#endif
-
 extern void delay(INT32 num);
 
 #define UVC_DATA_ADDR               (0x30060000)
@@ -90,8 +85,8 @@ static void uvc_process_data_packet(void *curptr, uint32_t newlen, uint8_t is_eo
 		if (uvc_intf.frame_id == 0xFFFFFFFE)
 			uvc_intf.frame_id = 0;
 	} else {
-			//os_printf("uvc start, %02x, %02x\r\n", data[0], data[1]);
 			if ((data[0] == 0xff) && (data[1] == 0xd8)) { // strat frame
+				os_printf("uvc start, %02x, %02x\r\n", data[0], data[1]);
 				uvc_intf.frame_len = 0;
 				if (uvc_intf.mem_status == UVC_MEM_IDLE) {
 					s_uvc_save = 1;
@@ -102,11 +97,11 @@ static void uvc_process_data_packet(void *curptr, uint32_t newlen, uint8_t is_eo
 	}
 
 	if (s_uvc_save == 1) {
-#if CONFIG_GENERAL_DMA
-		dma_memcpy((void *)(UVC_DATA_PSRAM + uvc_intf.frame_len), data, frame_len);
-#else
+//#if CONFIG_GENERAL_DMA
+//		dma_memcpy((void *)(UVC_DATA_PSRAM + uvc_intf.frame_len), data, frame_len);
+//#else
 		os_memcpy((void *)(UVC_DATA_PSRAM + uvc_intf.frame_len), data, frame_len);
-#endif
+//#endif
 		uvc_intf.frame_len += frame_len;
 	} else {
 		uvc_intf.frame_len += frame_len;//not update frame length when not save uvc data
@@ -166,6 +161,7 @@ static void uvc_intfer_config_desc()
 	uvc_intf.frame_len = 0;
 	uvc_intf.node_full_handler = uvc_process_data_packet;
 	uvc_intf.end_frame_handler = NULL;
+	uvc_intf.frame_capture_handler = NULL;
 
 #if CONFIG_GENERAL_DMA
 	uvc_intf.dma_rx_handler = uvc_dma_rx_done_handler;
@@ -242,36 +238,11 @@ static void uvc_get_packet_rx_vs_callback(uint8_t *arg, uint32_t count)
 
 static void uvc_capture_frame(uint32_t data)
 {
-#if (CONFIG_SDCARD_HOST || CONFIG_USB_HOST)
-	char *file_path = "_uvc.jpeg";
-	char cFileName[FF_MAX_LFN];
-	FIL fp1;
-	unsigned int uiTemp = 0;
-	uint32_t addr = UVC_DATA_PSRAM;
-	char *content = (char *)addr;
-
-	sprintf(cFileName, "%d:/%d_%s", DISK_NUMBER_SDIO_SD, g_file_id, file_path);
-
-	FRESULT fr = f_open(&fp1, cFileName, FA_OPEN_APPEND | FA_WRITE);
-	if (fr != FR_OK) {
-		os_printf("can not open file:%s!\n", cFileName);
-		return;
+	if (uvc_intf.frame_capture_handler != NULL) {
+		uvc_intf.frame_capture_handler(data);
+	} else {
+		uvc_intf.mem_status = UVC_MEM_IDLE;
 	}
-
-	fr = f_write(&fp1, content, data, &uiTemp);
-	if (fr != FR_OK) {
-		os_printf("can not write file:%s!\n", cFileName);
-		return;
-	}
-	os_printf("%s, length:%d\r\n", __func__, data);
-
-	fr = f_close(&fp1);
-	if (fr != FR_OK) {
-		os_printf("can not close file:%s!\n", cFileName);
-		return;
-	}
-#endif
-	uvc_intf.mem_status = UVC_MEM_IDLE;
 }
 
 static bk_err_t uvc_camera_init(void)
@@ -428,10 +399,10 @@ static void uvc_set_stop(uint32_t data)
 
 static void uvc_process_eof(uint32_t data)
 {
-	//if (uvc_intf.end_frame_handler)
+	if (uvc_intf.end_frame_handler)
 		uvc_intf.end_frame_handler(data);
-	//else
-	//	uvc_intf.mem_status = UVC_MEM_IDLE;
+	else
+		uvc_intf.mem_status = UVC_MEM_IDLE;
 }
 
 static void uvc_process_main(void)
@@ -495,6 +466,13 @@ bk_err_t bk_uvc_set_mem_status(uint8_t type)
 bk_err_t bk_uvc_register_frame_end_callback(void *cb)
 {
 	uvc_intf.end_frame_handler = cb;
+
+	return BK_OK;
+}
+
+bk_err_t bk_uvc_register_frame_capture_callback(void *cb)
+{
+	uvc_intf.frame_capture_handler = cb;
 
 	return BK_OK;
 }

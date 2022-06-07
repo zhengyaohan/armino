@@ -15,11 +15,20 @@
 #include <common/bk_include.h>
 #include "cli.h"
 
-extern void image_save_uvc(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
+#if (!CONFIG_USB_UVC)
+extern void uvc_process_cpu0(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
+#else
+extern void uvc_process_cpu1(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
+#endif
 
 #define UVC_CMD_CNT (sizeof(s_uvc_commands) / sizeof(struct cli_command))
 static const struct cli_command s_uvc_commands[] = {
-	{"uvc", "uvc {start|stop|read file_id}", image_save_uvc},
+
+#if (!CONFIG_USB_UVC)
+	{"uvc", "uvc {}", uvc_process_cpu0},
+#else
+	{"uvc", "cpu1 uvc {}", uvc_process_cpu1},
+#endif
 };
 
 int cli_uvc_init(void)

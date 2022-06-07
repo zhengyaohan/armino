@@ -8,6 +8,17 @@ set(incs
 	)
 set(srcs)
 
+if (CONFIG_DUAL_CORE)
+	list(APPEND srcs
+		"uvc_capture_display/uvc_mailbox.c"
+		)
+if (NOT CONFIG_SOC_BK7256_CP1)
+	list(APPEND srcs
+			"uvc_capture_display/uvc_process_cpu0.c"
+			)
+endif()
+endif()
+
 if (CONFIG_CAMERA)
 	list(APPEND srcs
 		"dvp/dvp_camera_driver.c"
@@ -31,7 +42,7 @@ endif()
 if (CONFIG_USB_UVC)
 	list(APPEND srcs
 		"uvc/uvc_camera_driver.c"
-		"image_save/uvc_image_save.c"
+		"uvc_capture_display/uvc_process_cpu1.c"
 		)
 endif()
 
@@ -39,12 +50,8 @@ if (CONFIG_CAMERA OR CONFIG_SPIDMA)
 if (CONFIG_APP_DEMO_VIDEO_TRANSFER)
 	list(APPEND srcs
 		"video_transfer/video_transfer.c"
+		"dvp_capture/dvp_image_save.c"
 		)
-if (CONFIG_SDCARD_HOST)
-	list(APPEND srcs
-		"image_save/dvp_image_save.c"
-		)
-endif()
 endif()
 endif()
 

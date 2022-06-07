@@ -1,10 +1,14 @@
 DMA2D APIs
-================
+=======================
 
 :link_to_translation:`en:[English]`
 
+DMA2D Interface
+----------------------------
+
 DMA2D Features
 ----------------------------
+
  - fill specific color
        Fill part or all of the target image with a specific color
  - mem to mem copy
@@ -51,9 +55,8 @@ DMA2D API Categories
 DMA2D Work Config
 ----------------------
 
-fill specific color
-***************************
- 
+1、fill specific color
+
 .. figure:: ../../../_static/dma2d_fill_color.png
     :align: center
     :alt: fill specific color
@@ -61,9 +64,9 @@ fill specific color
 
     Figure 1. dma2d_fill_color
 
-mem to mem copy
-***************************
- 
+
+2、mem to mem copy
+
 .. figure:: ../../../_static/dma2d_mem_to_mem.png
     :align: center
     :alt: fill specific color
@@ -71,15 +74,15 @@ mem to mem copy
 
     Figure 2. dma2d_mem_to_mem
 
-mem to mem with pixel conversion
-********************************************
 
-   The Figure API is the same as dma2d_mem_to_mem
-   please  reference the API Reference for the different config 
+3、mem to mem with pixel conversion
 
-mem to mem with pixel conversion and blending
-*************************************************************
- 
+    The Figure API is the same as dma2d_mem_to_mem
+    please  reference the API Reference for the different config
+
+
+4、mem to mem with pixel conversion and blending
+
 .. figure:: ../../../_static/dma2d_mem_to_mem_with_pixel_conv_blend.png
     :align: center
     :alt: fill specific color

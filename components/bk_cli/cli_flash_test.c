@@ -117,9 +117,26 @@ static void flash_command_test(char *pcWriteBuffer, int xWriteBufferLen, int arg
 		uint32_t delay_cycle1 = os_strtoul(argv[3], NULL, 10);
 		uint32_t delay_cycle2 = os_strtoul(argv[4], NULL, 10);
 
-		flash_bypass_quad_test(quad_enable, delay_cycle1, delay_cycle2);
-		while (REG_READ(REG_FLASH_OPERATE_SW) & BUSY_SW);
-		param = flash_read_sr(2);
+		flash_set_line_mode(2);
+
+		for(int i = 0; i< 20; i++) {
+			flash_bypass_quad_test(quad_enable, delay_cycle1, delay_cycle2);
+			while (REG_READ(REG_FLASH_OPERATE_SW) & BUSY_SW);
+			param = flash_read_sr(2);
+			if (quad_enable) {
+				if(param & 0x200){
+					break;
+				} else {
+					os_printf("retry quad test, i = %d, flash status: 0x%x.\n", i, param);
+				}
+			} else {
+				if(param & 0x200){
+					os_printf("retry quad test, i = %d, flash status: 0x%x.\n", i, param);
+				} else {
+					break;
+				}
+			}
+		}
 
 		if (quad_enable) {
 			if(param & 0x200){

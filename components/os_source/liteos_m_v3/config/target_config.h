@@ -111,10 +111,18 @@ extern "C" {
  *Memory module configuration
  *=============================================================================*/
 extern unsigned char _end;  //the end of bss section in sram
+extern unsigned char *m_aucSysMem0;
 
-#define LOSCFG_SYS_EXTERNAL_HEAP                            1
+#define LOSCFG_SYS_EXTERNAL_HEAP                            0
+
+#if (LOSCFG_SYS_EXTERNAL_HEAP == 1)
 #define LOSCFG_SYS_HEAP_ADDR                                (&_end)
+#else
+#define LOSCFG_SYS_HEAP_ADDR                                (&m_aucSysMem0[0])
 #define LOSCFG_SYS_HEAP_SIZE                                ( size_t ) ( 140 * 1024 )
+#endif
+
+
 //#define OS_SYS_MEM_SIZE                                     0x0001000
 #define LOSCFG_BASE_MEM_NODE_INTEGRITY_CHECK                0
 #define LOSCFG_BASE_MEM_NODE_SIZE_CHECK                     1

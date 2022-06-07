@@ -15,20 +15,20 @@ int video_read_psram_handler(char *pcWriteBuffer, int xWriteBufferLen, int argc,
 int video_disable_psram_handler(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
 #endif
 
-#if (CONFIG_CAMERA && CONFIG_PSRAM)
+#if CONFIG_CAMERA
 int video_set_yuv_psram_handler(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
 
 int video_close_yuv_psram_handler(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
 
-#endif //CONFIG_CAMERA && CONFIG_PSRAM
+#endif //CONFIG_CAMERA
 const at_command_t video_at_cmd_table[] = {
 #if CONFIG_PSRAM
-	{2, "READPSRAM", 0, "psram", video_read_psram_handler},
-	{3, "DEINITPSRAM", 0, "deinit psram", video_disable_psram_handler},
+	{0, "READPSRAM", 0, "psram", video_read_psram_handler},
+	{1, "DEINITPSRAM", 0, "deinit psram", video_disable_psram_handler},
 #endif
-#if (CONFIG_CAMERA && CONFIG_PSRAM)
-	{4, "SETYUV", 0, "set jpeg/yuv mode and to psram", video_set_yuv_psram_handler},
-	{5, "CLOSEYUV", 0, "close jpeg", video_close_yuv_psram_handler},
+#if CONFIG_CAMERA
+	{2, "SETYUV", 0, "set jpeg/yuv mode and to psram", video_set_yuv_psram_handler},
+	{3, "CLOSEYUV", 0, "close jpeg", video_close_yuv_psram_handler},
 #endif
 };
 
@@ -111,7 +111,7 @@ error:
 }
 #endif // CONFIG_PSRAM
 
-#if (CONFIG_CAMERA && CONFIG_PSRAM)
+#if CONFIG_CAMERA
 static void end_of_jpeg_frame(jpeg_unit_t id, void *param)
 {
 	//os_printf("%s, %d\n", __func__, __LINE__);
@@ -127,13 +127,13 @@ int video_set_yuv_psram_handler(char *pcWriteBuffer, int xWriteBufferLen, int ar
 	char *msg = NULL;
 	int err = kNoErr;
 	uint8_t yuv_mode = 0;
-	uint16_t display_pixel = 0;
 	jpeg_config_t jpeg_config = {0};
 	i2c_config_t i2c_config = {0};
-	uint32_t ppi, fps;
-	uint32_t psram_mode = 0x00054043;
+	uint32_t camera_config = 0;
+	uint32_t camera_dev = 0;
+	uint32_t ppi = 0;
 
-	if (argc != 4) {
+	if (argc != 5) {
 		os_printf("input param error\n");
 		err = kParamErr;
 		goto error;
@@ -145,12 +145,24 @@ int video_set_yuv_psram_handler(char *pcWriteBuffer, int xWriteBufferLen, int ar
 		err = kParamErr;
 		goto error;
 	}
+
+#if (!CONFIG_PSRAM)
+	if (yuv_mode == 1) {
+		os_printf("NOT have psram, jpeg encode not support yuv mode");
+		err = kParamErr;
+		goto error;
+	}
+#endif
+
+#if (CONFIG_PSRAM)
+	uint32_t psram_mode = 0x00054043;
 	err = bk_psram_init(psram_mode);
 	if (err != kNoErr) {
 		os_printf("psram init error\n");
 		err = kParamErr;
 		goto error;
 	}
+#endif
 
 #if CONFIG_SYSTEM_CTRL
 	err = bk_jpeg_enc_driver_init();
@@ -161,66 +173,42 @@ int video_set_yuv_psram_handler(char *pcWriteBuffer, int xWriteBufferLen, int ar
 	}
 #endif
 
-	display_pixel = os_strtoul(argv[1], NULL, 10) & 0xFFFF;
-	switch (display_pixel) {
-		case 240:
-			jpeg_config.x_pixel = X_PIXEL_320;
-			jpeg_config.y_pixel = Y_PIXEL_240;
-			ppi = QVGA_320_240;
-			break;
-		case 272:
-			jpeg_config.x_pixel = X_PIXEL_480;
-			jpeg_config.y_pixel = Y_PIXEL_272;
-			ppi = VGA_480_272;
-			break;
-		case 480:
-			jpeg_config.x_pixel = X_PIXEL_640;
-			jpeg_config.y_pixel = Y_PIXEL_480;
-			ppi = VGA_640_480;
-			break;
-		case 600:
-			jpeg_config.x_pixel = X_PIXEL_800;
-			jpeg_config.y_pixel = Y_PIXEL_600;
-			ppi = VGA_800_600;
-			break;
-		case 720:
-			jpeg_config.x_pixel = X_PIXEL_1280;
-			jpeg_config.y_pixel = Y_PIXEL_720;
-			ppi = VGA_1280_720;
-			break;
-		default:
-			os_printf("input pixel param error\n");
-			err = kParamErr;
-			goto error;
-	}
-
-	fps = os_strtoul(argv[2], NULL, 10) & 0xFF;
-	switch (fps) {
-		case 5:
-			fps = TYPE_5FPS;
-			break;
-		case 10:
-			fps = TYPE_10FPS;
-			break;
-		case 15:
-			fps = TYPE_15FPS;
-			break;
-		case 20:
-			fps = TYPE_20FPS;
-			break;
-		case 25:
-			fps = TYPE_25FPS;
-			break;
-		case 30:
-			fps = TYPE_30FPS;
-			break;
-		default:
-			os_printf("input fps param error\n");
-			err = kParamErr;
-			goto error;
-	}
-
+	camera_dev = os_strtoul(argv[1], NULL, 10);
+	ppi = os_strtoul(argv[2], NULL, 10);
+	camera_config = (ppi << 16) | os_strtoul(argv[3], NULL, 10);
 	jpeg_config.yuv_mode = yuv_mode;
+
+	switch (ppi) {
+	case 240:
+		jpeg_config.x_pixel = X_PIXEL_320;
+		jpeg_config.y_pixel = Y_PIXEL_240;
+		ppi = QVGA_320_240;
+		break;
+	case 272:
+		jpeg_config.x_pixel = X_PIXEL_480;
+		jpeg_config.y_pixel = Y_PIXEL_272;
+		ppi = VGA_480_272;
+		break;
+	case 480:
+		jpeg_config.x_pixel = X_PIXEL_640;
+		jpeg_config.y_pixel = Y_PIXEL_480;
+		ppi = VGA_640_480;
+		break;
+	case 600:
+		jpeg_config.x_pixel = X_PIXEL_800;
+		jpeg_config.y_pixel = Y_PIXEL_600;
+		ppi = VGA_800_600;
+		break;
+	case 720:
+		jpeg_config.x_pixel = X_PIXEL_1280;
+		jpeg_config.y_pixel = Y_PIXEL_720;
+		ppi = VGA_1280_720;
+		break;
+	default:
+		os_printf("input pixel param error\n");
+		err = kParamErr;
+		goto error;
+	}
 
 	if (ppi == VGA_1280_720) {
 		jpeg_config.sys_clk_div = 3;
@@ -240,7 +228,7 @@ int video_set_yuv_psram_handler(char *pcWriteBuffer, int xWriteBufferLen, int ar
 	bk_jpeg_enc_register_isr(END_OF_FRAME, end_of_jpeg_frame, NULL);
 	bk_jpeg_enc_register_isr(END_OF_YUV, end_of_yuv_frame, NULL);
 
-	i2c_config.baud_rate = os_strtoul(argv[3], NULL, 10) & 0xFFFFFFFF;//100000;// 400k
+	i2c_config.baud_rate = os_strtoul(argv[4], NULL, 10) & 0xFFFFFFFF;//100000;// 400k
 	i2c_config.addr_mode = 0;
 	err = bk_i2c_init(CONFIG_CAMERA_I2C_ID, &i2c_config);
 	if (err != kNoErr) {
@@ -249,7 +237,8 @@ int video_set_yuv_psram_handler(char *pcWriteBuffer, int xWriteBufferLen, int ar
 		goto error;
 	}
 
-	err = bk_camera_set_ppi_fps(ppi, fps);
+	//err = bk_camera_set_ppi_fps(ppi, fps);
+	err = bk_camera_set_param(camera_dev, camera_config);
 	if (err != kNoErr) {
 		os_printf("set camera ppi and fps error\n");
 		err = kParamErr;
@@ -301,6 +290,7 @@ int video_close_yuv_psram_handler(char *pcWriteBuffer, int xWriteBufferLen, int 
 	os_printf("video deinit ok!\n");
 #endif
 
+#if CONFIG_PSRAM
 	delay(2000);
 	err = bk_psram_deinit();
 	if (err != kNoErr) {
@@ -309,6 +299,7 @@ int video_close_yuv_psram_handler(char *pcWriteBuffer, int xWriteBufferLen, int 
 		goto error;
 	}
 	os_printf("psram deinit ok!\n");
+#endif
 
 	msg = AT_CMD_RSP_SUCCEED;
 	os_memcpy(pcWriteBuffer, msg, os_strlen(msg));
@@ -319,5 +310,5 @@ error:
 	os_memcpy(pcWriteBuffer, msg, os_strlen(msg));
 	return err;
 }
-#endif // CONFIG_CAMERA && CONFIG_PSRAM
+#endif // CONFIG_CAMERA
 

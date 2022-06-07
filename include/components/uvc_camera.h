@@ -125,6 +125,17 @@ bk_err_t bk_uvc_set_stop(void);
 bk_err_t bk_uvc_register_frame_end_callback(void *cb);
 
 /**
+ * @brief     register frame capture callback
+ *
+ * This API will only excute the at every frame transfer end if register have registered
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_uvc_register_frame_capture_callback(void *cb);
+
+/**
  * @brief     set uvc mem  status
  *
  * This API will enbale/disable save uvc data to psram

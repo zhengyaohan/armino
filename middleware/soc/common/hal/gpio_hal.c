@@ -243,6 +243,54 @@ bk_err_t gpio_hal_set_config(gpio_hal_t *hal, gpio_id_t gpio_id, const gpio_conf
 
 	return BK_OK;
 }
+
+#if CONFIG_GPIO_WAKEUP_SUPPORT
+bk_err_t gpio_hal_bak_configs(uint16_t *gpio_cfg, uint32_t count)
+{
+	gpio_ll_bak_configs(gpio_cfg, count);
+	return BK_OK;
+}
+
+bk_err_t gpio_hal_restore_configs(uint16_t *gpio_cfg, uint32_t count)
+{
+	gpio_ll_restore_configs(gpio_cfg, count);
+	return BK_OK;
+}
+
+bk_err_t gpio_hal_bak_int_type_configs(uint32_t *gpio_int_type_cfg, uint32_t count)
+{
+	gpio_ll_bak_int_type_configs(gpio_int_type_cfg, count);
+	
+	return BK_OK;
+}
+
+bk_err_t gpio_hal_restore_int_type_configs(uint32_t *gpio_int_type_cfg, uint32_t count)
+{
+	gpio_ll_restore_int_type_configs(gpio_int_type_cfg, count);
+	return BK_OK;
+}
+
+bk_err_t gpio_hal_bak_int_enable_configs(uint32_t *gpio_int_enable_cfg, uint32_t count)
+{
+	gpio_ll_bak_int_enable_configs(gpio_int_enable_cfg, count);
+	
+	return BK_OK;
+}
+
+bk_err_t gpio_hal_restore_int_enable_configs(uint32_t *gpio_int_enable_cfg, uint32_t count)
+{
+	gpio_ll_restore_int_enable_configs(gpio_int_enable_cfg, count);
+	return BK_OK;
+}
+
+/* gpio switch to low power status:set all gpios to input mode to avoid power leakage */
+bk_err_t gpio_hal_switch_to_low_power_status(void)
+{
+	gpio_ll_switch_to_low_power_status();
+	return BK_OK;
+}
+
+#else
 bk_err_t gpio_hal_reg_save(uint32_t*  gpio_cfg)
 {
 	gpio_ll_reg_save(gpio_cfg);
@@ -263,3 +311,5 @@ bk_err_t gpio_hal_wakeup_interrupt_clear()
 	gpio_ll_wakeup_interrupt_clear();
 	return BK_OK;
 }
+#endif
+

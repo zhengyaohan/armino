@@ -60,11 +60,8 @@ LCD API Categories
 | :cpp:func:`bk_lcd_rgb_int_enable`         | Enable rgb lcd interrupt                     |
 +-------------------------------------------+----------------------------------------------+
 
-LCD Work Config
------------------
-
 LCD 8080 Config
-***************************
+----------------------------------------
 
 .. figure:: ../../../_static/lcd_8080_flow.png
     :align: center
@@ -74,7 +71,7 @@ LCD 8080 Config
     Figure 1. 8080 lcd config flow
 
 LCD RGB Config
-***************************
+----------------------------------------
 
 .. figure:: ../../../_static/lcd_rgb_flow.png
     :align: center

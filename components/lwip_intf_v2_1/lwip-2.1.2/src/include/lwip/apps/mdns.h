@@ -86,7 +86,7 @@ err_t mdns_resp_add_service_txtall(struct mdns_service *service, const char *txt
 err_t mdns_resp_update_service_txt_userdata(struct mdns_service *service, void *userdata);
 
 void mdns_resp_restart(struct netif *netif);
-void mdns_resp_announce(struct netif *netif);
+void mdns_resp_announce(void *arg);
 
 /**
  * @ingroup mdns

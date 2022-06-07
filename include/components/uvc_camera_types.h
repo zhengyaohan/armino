@@ -36,6 +36,7 @@ typedef struct {
 	uint32_t frame_len;
 
 	void (*end_frame_handler)(uint32_t frame_len);
+	void (*frame_capture_handler)(uint32_t frame_len);
 #if CONFIG_GENERAL_DMA
 	dma_isr_t dma_rx_handler;
 	uint8_t  dma_channel;

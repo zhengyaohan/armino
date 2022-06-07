@@ -231,9 +231,15 @@ static void flash_set_qe(void)
 
 #if CONFIG_FLASH_QUAD_ENABLE
 	if (FLASH_ID_GD25Q32C == flash_id) {
-		flash_bypass_quad_enable();
-		while (REG_READ(REG_FLASH_OPERATE_SW) & BUSY_SW);
-		param = flash_read_sr(flash_current_config->sr_size);
+		/* retry quad enable, in case of quad enable may fail in some boards for first time */
+		for(uint32_t i = 0; i < QE_RETRY_TIMES; i++) {
+			flash_bypass_quad_enable();
+			while (REG_READ(REG_FLASH_OPERATE_SW) & BUSY_SW);
+			param = flash_read_sr(flash_current_config->sr_size);
+			if(param & (flash_current_config->qe_bit << flash_current_config->qe_bit_post)) {
+				break;
+			}
+		}
 		BK_ASSERT(param & (flash_current_config->qe_bit << flash_current_config->qe_bit_post));
 		return;
 	}

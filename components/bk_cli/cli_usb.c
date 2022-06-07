@@ -316,6 +316,67 @@ void cli_fuvc_printf_test_buff(char *pcWriteBuffer, int xWriteBufferLen, int arg
 }
 #endif
 
+#if CONFIG_USB_PLUG_IN_OUT
+void cli_usb_plug_init(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	if (argc < 2) {
+		cli_usb_help();
+		return;
+	}
+
+	if (os_strcmp(argv[1], "init") == 0) {
+		usb_plug_inout_init();
+	} else if (os_strcmp(argv[1], "deinit") == 0) {
+		usb_plug_inout_deinit();
+	} else {
+		cli_usb_help();
+		return;
+	}
+
+}
+
+void cli_usb_plug_inout(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	if (argc < 2) {
+		cli_usb_help();
+		return;
+	}
+
+	if (os_strcmp(argv[1], "open") == 0) {
+		usb_plug_inout_open();
+		CLI_LOGI("cli_usb_plug_inout inout open!\r\n");
+	} else if (os_strcmp(argv[1], "close") == 0) {
+		usb_plug_inout_close();
+		CLI_LOGI("cli_usb_plug_inout inout close!\r\n");
+	} else {
+		cli_usb_help();
+		return;
+	}
+
+}
+#endif
+
+void cli_usb_open_close(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	if (argc < 2) {
+		cli_usb_help();
+		return;
+	}
+
+	if (os_strcmp(argv[1], "open_host") == 0) {
+		CLI_LOGI("cli_usb_open host! %d\r\n", bk_usb_open(0));
+	} else if (os_strcmp(argv[1], "open_dev") == 0) {
+		CLI_LOGI("cli_usb_open device!\r\n");
+		bk_usb_open(1);
+	} else if (os_strcmp(argv[1], "close") == 0) {
+		bk_usb_close();
+	} else {
+		cli_usb_help();
+		return;
+	}
+
+}
+
 const struct cli_command usb_host_clis[] = {
 
 #if CONFIG_USB_MSD
@@ -330,7 +391,11 @@ const struct cli_command usb_host_clis[] = {
 	{"uvc_ctrl_set", "uvc ctrl set attribute param", uvc_set_param},
 	{"uvc_stream", "uvc ctrl set attribute param", uvc_start_stream},
 #endif
-
+#if CONFIG_USB_PLUG_IN_OUT
+	{"usb_plug", "usb plug init|out", cli_usb_plug_init},
+	{"usb_plug_inout", "usb open|close", cli_usb_plug_inout},
+#endif
+	{"usb", "usb open_host|open_dev|close", cli_usb_open_close},
 };
 
 void usb_cli_init(void)

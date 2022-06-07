@@ -28,7 +28,7 @@
 #include <modules/audio_ring_buff.h>
 #include <modules/g711.h>
 
-#define  AUD_TRANS_DEBUG  0
+#define  AUD_TRANS_DEBUG_DAC  0
 #define  AUD_TRANS_DEBUG_ADC  0
 #define  AUD_DEBUG  0
 
@@ -262,11 +262,12 @@ static bk_err_t audio_dac_config(audio_sample_rate_t samp_rate)
 	aud_dac_config_t dac_config;
 
 	dac_config.dac_enable = AUD_DAC_DISABLE;
-	dac_config.samp_rate = samp_rate;
+	//dac_config.samp_rate = samp_rate;
+	dac_config.samp_rate = AUDIO_SAMP_RATE_8K;
 	dac_config.dac_hpf2_coef_B2 = 0x3A22;
 	dac_config.dac_hpf2_bypass_enable = AUD_DAC_HPF_BYPASS_ENABLE;
 	dac_config.dac_hpf1_bypass_enable = AUD_DAC_HPF_BYPASS_ENABLE;
-	dac_config.dac_set_gain = 0x3F;    //default 2D
+	dac_config.dac_set_gain = 0x15;    //default 2D  3F
 	dac_config.dac_clk_invert = AUD_DAC_CLK_INVERT_RISING;
 
 	dac_config.dac_hpf2_coef_B0 = 0x3A22;
@@ -466,7 +467,7 @@ static bk_err_t audio_dac_dma_config(dma_id_t dma_id, int32_t *ring_buff_addr, u
 	dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
 	//dma_config.src.addr_loop_en = DMA_ADDR_LOOP_ENABLE;
 	dma_config.src.start_addr = (uint32_t)ring_buff_addr;
-	dma_config.src.end_addr = (uint32_t)(ring_buff_addr + ring_buff_size/4);
+	dma_config.src.end_addr = (uint32_t)(ring_buff_addr) + ring_buff_size;
 
 	/* init dma channel */
 	ret = bk_dma_init(dma_id, &dma_config);
@@ -613,8 +614,9 @@ static bk_err_t audio_decoder_process(void)
 	uint32_t fill_size = 0;
 	uint32_t i = 0;
 	audio_mailbox_msg_t mb_msg;
-	uint16_t pcm_data[AUD_DECD_FRAME_SAMP_SIZE] = {0};
-	uint8_t law_data[AUD_DECD_FRAME_SAMP_SIZE] = {0};
+	//uint16_t pcm_data[AUD_DECD_FRAME_SAMP_SIZE] = {0};
+	int16_t pcm_data[AUD_DECD_FRAME_SAMP_SIZE*2] = {0};
+	unsigned char law_data[AUD_DECD_FRAME_SAMP_SIZE] = {0};
 
 #if AUD_DEBUG
 	os_printf("[audio_decoder_process] \r\n");
@@ -628,26 +630,30 @@ static bk_err_t audio_decoder_process(void)
 			os_printf("cp1: the data readed from decoder_ring_buff is not a frame \r\n");
 			return BK_FAIL;
 		}
-#if AUD_TRANS_DEBUG
-		size = ring_buffer_get_fill_size(&decoder_rb);
-		os_printf("audio_decoder_process: fill_size=%d \r\n", size);
+#if AUD_TRANS_DEBUG_DAC
+		size = ring_buffer_get_fill_size(&speaker_rb);
+		os_printf("speaker_rb: fill_size=%d \r\n", size);
 
-		size = ring_buffer_get_free_size(&decoder_rb);
-		os_printf("audio_decoder_process: free_size=%d \r\n", size);
+		size = ring_buffer_get_free_size(&speaker_rb);
+		os_printf("speaker_rb: free_size=%d \r\n", size);
 #endif
 
 		/* G711A decoding a-law data to pcm data*/
 		for (i=0; i<AUD_DECD_FRAME_SAMP_SIZE; i++) {
-			pcm_data[i] = linear2alaw(law_data[i]);
+			//pcm_data[i] = linear2alaw(law_data[i]);
+			pcm_data[2*i] = alaw2linear(law_data[i]);
+			pcm_data[2*i + 1] = pcm_data[2*i];
 		}
 
 		/* save the data after G711A processed to encoder_ring_buffer */
-		size = ring_buffer_write(&speaker_rb, (uint8_t *)pcm_data, AUD_DECD_FRAME_SAMP_SIZE*2);
-		if (size != AUD_DECD_FRAME_SAMP_SIZE*2) {
+		//size = ring_buffer_write(&speaker_rb, (uint8_t *)pcm_data, AUD_DECD_FRAME_SAMP_SIZE*2);
+		//if (size != AUD_DECD_FRAME_SAMP_SIZE*2) {
+		size = ring_buffer_write(&speaker_rb, (uint8_t *)pcm_data, AUD_DECD_FRAME_SAMP_SIZE*2*2);
+		if (size != AUD_DECD_FRAME_SAMP_SIZE*2*2) {
 			os_printf("cp1: the data writeten to speaker_ring_buff is not a frame, size=%d \r\n", size);
 			return BK_FAIL;
 		}
-#if AUD_TRANS_DEBUG
+#if AUD_TRANS_DEBUG_DAC
 		i =0;
 		i = ring_buffer_get_fill_size(&speaker_rb);
 		os_printf("cp1: speaker_rb: fill_size=%d \r\n", i);
@@ -715,7 +721,7 @@ static bk_err_t audio_write_req_process(void)
 		os_printf("cp1: the data size written to encoder_ring_buff is not write_buffer_size:%x \r\n", write_buffer_size);
 		return BK_FAIL;
 	}
-#if AUD_TRANS_DEBUG
+#if AUD_TRANS_DEBUG_DAC
 
 	size = ring_buffer_get_fill_size(&decoder_rb);
 	os_printf("audio_write_req_process: fill_size=%d \r\n", size);
@@ -878,11 +884,12 @@ static void audio_cp1_transfer_main(beken_thread_arg_t param_data)
 	/* malloc decoder ring buffer (size: 2*PSRAM_AUD_DECD_RING_BUFF_SIZE) */
 
 	/* malloc speaker ring buffer (size: 2*PSRAM_AUD_DECD_RING_BUFF_SIZE) */
-	speaker_ring_buff = os_malloc(PSRAM_AUD_DECD_RING_BUFF_SIZE*2);
+	//speaker_ring_buff = os_malloc(PSRAM_AUD_DECD_RING_BUFF_SIZE*2);
+	speaker_ring_buff = os_malloc(PSRAM_AUD_DECD_RING_BUFF_SIZE*2*2);    //单声道扩充为双声道播放
 	if (speaker_ring_buff == NULL) {
 		os_printf("cp1: malloc speaker ring buffer fail \r\n");
 	}
-	os_printf("cp1: step6: init and config G711 decoder, malloc psram memory and speaker ring buffer complete \r\n");
+	os_printf("cp1: step6: init and config G711 decoder, malloc psram memory and speaker ring buffer:%p complete \r\n", speaker_ring_buff);
 
 	/*  -------------------step7: init and config DMA to carry dac data ----------------------------- */
 	/* init dma driver */
@@ -901,7 +908,8 @@ static void audio_cp1_transfer_main(beken_thread_arg_t param_data)
 	os_printf("dac_dma_id: %d \r\n", dac_dma_id);
 
 	/* config audio dac dma to carry dac data to "speaker_ring_buff" */
-	ret = audio_dac_dma_config(dac_dma_id, speaker_ring_buff, PSRAM_AUD_DECD_RING_BUFF_SIZE*2, PSRAM_AUD_DECD_RING_BUFF_SIZE);
+	//ret = audio_dac_dma_config(dac_dma_id, speaker_ring_buff, PSRAM_AUD_DECD_RING_BUFF_SIZE*2, PSRAM_AUD_DECD_RING_BUFF_SIZE);
+	ret = audio_dac_dma_config(dac_dma_id, speaker_ring_buff, PSRAM_AUD_DECD_RING_BUFF_SIZE*2*2, PSRAM_AUD_DECD_RING_BUFF_SIZE*2);
 	if (ret != BK_OK) {
 		os_printf("cp1: config audio dac dma fail \r\n");
 		return;
@@ -922,10 +930,11 @@ static void audio_cp1_transfer_main(beken_thread_arg_t param_data)
 	ring_buffer_init(&decoder_rb, (uint8_t*)PSRAM_AUD_DECD_RING_BUFF_BASE, PSRAM_AUD_DECD_RING_BUFF_SIZE, DMA_ID_MAX, RB_DMA_TYPE_NULL);
 
 	/* init speaker_ref_ring_buff */
-	ring_buffer_init(&speaker_rb, (uint8_t*)speaker_ring_buff, PSRAM_AUD_DECD_RING_BUFF_SIZE*2, dac_dma_id, RB_DMA_TYPE_READ);
+	//ring_buffer_init(&speaker_rb, (uint8_t*)speaker_ring_buff, PSRAM_AUD_DECD_RING_BUFF_SIZE*2, dac_dma_id, RB_DMA_TYPE_READ);
+	ring_buffer_init(&speaker_rb, (uint8_t*)speaker_ring_buff, PSRAM_AUD_DECD_RING_BUFF_SIZE*2*2, dac_dma_id, RB_DMA_TYPE_READ);
 	os_printf("cp1: step8: init all audio ring buffers complete \r\n");
 
-	temp_mic_ref_addr = (int16_t *)os_malloc(PSRAM_AUD_DECD_RING_BUFF_SIZE*2*2);
+	temp_mic_ref_addr = (int16_t *)os_malloc(AUD_AEC_8K_FRAME_SAMP_SIZE*2);
 	if (temp_mic_ref_addr == NULL) {
 		os_printf("cp1: malloc temp_mic_ref_addr fail \r\n");
 	}

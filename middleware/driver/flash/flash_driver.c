@@ -261,9 +261,15 @@ static void flash_set_qe(void)
 #if CONFIG_FLASH_QUAD_ENABLE
 	if (FLASH_ID_GD25Q32C == s_flash.flash_id) {
 		uint32_t param = 0;
-		flash_bypass_quad_enable();
-		while (flash_hal_is_busy(&s_flash.hal));
-		param = flash_hal_read_status_reg(&s_flash.hal, s_flash.flash_cfg->status_reg_size);
+		/* retry quad enable, in case of quad enable may fail in some boards for first time */
+		for(uint32_t i = 0; i < QE_RETRY_TIMES; i++) {
+			flash_bypass_quad_enable();
+			while (flash_hal_is_busy(&s_flash.hal));
+			param = flash_hal_read_status_reg(&s_flash.hal, s_flash.flash_cfg->status_reg_size);
+			if(param & (s_flash.flash_cfg->quad_en_val << s_flash.flash_cfg->quad_en_post)) {
+				break;
+			}
+		}
 		BK_ASSERT(param & (s_flash.flash_cfg->quad_en_val << s_flash.flash_cfg->quad_en_post));
 		return;
 	}
@@ -594,3 +600,12 @@ void flash_ps_pm_init(void)
 	dev_pm_register(PM_ID_FLASH, "flash", &flash_ps_ops);
 }
 
+uint32_t bk_get_flash_init_flag()
+{
+	return s_flash_is_init;
+}
+
+uint32_t bk_flash_get_current_total_size(void)
+{
+	return s_flash.flash_cfg->flash_size;
+}

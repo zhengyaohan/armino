@@ -41,7 +41,7 @@ static char mac_str[DEVICE_MAC_MAXLEN] = {0};
 
 int cnt = 0;
 void *gpclient;
-char *msg_buf = NULL, *msg_readbuf = NULL;
+char *msg_buf = NULL, *msg_readbuf = NULL, *user_topic = NULL;
 
 
 char *mqtt_get_mac_str()
@@ -66,10 +66,17 @@ int mqtt_client_example(const char *host_name, const char *username,
 void release_buff() {
     if (NULL != msg_buf) {
         LITE_free(msg_buf);
+        msg_buf = NULL;
     }
 
     if (NULL != msg_readbuf) {
         LITE_free(msg_readbuf);
+        msg_readbuf = NULL;
+    }
+
+    if(NULL != user_topic) {
+        LITE_free(user_topic);
+        user_topic = NULL;
     }
 }
 
@@ -308,11 +315,24 @@ int mqtt_client_example(const char *host_name, const char *username,
                         const char *password, const char *topic)
 {
     int rc = 0;
+    int topic_len = 0;
     iotx_conn_info_pt pconn_info;
     iotx_mqtt_param_t mqtt_params;
 
     if (msg_buf != NULL) {
         return rc;
+    }
+
+    if (NULL != topic) {
+        topic_len = strlen(topic);
+        if (NULL == (user_topic = (char *)LITE_malloc(topic_len + 1))) {
+            log_info("not enough memory.\n");
+            rc = -1;
+            release_buff();
+            return rc;
+        }
+        memset(user_topic, 0x0, topic_len + 1);
+        memcpy(user_topic, topic, topic_len);
     }
 
     if(kNoErr != rtos_init_mutex(&g_publish_mutex)){
@@ -376,7 +396,7 @@ int mqtt_client_example(const char *host_name, const char *username,
         rc = -1;
         release_buff();
     } else{
-        mqtt_subcribe_topic(gpclient, topic);
+        mqtt_subcribe_topic(gpclient, user_topic);
         mqtt_publish_data(gpclient);
     }
     // BK_ASSERT(rc == 0);
@@ -386,8 +406,11 @@ int mqtt_client_example(const char *host_name, const char *username,
 
 // void deinit_mqtt_client(void) {
 //     if(NULL != gpclient) {
-//         IOT_MQTT_Unsubscribe(gpclient, TOPIC_DATA);
-//         IOT_MQTT_Unsubscribe(gpclient, TOPIC_CMD);
+//         if(NULL != user_topic) {
+//             IOT_MQTT_Unsubscribe(gpclient, user_topic);
+//         } else {
+//             IOT_MQTT_Unsubscribe(gpclient, TOPIC_CMD);
+//         }
 
 //         rtos_delay_milliseconds(200);
 
@@ -396,10 +419,10 @@ int mqtt_client_example(const char *host_name, const char *username,
 
 //         release_buff();
 
-//         rtos_deinit_mutex(g_publish_mutex);
+//         rtos_deinit_mutex(&g_publish_mutex);
+//         g_publish_mutex = NULL;
 
 //         is_subscribed = 0;
-//         cnt = 0;
 //     }
 // }
 

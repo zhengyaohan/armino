@@ -29,7 +29,7 @@ extern "C" {
 int wlan_sta_set(const uint8_t *ssid, uint8_t ssid_len, const uint8_t *psk);
 int wlan_sta_set_config(wlan_sta_config_t *config);
 int wlan_sta_get_config(wlan_sta_config_t *config);
-int wlan_sta_set_autoconnect(int enable);
+int wlan_sta_set_autoreconnect(wlan_auto_reconnect_t *config);
 int wlan_sta_get_bss_size(uint32_t * size);
 int wlan_sta_get_bss(wlan_sta_bss_info_t * bss_get);
 int wlan_sta_set_bss(wlan_sta_bss_info_t * bss_set);

@@ -22,7 +22,7 @@
 #include <driver/dma2d.h>
 #include "modules/image_scale.h"
 
-#if (CONFIG_SDCARD_HOST || CONFIG_USB_HOST)
+#if (CONFIG_SDCARD_HOST)
 #include "ff.h"
 #include "diskio.h"
 #include "test_fatfs.h"
@@ -33,7 +33,6 @@ static uint32_t*      jpeg_dec_buff =  (uint32_t *)0x60000000;
 static uint32_t*      jpeg_buff = (uint32_t *)0x30000000;
 dma_id_t lcd_dma_id = DMA_ID_MAX;
 dma_id_t jpeg_dma_id = DMA_ID_MAX;
-#define  debug   0
 
 static void lcd_i8080_isr(void)
 {
@@ -56,28 +55,21 @@ static void lcd_rgb_isr(void)
 	if(s_dma_transfer_param.lcd_isr_cnt == 400) {
 		s_dma_transfer_param.lcd_isr_cnt = 0;
 		bk_dma_stop(lcd_dma_id);
-		bk_lcd_rgb_display_en(0);
 	}
 }
 
 static void jpeg_enc_end_of_yuv_cb(jpeg_unit_t id, void *param)
 {
-#if (debug)
-	bk_gpio_set_output_high(GPIO_2);
-#endif
+	//bk_gpio_set_output_high(GPIO_2);
 
 	BK_LOG_ON_ERR(bk_dma_start(lcd_dma_id));
-#if (debug)
-	bk_gpio_set_output_low(GPIO_2);
-#endif
+	//bk_gpio_set_output_low(GPIO_2);
 }
 
 
 static void jpeg_enc_end_of_frame_cb(jpeg_unit_t id, void *param)
 {
-#if (debug)
-	bk_gpio_set_output_high(GPIO_2);
-#endif
+	//bk_gpio_set_output_high(GPIO_2);
 	//jpeg enc off
 	//bk_jpeg_enc_set_enable(0);
 	bk_dma_stop(jpeg_dma_id);
@@ -85,9 +77,7 @@ static void jpeg_enc_end_of_frame_cb(jpeg_unit_t id, void *param)
 	//jpeg dec on
 	bk_jpeg_dec_init(jpeg_buff, jpeg_dec_buff);
 
-#if (debug)
-	bk_gpio_set_output_low(GPIO_2);
-#endif
+	//bk_gpio_set_output_low(GPIO_2);
 }
 
 
@@ -104,25 +94,21 @@ static void jpeg_dec_end_of_frame_cb()
 
 static void dma_finish_isr(dma_id_t id)
 {
-#if (debug)
-	bk_gpio_set_output_high(GPIO_3);
-#endif
-
+	//bk_gpio_set_output_high(GPIO_3);
 	s_dma_transfer_param.dma_int_cnt ++;
 	if (s_dma_transfer_param.dma_int_cnt == s_dma_transfer_param.dma_transfer_cnt)
 	{
 		s_dma_transfer_param.dma_int_cnt = 0;
 		bk_dma_set_src_start_addr(lcd_dma_id, (uint32_t)LCD_FRAMEADDR);
 		s_dma_transfer_param.dma_frame_end_flag = 1;
+		//BK_LOG_ON_ERR(bk_dma_start(lcd_dma_id));
 	}
 	else {
 		bk_dma_set_src_start_addr(lcd_dma_id, ((uint32_t)LCD_FRAMEADDR + (uint32_t)(s_dma_transfer_param.dma_transfer_len * s_dma_transfer_param.dma_int_cnt)));
 		BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(lcd_dma_id));
 		bk_dma_start(lcd_dma_id);
 	}
-#if (debug)
-	bk_gpio_set_output_low(GPIO_3);
-#endif
+	//bk_gpio_set_output_low(GPIO_3);
 }
 
 static void dma_pre_config(uint32_t dma_ch)
@@ -255,7 +241,8 @@ void lcd_8080_init(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **ar
 	}
 	os_printf("malloc lcd dma ch is DMA_ch%x \r\n", lcd_dma_id);
 
-	bk_gpio_enable_output(GPIO_2);	//output
+//	bk_gpio_enable_output(GPIO_2);	//output
+//	bk_gpio_enable_output(GPIO_3);	//output
 
 	if (os_strcmp(argv[1], "start") == 0) {
 		s_dma_transfer_param.dma_transfer_len = 61440;
@@ -343,6 +330,8 @@ void lcd_video(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 	i2c_config_t i2c_config = {0};
 	uint32_t fps;
 	uint32_t psram_mode = 0x00054043;
+	uint32_t dev = 3; // gc0328c
+	uint32_t camera_cfg = 0;
 
 	s_dma_transfer_param.dma_int_cnt = 0;
 	s_dma_transfer_param.dma_transfer_len = 65280;
@@ -361,15 +350,14 @@ void lcd_video(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 	
 	fps = os_strtoul(argv[2], NULL, 10) & 0xFFFF;
 	os_printf("fps  = %dHz \r\n", fps);
+	camera_cfg = (272 << 16) | fps;
 
 	if (argc < 2) {
 		os_printf("input param error\n");
 		return;
 	}
-#if (debug)
-	bk_gpio_enable_output(GPIO_2);	//output
-	bk_gpio_enable_output(GPIO_3);	//outpu
-#endif
+//	bk_gpio_enable_output(GPIO_2);	//output
+//	bk_gpio_enable_output(GPIO_3);	//outpu
 	BK_LOG_ON_ERR(bk_jpeg_enc_driver_init());
 
 	err = bk_psram_init(psram_mode);
@@ -391,7 +379,7 @@ void lcd_video(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 	jpeg_config.y_pixel = Y_PIXEL_272;
 	jpeg_config.sys_clk_div = 4;
 	jpeg_config.mclk_div = 0;
-	switch (fps) {
+	/*switch (fps) {
 		case 5:
 			fps = TYPE_5FPS;
 			break;
@@ -410,7 +398,7 @@ void lcd_video(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 		default:
 			os_printf("input fps param error\n");
 			return;
-	}
+	}*/
 
 	bk_jpeg_enc_register_isr(END_OF_YUV, jpeg_enc_end_of_yuv_cb, NULL);
 	err = bk_jpeg_enc_dvp_init(&jpeg_config);
@@ -427,7 +415,8 @@ void lcd_video(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 		return;
 	}
 
-	err = bk_camera_set_ppi_fps(VGA_480_272, fps);
+	//err = bk_camera_set_ppi_fps(VGA_480_272, fps);
+	err = bk_camera_set_param(dev, camera_cfg);
 	if (err != kNoErr) {
 		os_printf("set camera ppi and fps error\n");
 		return;
@@ -444,6 +433,8 @@ void lcd_video_jpeg_dec(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 	i2c_config_t i2c_config = {0};
 	uint32_t fps;
 	uint32_t psram_mode = 0x00054043;
+	uint32_t dev = 3;// gc0328c
+	uint32_t camera_cfg = 0;
 
 	s_dma_transfer_param.dma_transfer_len = 65280;
 	s_dma_transfer_param.dma_transfer_cnt = 4;
@@ -506,6 +497,8 @@ void lcd_video_jpeg_dec(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 	jpeg_config.y_pixel = Y_PIXEL_272;
 	jpeg_config.sys_clk_div = 4;
 	jpeg_config.mclk_div = 0;
+	camera_cfg = (272 << 16) | fps;
+	/*
 	switch (fps) {
 		case 5:
 			fps = TYPE_5FPS;
@@ -525,7 +518,7 @@ void lcd_video_jpeg_dec(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 		default:
 			os_printf("input fps param error\n");
 			return;
-	}
+	}*/
 
 	err = bk_jpeg_enc_dvp_init(&jpeg_config);
 	if (err != BK_OK) {
@@ -544,7 +537,8 @@ void lcd_video_jpeg_dec(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 		return;
 	}
 
-	err = bk_camera_set_ppi_fps(VGA_480_272, fps);
+	//err = bk_camera_set_ppi_fps(VGA_480_272, fps);
+	err = bk_camera_set_param(dev, camera_cfg);
 	if (err != BK_OK) {
 		os_printf("set camera ppi and fps error\n");
 		return;
@@ -553,7 +547,7 @@ void lcd_video_jpeg_dec(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 }
 
 
-void lcd_rgb_scale_down_init(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+void lcd_rgb_init(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 	s_dma_transfer_param.dma_int_cnt = 0;
 	s_dma_transfer_param.dma_frame_end_flag = 0;
@@ -575,6 +569,8 @@ void lcd_rgb_scale_down_init(char *pcWriteBuffer, int xWriteBufferLen, int argc,
 	bk_lcd_power_on_ctrl(1);
 	os_printf("psram init. \r\n");
 	bk_psram_init(0x00054043);
+	bk_gpio_enable_output(GPIO_2);	//output
+	bk_gpio_enable_output(GPIO_3);	//output
 
 	lcd_dma_id = bk_dma_alloc(DMA_DEV_LCD_DATA);
 	if ((lcd_dma_id < DMA_ID_0) || (lcd_dma_id >= DMA_ID_MAX)) {
@@ -592,161 +588,13 @@ void lcd_rgb_scale_down_init(char *pcWriteBuffer, int xWriteBufferLen, int argc,
 	dma_lcd_config(0, lcd_dma_id, (uint32_t)LCD_FRAMEADDR, dma_dst_w);
 }
 
-void lcd_rgb_scale_down_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
-{
-	int err = kNoErr;
-	if (os_strcmp(argv[1], "sdwrite_from_psram") == 0) {
-#if (CONFIG_SDCARD_HOST || CONFIG_USB_HOST)
-		char *filename = NULL;
-		char cFileName[FF_MAX_LFN];
-		FIL file;
-		FRESULT fr;
-		unsigned int uiTemp = 0;
 
-		os_printf(" cmd argv[1] = %s\r\n", argv[1]);
-
-		filename = argv[2]; //saved file name
-		os_printf("filename  = %s \r\n", filename);
-
-		uint32_t width = os_strtoul(argv[3], NULL, 10) & 0xFFFF;
-		os_printf("image width	= %d \r\n", width);
-
-		uint32_t height = os_strtoul(argv[4], NULL, 10) & 0xFFFF;
-		os_printf("image height  = %d \r\n", height);
-
-		uint32_t paddr = os_strtoul(argv[5], NULL, 16) & 0xFFFFFFFF;
-		char *ucRdTemp = (char *)paddr;
-		os_printf("read from psram addr = %x \r\n", ucRdTemp);
-
-		//	save data to sdcard
-		sprintf(cFileName, "%d:/%s", DISK_NUMBER_SDIO_SD, filename);
-
-		fr = f_open(&file, cFileName, FA_OPEN_APPEND | FA_WRITE);
-		if (fr != FR_OK) {
-			os_printf("open %s fail.\r\n", filename);
-			return;
-		}
-		fr = f_write(&file, (char *)ucRdTemp, width * height * 2 , &uiTemp);
-		if (fr != FR_OK) {
-			os_printf("write %s fail.\r\n", filename);
-			return;
-		}
-		os_printf("\n");
-		fr = f_close(&file);
-		if (fr != FR_OK) {
-			os_printf("close %s fail!\r\n", filename);
-			return;
-		}
-		os_printf("write LCD data to file successful\r\n");
-#else
-		os_printf("Not support\r\n");
-#endif
-	}else if (os_strcmp(argv[1], "sdread_to_psram") == 0) {
-#if (CONFIG_SDCARD_HOST || CONFIG_USB_HOST)
-		char *filename = NULL;
-		char cFileName[FF_MAX_LFN];
-		FIL file;
-		FRESULT fr;
-		FSIZE_t size_64bit = 0;
-		unsigned int uiTemp = 0;
-
-		os_printf(" cmd argv[1] = %s\r\n", argv[1]);
-
-		filename = argv[2];
-		os_printf("filename  = %s \r\n", filename);
-
-		// step 1: read picture from sd to psram
-		sprintf(cFileName, "%d:/%s", DISK_NUMBER_SDIO_SD, filename);
-
-		uint32_t paddr = os_strtoul(argv[3], NULL, 16) & 0xFFFFFFFF;
-		char *ucRdTemp = (char *)paddr;
-		os_printf("write to psram addr:  %x \r\n", ucRdTemp);
-
-		/*open pcm file*/
-		fr = f_open(&file, cFileName, FA_OPEN_EXISTING | FA_READ);
-		if (fr != FR_OK) {
-			os_printf("open %s fail.\r\n", filename);
-			return;
-		}
-		size_64bit = f_size(&file);
-		uint32_t total_size = (uint32_t)size_64bit;// total byte
-		os_printf("read file total_size = %d.\r\n", total_size);
-
-		fr = f_read(&file, ucRdTemp, total_size, &uiTemp);
-		if (fr != FR_OK) {
-			os_printf("read file fail.\r\n");
-			return;
-		}
-		os_printf("\r\n");
-		fr = f_close(&file);
-		if (fr != FR_OK) {
-			os_printf("close %s fail!\r\n", filename);
-			return;
-		}
-		os_printf("sd card read from psram ok.\r\n");
-#else
-	os_printf("Not support\r\n");
-#endif
-	} else if (os_strcmp(argv[1], "start") == 0) {
-		uint32_t src_w = os_strtoul(argv[3], NULL, 10) & 0xFFFF;
-		os_printf("image src_w  = %d \r\n", src_w);
-		uint32_t src_h = os_strtoul(argv[4], NULL, 10) & 0xFFFF;
-		os_printf("image src_h  = %d \r\n", src_h);
-		
-		uint32_t dst_w = os_strtoul(argv[5], NULL, 10) & 0xFFFF;
-		os_printf("image dst_w  = %d \r\n", dst_w);
-		uint32_t dst_h = os_strtoul(argv[6], NULL, 10) & 0xFFFF;
-		os_printf("image src_h  = %d \r\n", dst_h);
-
-		uint8_t *pSrcImg  = (uint8_t *) 0x60200000;
-		uint8_t *pDstImg = (uint8_t *) 0x60000000;
-
-		os_printf("pSrcImg = %x \r\n", pSrcImg);
-		os_printf("pDstImg = %x \r\n", pDstImg);
-
-		bk_gpio_enable_output(GPIO_2);	//outpu
-		bk_gpio_enable_output(GPIO_3);	//outpu
-		bk_gpio_enable_output(GPIO_4);	//outpu
-
-		 if (os_strcmp(argv[2], "compress_only") == 0){
-			err = image_16bit_scaling(pSrcImg, pDstImg, src_w, src_h, dst_w, dst_h);
-		}  else if (os_strcmp(argv[2], "display_only") == 0) {
-			
-		}  else if (os_strcmp(argv[2], "compress_rotate") == 0) { 
-			err = image_16bit_scaling_rotate(pSrcImg, pDstImg, src_w, src_h, dst_w, dst_h);
-		} else if (os_strcmp(argv[2], "anticlockwise_rotate") == 0) {
-			image_16bit_rotate90_anticlockwise(pDstImg, pSrcImg, src_w, src_h);
-		} else if (os_strcmp(argv[2], "clockwise_rotate") == 0) {
-			image_16bit_rotate90_clockwise(pDstImg, pSrcImg, src_w, src_h);
-		} else if (os_strcmp(argv[2], "crop_compress") == 0) {
-			err = image_scale_crop_compress(pSrcImg, pDstImg, src_w, src_h, dst_w, dst_h);
-		}else if (os_strcmp(argv[2], "only_crop") == 0) {
-			image_crop_size(pSrcImg, pDstImg, src_w, src_h, dst_w, dst_h);
-		} else if (os_strcmp(argv[2], "crop_compress_rotate") == 0) {
-			err = image_scale_crop_compress_rotate(pSrcImg, pDstImg, src_w, src_h, dst_w, dst_h);
-		}else if (os_strcmp(argv[2], "lcd_display") == 0) {
-			bk_lcd_rgb_display_en(1);
-			os_printf("lcd rgb dma start.\r\n");
-			BK_LOG_ON_ERR(bk_dma_start(lcd_dma_id));
-		}else {
-			os_printf("argv[2] error. \r\n");
-			return ;
-		}
-	}else {
-			os_printf("argv[1] error. \r\n");
-	}
-	if (err != BK_OK) {
-		os_printf("img_down_scale error\n");
-		return;
-	}
-}
-
-void lcd_8080_rgb565_scale_down_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+void lcd_algorithm_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 	int err = kNoErr;
 
 	if (os_strcmp(argv[1], "sdwrite_from_psram") == 0) {
-#if (CONFIG_SDCARD_HOST || CONFIG_USB_HOST)
+#if (CONFIG_SDCARD_HOST)
 		char *filename = NULL;
 		char cFileName[FF_MAX_LFN];
 		FIL file;
@@ -792,7 +640,7 @@ void lcd_8080_rgb565_scale_down_test(char *pcWriteBuffer, int xWriteBufferLen, i
 		os_printf("Not support\r\n");
 #endif
 	} else if (os_strcmp(argv[1], "sdread_to_psram") == 0) {
-#if (CONFIG_SDCARD_HOST || CONFIG_USB_HOST)
+#if (CONFIG_SDCARD_HOST)
 		char *filename = NULL;
 		char cFileName[FF_MAX_LFN];
 		FIL file;
@@ -837,7 +685,7 @@ void lcd_8080_rgb565_scale_down_test(char *pcWriteBuffer, int xWriteBufferLen, i
 #else
 		os_printf("Not support\r\n");
 #endif
-	}else if (os_strcmp(argv[1], "start") == 0) {
+	} else if (os_strcmp(argv[1], "start") == 0) {
 		uint32_t src_w = os_strtoul(argv[3], NULL, 10) & 0xFFFF;
 		os_printf("image src_w  = %d \r\n", src_w);
 		uint32_t src_h = os_strtoul(argv[4], NULL, 10) & 0xFFFF;
@@ -848,18 +696,15 @@ void lcd_8080_rgb565_scale_down_test(char *pcWriteBuffer, int xWriteBufferLen, i
 		uint32_t dst_h = os_strtoul(argv[6], NULL, 10) & 0xFFFF;
 		os_printf("image src_h  = %d \r\n", dst_h);
 
-		uint8_t *pSrcImg  = (uint8_t *) 0x60200000;
-		uint8_t *pDstImg = (uint8_t *) 0x60000000;
-		os_printf("pSrcImg = %x \r\n", pSrcImg);
-		os_printf("pDstImg = %x \r\n", pDstImg);	
-		bk_gpio_enable_output(GPIO_2);	//output
+		uint32_t srcaddr = os_strtoul(argv[7], NULL, 16) & 0xFFFFFFFF;
+		uint32_t dstaddr = os_strtoul(argv[8], NULL, 16) & 0xFFFFFFFF;
+		unsigned char *pSrcImg = (unsigned char *) srcaddr;
+		unsigned char *pDstImg = (unsigned char *) dstaddr;
 
 		bk_gpio_set_output_high(GPIO_2);
-		 if (os_strcmp(argv[2], "compress_only") == 0){
+		if (os_strcmp(argv[2], "compress_only") == 0){
 			err = image_16bit_scaling(pSrcImg, pDstImg, src_w, src_h, dst_w, dst_h);
-		}  else if (os_strcmp(argv[2], "display_only") == 0) {
-
-		}  else if (os_strcmp(argv[2], "compress_rotate") == 0) { 
+		} else if (os_strcmp(argv[2], "compress_rotate") == 0) { 
 			err = image_16bit_scaling_rotate(pSrcImg, pDstImg, src_w, src_h, dst_w, dst_h);
 		} else if (os_strcmp(argv[2], "anticlockwise_rotate") == 0) {
 			image_16bit_rotate90_anticlockwise(pDstImg, pSrcImg, src_w, src_h);
@@ -867,22 +712,42 @@ void lcd_8080_rgb565_scale_down_test(char *pcWriteBuffer, int xWriteBufferLen, i
 			image_16bit_rotate90_clockwise(pDstImg, pSrcImg, src_w, src_h);
 		} else if (os_strcmp(argv[2], "crop_compress") == 0) {
 			err = image_scale_crop_compress(pSrcImg, pDstImg, src_w, src_h, dst_w, dst_h);
-		}else if (os_strcmp(argv[2], "only_crop") == 0) {
-			image_crop_size(pSrcImg, pDstImg, src_w, src_h, dst_w, dst_h);
+		} else if (os_strcmp(argv[2], "only_crop") == 0) {
+			image_center_crop(pSrcImg, pDstImg, src_w, src_h, dst_w, dst_h);
+		}  else if (os_strcmp(argv[2], "dma2d_crop") == 0) {
+			dma2d_crop_params_t  crop_params;
+			crop_params.dst_addr = (uint32_t)pDstImg;
+			crop_params.src_addr = (uint32_t)pSrcImg;
+			crop_params.x = (src_w - dst_w)/2;
+			crop_params.y = (src_h - dst_h)/2;
+			crop_params.src_width = src_w;
+			crop_params.src_height = src_h;
+			crop_params.dst_width = dst_w;
+			crop_params.dst_height = dst_h;
+			dma2d_crop_image(&crop_params);
 		} else if (os_strcmp(argv[2], "crop_compress_rotate") == 0) {
 			err = image_scale_crop_compress_rotate(pSrcImg, pDstImg, src_w, src_h, dst_w, dst_h);
-		}else if (os_strcmp(argv[2], "lcd_display") == 0) {
-			bk_lcd_rgb_display_en(1);
-			os_printf("lcd rgb dma start.\r\n");
-			//dma_start_transfer2((uint32_t)pDstImg, lcd_dma_id);
-			dma_lcd_config(1, lcd_dma_id,(uint32_t)pDstImg, 1);
-			bk_dma_start(lcd_dma_id);
-		}else {
+		} else if (os_strcmp(argv[2], "uyvy_to_rgb565") == 0) {
+			uyvy_to_rgb565_convert(pSrcImg, pDstImg, src_w, src_h);
+		} else if (os_strcmp(argv[2], "yuyv_to_rgb565") == 0) {
+			yuyv_to_rgb565_convert(pSrcImg, pDstImg, src_w, src_h);
+		} else if (os_strcmp(argv[2], "rgb565_to_uyvy") == 0) {
+			rgb565_to_uyvy_convert((uint16_t *)pSrcImg, (uint16_t *)pDstImg, src_w, src_h);
+		} else if (os_strcmp(argv[2], "rgb565_to_yuyv") == 0) {
+			rgb565_to_yuyv_convert((uint16_t *)pSrcImg, (uint16_t *)pDstImg, src_w, src_h);
+		} else {
 			os_printf("argv[2] error. \r\n");
 			return ;
 		}
-	}else {
-			os_printf("argv[1] error. \r\n\r\n");
+	} else if (os_strcmp(argv[1], "8080_display") == 0) {
+		bk_lcd_rgb_display_en(1);
+		dma_lcd_config(1, lcd_dma_id,(uint32_t)LCD_FRAMEADDR, 1);
+		bk_dma_start(lcd_dma_id);
+	} else if (os_strcmp(argv[1], "rgb_display") == 0) {
+		bk_lcd_rgb_display_en(1);
+		bk_dma_start(lcd_dma_id);
+	} else {
+	os_printf("argv[1] error. \r\n\r\n");
 	}
 	bk_gpio_set_output_low(GPIO_2);
 	if (err != BK_OK) {
@@ -890,6 +755,222 @@ void lcd_8080_rgb565_scale_down_test(char *pcWriteBuffer, int xWriteBufferLen, i
 		return;
 	}
 }
+
+static void dma2d_memcpy_rgb565_data(uint32_t src_addr, uint32_t dst_addr, uint32_t src_offset, uint32_t dst_offset, uint32_t x_pixel, uint32_t y_pixel)
+{
+	dma2d_config_t dma2d_config = {0};
+	dma2d_config.init.mode		  = DMA2D_M2M;			   /**< Mode Memory To Memory */
+	dma2d_config.init.color_mode	= DMA2D_OUTPUT_RGB565; /**< Output color mode is ARGB4444 : 16 bpp */
+	dma2d_config.init.output_offset = dst_offset;				  /**< No offset on output */
+	dma2d_config.init.red_blue_swap  = DMA2D_RB_REGULAR;	 /**< No R&B swap for the output image */
+	dma2d_config.init.alpha_inverted = DMA2D_REGULAR_ALPHA; /**< No alpha inversion for the output image */
+	
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].alpha_mode = DMA2D_NO_MODIF_ALPHA;	  /**< Keep original Alpha from ARGB4444 input */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_alpha = 0xFF;					  /**< Fully opaque */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_color_mode = DMA2D_INPUT_RGB565; 
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_offset = src_offset;					 /**< No offset in input */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].red_blue_swap   = DMA2D_RB_REGULAR;	   /**< No R&B swap for the input image */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].alpha_inverted = DMA2D_REGULAR_ALPHA;   /**< No alpha inversion for the input image */
+	
+	bk_dma2d_driver_init(&dma2d_config);
+	bk_dma2d_layer_config(&dma2d_config, DMA2D_FOREGROUND_LAYER);
+	
+	bk_dma2d_start_transfer(&dma2d_config, (uint32_t)src_addr, (uint32_t)dst_addr, x_pixel, y_pixel); 
+	while (bk_dma2d_is_transfer_busy()) {}
+}
+
+
+void dma2d_crop_image(dma2d_crop_params_t *crop_params)
+{
+	uint32_t src_offset = crop_params->src_width - crop_params->dst_width;
+	uint16_t *src_crop_start_addr = (uint16_t *)crop_params->src_addr + (crop_params->y * crop_params->src_width) + crop_params->x;
+
+	dma2d_config_t dma2d_config = {0};
+	dma2d_config.init.mode		  = DMA2D_M2M;			   /**< Mode Memory To Memory */
+	dma2d_config.init.color_mode	= DMA2D_OUTPUT_RGB565; /**< Output color mode is ARGB4444 : 16 bpp */
+	dma2d_config.init.output_offset = 0;				  /**< No offset on output */
+	dma2d_config.init.red_blue_swap  = DMA2D_RB_REGULAR;	 /**< No R&B swap for the output image */
+	dma2d_config.init.alpha_inverted = DMA2D_REGULAR_ALPHA; /**< No alpha inversion for the output image */
+	
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].alpha_mode = DMA2D_NO_MODIF_ALPHA;	  /**< Keep original Alpha from ARGB4444 input */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_alpha = 0xFF;					  /**< Fully opaque */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_color_mode = DMA2D_INPUT_RGB565; 
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_offset = src_offset;					 /**< No offset in input */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].red_blue_swap   = DMA2D_RB_REGULAR;	   /**< No R&B swap for the input image */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].alpha_inverted = DMA2D_REGULAR_ALPHA;   /**< No alpha inversion for the input image */
+	
+	bk_dma2d_driver_init(&dma2d_config);
+	bk_dma2d_layer_config(&dma2d_config, DMA2D_FOREGROUND_LAYER);
+	
+	bk_dma2d_start_transfer(&dma2d_config, (uint32_t)src_crop_start_addr, (uint32_t)crop_params->dst_addr, crop_params->dst_width, crop_params->dst_height); 
+	while (bk_dma2d_is_transfer_busy()) {}
+}
+
+static void dma2d_blend_rgb565_data(void *p_fg_addr, void *p_bg_addr, void *p_dst_addr,
+								uint32_t fg_offline, uint32_t bg_offline, uint32_t out_offset,
+								uint16_t xsize, uint16_t ysize, int8_t alpha_value)
+{
+	dma2d_config_t dma2d_config = {0};
+	dma2d_config.init.mode= DMA2D_M2M_BLEND;
+	dma2d_config.init.color_mode = DMA2D_OUTPUT_RGB565;
+	dma2d_config.init.output_offset= out_offset; /**< output offset */
+	dma2d_config.init.red_blue_swap   = DMA2D_RB_REGULAR;				 /**< No R&B swap for the output image */
+	dma2d_config.init.alpha_inverted = DMA2D_REGULAR_ALPHA; 			/**< No alpha inversion for the output image */
+
+	/**< Foreground layer Configuration */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].alpha_mode = DMA2D_REPLACE_ALPHA;	/**< Keep original Alpha from ARGB4444 input */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_alpha = alpha_value;           /**< 255 : fully opaque */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_color_mode = DMA2D_INPUT_RGB565; /**< Foreground color is RGB565 : 16 bpp */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_offset = fg_offline;					/**< No offset in input */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].red_blue_swap   = DMA2D_RB_REGULAR;	  /**< No R&B swap for the input image */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].alpha_inverted = DMA2D_REGULAR_ALPHA; /**< No alpha inversion for the input image */
+
+	/**< Background layer Configuration */
+	dma2d_config.layer_cfg[DMA2D_BACKGROUND_LAYER].alpha_mode  = DMA2D_REPLACE_ALPHA;
+	dma2d_config.layer_cfg[DMA2D_BACKGROUND_LAYER].input_alpha	 = 0x80;							/**< 255 : fully opaque */
+	dma2d_config.layer_cfg[DMA2D_BACKGROUND_LAYER].input_color_mode = DMA2D_INPUT_RGB565;		   /**< Background format is ARGB8888*/
+	dma2d_config.layer_cfg[DMA2D_BACKGROUND_LAYER].input_offset = bg_offline;/**< Background input offset*/
+	dma2d_config.layer_cfg[DMA2D_BACKGROUND_LAYER].red_blue_swap	= DMA2D_RB_REGULAR; 			 /**< No R&B swap for the input background image */
+	dma2d_config.layer_cfg[DMA2D_BACKGROUND_LAYER].alpha_inverted  = DMA2D_REGULAR_ALPHA;			/**< No alpha inversion for the input background image */
+
+	bk_dma2d_driver_init(&dma2d_config);
+	bk_dma2d_layer_config(&dma2d_config, DMA2D_FOREGROUND_LAYER);
+	bk_dma2d_layer_config(&dma2d_config, DMA2D_BACKGROUND_LAYER);
+	bk_dma2d_start_blending(&dma2d_config, (uint32_t)p_fg_addr, (uint32_t)p_bg_addr, (uint32_t)p_dst_addr, xsize ,ysize);
+	while (bk_dma2d_is_transfer_busy()) {}
+}
+
+
+
+void lcd_8080_yuv_blend_display(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	/*1: read 320*480yuv picture to psram 0x60200000*/
+	/*cmd:lcd_8080_scale_down=sdread_to_psram,yuyv_320_480_yuv,0x60200000 */
+
+	/*2: read clock picture rgb565 data to sram 0x30000000*/
+	/*cmd:lcd_8080_scale_down=sdread_to_psram,yuyv_120_56_rgb,0x60400000 */
+
+	if (os_strcmp(argv[1], "crop_blend") == 0) {
+		uint32_t src_w = 320;
+		uint32_t src_h = 480;
+		uint32_t dst_w = 100;
+		uint32_t dst_h = 60;
+		uint32_t addr_temp = dst_w*dst_h*2;  //0x2ee2
+		
+		unsigned char *p_disp_addr = (unsigned char *) 0x60000000;
+		unsigned char *p_bgImg = (unsigned char *) 0x60200000;
+		unsigned char *p_fgImg = (unsigned char *) 0x60400000;
+		unsigned char *p_crop = (unsigned char *) (p_fgImg + addr_temp);
+		unsigned char *p_crop2rgb = (unsigned char *) (p_fgImg + 2 * addr_temp);
+		uint32_t alpha_value = os_strtoul(argv[2], NULL, 10) & 0xFFFF;
+
+		uint32_t x = src_w - dst_w;
+		uint32_t y = src_h - dst_h;
+		uint32_t bg_offset = src_w - dst_w;
+		uint16_t *pbg_offstart = (uint16_t *)p_bgImg + (y * src_w) + x;
+//		os_printf("pSrcImg = %x \r\n", p_bgImg);
+//		os_printf("crop yuv to pDstImg = %x \r\n", p_crop);  ///0x60402ee2
+//		os_printf("dma2d memcpy start addr = %x \r\n", pbg_offstart);
+		bk_gpio_set_output_high(GPIO_2);
+
+		/*crop yuv -- 0.74ms*/
+		dma2d_memcpy_rgb565_data((uint32_t)pbg_offstart, (uint32_t)p_crop, bg_offset, 0, dst_w, dst_h);
+
+		/*yuv to rgb565 --2.88ms*/
+		//os_printf("yuv2rgb addr = %x \r\n",p_crop2rgb); //0x60405dc2
+		yuyv_to_rgb565_convert(p_crop, p_crop2rgb, dst_w, dst_h);
+
+		/*rgb blend --1.1ms*/
+//		os_printf("rgb blend out addr = %x \r\n",p_crop2rgb); //0x60405dc2
+		dma2d_blend_rgb565_data(p_fgImg, p_crop2rgb, p_crop2rgb, 0, 0, 0, dst_w, dst_h, alpha_value);
+
+		/*rgb2yuv --1.9ms*/
+		rgb565_to_yuyv_convert((uint16_t *)p_crop2rgb, (uint16_t *)p_crop, dst_w, dst_h);
+
+		/*dma2d fill yuv to bg img --0.77ms*/
+		dma2d_memcpy_rgb565_data((uint32_t)p_crop, (uint32_t)pbg_offstart, 0, bg_offset, dst_w, dst_h);
+		bk_gpio_set_output_low(GPIO_2);
+
+		/*yuv2rgb --73.4ms*/
+		yuyv_to_rgb565_convert(p_bgImg, p_disp_addr, src_w, src_h);
+
+		bk_lcd_rgb_display_en(1);  /* 28.8ms*/
+		dma_lcd_config(1, lcd_dma_id,(uint32_t)p_disp_addr, 1);
+		bk_dma_start(lcd_dma_id);
+	}
+}
+
+void lcd_rgb_yuv_blend_display(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	/*1. rgb lcd init*/
+
+	/*2: read 320*480yuv picture to psram 0x60000000*/
+	/*cmd:lcd_8080_scale_down=sdread_to_psram,yuyv_320_480_yuv,0x60000000 */
+
+	/*3: read clock picture rgb565 data to sram 0x60400000*/
+	/*cmd:lcd_8080_scale_down=sdread_to_psram,yuyv_100_60_rgb,0x60400000 */
+
+	/* cmd: lcd_rgb_scale_init=div,yuvmode,dmawidth*/
+	if (os_strcmp(argv[1], "crop_blend") == 0) {
+		uint32_t src_w = 480;
+		uint32_t src_h = 272;
+		uint32_t dst_w = 100;
+		uint32_t dst_h = 60;
+		unsigned char *p_bgImg = NULL;
+		unsigned char *p_disp_addr = NULL;
+		uint32_t addr_temp = dst_w*dst_h*2;
+
+		if(os_strcmp(argv[4], "rgb_display") == 0) { /* if rgb lcd display rgb565 data */
+			p_bgImg = (unsigned char *) 0x60200000;
+			p_disp_addr = (unsigned char *) 0x60000000;
+		} else {
+			p_bgImg = (unsigned char *) 0x60000000;
+		}
+		unsigned char *p_fgImg = (unsigned char *) 0x60400000;
+		unsigned char *p_crop = (unsigned char *) (p_fgImg + addr_temp);
+		unsigned char *p_crop2rgb = (unsigned char *) (p_fgImg + 2 * addr_temp);
+		uint32_t alpha_value = os_strtoul(argv[2], NULL, 10) & 0xFFFF;
+
+		uint32_t x = src_w - dst_w;
+		uint32_t y = src_h - dst_h;
+		uint32_t bg_offset = src_w - dst_w;
+		uint16_t *pbg_offstart = (uint16_t *)p_bgImg + (y * src_w) + x;
+
+		bk_gpio_set_output_high(GPIO_2);
+
+		/*crop yuv -- 0.74ms*/
+		dma2d_memcpy_rgb565_data((uint32_t)pbg_offstart, (uint32_t)p_crop, bg_offset, 0, dst_w, dst_h);
+
+		/*yuv to rgb565 --2.88ms*/
+		if (os_strcmp(argv[3], "yuyv") == 0) {/* if bg image is yuyv data*/
+			yuyv_to_rgb565_convert(p_crop, p_crop2rgb, dst_w, dst_h);
+		} else if (os_strcmp(argv[3], "uyvy") == 0) {
+			uyvy_to_rgb565_convert(p_crop, p_crop2rgb, dst_w, dst_h);
+		} else {
+			os_printf("yuv mode not support. \r\n");		/*rgb blend --1.1ms*/
+		}
+		dma2d_blend_rgb565_data(p_fgImg, p_crop2rgb, p_crop2rgb, 0, 0, 0, dst_w, dst_h, alpha_value);
+
+		/*rgb2yuv --1.9ms*/
+		if (os_strcmp(argv[3], "yuyv") == 0) {
+			rgb565_to_yuyv_convert((uint16_t *)p_crop2rgb, (uint16_t *)p_crop, dst_w, dst_h);
+		} else if (os_strcmp(argv[3], "uyvy") == 0) {
+			rgb565_to_uyvy_convert((uint16_t *)p_crop2rgb, (uint16_t *)p_crop, dst_w, dst_h);
+		} else {
+			os_printf("yuv mode not support. \r\n");
+		}
+
+		/*dma2d fill yuv to bg img --0.77ms*/
+		dma2d_memcpy_rgb565_data((uint32_t)p_crop, (uint32_t)pbg_offstart, 0, bg_offset, dst_w, dst_h);
+		bk_gpio_set_output_low(GPIO_2);
+		if(os_strcmp(argv[4], "rgb_display") == 0) {
+			yuyv_to_rgb565_convert(p_bgImg, p_disp_addr, src_w, src_h);
+		}
+		bk_lcd_rgb_display_en(1);  /* 28.8ms*/
+		bk_dma_start(lcd_dma_id);
+	}
+}
+
 
 void lcd_close(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {

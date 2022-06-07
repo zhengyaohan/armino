@@ -14,16 +14,15 @@
 #include <components/jpeg_decode.h>
 #include <components/uvc_camera.h>
 
-#if (CONFIG_SDCARD_HOST || CONFIG_USB_HOST)
+#if (CONFIG_SDCARD_HOST)
 #include "ff.h"
 #include "diskio.h"
 #include "test_fatfs.h"
 #endif
 
-
-#define JPEGDEC_DATA_ADDR     (0x60010000)
-#define PSRAM_BASEADDR        (0x60000000)
-#define YUV_RESIZE_ADDR       (0x61000000)
+#define PSRAM_BASEADDR        (0x60000000) // JPEG DATA
+#define JPEGDEC_DATA_ADDR     (0x601E0000) // JPEG DEC DATA
+#define YUV_RESIZE_ADDR       (0x60500000) // YUV RESIZE DATA
 #define DMA_TRANSFER_LEN      0xFF00//480*272/2;
 
 extern void delay(INT32 num);
@@ -62,6 +61,7 @@ static void cli_jpegdec_help(void)
 	os_printf("\r\n-dinit-- (deinit all modules)----\r\n");
 }
 
+#if (CONFIG_USB_UVC || CONFIG_SDCARD_HOST)
 static void image_resize_to_480_272(uint32_t input_size, uint8_t *input_ptr, uint8_t *output_ptr)
 {
 	uint8_t *left_top_ptr = NULL;
@@ -91,6 +91,7 @@ static void image_resize_to_480_272(uint32_t input_size, uint8_t *input_ptr, uin
 		output_ptr += compy_length;
 	}
 }
+#endif
 
 static void lcd_display_frame_isr(void)
 {
@@ -155,18 +156,20 @@ static void dma_jpeg_dec_to_lcdfifo(void)
 	BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(dma_channel_id));
 }
 
+#if (CONFIG_USB_UVC || CONFIG_SDCARD_HOST)
 static void uvc_jpegdec_frame_end_callback(void)
 {
 	image_resize_to_480_272(g_image_height, (uint8_t *)JPEGDEC_DATA_ADDR, (uint8_t *)YUV_RESIZE_ADDR);
 	bk_lcd_rgb_display_en(1);
 	bk_dma_start(dma_channel_id);
 }
+#endif
 
 #if CONFIG_USB_UVC
 static void uvc_jpeg_frame_end_callback(uint32_t pic_size)
 {
 	bk_err_t ret = BK_OK;
-	ret = bk_jpeg_dec_sw_fun((uint8_t *)PSRAM_BASEADDR, (uint8_t *)JPEGDEC_DATA_ADDR, pic_size);
+	ret = bk_jpeg_dec_sw_start(pic_size);
 	if (ret != BK_OK) {
 		bk_uvc_set_mem_status(UVC_MEM_IDLE);
 	}
@@ -177,7 +180,6 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 {
 	int err = 0;
 	uint32_t rgb_clk_div = 0;
-	uint8_t ratio = 0;
 
 	if (argc < 2) {
 		cli_jpegdec_help();
@@ -187,14 +189,13 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 	if (os_strcmp(argv[1], "init") == 0) {
 		uint32_t mode = 0x00054043;
 		if (argc < 5) {
-			os_printf("init: width height ratio\r\n");
+			os_printf("init: width height \r\n");
 			return;
 		}
 
 		g_image_width = os_strtoul(argv[2], NULL, 10);
 		g_image_height = os_strtoul(argv[3], NULL, 10);
-		ratio = os_strtoul(argv[4], NULL, 10);
-		rgb_clk_div = os_strtoul(argv[5], NULL, 10);
+		rgb_clk_div = os_strtoul(argv[4], NULL, 10);
 
 		// step 1: init psram
 		err = bk_psram_init(mode);
@@ -211,7 +212,7 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		if (rgb_clk_div == 0)
 			rgb_clk_div = 25;
 
-		bk_lcd_rgb_init(rgb_clk_div, X_PIXEL_RGB, Y_PIXEL_RGB, YYUV_DATA);
+		bk_lcd_rgb_init(rgb_clk_div, X_PIXEL_RGB, Y_PIXEL_RGB, ORGINAL_YUYV_DATA);
 
 		bk_lcd_isr_register(RGB_OUTPUT_EOF, lcd_display_frame_isr);
 
@@ -219,7 +220,7 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		dma_jpeg_dec_to_lcdfifo();
 
 		// step 5: init jpeg_dec
-		err = bk_jpeg_dec_sw_init(g_image_width, g_image_height, ratio);
+		err = bk_jpeg_dec_sw_init((uint8_t *)PSRAM_BASEADDR, (uint8_t *)JPEGDEC_DATA_ADDR);
 		if (err != kNoErr) {
 			os_printf("init jpeg_decoder failed\r\n");
 			return;
@@ -228,11 +229,11 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		//jpeg_sw_decode_register_finish_callback(uvc_jpegdec_frame_end_callback);
 
 		// step 6: f_mount sdcard if need read sdcard
-#if (CONFIG_SDCARD_HOST || CONFIG_USB_HOST)
+#if (CONFIG_SDCARD_HOST)
 		test_mount(DISK_NUMBER_SDIO_SD);
 #endif
 	} else if (os_strcmp(argv[1], "jdec_to_sd") == 0) {
-#if (CONFIG_SDCARD_HOST || CONFIG_USB_HOST)
+#if (CONFIG_SDCARD_HOST)
 		char *filename = NULL;
 		char *fileout = NULL;
 		char cFileName[FF_MAX_LFN];
@@ -276,7 +277,7 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 
 		// step 2: start jpeg_dec
 		bk_jpeg_dec_sw_register_finish_callback(NULL);
-		err = bk_jpeg_dec_sw_fun((uint8_t *)PSRAM_BASEADDR, (uint8_t *)JPEGDEC_DATA_ADDR, total_size);
+		err = bk_jpeg_dec_sw_start(total_size);
 		if (err != kNoErr) {
 			os_printf("jpeg_decoder failed\r\n");
 			return;
@@ -316,9 +317,6 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 			}
 
 			fr = f_write(&file, (char *)YUV_RESIZE_ADDR, 480 * 272 * 2, &uiTemp);
-			/*for (uint32_t k = 0; k < (480 * 272 * 2); k++) {
-				f_printf(&file, "%02x\n", *((uint8_t *)YUV_RESIZE_ADDR + k));
-			}*/
 			if (fr != FR_OK) {
 				os_printf("write %s fail.\r\n", yuv_resize);
 				return;
@@ -334,7 +332,7 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		os_printf("Not support\r\n");
 #endif
 	}else if (os_strcmp(argv[1], "display_picture") == 0) {
-#if (CONFIG_SDCARD_HOST || CONFIG_USB_HOST)
+#if (CONFIG_SDCARD_HOST)
 		char *filename = NULL;
 		char cFileName[FF_MAX_LFN];
 		FIL file;
@@ -385,7 +383,7 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		bk_jpeg_dec_sw_register_finish_callback(uvc_jpegdec_frame_end_callback);
 
 		// step 5: start jpeg_dec
-		err = bk_jpeg_dec_sw_fun((uint8_t *)PSRAM_BASEADDR, (uint8_t *)JPEGDEC_DATA_ADDR, total_size);
+		err = bk_jpeg_dec_sw_start(total_size);
 		if (err != kNoErr) {
 			os_printf("jpeg_decoder failed\r\n");
 			return;
@@ -483,6 +481,7 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		os_printf("Not support\r\n");
 #endif
 	}else if (os_strcmp(argv[1], "yuvresize") == 0) {
+#if (CONFIG_SDCARD_HOST)
 		char *filename = NULL;
 		char *fileout = NULL;
 		char cFileName[FF_MAX_LFN];
@@ -548,7 +547,11 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 
 		bk_lcd_rgb_display_en(1);
 		bk_dma_start(dma_channel_id);
+#else
+		os_printf("Not support\r\n");
+#endif
 	} else if (os_strcmp(argv[1], "display_uvc") == 0) {
+#if (CONFIG_SDCARD_HOST)
 		char *filename = NULL;
 		char cFileName[FF_MAX_LFN];
 		FIL file;
@@ -588,7 +591,9 @@ void lcd_jpeg_dec_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 
 		bk_lcd_rgb_display_en(1);
 		bk_dma_start(dma_channel_id);
-
+#else
+		os_printf("Not support\r\n");
+#endif
 	}else if (os_strcmp(argv[1], "deinit") == 0) {
 		if (argc != 2) {
 			os_printf("deinit: error\r\n");

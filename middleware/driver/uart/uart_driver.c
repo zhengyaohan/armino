@@ -845,6 +845,24 @@ bk_err_t bk_uart_disable_tx(uart_id_t id)
 	return BK_OK;
 }
 
+bk_err_t bk_uart_set_enable_rx(uart_id_t id, bool enable)
+{
+	UART_RETURN_ON_NOT_INIT();
+	UART_RETURN_ON_INVALID_ID(id);
+	uart_hal_set_rx_enable(&s_uart[id].hal, id, enable);
+
+	return BK_OK;
+}
+
+bk_err_t bk_uart_set_enable_tx(uart_id_t id, bool enable)
+{
+	UART_RETURN_ON_NOT_INIT();
+	UART_RETURN_ON_INVALID_ID(id);
+	uart_hal_set_tx_enable(&s_uart[id].hal, id, enable);
+
+	return BK_OK;
+}
+
 bk_err_t bk_uart_set_hw_flow_ctrl(uart_id_t id, uint8_t rx_threshold)
 {
 	UART_RETURN_ON_NOT_INIT();

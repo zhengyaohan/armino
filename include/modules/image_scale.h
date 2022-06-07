@@ -5,14 +5,8 @@ extern "C" {
 #endif
 #include <stdint.h>
 
-/* @brief Overview about lcds demo
+/* @brief Overview about image scale
  *
- */
-
-/**
- * @brief lcd Demo mocro
- * @defgroup lcd demo group
- * @{
  */
 
 /**
@@ -49,27 +43,42 @@ int image_16bit_scaling_rotate(const unsigned char* src_img, unsigned char* dst_
 		unsigned int dst_width, unsigned int dst_height);
 
 /**
- * @brief only crop src image to dst image. 
+ * @brief only crop src image to dst image.
  */
-void image_crop_size(const uint8_t* src_img, uint8_t* dst_img, 
+int image_center_crop(const uint8_t* src_img, uint8_t* dst_img, 
 			unsigned int src_width, unsigned int src_height,
 			unsigned int dst_width, unsigned int dst_height);
 
 /**
  * @brief anticlockwise rotate90
  */
-void image_16bit_rotate90_anticlockwise(uint8_t *des,const uint8_t *src, uint32_t img_width, uint32_t img_height);
+int image_16bit_rotate90_anticlockwise(uint8_t *des,const uint8_t *src, uint32_t img_width, uint32_t img_height);
 
 /**
  * @brief  clockwise rotate90
  */
-void image_16bit_rotate90_clockwise(uint8_t *des, uint8_t *src, uint32_t img_width, uint32_t img_height);
+int image_16bit_rotate90_clockwise(uint8_t *des, uint8_t *src, uint32_t img_width, uint32_t img_height);
 
+/**
+ * @brief  uyvy422 data convert to RGB565 data
+ */
+int uyvy_to_rgb565_convert(unsigned char *src_buf, unsigned char *out_buf,int img_width, int img_height);
 
+/**
+ * @brief  yuyv422 data convert to RGB565 data
+ */
+int yuyv_to_rgb565_convert(unsigned char *src_buf, unsigned char *out_buf, int img_width, int img_height);
 
+/**
+ * @brief   RGB565 data convert to uyvy422 data
+ */
+int rgb565_to_uyvy_convert(uint16_t *sourceLcdBuffer, uint16_t *destLcdBuffer,int img_width, int img_height);
 
+/**
+ * @brief   RGB565 data convert to yuyv422 data
+ */
+int rgb565_to_yuyv_convert(uint16_t *sourceLcdBuffer, uint16_t *destLcdBuffer,int img_width, int img_height);
 
-	
 /*
  * @}
  */

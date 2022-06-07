@@ -197,7 +197,8 @@ void sys_hal_exit_low_voltage()
     sys_ll_set_ana_reg6_value(clock_value);
 
 }
-
+//uint32_t  g_previous_tick = 0;
+//uint32_t  g_wifi_previous_tick = 0;
 #define BIT_AON_PMU_WAKEUP_ENA      (0x1F0U)
 void sys_hal_enter_low_voltage(void)
 {
@@ -253,7 +254,7 @@ void sys_hal_enter_low_voltage(void)
 	clock_value = 0;
 	clock_value = sys_ll_get_ana_reg6_value();
 	/*temp close analog clk solution, we will record the opened clk,then it will close them ,when wakeup will open them*/
-	clock_value |= (1 << SYS_ANA_REG6_EN_SLEEP_POS);//enable xtal26m sleep
+	//clock_value |= (1 << SYS_ANA_REG6_EN_SLEEP_POS);//enable xtal26m sleep
 	//clock_value &= ~((1 << SYS_ANA_REG6_XTAL_LPMODE_CTRL_POS)|(1 << SYS_ANA_REG6_EN_DPLL_POS)|(1 << SYS_ANA_REG6_EN_AUDPLL_POS)|(1 << SYS_ANA_REG6_EN_PSRAM_LDO_POS)|(1 << SYS_ANA_REG6_EN_DCO_POS)|(1 << SYS_ANA_REG6_EN_XTALL_POS)|(1 << SYS_ANA_REG6_EN_USB_POS));
 	clock_value &= ~((1 << SYS_ANA_REG6_EN_DPLL_POS)|(1 << SYS_ANA_REG6_EN_USB_POS)|(1 << SYS_ANA_REG6_EN_AUDPLL_POS)|(1 << SYS_ANA_REG6_EN_PSRAM_LDO_POS));
 	sys_ll_set_ana_reg6_value(clock_value);
@@ -272,9 +273,12 @@ void sys_hal_enter_low_voltage(void)
 	pmu_val2 |= BIT(BIT_SLEEP_FLAG_LOW_VOLTAGE);
 	aon_pmu_hal_reg_set(PMU_REG2,pmu_val2);
 
-	sys_ll_set_cpu0_int_0_31_en_value(int_state1);
-	sys_ll_set_cpu0_int_32_63_en_value(int_state2);
 
+	sys_ll_set_cpu0_int_32_63_en_cpu0_wifi_mac_int_gen_en(0x1);
+	sys_ll_set_cpu0_int_32_63_en_cpu0_gpio_int_en(0x1);
+	sys_ll_set_cpu0_int_32_63_en_cpu0_rtc_int_en(0x1);
+	sys_ll_set_cpu0_int_32_63_en_cpu0_touched_int_en(0x1);
+	sys_ll_set_cpu0_int_32_63_en_cpu0_dm_irq_en(0x1);
 	set_csr(NDS_MIE, MIP_MTIP);
 	/*6.mask all interner interrupt*/
 	//sys_ll_set_cpu0_int_halt_clk_op_cpu0_int_mask(1);
@@ -291,6 +295,7 @@ void sys_hal_enter_low_voltage(void)
 			break;
 		}
 	}
+
 	extern uint32_t pm_wake_int_flag1, pm_wake_int_flag2;
 	extern uint32_t pm_wake_gpio_flag1, pm_wake_gpio_flag2;
 	extern gpio_driver_t s_gpio;
@@ -330,6 +335,8 @@ void sys_hal_enter_low_voltage(void)
 	/*add delay for xtal 26m, analog suggest 800us,we add protect time to 1ms*/
 
 	previous_tick = bk_aon_rtc_get_current_tick();
+	//g_previous_tick = previous_tick;
+	//g_wifi_previous_tick = previous_tick;
 	current_tick = previous_tick;
 	while(((uint32_t)(current_tick - previous_tick)) < (uint32_t)(LOW_POWER_DPLL_STABILITY_DELAY_TIME*RTC_TICKS_PER_1MS))/*32*1*/
 	{
@@ -357,6 +364,8 @@ void sys_hal_enter_low_voltage(void)
 	pmu_state &= ~ BIT_AON_PMU_WAKEUP_ENA;
 	aon_pmu_hal_reg_set(PMU_REG0x41,pmu_state);
 #endif
+	sys_ll_set_cpu0_int_0_31_en_value(int_state1);
+	sys_ll_set_cpu0_int_32_63_en_value(int_state2);
 	//set_csr(NDS_MIE, MIP_MTIP);
 	//gpio_restore();
 
@@ -491,7 +500,7 @@ void sys_hal_module_RF_power_ctrl (module_name_t module,power_module_state_t pow
     if(power_state == POWER_MODULE_STATE_ON)//power on
     {
 		value |= ((1 << SYS_ANA_REG6_EN_SYSLDO_POS)|(1 << SYS_ANA_REG6_EN_DPLL_POS)|(1 << SYS_ANA_REG6_EN_TEMPDET_POS));//en_sysldo,en_dpll
-		value &= ~(1 << SYS_ANA_REG6_XTAL_LPMODE_CTRL_POS);//when using the xtal as the 32k,it need close the xtal low power mode
+		//value &= ~(1 << SYS_ANA_REG6_XTAL_LPMODE_CTRL_POS);//when using the xtal as the 32k,it need close the xtal low power mode
 		//value |= (1 << 11);//en_audpll //temp close,we will open when be neeeded
 		//value |= (1 << 8);//en_dco     //now no module using,temp close,we will open when be neeeded
 		//value |= (1 << 7);//en_xtall   //now no module using,temp close,we will open when be neeeded
@@ -636,7 +645,7 @@ void sys_hal_low_power_hardware_init()
 
 	param = 0;
 	param = sys_ll_get_ana_reg6_value();
-	param &= ~(0x1 << SYS_ANA_REG6_EN_SLEEP_POS);
+	param &= ~((0x1 << SYS_ANA_REG6_EN_SLEEP_POS)|(1 << SYS_ANA_REG6_XTAL_LPMODE_CTRL_POS));
 	sys_ll_set_ana_reg6_value(param);
 
 	param = 0;
@@ -756,6 +765,12 @@ uint32 sys_hal_get_int_status(void)
 uint32 sys_hal_get_int_group2_status(void)
 {
 	return sys_ll_get_cpu0_int_32_63_status_value();
+}
+
+/* REG_0x29:cpu0_int_32_63_status->cpu0_gpio_int_st: ,R,0x29[22]*/
+uint32_t sys_hal_get_cpu0_gpio_int_st(void)
+{
+    return sys_ll_get_cpu0_int_32_63_status_cpu0_gpio_int_st();
 }
 
 //NOTICE:INT source status is read only and can't be set, other projects is error, we'll delete them.

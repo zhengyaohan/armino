@@ -100,7 +100,7 @@ unsigned int port_disable_mie_flag(void)
 {
 	uint32_t uxSavedStatusValue;
 	uxSavedStatusValue = read_csr(NDS_MIE);
-	clear_csr(NDS_MIE, MIP_MEIP | MIP_MTIP | MIP_MSIP);
+	clear_csr(NDS_MIE, uxSavedStatusValue);
 
 	return uxSavedStatusValue;
 }

@@ -32,7 +32,13 @@ extern "C" {
 #define EXIT_MSG		              "exit"
 
 #define NUM_BUFFERS		              1
+
+#ifndef CONFIG_MAX_COMMANDS
 #define MAX_COMMANDS	              255
+#else
+#define MAX_COMMANDS     CONFIG_MAX_COMMANDS
+#endif
+
 #ifdef CONFIG_KEYVALUE
 #define INBUF_SIZE                    1024
 #else

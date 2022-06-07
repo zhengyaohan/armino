@@ -22,6 +22,7 @@ if(CONFIG_COMMON_IO)
 				common_io/iot_adc.c
 				common_io/iot_spi.c
 				common_io/iot_gpio.c
+				common_io/iot_flash.c
 	)
 
 if(CONFIG_PWM)
@@ -36,6 +37,7 @@ endif()
 				common_io/test/test_iot_pwm.c
 				common_io/test/test_iot_uart.c
 				common_io/test/test_iot_spi.c
+				common_io/test/test_iot_flash.c
 				common_io/test/all_tests.c
 	)
 	list(APPEND incs

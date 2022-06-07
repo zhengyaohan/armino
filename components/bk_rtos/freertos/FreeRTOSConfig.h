@@ -123,7 +123,7 @@
 #endif
 
 #if CONFIG_SOC_BK7256XX || CONFIG_SOC_BK7256_CP1
-#define configDYNAMIC_HEAP_SIZE                     1
+#define configDYNAMIC_HEAP_SIZE                     0
 #else
 #define configDYNAMIC_HEAP_SIZE                     1
 #endif

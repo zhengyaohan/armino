@@ -21,7 +21,7 @@
 #include "diskio.h"
 
 #define READ_SIZE    160
-#define WRITE_SIZE    80
+#define WRITE_SIZE    320
 
 FIL encoder_file;
 FIL decoder_file;
@@ -30,8 +30,8 @@ FIL decoder_file;
 char encoder_file_name[] = "1:/g711_encoder_data.pcm";    //save mic data received
 char decoder_file_name[] = "1:/g711_decoder_data.pcm";    //save speaker data sended
 
-uint8_t *temp_read_buffer = NULL;
-uint8_t *temp_write_buffer = NULL;
+static uint8_t *temp_read_buffer = NULL;
+static uint8_t *temp_write_buffer = NULL;
 
 static void cli_aud_cp0_help(void)
 {

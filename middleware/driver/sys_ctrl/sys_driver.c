@@ -865,6 +865,11 @@ uint32 sys_drv_get_int_source_status(void)
 	return ret;
 }
 
+uint32_t sys_drv_get_cpu0_gpio_int_st(void)
+{
+    return sys_hal_get_cpu0_gpio_int_st();
+}
+
 //NOTICE:INT source status is read only and can't be set, we'll delete them.
 int32 sys_drv_set_int_source_status(uint32 param)
 {

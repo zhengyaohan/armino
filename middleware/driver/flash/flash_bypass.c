@@ -79,13 +79,13 @@ __attribute__((section(".itcm_sec_code"))) void flash_bypass_quad_enable(void)
 	REG_WRITE(SPI_R_DATA(0), FLASH_CMD_WR_EN_SR);
 
 	/*step 7, write cmd 31H, data 0x02*/
-	for(i = 0; i < 50; i++) {
+	for(i = 0; i < 500; i++) {
 		spi_status = REG_READ(SPI_R_INT_STATUS(0));
 		if(0 != (spi_status & SPI_STATUS_TX_FINISH_INT)) {
 			break;
 		}
 	}
-	for(delay_count = 0; delay_count < 5000; delay_count ++)
+	for(delay_count = 0; delay_count < 20000; delay_count ++)
 	{
 		for(j = 0; j < 8; j ++)
 		;
@@ -99,13 +99,13 @@ __attribute__((section(".itcm_sec_code"))) void flash_bypass_quad_enable(void)
 	REG_WRITE(SPI_R_DATA(0), FLASH_CMD_WR_SR);
 	REG_WRITE(SPI_R_DATA(0), FLASH_GD25Q32C_SR_QUAD_EN);
 
-	for(i = 0; i < 50; i++) {
+	for(i = 0; i < 500; i++) {
 		spi_status = REG_READ(SPI_R_INT_STATUS(0));
 		if(0 != (spi_status & SPI_STATUS_TX_FINISH_INT)) {
 			break;
 		}
 	}
-	for(delay_count = 0; delay_count < 5000; delay_count ++)
+	for(delay_count = 0; delay_count < 20000; delay_count ++)
 	{
 		for(j = 0; j < 8; j ++)
 		;
