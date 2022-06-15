@@ -57,6 +57,7 @@ typedef struct {
 
 bk_err_t jpeg_hal_init(jpeg_hal_t *hal);
 bk_err_t jpeg_hal_configure(jpeg_hal_t *hal, const jpeg_config_t *config);
+bk_err_t jpeg_hal_yuv_fmt_sel(jpeg_hal_t *hal, uint32_t value);
 bk_err_t jpeg_hal_start_common(jpeg_hal_t *hal);
 bk_err_t jpeg_hal_stop_common(jpeg_hal_t *hal);
 

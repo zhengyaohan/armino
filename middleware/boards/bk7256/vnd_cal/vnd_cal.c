@@ -2,6 +2,8 @@
 
 
 #define DEFAULT_TXID_XTAL           (0x10)
+#define CMTAG_FROM_FLASH         1
+#define CMTAG_FROM_CALI          0
 #define PWR_GAIN_BASE_BLE           (0x40691000)
 
 
@@ -165,6 +167,7 @@ TMP_PWR_ST tmp_pwr_tab_overlay[TMP_PWR_TAB_LEN] = {
 };
 
 UINT32 g_xtal_overlay = DEFAULT_TXID_XTAL;
+UINT32 g_cmtag_overlay = CMTAG_FROM_FLASH;
 uint32 g_pwr_gain_base_ble_overlay = PWR_GAIN_BASE_BLE;
 
 INT16 shift_tab_b_overlay[4] = {0, 0, 0, 0}; // 11M base,5.5M,2M,1M
@@ -200,6 +203,7 @@ void vnd_cal_overlay(void)
     vnd_cal_tmp_pwr_tab_overlay(tmp_pwr_tab_overlay);
 #endif
     vnd_cal_gxtal_overlay(g_xtal_overlay);
+	vnd_cal_gcmtag_overlay(g_cmtag_overlay);
     vnd_cal_pwr_gain_base_ble_overlay(g_pwr_gain_base_ble_overlay);
 
 }

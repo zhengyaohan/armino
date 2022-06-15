@@ -25,6 +25,8 @@
 #include "bk_rtos_debug.h"
 #include <components/system.h>
 #include "sys_driver.h"
+#include <driver/timer.h>
+#include "bk_wdt.h"
 
 typedef struct {
 	wdt_hal_t hal;
@@ -57,14 +59,22 @@ typedef struct {
 		}\
 	} while(0)
 
+
+#define WDT_BARK_TIME_MS    200
+
 static wdt_driver_t s_wdt = {0};
 static bool s_wdt_driver_is_init = false;
 static uint32_t s_wdt_period = CONFIG_INT_WDT_PERIOD_MS;
+static bool s_wdt_debug_enabled = true;
 
 #if (CONFIG_TASK_WDT)
 static uint64_t s_last_task_wdt_feed_tick = 0;
 static uint64_t s_last_task_wdt_log_tick = 0;
 static bool s_task_wdt_enabled = true;
+#endif
+
+# if (CONFIG_INT_WDT)
+static uint32_t s_feed_watchdog_time = INT_WDG_FEED_PERIOD_TICK;
 #endif
 
 static void wdt_init_common(void)
@@ -81,6 +91,8 @@ static void wdt_deinit_common(void)
 	s_wdt_period = CONFIG_INT_WDT_PERIOD_MS;
 	wdt_hal_reset_config_to_default(&s_wdt.hal);
 #if (CONFIG_SYSTEM_CTRL)
+	extern void close_wdt(void);
+	close_wdt();
 	sys_drv_dev_clk_pwr_up(CLK_PWR_ID_WDG_CPU, CLK_PWR_CTRL_PWR_DOWN);
 #else
 	power_down_wdt();
@@ -95,6 +107,9 @@ bk_err_t bk_wdt_driver_init(void)
 
 	os_memset(&s_wdt, 0, sizeof(s_wdt));
 	wdt_hal_init(&s_wdt.hal);
+#if (CONFIG_SYSTEM_CTRL)
+	bk_timer_start(TIMER_ID2, WDT_BARK_TIME_MS, (timer_isr_t)bk_wdt_feed_handle);
+#endif
 	s_wdt_driver_is_init = true;
 
 	return BK_OK;
@@ -106,6 +121,9 @@ bk_err_t bk_wdt_driver_deinit(void)
 		return BK_OK;
 	}
 	wdt_deinit_common();
+#if (CONFIG_SYSTEM_CTRL)
+	bk_timer_stop(TIMER_ID2);
+#endif
 	s_wdt_driver_is_init = false;
 
 	return BK_OK;
@@ -119,6 +137,10 @@ bk_err_t bk_wdt_start(uint32_t timeout_ms)
 	WDT_RETURN_ON_DRIVER_NOT_INIT();
 	WDT_RETURN_ON_INVALID_PERIOD(timeout_ms);
 
+	if (!s_wdt_debug_enabled) {
+		return BK_ERR_WDT_DEBUG_DISABLED;
+	}
+
 	if (!timeout_ms) {
 		timeout_ms = CONFIG_INT_WDT_PERIOD_MS;
 	}
@@ -127,7 +149,7 @@ bk_err_t bk_wdt_start(uint32_t timeout_ms)
 	wdt_init_common();
 	wdt_hal_init_wdt(&s_wdt.hal, timeout_ms);
 	s_wdt.init_bits |= BIT(0);
-	WDT_LOGI("bk_wdt_start, s_wdt.init_bits:%x\n", s_wdt.init_bits);
+	WDT_LOGD("bk_wdt_start, s_wdt.init_bits:%x\n", s_wdt.init_bits);
 
 	return BK_OK;
 }
@@ -137,7 +159,7 @@ bk_err_t bk_wdt_stop(void)
 	WDT_RETURN_ON_DRIVER_NOT_INIT();
 	wdt_deinit_common();
 	s_wdt.init_bits &= ~BIT(0);
-	WDT_LOGI("bk_wdt_stop, s_wdt.init_bits:%x\n", s_wdt.init_bits);
+	WDT_LOGD("bk_wdt_stop, s_wdt.init_bits:%x\n", s_wdt.init_bits);
 	return BK_OK;
 }
 
@@ -158,17 +180,32 @@ void bk_int_wdt_feed(void)
 	static uint64_t s_last_int_wdt_feed_tick = 0;
 	uint64_t current_tick = bk_get_tick();
 
-	if ((current_tick - s_last_int_wdt_feed_tick) >= INT_WDG_FEED_PERIOD_TICK) {
+	if ((current_tick - s_last_int_wdt_feed_tick) >= s_feed_watchdog_time) {
 		bk_wdt_feed();
 		s_last_int_wdt_feed_tick = current_tick;
 		// WDT_LOGD("feed interrupt watchdog\n");
 	}
 }
+
+uint32_t bk_get_feed_watchdog_time()
+{
+	return s_feed_watchdog_time;
+}
+
+void bk_set_feed_watchdog_time(uint32_t dw_set_time)
+{
+	s_feed_watchdog_time = dw_set_time;
+}
+
 #endif
 
 #if (CONFIG_TASK_WDT)
 void bk_task_wdt_start()
 {
+	if (!s_wdt_debug_enabled) {
+		return;
+	}
+
 	s_task_wdt_enabled = true;
 }
 
@@ -200,5 +237,35 @@ void bk_task_wdt_timeout_check(void)
 		}
 	}
 }
+
+uint32_t bk_get_wdt_driver_init_flag()
+{
+	return s_wdt_driver_is_init;
+}
+
 #endif
 
+void bk_wdt_feed_handle(void)
+{
+	GLOBAL_INT_DECLARATION();
+	GLOBAL_INT_DISABLE();
+
+#if (CONFIG_INT_WDT)
+	bk_int_wdt_feed();
+#endif
+
+#if (CONFIG_TASK_WDT)
+	bk_task_wdt_timeout_check();
+#endif
+	GLOBAL_INT_RESTORE();
+}
+
+void wdt_debug_enable(void)
+{
+	s_wdt_debug_enabled = true;
+}
+
+void wdt_debug_disable(void)
+{
+	s_wdt_debug_enabled = false;
+}

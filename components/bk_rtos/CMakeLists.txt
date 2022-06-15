@@ -70,6 +70,18 @@ elseif(CONFIG_LITEOS_M_V3)
 		liteos_m_v3/mem_arch.c
 		liteos_m_v3/str_arch.c
 	)
+elseif(CONFIG_NON_OS)
+	list(APPEND incs non_os)
+	set(srcs
+		non_os/rtos_pub.c
+		non_os/mem_arch.c
+		non_os/heap_4.c
+		non_os/port.c
+		non_os/str_arch.c
+	)
+	set_source_files_properties("${CMAKE_CURRENT_LIST_DIR}/non_os/port.c" PROPERTIES COMPILE_FLAGS "-marm")
 endif()
+
+	list(APPEND srcs rtos_ext.c)
 
 armino_component_register(SRCS "${srcs}" INCLUDE_DIRS "${incs}" PRIV_REQUIRES bk_common riscv)

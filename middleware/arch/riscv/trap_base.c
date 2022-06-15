@@ -20,7 +20,8 @@
 #include <os/mem.h>
 #include <components/log.h>
 #include <common/bk_assert.h>
-
+#include <driver/wdt.h>
+#include <bk_wdt.h>
 
 #if (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7235)
 #define RAM_BASE_ADDR 0x30000000
@@ -117,12 +118,14 @@ typedef struct {
 typedef void (*hook_func)(void);
 
 extern char _dtcm_ema_start, _dtcm_bss_end;
+extern char _end;  //BSS end in SRAM2
 
 extern void mtime_handler(void);
 extern void mswi_handler(void);
 extern void mext_interrupt(void);
 extern void stack_mem_dump(uint32_t stack_top, uint32_t stack_bottom);
 extern void user_except_handler (unsigned long mcause, SAVED_CONTEXT *context);
+extern void close_wdt(void);
 
 static hook_func s_wifi_dump_func = NULL;
 static hook_func s_ble_dump_func = NULL;
@@ -148,6 +151,9 @@ void trap_handler(unsigned long mcause, SAVED_CONTEXT *context)
 	if (0 == g_enter_exception) {
 		// Make sure the interrupt is disable
 		uint32_t int_level = rtos_disable_int();
+
+		close_wdt();
+		bk_task_wdt_stop();
 
 		/* Handled Trap */
 		g_enter_exception = 1;
@@ -213,10 +219,18 @@ void arch_dump_cpu_registers (unsigned long mcause, SAVED_CONTEXT *context)
 
 	BK_DUMP_OUT("833 mstatus x 0x%lx\r\n", context->mstatus);
 
+	BK_DUMP_OUT("838 mtvec x 0x%lx\r\n", read_csr(NDS_MTVEC));
+	BK_DUMP_OUT("897 mscratch x 0x%lx\r\n", read_csr(NDS_MSCRATCH));
 	BK_DUMP_OUT("898 mepc x 0x%lx\r\n", context->mepc);
 	BK_DUMP_OUT("899 mcause x 0x%lx\r\n", mcause);
+	BK_DUMP_OUT("900 mtval x 0x%lx\r\n", read_csr(NDS_MTVAL));
+	BK_DUMP_OUT("2058 mdcause x 0x%lx\r\n", read_csr(NDS_MDCAUSE));
 
 	BK_DUMP_OUT("\r\n");
+
+	if (mcause == 0x2) {
+		stack_mem_dump((uint32_t)(context->mepc - 32), (uint32_t)(context->mepc + 32));
+	}
 }
 
 void sys_delay_sync(uint32_t time_count )
@@ -248,7 +262,7 @@ void user_except_handler (unsigned long mcause, SAVED_CONTEXT *context) {
 
 #if CONFIG_MEMDUMP_ALL
 	stack_mem_dump((uint32_t)&_dtcm_ema_start, (uint32_t)&_dtcm_bss_end);
-	stack_mem_dump(RAM_BASE_ADDR, RAM_BASE_ADDR + RAM_DUMP_SIZE);
+	stack_mem_dump(RAM_BASE_ADDR, (uint32_t)&_end);
 #endif
 
 	rtos_dump_backtrace();
@@ -281,7 +295,6 @@ inline uint32_t get_reboot_tag(void) {
 	return *((uint32_t *)REBOOT_TAG_ADDR);
 }
 
-extern void close_wdt(void);
 
 void user_nmi_handler(unsigned long mcause) {
 	if(mcause == MCAUSE_CAUSE_WATCHDOG) {

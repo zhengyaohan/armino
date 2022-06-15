@@ -41,9 +41,10 @@ bk_err_t aon_pmu_hal_init(void)
     return BK_OK;
 }
 #if((CONFIG_SOC_BK7256_CP1) || (CONFIG_SOC_BK7256XX)) 
-void aon_pmu_hal_set_sleep_parameters(uint32_t value)
+int aon_pmu_hal_set_sleep_parameters(uint32_t value)
 {
     aon_pmu_ll_set_reg40_value(value);
+	return 0;
 }
 
 void aon_pmu_hal_set_wakeup_source_reg(uint32_t value)
@@ -141,7 +142,14 @@ void aon_pmu_hal_wdt_rst_dev_enable()
 {
 	aon_pmu_ll_set_reg2_value(AON_PMU_REG2_WDT_RST_MASK);
 }
-
+void aon_pmu_hal_lpo_src_set(uint32_t lpo_src)
+{
+   
+}
+uint32_t aon_pmu_hal_lpo_src_get()
+{
+	return 0;
+}
 #else
 void aon_pmu_hal_set_sleep_parameters(uint32_t value)
 {

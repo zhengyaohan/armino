@@ -44,6 +44,7 @@ extern "C" {
 #define CFG_HAL_DEBUG_I2S        1
 #define CFG_HAL_DEBUG_CALENDAR   1
 #define CFG_HAL_DEBUG_FLASH      1
+#define	CFG_HAL_DEBUG_SDIO_HOST  1
 
 #ifdef __cplusplus
 }

@@ -99,7 +99,75 @@ typedef enum
 	PM_MODULE_NAME_BT,
 	PM_MODULE_NAME_NONE
 }pm_module_name_e;
+typedef enum
+{
+	PM_LPO_SRC_DIVD = 0,//32K from 26m
+	PM_LPO_SRC_X32K,    //extern 32k
+	PM_LPO_SRC_ROSC,    //32K from ROSC
+	PM_LPO_SRC_DEFAULT  //32K from ROSC
+}pm_lpo_src_e;
+/**
+ * @brief lp voltage set
+ *
+ * set the lp voltage
+ *
+ * @attention
+ * - This API is used to set lp voltage when enter low voltage
+ *
+ * @param
+ * -uint32_t:0x0:0.6v;0x1:0.7v;0x2:0.8v;0x3:0.9v;0x4:1.0v;0x5:1.1v;0x6:1.2v;0x7:1.3v;
+ * @return
+ *    - BK_OK: succeed
+ *
+ */
+int pm_lp_vol_set( uint32_t lp_vol);
 
+/**
+ * @brief lp voltage get
+ *
+ * get the lpo voltage
+ *
+ * @attention
+ * - This API is used to get  lpo voltage value
+ *
+ * @param
+ * -void
+ * @return
+ * - the lp voltage value
+ *
+ */
+uint32_t pm_lp_vol_get();
+/**
+ * @brief lpo source set
+ *
+ * set the lpo source
+ *
+ * @attention
+ * - This API is used to select 32k source when enter low voltage and deepsleep
+ *
+ * @param
+ * -lpo_src:0x0:32K from 26m;0x1:32K from 26m;0x2:32K from ROSC;0x3:32K from ROSC
+ * @return
+ *    - BK_OK: succeed
+ *
+ */
+int pm_lpo_src_set(pm_lpo_src_e lpo_src);
+
+/**
+ * @brief lpo source get
+ *
+ * get the lpo source
+ *
+ * @attention
+ * - This API is used to get 32k lpo source
+ *
+ * @param
+ * void
+ * @return
+ * -lpo_src:0x0:32K from 26m;0x1:32K from 26m;0x2:32K from ROSC;0x3:32K from ROSC
+ *
+ */
+pm_lpo_src_e pm_lpo_src_get();
 /**
  * @brief mcu pm ctrl
  *
@@ -215,7 +283,7 @@ int pm_module_vote_power_ctrl(pm_power_module_name_e module,pm_power_module_stat
  * - BK_OK: succeed
  *
  */
-int pm_suppress_ticks_and_sleep(UINT32 sleep_ticks);
+int pm_suppress_ticks_and_sleep(uint32_t sleep_ticks);
 /**
  * @brief enter sleep
  *

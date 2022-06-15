@@ -17,10 +17,11 @@
 #include <components/netif.h>
 #include <components/event.h>
 #include <driver/uart.h>
-
+#include <string.h>
 #if CONFIG_BLE
 #include "modules/ble.h"
 #include "ble_api_5_x.h"
+#include "legacy_include/bluetooth_legacy_include.h"
 #endif
 
 #if ((CONFIG_FREERTOS) || (CONFIG_LITEOS_M) || (CONFIG_LITEOS_M_V3)) && (CONFIG_CLI)
@@ -32,6 +33,8 @@
 #ifdef CONFIG_VND_CAL
 #include "vnd_cal.h"
 #endif
+
+#include "sdk_version.h"
 
 volatile const uint8_t build_version[] = __DATE__ " " __TIME__;
 
@@ -170,9 +173,23 @@ int legacy_init1(void)
 int legacy_init(void)
 {
 	BK_LOGI(TAG, "armino app init: %s\n", build_version);
+    BK_LOGI(TAG, "ARMINO Version: %s\n", ARMINO_TAG_VERSION);
+
+#ifdef LIB_HASH
+    #define HASH_VERSION(soc) soc##_HASH_VERSION
+    #define HASH_VERSION_STR(soc) #soc"_HASH_VERSION"
+    #define PRINTF(soc) BK_LOGI(TAG, HASH_VERSION_STR(soc)" IS : %s\n", HASH_VERSION(soc));
+	#define MEMCMP(soc, lib_hash) memcmp(lib_hash, HASH_VERSION(soc), sizeof(lib_hash))
+    BK_LOGI(TAG, "LIB_HASH: %s\n", LIB_HASH);
+    PRINTF(ARMINO_SOC);
+    if(MEMCMP(ARMINO_SOC, LIB_HASH))
+	{
+        BK_LOGI(TAG, "The current version is not the release version\n");
+	}
+#endif
 
 #ifdef APP_VERSION
-	BK_LOGI(TAG, "APP Verion: %s\n", APP_VERSION);
+	BK_LOGI(TAG, "APP Version: %s\n", APP_VERSION);
 #endif
 
 

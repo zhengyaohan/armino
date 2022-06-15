@@ -15,7 +15,6 @@
 #include <os/os.h>
 #include "cli.h"
 #include <driver/spi.h>
-#include "spi_pub.h"
 
 static void cli_spi_help(void)
 {

@@ -30,6 +30,7 @@ set(incs
 	rtc
 	i2s
 	fft
+	chip_support
 	../compal/common_io/include
 	)
 
@@ -64,6 +65,12 @@ set(srcs
 		security/hal_sha.c
 		spinlock/amp_res_lock.c
 	)
+
+if (CONFIG_CHIP_SUPPORT)
+	list(APPEND srcs
+		chip_support/chip_support.c
+	)
+endif()
 
 if (CONFIG_EFUSE)
 	list(APPEND srcs
@@ -207,6 +214,13 @@ if (CONFIG_AON_RTC)
 		)
 endif() #if (CONFIG_AON_RTC)
 
+if (CONFIG_SDIO_HOST)
+	list(APPEND srcs
+		"sdio_host/sdio_host_driver.c"
+		"sd_card/sd_card_driver.c"
+		)
+endif() #if (CONFIG_SDIO_HOST)
+
 if (CONFIG_SDCARD_HOST)
 	list(APPEND srcs
 		"sdcard/sdio_driver.c"
@@ -336,11 +350,9 @@ if( "${target}" STREQUAL "bk7231u")
 	set(target "bk7251")
 endif()
 
-if( "${target}" STREQUAL "bk7236")
+if( "${target}" STREQUAL "bk7236a" OR "${target}" STREQUAL "bk7236")
 	set(target "bk7231n")
 endif()
-
-
 
 if( "${target}" STREQUAL "bk7231n"
 	OR  "${target}" STREQUAL "bk7251"
@@ -363,6 +375,6 @@ endif()
 
 armino_component_register(SRCS "${srcs}"
 	INCLUDE_DIRS "${incs}"
-	REQUIRES app arm9 bk_wifi bk_usb riscv
-	PRIV_REQUIRES bk_common bk_log bk_ble bk_ps bk_ate bk_init
+	REQUIRES arm9 riscv
+	PRIV_REQUIRES bk_common bk_log bk_ps bk_ate bk_init
 )

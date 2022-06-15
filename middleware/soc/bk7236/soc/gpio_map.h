@@ -21,7 +21,6 @@ extern "C" {
 #include <driver/hal/hal_gpio_types.h>
 #include <soc/soc.h>
 
-#define BIT_64(i)	((1L) << (i))
 #define GPIO_DEV_MAP  \
 {\
 	{GPIO_0, {GPIO_DEV_UART2_TXD, GPIO_DEV_I2C2_SCL, GPIO_DEV_INVALID, GPIO_DEV_INVALID}},\
@@ -55,6 +54,17 @@ extern "C" {
 	{GPIO_28, {GPIO_DEV_ADC4, GPIO_DEV_RXEN,  GPIO_DEV_INVALID, GPIO_DEV_INVALID}},\
 }
 
+/* uart gpio pin map */
+#define UART0_TX_PIN  GPIO_11
+#define UART0_RX_PIN  GPIO_10
+#define UART0_CTS_PIN GPIO_12
+#define UART0_RTS_PIN GPIO_13
+
+#define UART1_TX_PIN  GPIO_0
+#define UART1_RX_PIN  GPIO_1
+
+#define UART2_TX_PIN  GPIO_41
+#define UART2_RX_PIN  GPIO_40
 
 #ifdef __cplusplus
 }

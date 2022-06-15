@@ -24,8 +24,6 @@
 #include "sys_driver.h"
 #include <modules/pm.h>
 
-extern void delay(int num);//TODO fix me
-
 typedef struct {
 	jpeg_isr_t isr_handler;
 	void *param;
@@ -167,8 +165,6 @@ bk_err_t bk_jpeg_enc_driver_init(void)
 #if CONFIG_SYSTEM_CTRL
 	//power on
 	pm_module_vote_power_ctrl(PM_POWER_MODULE_NAME_VIDP, PM_POWER_MODULE_STATE_ON);
-	sys_drv_video_power_en(0);    //temp used
-	delay(100);
 #endif
 
 	os_memset(&s_jpeg, 0, sizeof(s_jpeg));
@@ -188,8 +184,6 @@ bk_err_t bk_jpeg_enc_driver_deinit(void)
 #if CONFIG_SYSTEM_CTRL
 	// power off
 	pm_module_vote_power_ctrl(PM_POWER_MODULE_NAME_VIDP, PM_POWER_MODULE_STATE_OFF);
-	sys_drv_video_power_en(1);    //temp used
-	delay(100);
 #endif
 
 	s_jpeg_driver_is_init = false;
@@ -252,6 +246,15 @@ bk_err_t bk_jpeg_enc_set_enable(uint8_t enable)
 	} else {
 		jpeg_hal_stop_common(&s_jpeg.hal);
 	}
+
+	return BK_OK;
+}
+
+bk_err_t bk_jpeg_enc_yuv_fmt_sel(uint32_t value)
+{
+	JPEG_RETURN_ON_NOT_INIT();
+
+	jpeg_hal_yuv_fmt_sel(&s_jpeg.hal, value);
 
 	return BK_OK;
 }

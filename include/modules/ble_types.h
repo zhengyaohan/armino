@@ -32,6 +32,13 @@ typedef enum
 }BK_BLE_CONTROLLER_STACK_TYPE;
 
 
+typedef enum
+{
+    BK_BLE_HOST_STACK_TYPE_RW_4,
+    BK_BLE_HOST_STACK_TYPE_RW_5_X,
+    BK_BLE_HOST_STACK_TYPE_RW_5_2,
+    BK_BLE_HOST_STACK_TYPE_ETHERMIND,
+}BK_BLE_HOST_STACK_TYPE;
 
 /**
  * @brief hci type enum
@@ -281,6 +288,7 @@ enum
  */
 typedef enum
 {
+    BLE_CMD_NONE,
     /// ADV_CMD:FOR BLE 5.1
     BLE_CREATE_ADV,
     BLE_SET_ADV_DATA,
@@ -354,7 +362,7 @@ typedef enum
     /// as master, recv connect event
     BLE_5_INIT_CONNECT_EVENT,
     BLE_5_INIT_DISCONNECT_EVENT,
-
+    BLE_5_INIT_CONNECT_FAILED_EVENT,
 
     BLE_5_SDP_REGISTER_FAILED,
     /// get current conn phy result, param ble_read_phy_t
@@ -363,8 +371,121 @@ typedef enum
     BLE_5_CONN_UPDATA_EVENT,
 
     BLE_5_PERIODIC_SYNC_CMPL_EVENT,
+
+    BLE_5_DISCOVERY_PRIMARY_SERVICE_EVENT,
+    BLE_5_DISCOVERY_CHAR_EVENT,
+
+    BLE_5_RECV_NOTIFY_EVENT,
 } ble_notice_t;
 
+typedef enum{
+    CHARAC_NOTIFY,
+    CHARAC_INDICATE,
+    CHARAC_READ,
+    CHARAC_READ_DONE,
+    CHARAC_WRITE_DONE,
+}CHAR_TYPE;
+
+typedef void (*app_sdp_callback)(unsigned char conidx,uint16_t chars_val_hdl,unsigned char uuid_len,unsigned char *uuid);
+typedef void (*app_sdp_charac_callback)(CHAR_TYPE type,uint8 conidx,uint16_t hdl,uint16_t len,uint8 *data);
+
+struct ble_sdp_svc_ind
+{
+    /// Service UUID Length
+    uint8_t  uuid_len;
+    /// Service UUID
+    uint8_t  uuid[16];
+    /// Service start handle
+    uint16_t start_hdl;
+    /// Service end handle
+    uint16_t end_hdl;
+};
+
+/// characteristic info
+struct ble_sdp_char_inf
+{
+    /// Characteristic UUID Length
+    uint8_t uuid_len;
+    /// Characteristic UUID
+    uint8_t uuid[16];
+    /// Characteristic handle
+    uint16_t char_hdl;
+    /// Value handle
+    uint16_t val_hdl;
+    /// Characteristic properties
+    uint8_t prop;
+    /// End of characteristic offset
+    uint8_t char_ehdl_off;
+};
+
+/// characteristic description
+struct ble_sdp_char_desc_inf
+{
+     /// UUID length
+    uint8_t uuid_len;
+    /// UUID
+    uint8_t uuid[16];
+
+    uint8_t char_code;
+    /// Descriptor handle
+    uint16_t desc_hdl;
+};
+
+
+typedef enum{
+	MST_TYPE_SVR_UUID = 0,
+	MST_TYPE_ATT_UUID,
+	MST_TYPE_ATT_DESC,
+	MST_TYPE_SDP_END,
+
+	MST_TYPE_ATTC_SVR_UUID,  ///Service the UUID
+	MST_TYPE_ATTC_ATT_UUID,  ///ATT of a service
+	MST_TYPE_ATTC_ATT_DESC,  ///ATT DESC of a service
+	MST_TYPS_ATTC_PARAM_ERR,  ///The delivered parameter is abnormal or unknown
+	MST_TYPE_ATTC_ERR,	 ///if appm_get_init_attc_info return is ok && ble is disconnect,so update the event
+	MST_TYPE_ATTC_END,	 ///End of the operation
+	MST_TYPE_ATTC_WRITE_RSP,
+	MST_TYPE_ATTC_WRITE_NO_RESPONSE,
+	MST_TYPE_ATTC_CHARAC_READ_DONE,
+
+	MST_TYPE_MTU_EXC = 0x10,
+	MST_TYPE_MTU_EXC_DONE,
+
+	MST_TYPE_UPDATA_STATUS,    ////updata param status
+}MASTER_COMMON_TYPE;
+typedef void (*app_sdp_comm_callback)(MASTER_COMMON_TYPE type,uint8 conidx,void *param);
+
+enum msg_attc{
+	MST_ATTC_ALL = 0,
+	MST_ATTC_GET_SVR_UUID_ALL,  ////Gets all the services for this connection
+	MST_ATTC_GET_SVR_UUID_BY_SVR_UUID,
+	MST_ATTC_GET_ATT_UUID_ALL,  ////Gets all the ATT's for this connection
+	MST_ATTC_GET_ATT_DESC_UUID_ALL,  ////Gets all the ATT-DESC's for this connection
+	MST_ATTC_SVR_ATT_BY_SVR_UUID, ////Gets all ATT's for this SVR-UUID for this connection
+	MST_ATTC_SVR_ATT_DESC_BY_SVR_UUID, ///Gets all ATT-DESC's for this SVR-UUID for this connection
+	MST_ATTC_SVR_ATT_AND_DESC_BY_SVR_UUID, ///Gets all ATT and ATT-DESC's for this SVR-UUID for this connection
+};
+
+struct ble_attc_wr_rd_op
+{
+    /// Status of the request
+    uint8_t status;
+    /// operation sequence number - provided when operation is started
+    uint16_t seq_num;
+};
+
+struct ble_attc_event_ind
+{
+    /// Event Type
+    enum msg_attc type;
+
+    uint8_t uuid_len;
+    uint8_t uuid[16];
+
+    ///if start_hdl = end_hdl = 0,it is invaild
+    uint16_t start_hdl;
+    uint16_t end_hdl;
+};
 
 /**
  * @defgroup bk_ble_api_v1_typedef struct
@@ -432,6 +553,14 @@ typedef struct
     uint8_t peer_addr_type;
     /// Peer BT address
     uint8_t peer_addr[6];
+    /// Clock accuracy
+    uint8_t clk_accuracy;
+    /// Connection interval
+    uint16_t con_interval;
+    /// Connection latency
+    uint16_t con_latency;
+    /// Link supervision timeout
+    uint16_t sup_to;
 } ble_conn_ind_t;
 
 typedef struct

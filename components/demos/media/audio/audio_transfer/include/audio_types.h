@@ -37,7 +37,7 @@ extern "C" {
 #define AUD_DECD_FRAME_SAMP_SIZE             PSRAM_AUD_DECD_RING_BUFF_SIZE/2
 
 //#define AUD_DMA_SIZE    0xFFFF
-#define MB_CHNL_AUD     2
+//#define MB_CHNL_AUD     2
 
 /* used in cpu1 */
 typedef enum {

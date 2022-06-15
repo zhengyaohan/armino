@@ -110,4 +110,10 @@ if(CONFIG_CALENDAR)
 	)
 endif()
 
+if(CONFIG_SDIO_HOST)
+	list(APPEND srcs
+		"hal/sdio_host_hal.c"
+	)
+endif()
+
 armino_component_register(SRCS "${srcs}" INCLUDE_DIRS "${incs}" REQUIRES ${target})

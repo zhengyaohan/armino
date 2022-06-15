@@ -23,10 +23,24 @@ if(CONFIG_COMMON_IO)
 				common_io/iot_spi.c
 				common_io/iot_gpio.c
 				common_io/iot_flash.c
+				common_io/iot_timer.c
+				common_io/iot_rtc.c
+				common_io/iot_reset.c
 	)
 
 if(CONFIG_PWM)
 	list(APPEND srcs	common_io/iot_pwm.c)
+endif()
+if(CONFIG_EFUSE)
+	list(APPEND srcs	common_io/iot_efuse.c)
+endif()
+
+if(CONFIG_TEMP_DETECT)
+	list(APPEND srcs	common_io/iot_tsensor.c)
+endif()
+
+if(CONFIG_INT_WDT)
+	list(APPEND srcs	common_io/iot_watchdog.c)
 endif()
 
 	list(APPEND srcs
@@ -38,6 +52,12 @@ endif()
 				common_io/test/test_iot_uart.c
 				common_io/test/test_iot_spi.c
 				common_io/test/test_iot_flash.c
+				common_io/test/test_iot_timer.c
+				common_io/test/test_iot_tsensor.c
+				common_io/test/test_iot_watchdog.c
+				common_io/test/test_iot_reset.c
+				common_io/test/test_iot_efuse.c
+				common_io/test/test_iot_rtc.c
 				common_io/test/all_tests.c
 	)
 	list(APPEND incs

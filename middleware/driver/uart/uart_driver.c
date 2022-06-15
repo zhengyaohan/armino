@@ -506,8 +506,7 @@ bk_err_t bk_uart_driver_init(void)
 	os_memset(&s_uart_rx_isr, 0, sizeof(s_uart_rx_isr));
 	os_memset(&s_uart_tx_isr, 0, sizeof(s_uart_tx_isr));
 
-	for(uart_id_t id = UART_ID_0; id < SOC_UART_ID_NUM_PER_UNIT; id++)
-	{
+	for(uart_id_t id = UART_ID_0; id < SOC_UART_ID_NUM_PER_UNIT; id++) {
 		uart_isr_register_functions(id);
 		s_uart[id].hal.id = id;
 		uart_hal_init(&s_uart[id].hal);

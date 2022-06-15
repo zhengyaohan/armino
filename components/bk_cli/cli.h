@@ -110,6 +110,7 @@ int cli_aec_init(void);
 int cli_g711_init(void);
 int cli_dvp_init(void);
 int cli_doorbell_init(void);
+int cli_sdio_host_init(void);
 
 extern int hexstr2bin(const char *hex, u8 *buf, size_t len);
 

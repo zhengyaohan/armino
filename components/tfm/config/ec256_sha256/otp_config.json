@@ -1,0 +1,18 @@
+{
+    "description": "otp configurations",
+    "images": [
+        {"name": "Hardware",      "size": "256b",  "fill": "0"},
+        {"name": "Model ID",      "size": "4b",  "fill": "0", "value": "7236"},
+        {"name": "Model Key",     "size": "16b", "fill": "0", "value": "1111111111111111"},
+        {"name": "Device ID",     "size": "4b",  "fill": "0"},
+        {"name": "Root Key",      "size": "16b", "fill": "0", "value": "2222222222222222"},
+        {"name": "BT PK Hash",    "size": "32b", "fill": "0", "firmware": "puk_digest.bin"},
+        {"name": "Debug PK Hash", "size": "32b", "fill": "0", "value": "11223344556677889900aabbccddeeff", "hex":"y"},
+        {"name": "LCS",           "size": "4b",  "fill": "0"},
+        {"name": "Reserved",      "size": "16b", "fill": "0"},
+        {"name": "Lock Control",  "size": "4b",  "fill": "0"},
+        {"name": "FOTA Ver",      "size": "4b",  "fill": "0"},
+        {"name": "Recovery Ver",  "size": "4b",  "fill": "0"},
+        {"name": "Primary Ver",   "size": "4b",  "fill": "0"}
+    ]
+}

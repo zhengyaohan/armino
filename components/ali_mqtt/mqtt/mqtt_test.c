@@ -41,7 +41,7 @@ static char mac_str[DEVICE_MAC_MAXLEN] = {0};
 
 int cnt = 0;
 void *gpclient;
-char *msg_buf = NULL, *msg_readbuf = NULL, *user_topic = NULL;
+char *msg_buf = NULL, *msg_readbuf = NULL, *user_topic = NULL, *user_topic_resp = NULL;
 
 
 char *mqtt_get_mac_str()
@@ -74,9 +74,14 @@ void release_buff() {
         msg_readbuf = NULL;
     }
 
-    if(NULL != user_topic) {
+    if (NULL != user_topic) {
         LITE_free(user_topic);
         user_topic = NULL;
+    }
+
+    if(NULL != user_topic_resp) {
+        LITE_free(user_topic_resp);
+        user_topic_resp = NULL;
     }
 }
 
@@ -97,6 +102,7 @@ void release_buff() {
 static int mqtt_publish_resp_data(void *pclient, const char* buffer, uint32_t len)
 {
     int rc = 0;
+    char *topic_resp = TOPIC_RESP;
     iotx_mqtt_topic_info_t topic_msg = {0};
 
     rtos_lock_mutex(&g_publish_mutex);
@@ -109,7 +115,13 @@ static int mqtt_publish_resp_data(void *pclient, const char* buffer, uint32_t le
     topic_msg.payload = (void *)buffer;
     topic_msg.payload_len = len;
 
-    rc = IOT_MQTT_Publish(pclient, TOPIC_RESP, &topic_msg);
+    if (NULL != user_topic_resp) {
+        topic_resp = user_topic_resp;
+    }
+
+    log_info("publish topic(%s).\n", topic_resp);
+
+    rc = IOT_MQTT_Publish(pclient, topic_resp, &topic_msg);
     if (rc < 0) {
         log_info("error occur when publish,rc(%d).\n", rc);
     }
@@ -333,6 +345,15 @@ int mqtt_client_example(const char *host_name, const char *username,
         }
         memset(user_topic, 0x0, topic_len + 1);
         memcpy(user_topic, topic, topic_len);
+
+        if (NULL == (user_topic_resp = (char *)LITE_malloc(topic_len + 6))) {
+            log_info("not enough memory.\n");
+            rc = -1;
+            release_buff();
+            return rc;
+        }
+        memset(user_topic_resp, 0x0, topic_len + 6);
+        os_snprintf(user_topic_resp, topic_len + 6, "%s/%s", user_topic, "resp");
     }
 
     if(kNoErr != rtos_init_mutex(&g_publish_mutex)){

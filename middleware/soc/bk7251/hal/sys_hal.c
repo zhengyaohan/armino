@@ -198,6 +198,14 @@ uint32_t sys_hal_all_modules_clk_div_get(clk_div_reg_e reg)
 void sys_hal_low_power_hardware_init()
 {
 }
+int32 sys_hal_lp_vol_set(uint32_t value)
+{
+	return 0;
+}
+uint32_t sys_hal_lp_vol_get()
+{
+	return 0;
+}
 /*low power feature end*/
 void sys_hal_enable_mac_wakeup_source()
 {

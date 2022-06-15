@@ -27,7 +27,7 @@ extern "C" {
 #endif //#if (CONFIG_WIFI_ENABLE)
 #define CLI_CFG_BLE         1
 
-#if (CONFIG_LWIP)
+#if (CONFIG_BK_NETIF)
 #define CLI_CFG_NETIF       1
 #else
 #define CLI_CFG_NETIF       0
@@ -42,7 +42,11 @@ extern "C" {
 #define CLI_CFG_PHY         0
 #endif //#if (CONFIG_WIFI_ENABLE)
 
+#if (CONFIG_STA_PS)
 #define CLI_CFG_PWR         1
+#else
+#define CLI_CFG_PWR         0
+#endif
 #define CLI_CFG_TIMER       1
 #define CLI_CFG_WDT         1
 #if CONFIG_TRNG_SUPPORT
@@ -50,9 +54,18 @@ extern "C" {
 #else
 #define CLI_CFG_TRNG        0
 #endif
+#if CONFIG_EFUSE
+#define CLI_CFG_EFUSE       1
+#else
+#define CLI_CFG_EFUSE       0
+#endif
 #define CLI_CFG_GPIO        1
 #define CLI_CFG_OS          1
+#if ((CONFIG_OTA_TFTP) || (CONFIG_OTA_HTTP))
 #define CLI_CFG_OTA         1
+#else
+#define CLI_CFG_OTA         0
+#endif
 #if(CONFIG_KEYVALUE)
 #define CLI_CFG_KEYVALUE    1
 #else
@@ -88,6 +101,12 @@ extern "C" {
 #define CLI_CFG_FLASH       0
 #endif
 
+#if(CONFIG_SDIO_HOST)
+#define CLI_CFG_SDIO_HOST   1
+#else
+#define CLI_CFG_SDIO_HOST   0
+#endif
+
 #if(CONFIG_ICU)
 #define CLI_CFG_ICU         1
 #else
@@ -106,7 +125,7 @@ extern "C" {
 #define CLI_CFG_QSPI        0
 #endif
 
-#if CONFIG_AON_RTC
+#if CONFIG_AON_RTC_TEST
 #define CLI_CFG_AON_RTC     1
 #else
 #define CLI_CFG_AON_RTC     0

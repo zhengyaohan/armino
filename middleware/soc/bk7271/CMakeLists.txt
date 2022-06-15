@@ -43,6 +43,8 @@ list(APPEND srcs
 	"hal/calendar_ll.c"
 	"hal/flash_hal_debug.c"
 	"hal/flash_ll.c"
+	"hal/sdio_host_hal_debug.c"
+	"hal/sdio_host_ll.c"
 )
 armino_component_register(SRCS "${srcs}" INCLUDE_DIRS "${incs}")
 

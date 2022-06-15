@@ -18,6 +18,9 @@ static void cli_gpio_help(void)
 	CLI_LOGI("gpio_wake    [index][low/high_level/rising/falling edge][enable/disable wakeup]\r\n");
 	CLI_LOGI("gpio_low_power    [simulate][param]\r\n");
 #endif
+#if CONFIG_GPIO_SIMULATE_UART_WRITE
+	CLI_LOGI("gpio_uart_write    [index][div(baud_rate=1Mbps/(1+div))][string(len < 8)]\r\n");
+#endif
 }
 
 static void cli_gpio_driver_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -235,6 +238,27 @@ static void cli_gpio_simulate_low_power_cmd(char *pcWriteBuffer, int xWriteBuffe
 }
 #endif
 
+
+#if CONFIG_GPIO_SIMULATE_UART_WRITE
+static void cli_gpio_simulate_uart_write_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	uint32_t id = 0, div = 0;
+	uint32_t len = 8;
+	
+	if (argc < 4) {
+		cli_gpio_help();
+		return;
+	}
+
+	id = os_strtoul(argv[1], NULL, 10);
+	div = os_strtoul(argv[2], NULL, 10);
+	if(len > strlen(argv[3]))
+		len = strlen(argv[3]);
+	gpio_simulate_uart_write((uint8_t *)argv[3], len, id, div);
+}
+#endif
+
+
 static void cli_gpio_int_isr(gpio_id_t id)
 {
 	CLI_LOGI("gpio isr index:%d\n",id);
@@ -301,8 +325,12 @@ static const struct cli_command s_gpio_commands[] = {
 	{"gpio_map", "gpio_map     [sdio_map/spi_map]",cli_gpio_map_cmd},
 #if CONFIG_GPIO_DYNAMIC_WAKEUP_SUPPORT
 	{"gpio_wake", "gpio_wake [index][low/high_level/rising/falling edge][enable/disable wakeup]", cli_gpio_set_wake_source_cmd},
-	{"gpio_low_power", "gpio_low_power [simulate][param]", cli_gpio_simulate_low_power_cmd}
+	{"gpio_low_power", "gpio_low_power [simulate][param]", cli_gpio_simulate_low_power_cmd},
 #endif
+#if CONFIG_GPIO_SIMULATE_UART_WRITE
+	{"gpio_uart_write", "[index][div(baud_rate=1Mbps/(1+div))][string]", cli_gpio_simulate_uart_write_cmd}
+#endif
+
 };
 
 int cli_gpio_init(void)

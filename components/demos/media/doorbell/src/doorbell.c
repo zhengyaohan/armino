@@ -49,12 +49,14 @@ volatile int demo_doorbell_udp_run = 0;
 beken_thread_t demo_doorbell_udp_hdl = NULL;
 struct sockaddr_in *demo_doorbell_remote = NULL;
 int demo_doorbell_udp_voice_romote_connected = 0;
+static uint32_t apk_rx_error_count = 0;
 
 struct sockaddr_in *demo_doorbell_voice_udp_remote = NULL;
 
 int demo_doorbell_udp_voice_fd = -1;
 
 /* audio used */
+static bool apk_work_status = false;
 static uint8_t *temp_read_buffer = NULL;
 static uint8_t *temp_write_buffer = NULL;
 static uint8_t *audio_rx_ring_buffer = NULL;    //save data received from apk
@@ -108,12 +110,13 @@ static void audio_cp0_read_done_callback(uint8_t *buffer, uint32_t length)
 	//DBD("read done \r\n");
 
 	/* send audio data to apk */
-	size = demo_doorbell_udp_voice_send_packet(temp_read_buffer, READ_SIZE);
-	if (size != READ_SIZE) {
-		DBD("send audio data to apk fail, size=%d \r\n", size);
-		return;
+	if (apk_work_status) {
+		size = demo_doorbell_udp_voice_send_packet(temp_read_buffer, READ_SIZE);
+		if (size != READ_SIZE) {
+			DBD("send audio data to apk fail, size=%d \r\n", size);
+			return;
+		}
 	}
-
 }
 
 /* get encoder used size,
@@ -121,7 +124,7 @@ static void audio_cp0_read_done_callback(uint8_t *buffer, uint32_t length)
  */
 static void audio_cp0_write_done_callback(uint8_t *buffer, uint32_t length)
 {
-	//DBD("write data done");
+	//DBD("write data done \r\n");
 
 	/* reset temp_write_buffer_status */
 	temp_write_buffer_status = false;
@@ -163,9 +166,11 @@ static void audio_cp0_encoder_read_req_handler(void)
 	bk_err_t ret = BK_OK;
 	//DBD("read request \r\n");
 
-	ret = bk_audio_read_req(temp_read_buffer, READ_SIZE);
-	if (ret != BK_OK)
-		DBD("send write request fail \r\n");
+	if (apk_work_status) {
+		ret = bk_audio_read_req(temp_read_buffer, READ_SIZE);
+		if (ret != BK_OK)
+			DBD("send write request fail \r\n");
+	}
 }
 
 /* receive CPU1 write request, and send write decoder data reqest to CPU1 */
@@ -381,13 +386,18 @@ static void demo_doorbell_udp_voice_receiver(UINT8 *data, UINT32 len, struct soc
 {
 	//DBD("demo_doorbell_udp_voice_receiver, data len=%d \r\n", len);
 	uint32_t size = 0;
+	//receive data from apk, change state to true
+	apk_work_status = true;
+
 	if (len > 0)
 		demo_doorbell_udp_voice_romote_connected = 1;
+
+	//DBD("len: %d \r\n", len);
 
 	//GLOBAL_INT_DECLARATION();
 	size = ring_buffer_get_free_size(&audio_rx_rb);
 	if (size < len) {
-		DBD("the length of data received from apk is greater than free ring buffer \r\n");
+		DBD("the data length received from apk is greater than free ring buffer \r\n");
 		return;
 	}
 
@@ -400,7 +410,12 @@ static void demo_doorbell_udp_voice_receiver(UINT8 *data, UINT32 len, struct soc
 	size = ring_buffer_get_fill_size(&audio_rx_rb);
 	if (size >= WRITE_SIZE) {
 		if (temp_write_buffer_status) {
-			DBD("the data in temp_write_buffer not been send \r\n");
+			//DBD("the data in temp_write_buffer not been send \r\n");
+			apk_rx_error_count++;
+			if (apk_rx_error_count == 20) {
+				DBD("the data received from apk is not constant speed, 20 times \r\n");
+				apk_rx_error_count = 0;
+			}
 			return;
 		}
 		size = ring_buffer_read(&audio_rx_rb, temp_write_buffer, WRITE_SIZE);

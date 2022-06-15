@@ -246,7 +246,7 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 static void cli_pm_debug(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 	UINT32 pm_debug  = 0;
-	if (argc != 2) 
+	if (argc != 2)
 	{
 		os_printf("set low power debug parameter invalid %d\r\n",argc);
 		return;
@@ -255,6 +255,44 @@ static void cli_pm_debug(char *pcWriteBuffer, int xWriteBufferLen, int argc, cha
 	pm_debug = os_strtoul(argv[1], NULL, 10);
 
 	pm_debug_ctrl(pm_debug);
+
+}
+static void cli_pm_vol(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	UINT32 pm_vol  = 0;
+	if (argc != 2)
+	{
+		os_printf("set pm voltage parameter invalid %d\r\n",argc);
+		return;
+	}
+
+	pm_vol = os_strtoul(argv[1], NULL, 10);
+	if ((pm_vol < 0) || (pm_vol > 7))
+	{
+		os_printf("set pm voltage value invalid %d\r\n",pm_vol);
+		return;
+	}
+
+	pm_lp_vol_set(pm_vol);
+
+}
+static void cli_pm_lpo(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	UINT32 pm_lpo  = 0;
+	if (argc != 2)
+	{
+		os_printf("set pm lpo parameter invalid %d\r\n",argc);
+		return;
+	}
+
+	pm_lpo = os_strtoul(argv[1], NULL, 10);
+	if ((pm_lpo < 0) || (pm_lpo > 3))
+	{
+		os_printf("set  pm lpo value invalid %d\r\n",pm_lpo);
+		return;
+	}
+
+	pm_lpo_src_set(pm_lpo);
 
 }
 static void cli_pm_vote_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -555,6 +593,8 @@ static const struct cli_command s_pwr_commands[] = {
 	{"dvfs", "dvfs [cksel_core] [ckdiv_core] [ckdiv_bus] [ckdiv_cpu0] [ckdiv_cpu1]", cli_dvfs_cmd},
 	{"pm_vote", "pm_vote [pm_sleep_mode] [pm_vote] [pm_vote_value] [pm_sleep_time]", cli_pm_vote_cmd},
 	{"pm_debug", "pm_debug [debug_en_value]", cli_pm_debug},
+	{"pm_lpo", "pm_lpo [lpo_type]", cli_pm_lpo},
+	{"pm_vol", "pm_vol [vol_value]", cli_pm_vol},
 #endif
 #if CONFIG_TPC_PA_MAP
 	{"pwr", "pwr {sta|ap} pwr", cli_pwr_cmd },

@@ -15,7 +15,7 @@
 
 #include "sdcard_test.h"
 
-extern DD_HANDLE sdcard_hdl;
+static DD_HANDLE sdcard_hdl;
 uint8_t *testbuf;
 
 static SDIO_Error sdcard_test_open(void)

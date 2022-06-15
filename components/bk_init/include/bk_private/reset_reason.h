@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236) || (CONFIG_SOC_BK7256XX)
+#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX)
 #define     START_TYPE_ADDR        (0x00800000 + 84 * 4)
 #else
 #define     START_TYPE_ADDR        (0x0080a080)

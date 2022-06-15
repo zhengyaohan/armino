@@ -1,0 +1,28 @@
+{
+	"lstImageInfo": [
+		{
+			"index": 0,
+			"static_addr_str": "0x0E040000",
+			"max_partition_size_str": "0x00040000",
+			"description": "Primary bootloader image"
+		},
+		{
+			"index": 1,
+			"static_addr_str": "0x0E080000",
+			"max_partition_size_str": "0x00180000",
+			"description": "tee image"
+		},
+		{
+			"index": 2,
+			"static_addr_str": "0x0E200000",
+			"max_partition_size_str": "0x001C0000",
+			"description": "freertos image"
+		},
+		{
+			"index": 3,
+			"static_addr_str": "0x0E3C0000",
+			"max_partition_size_str": "0x00040000",
+			"description": "prim manifest image"
+		}
+	]
+}

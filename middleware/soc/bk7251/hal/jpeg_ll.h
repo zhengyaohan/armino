@@ -157,6 +157,11 @@ static inline void jpeg_ll_disable_yuv_byte_reverse(jpeg_hw_t *hw)
 	// NOT Support
 }
 
+static inline void jpeg_ll_yuv_fml_sel(jpeg_hw_t *hw, uint32_t value)
+{
+	// NOT Support
+}
+
 static inline void jpeg_ll_enable_video_byte_reverse(jpeg_hw_t *hw)
 {
 	hw->cfg.video_byte_reverse = 1;

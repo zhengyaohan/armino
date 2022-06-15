@@ -1,0 +1,10 @@
+TITLE: Versatile Express Images Configuration File
+
+[IMAGES]
+TOTALIMAGES: 2                     ;Number of Images (Max: 32)
+
+IMAGE0ADDRESS: 0x00000000          ;Please select the required executable program
+IMAGE0FILE: \SOFTWARE\bootrom.bin  ; 
+
+IMAGE1ADDRESS: 0x10040000          ;Please select the required executable program
+IMAGE1FILE: \SOFTWARE\out.bin  ; 

@@ -35,13 +35,13 @@ CPU1 0x1C0000 0x70000
 		ADDR _dtcm_bss_end
 	}
 
-	SRAM1 0x30060000 0xf000
+	SRAM1 0x30060000 0xA000
 	{
 		ADDR NEXT   _vedio_start
 		* KEEP (.video_spec_data)
 	}
 
-	SRAM2 0x3006f000 0x10c00
+	SRAM2 0x3006A000 0x15c00
 	{
 		LOADADDR NEXT _data_lmastart
 		ADDR NEXT _data_start

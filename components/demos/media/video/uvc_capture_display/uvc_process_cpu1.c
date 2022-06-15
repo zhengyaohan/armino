@@ -9,13 +9,10 @@
 #include <common/bk_err.h>
 #include <driver/lcd.h>
 #include <driver/dma.h>
-#include <driver/gpio.h>
-#include <driver/psram.h>
 #include <components/jpeg_decode.h>
 #include <components/uvc_camera.h>
 #include "uvc_mailbox.h"
 
-#define PSRAM_BASEADDR        (0x60000000) // JPEG DATA
 #define JPEGDEC_DATA_ADDR     (0x601E0000) // JPEG DEC DATA
 #define YUV_RESIZE_ADDR       (0x60500000) // YUV RESIZE DATA
 #define DMA_TRANSFER_LEN      0xFF00//480*272/2;
@@ -24,7 +21,7 @@ extern void delay(INT32 num);
 
 static uint8_t dma_int_cnt = 0;
 static uint8_t dma_channel_id = 0;
-static uint8_t dis_clk_div = 13;
+static uint8_t dis_clk_div = 0;
 static uint8_t g_uvc_frame_rate = 10;
 static bool g_uvc_enable = false;
 static uint32_t g_image_width = 640;
@@ -36,30 +33,9 @@ beken_queue_t uvc_cpu1_demo_msg_que = NULL;
 
 static void uvc_process_cpu1_help(void)
 {
-	os_printf("lcd_jpegdec {init|jdec_to_sd|display_picture|stop_display|uvc_dispaly_init|start_uvc|close_uvc|yuvresize|display_uvc|deinit}\n");
-	os_printf("-init---------------(init power/sdcard/dma/lcd)-----\r\n");
-	os_printf("       width--------(input image width, 640/1280)---\r\n");
-	os_printf("       hight--------(input image hight, 480/720)----\r\n");
-	os_printf("       ratio--------(decode output image size, 0)---\r\n");
-	os_printf("       rgb_clk_div--(rgb clk div, 8/25)-------------\r\n");
-	os_printf("\r\n-jdec_to_sd----(jdec data save to sdcard, yuv422)---\r\n");
-	os_printf("       input_path--(input image name)-------------------\r\n");
-	os_printf("       ouput_path--(output image name)------------------\r\n");
-	os_printf(" (op)  resize_path-(resize output image name)-----------\r\n");
-	os_printf("\r\n-display_picture---(display yuv422 image, 480*272)-----------\r\n");
-	os_printf("       input_path------(input image name)------------------------\r\n");
-	os_printf("\r\n-stop_display---(rgb stop display)--------\r\n");
-	os_printf("\r\n-uvc_dispaly_init---(init uvc)--------------\r\n");
-	os_printf("       width------------(uvc width, 640/1280)---\r\n");
-	os_printf("       hight------------(uvc hight, 480/720)----\r\n");
-	os_printf("\r\n-start_uvc---(start uvc)----\r\n");
-	os_printf("\r\n-close_uvc-- (stop uvc)----\r\n");
-	os_printf("\r\n-yuvresize-- (resize original yuv422 to 480*272 and display)----\r\n");
-	os_printf("       input_path--(input image name)-------------------------------\r\n");
-	os_printf("       ouput_path--(output image name)------------------------------\r\n");
-	os_printf("\r\n-display_uvc-- (display 480*272 yyuv image)----\r\n");
-	os_printf("       input_path--(input image name)--------------\r\n");
-	os_printf("\r\n-dinit-- (deinit all modules)----\r\n");
+	os_printf("cpu1 uvc {cpu1_init|cpu1_deinit}\n");
+	os_printf("-cpu1_init---------------(init cpu1 uvc mailbox)-----\r\n");
+	os_printf("-cpu1_deinit-------------(deinit cpu1 all resource)---\r\n");
 }
 
 static bk_err_t uvc_cpu1_send_msg(uint8_t type, uint32_t data)
@@ -114,12 +90,10 @@ static void image_resize_to_480_272(uint32_t input_size, uint8_t *input_ptr, uin
 
 static void lcd_display_frame_isr(void)
 {
-#if CONFIG_USB_UVC
 	if (g_uvc_enable) {
 		bk_lcd_rgb_display_en(0);// close rgb display
 		bk_uvc_set_mem_status(UVC_MEM_IDLE);
 	}
-#endif
 }
 
 static void dma_jpeg_dec_to_lcdfifo_isr(dma_id_t id)
@@ -162,7 +136,7 @@ static void dma_jpeg_dec_to_lcdfifo(void)
 	dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
 	dma_config.dst.start_addr =  (uint32) REG_DISP_RGB_FIFO;
 
-	dma_channel_id = bk_dma_alloc(DMA_DEV_DTCM);
+	dma_channel_id = bk_dma_alloc(DMA_DEV_LCD_DATA);
 	if ((dma_channel_id < DMA_ID_0) || (dma_channel_id >= DMA_ID_MAX)) {
 		os_printf("malloc dma fail \r\n");
 		return;
@@ -182,8 +156,7 @@ static void uvc_jpegdec_frame_end_callback(void)
 	bk_dma_start(dma_channel_id);
 }
 
-#if CONFIG_USB_UVC
-static void uvc_jpeg_frame_end_callback(uint32_t pic_size)
+static void uvc_jpeg_frame_end_callback(void *buf, uint32_t pic_size)
 {
 	bk_err_t ret = BK_OK;
 	ret = bk_jpeg_dec_sw_start(pic_size);
@@ -192,36 +165,35 @@ static void uvc_jpeg_frame_end_callback(uint32_t pic_size)
 	}
 }
 
-static void uvc_frame_capture_callback(uint32_t pic_size)
+static void uvc_frame_capture_callback(void *buf, uint32_t pic_size)
 {
 	uvc_cpu1_send_msg(UVC_CPU1_CAPTURE, pic_size);
 }
-#endif // CONFIG_USB_UVC
 
 static bk_err_t uvc_cpu1_uvc_init(uint32_t frame_resolution, uint32_t fps, uint32_t dis_clk_div)
 {
 	bk_err_t err = BK_OK;
 
-	// step 1: video power_up
-	sys_drv_module_power_ctrl(POWER_MODULE_NAME_VIDP,POWER_MODULE_STATE_ON);
-
 	g_image_width = frame_resolution >> 16;
 	g_image_height = frame_resolution & 0xFFFF;
 
-	// step 2: init lcd
-	bk_lcd_driver_init(LCD_96M);
-	if (dis_clk_div == 0)
-		dis_clk_div = 25;
+	// step 1: init lcd
+	if (dis_clk_div != 0) {
+		// step 1: video power_up
+		sys_drv_module_power_ctrl(POWER_MODULE_NAME_VIDP,POWER_MODULE_STATE_ON);
 
-	bk_lcd_rgb_init(dis_clk_div, X_PIXEL_RGB, Y_PIXEL_RGB, ORGINAL_YUYV_DATA);
+		bk_lcd_driver_init(LCD_96M);
 
-	bk_lcd_isr_register(RGB_OUTPUT_EOF, lcd_display_frame_isr);
+		bk_lcd_rgb_init(dis_clk_div, X_PIXEL_RGB, Y_PIXEL_RGB, ORGINAL_YUYV_DATA);
 
-	// step 3: init lcd_dma, jpeg_dec to rgb_fifo
-	dma_jpeg_dec_to_lcdfifo();
+		bk_lcd_isr_register(RGB_OUTPUT_EOF, lcd_display_frame_isr);
 
-	// step 5: init jpeg_dec
-	err = bk_jpeg_dec_sw_init((uint8_t *)PSRAM_BASEADDR, (uint8_t *)JPEGDEC_DATA_ADDR);
+		// step 2: init lcd_dma, jpeg_dec to rgb_fifo
+		dma_jpeg_dec_to_lcdfifo();
+	}
+
+	// step 3: init jpeg_dec
+	err = bk_jpeg_dec_sw_init((uint8_t *)UVC_DATA_ADDR, (uint8_t *)JPEGDEC_DATA_ADDR);
 	if (err != kNoErr) {
 		os_printf("init jpeg_decoder failed\r\n");
 		return err;
@@ -229,58 +201,59 @@ static bk_err_t uvc_cpu1_uvc_init(uint32_t frame_resolution, uint32_t fps, uint3
 
 	bk_jpeg_dec_sw_register_finish_callback(uvc_jpegdec_frame_end_callback);
 
-#if CONFIG_USB_UVC
 	err = bk_uvc_init();
 	if (err != kNoErr) {
 		os_printf("uvc open failed!\r\n");
 		return err;
 	}
 
-	err = bk_uvc_set_ppi_fps((uint16_t)g_image_height, (uint8_t)fps);
+	err = bk_uvc_set_ppi_fps(frame_resolution, (uint8_t)fps);
 	if (err != kNoErr) {
 		os_printf("uvc set ppi and fps failed!\r\n");
 		return err;
 	}
-#endif
+
 	return err;
 }
 
 static bk_err_t uvc_cpu1_deinit(void)
 {
 	bk_err_t err = BK_OK;
-#if CONFIG_USB_UVC
 	// step 1: deinit uvc if need
 	err = bk_uvc_deinit();
 	if (err != kNoErr) {
 		os_printf("uvc deinit failed!\r\n");
 	}
 	g_uvc_enable = false;
-#endif
-	// step 2: deinit jpeg_dec
-	err = bk_jpeg_dec_sw_deinit();
-	if (err != kNoErr) {
-		os_printf("jpeg decode deinit failed!\r\n");
+
+	if (dis_clk_div != 0) {
+
+		// step 2: deinit jpeg_dec
+		err = bk_jpeg_dec_sw_deinit();
+		if (err != kNoErr) {
+			os_printf("jpeg decode deinit failed!\r\n");
+		}
+
+		// step 3: stop dma and deinit
+		err = bk_dma_deinit(dma_channel_id);
+		if (err != kNoErr) {
+			os_printf("dma deinit failed!\r\n");
+		}
+
+		err = bk_dma_free(DMA_DEV_LCD_DATA, dma_channel_id);
+		if (err != BK_OK) {
+			os_printf("dma free failed!\r\n");
+		}
+
+		dma_channel_id = 0;
+		dma_int_cnt = 0;
+
+		// step 3: deinit lcd
+		bk_lcd_rgb_display_en(0);
+
+		// step 4: video power off
+		sys_drv_module_power_ctrl(POWER_MODULE_NAME_VIDP,POWER_MODULE_STATE_OFF);
 	}
-
-	// step 3: stop dma and deinit
-	err = bk_dma_deinit(dma_channel_id);
-	if (err != kNoErr) {
-		os_printf("dma deinit failed!\r\n");
-	}
-
-	err = bk_dma_free(DMA_DEV_DTCM, dma_channel_id);
-	if (err != BK_OK) {
-		os_printf("dma free failed!\r\n");
-	}
-
-	dma_channel_id = 0;
-	dma_int_cnt = 0;
-
-	// step 3: deinit lcd
-	bk_lcd_rgb_display_en(0);
-
-	// step 4: video power off
-	sys_drv_module_power_ctrl(POWER_MODULE_NAME_VIDP,POWER_MODULE_STATE_OFF);
 	return BK_OK;
 }
 
@@ -290,10 +263,11 @@ static bk_err_t uvc_cpu1_process_cpu0_cmd(uint32_t cmd_type)
 	switch (cmd_type) {
 		case UVC_MB_UVC_START:
 		{
-#if CONFIG_USB_UVC
-			// step 1: stop dma
-			bk_dma_stop(dma_channel_id);
-			dma_int_cnt = 0;
+			if (dis_clk_div != 0) {
+				// step 1: stop dma
+				bk_dma_stop(dma_channel_id);
+				dma_int_cnt = 0;
+			}
 
 			// step 2: enable uvc_enable flag
 			g_uvc_enable = true;
@@ -305,16 +279,20 @@ static bk_err_t uvc_cpu1_process_cpu0_cmd(uint32_t cmd_type)
 			}
 			os_printf("cpu1 uvc start ok\r\n");
 			break;
-#else
-			os_printf("Not support\r\n");
-			err = BK_FAIL;
-			break;
-#endif
 		}
 		case UVC_MB_UVC_STOP:
 		{
-#if CONFIG_USB_UVC
-			// step 1: stop uvc
+			if (dis_clk_div != 0) {
+				// step 1: stop rgb display
+				bk_lcd_rgb_display_en(0);
+
+				// step 2: stop dma
+				bk_dma_stop(dma_channel_id);
+				dma_int_cnt = 0;
+				bk_dma_set_src_addr(dma_channel_id, (uint32_t)YUV_RESIZE_ADDR, 0);
+			}
+
+			// step 3: stop uvc
 			err = bk_uvc_set_stop();
 			if (err != kNoErr) {
 				os_printf("uvc set stop failed!\r\n");
@@ -323,32 +301,24 @@ static bk_err_t uvc_cpu1_process_cpu0_cmd(uint32_t cmd_type)
 
 			// step 2: diasble uvc_enable flag
 			g_uvc_enable = false;
-			os_printf("cpu1 uvc start ok\r\n");
+			os_printf("cpu1 uvc stop ok\r\n");
 			break;
-#else
-			os_printf("Not support\r\n");
-			err = BK_FAIL;
-			break;
-#endif
 		}
 		case UVC_MB_CAPTURE_START:
 		{
-#if CONFIG_USB_UVC
 			err = bk_uvc_save_frame(0);
 			if (err != kNoErr) {
 				os_printf("uvc capture failed!\r\n");
 			}
-			os_printf("cpu1 uvc start ok\r\n");
+			os_printf("cpu1 uvc capture ok\r\n");
 			break;
-#else
-			os_printf("Not support\r\n");
-			err = BK_FAIL;
-			break;
-#endif
 		}
 		case UVC_MB_UVC_DEINIT:
 		{
-			uvc_cpu1_send_msg(UVC_CPU1_DEINIT, 0);
+			if (uvc_cpu1_demo_thread_handle != NULL) {
+				uvc_cpu1_send_msg(UVC_CPU1_DEINIT, 0);
+			}
+			os_printf("cpu1 uvc deinit ok\r\n");
 			break;
 		}
 		default:
@@ -367,8 +337,6 @@ static void uvc_cp1_mailbox_tx_cmpl_isr(uvc_mb_t *uvc_mb, mb_chnl_ack_t *cmd_buf
 static void uvc_cp1_mailbox_rx_isr(uvc_mb_t *uvc_mb, mb_chnl_cmd_t *cmd_buf)
 {
 	bk_err_t err = BK_OK;
-	//os_printf("enter cp1_mailbox_rx_isr \r\n");
-	//os_printf("cmd  hdr:0x%08x,pa1:0x%08x,pa2:0x%08x,pa3:0x%08x\r\n", cmd_buf->hdr.data, cmd_buf->param1, cmd_buf->param2, cmd_buf->param3);
 	if (cmd_buf->hdr.cmd == UVC_MB_UVC_INIT) {
 		g_uvc_frame_rate = cmd_buf->param2;
 		uvc_cpu1_send_msg(UVC_CPU1_INIT, cmd_buf->param1);
@@ -378,9 +346,7 @@ static void uvc_cp1_mailbox_rx_isr(uvc_mb_t *uvc_mb, mb_chnl_cmd_t *cmd_buf)
 		uvc_cpu1_send_msg(UVC_CPU1_DISPLAY_INIT, cmd_buf->param1);
 	} else if (cmd_buf->hdr.cmd == UVC_MB_CAPTURE_DONE) {
 		bk_uvc_set_mem_status(UVC_MEM_IDLE);
-	} else if (cmd_buf->hdr.cmd == UVC_MB_UVC_DEINIT) {
-		uvc_cpu1_send_msg(UVC_CPU1_DEINIT, 0);
-	}else {
+	} else {
 		err = uvc_cpu1_process_cpu0_cmd(cmd_buf->hdr.cmd);
 		if (err != BK_OK) {
 			os_printf("uvc init failed\r\n");
@@ -399,7 +365,7 @@ static void uvc_cpu1_process_main(void)
 			switch (msg.type) {
 			case UVC_CPU1_INIT:
 			{
-				err = uvc_cpu1_uvc_init(msg.data, g_uvc_frame_rate, dis_clk_div);
+				err = uvc_cpu1_uvc_init(msg.data, g_uvc_frame_rate, 0);
 				if (err != BK_OK) {
 					os_printf("cpu1 init uvc failed\r\n");
 					goto exit;
@@ -459,7 +425,7 @@ static bk_err_t uvc_cpu1_init(void)
 	if ((!uvc_cpu1_demo_thread_handle) && (!uvc_cpu1_demo_msg_que)) {
 
 		ret = rtos_init_queue(&uvc_cpu1_demo_msg_que,
-							  "uvc_queue",
+							  "uvc_cpu1_queue",
 							  sizeof(uvc_cpu_msg_t),
 							  30);
 		if (kNoErr != ret) {
@@ -468,9 +434,9 @@ static bk_err_t uvc_cpu1_init(void)
 
 		ret = rtos_create_thread(&uvc_cpu1_demo_thread_handle,
 								 4,
-								 "uvc_init",
+								 "uvc_cpu1_init",
 								 (beken_thread_function_t)uvc_cpu1_process_main,
-								 2 * 1024,
+								 4 * 1024,
 								 (beken_thread_arg_t)0);
 
 		if (ret != kNoErr) {
@@ -494,8 +460,30 @@ void uvc_process_cpu1(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		if (err != BK_OK) {
 			os_printf("uvc cpu1 init failed\r\n");
 		}
+	} else if (os_strcmp(argv[1], "ppi_fps") == 0) {
+		uint16_t count = os_strtoul(argv[2], NULL, 10);
+		uvc_ppi_fps_t * param = os_malloc(count * sizeof (uvc_ppi_fps_t));
+		if (param == NULL) {
+			os_printf("memory not enough\r\n");
+			return;
+		}
+
+		os_memset(param, 0, sizeof(param));
+		bk_uvc_get_ppi_fps(param, count);
+
+		for (uint8_t i = 0; i < count; i++) {
+			if (param[i].width == 0)
+				break;
+			os_printf("width:%d, height:%d, fps:%d\r\n", param[i].width, param[i].height, param[i].fps);
+		}
+
+		os_free(param);
+		param = NULL;
 	} else if (os_strcmp(argv[1], "cpu1_deinit") == 0) {
-		uvc_cpu1_send_msg(UVC_CPU1_DEINIT, 0);
+		if (uvc_cpu1_demo_thread_handle != NULL) {
+			uvc_cpu1_send_msg(UVC_CPU1_DEINIT, 0);
+		}
+		os_printf("cpu1 deinit ok\r\n");
 	} else {
 		os_printf("Cmd not find\r\n");
 		uvc_process_cpu1_help();

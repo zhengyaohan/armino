@@ -33,7 +33,7 @@
 
 static jpegenc_desc_t ejpeg_cfg;
 static uint32_t s_camera_dev_id = 0;
-static uint32_t s_camera_dev = GC0308C_DEV;
+static uint32_t s_camera_dev = GC0328C_DEV;
 static uint32_t s_camera_sensor = 0x01E00014;//(480 << 16) | 20;
 
 static void camera_intf_delay_timer_hdl(timer_id_t timer_id)
@@ -99,6 +99,10 @@ static void camera_intf_init_ejpeg_pixel(uint32_t ppi_type)
 	case QVGA_320_240:
 		ejpeg_cfg.x_pixel = X_PIXEL_320;
 		ejpeg_cfg.y_pixel = Y_PIXEL_240;
+		break;
+	case VGA_480_272:
+		ejpeg_cfg.x_pixel = X_PIXEL_480;
+		ejpeg_cfg.y_pixel = Y_PIXEL_272;
 		break;
 	case VGA_640_480:
 		ejpeg_cfg.x_pixel = X_PIXEL_640;

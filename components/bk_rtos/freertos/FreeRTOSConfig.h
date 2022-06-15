@@ -129,7 +129,7 @@
 #endif
 
 #if (CONFIG_SOC_BK7256_CP1)
-#define configTOTAL_HEAP_SIZE                       ( ( size_t ) ( 45 * 1024 ) )
+#define configTOTAL_HEAP_SIZE                       ( ( size_t ) ( 65 * 1024 ) )
 #else
 #define configTOTAL_HEAP_SIZE                       ( ( size_t ) ( 140 * 1024 ) )
 #endif

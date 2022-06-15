@@ -28,6 +28,9 @@
 #endif
 #include "bk_uart_debug.h"
 #include "bk_api_cli.h"
+#if CONFIG_SOC_BK7256_CP1
+#include "media_common.h"
+#endif
 
 #define TAG "cli"
 
@@ -1249,7 +1252,7 @@ int bk_cli_init(void)
 	cli_trng_init();
 #endif
 
-#if (CLI_CFG_TRNG == 1)
+#if (CLI_CFG_EFUSE == 1)
 	cli_efuse_init();
 #endif
 
@@ -1277,6 +1280,10 @@ int bk_cli_init(void)
 	cli_flash_test_init();
 #endif
 
+#if (CLI_CFG_SDIO_HOST == 1)
+	cli_sdio_host_init();
+#endif
+
 #if (CLI_CFG_KEYVALUE == 1)
     cli_keyVaule_init();
 #endif
@@ -1297,7 +1304,7 @@ int bk_cli_init(void)
 	cli_qspi_init();
 #endif
 
-#if (CLI_CFG_AON_RTC == 1)
+#if (CONFIG_AON_RTC_TEST == 1)
 	cli_aon_rtc_init();
 #endif
 
@@ -1491,6 +1498,13 @@ int bk_cli_init(void)
 	pCli->initialized = 1;
 #if (!CONFIG_SHELL_ASYNCLOG)
 	pCli->echo_disabled = 0;
+#endif
+
+#if CONFIG_SOC_BK7256_CP1
+	ret = common_mb_init();
+	if (ret != kNoErr) {
+		os_printf("Error: Failed to create common_mb thread: %d\r\n", ret);
+	}
 #endif
 
 	return kNoErr;

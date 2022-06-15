@@ -10,8 +10,6 @@ set(incs
 	)
 set(srcs "stub.c")
 list(APPEND srcs
-	"hal/icu_hal_debug.c"
-	"hal/icu_ll.c"
 	"hal/pwm_hal_debug.c"
 	"hal/pwm_ll.c"
 	"hal/timer_hal_debug.c"
@@ -64,4 +62,3 @@ add_custom_command(
 
 add_custom_target(${target}_linker_script DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${target}_out.ld)
 add_dependencies(${COMPONENT_LIB} ${target}_linker_script)
-

@@ -22,6 +22,7 @@
 #include "sys_driver.h"
 #include "audio_types.h"
 #include "audio_mailbox.h"
+#include "media_common.h"
 
 #define TU_QITEM_COUNT      (60)
 static beken_thread_t  audio_thread_hdl = NULL;
@@ -57,6 +58,18 @@ static bk_err_t audio_send_msg(audio_cp0_msg_t msg)
 		return ret;
 	}
 	return kNoResourcesErr;
+}
+
+static bk_err_t media_send_common_mb_msg(common_mailbox_msg_t *msg)
+{
+	mb_chnl_cmd_t mb_cmd;
+
+	//send mailbox msg to cpu0
+	mb_cmd.hdr.cmd = msg->mb_cmd;
+	mb_cmd.param1 = msg->param1;
+	mb_cmd.param2 = msg->param2;
+	mb_cmd.param3 = msg->param3;
+	return mb_chnl_write(MB_CHNL_COM, &mb_cmd);
 }
 
 static bk_err_t audio_send_stop_msg(audio_cp0_msg_t msg)
@@ -233,15 +246,58 @@ static bk_err_t audio_stop_transfer(void)
 	return aud_mailbox_send_msg(&msg);
 }
 
+static void media_mb_rx_isr(common_mailbox_msg_t *com_mb, mb_chnl_ack_t *cmd_buf)
+{
+	//
+}
+
+static void media_mb_tx_isr(common_mailbox_msg_t *com_mb, mb_chnl_ack_t *cmd_buf)
+{
+	//
+}
+
+static void media_mb_tx_cmpl_isr(common_mailbox_msg_t *com_mb, mb_chnl_ack_t *cmd_buf)
+{
+	//
+}
+
+static void media_com_mailbox_init(void)
+{
+	//init maibox
+	//mb_chnl_init();
+	mb_chnl_open(MB_CHNL_COM, NULL);
+	if (media_mb_rx_isr != NULL)
+		mb_chnl_ctrl(MB_CHNL_COM, MB_CHNL_SET_RX_ISR, media_mb_rx_isr);
+	if (media_mb_tx_isr != NULL)
+		mb_chnl_ctrl(MB_CHNL_COM, MB_CHNL_SET_TX_ISR, media_mb_tx_isr);
+	if (media_mb_tx_cmpl_isr != NULL)
+		mb_chnl_ctrl(MB_CHNL_COM, MB_CHNL_SET_TX_CMPL_ISR, media_mb_tx_cmpl_isr);
+}
+
 
 static void audio_cp0_transfer_main(beken_thread_arg_t param_data)
 {
 	bk_err_t ret = BK_OK;
+	common_mailbox_msg_t com_mb_msg;
 	//audio_setup_t *audio_setup = NULL;
 
 	/* init maibox */
 	aud_mailbox_init(audio_cp0_mailbox_rx_isr, audio_cp0_mailbox_tx_isr, audio_cp0_mailbox_tx_cmpl_isr);
 	os_printf("cp0: config mailbox complete \r\n");
+
+	/* send "COM_MB_START_AUDIO_CMD" mailbox msg to media_common thread in cpu1 */
+	media_com_mailbox_init();
+	com_mb_msg.mb_cmd = COM_MB_START_AUDIO_CMD;
+	com_mb_msg.param1 = 0;
+	com_mb_msg.param2 = 0;
+	com_mb_msg.param3 = 0;
+	ret = media_send_common_mb_msg(&com_mb_msg);
+	if (ret != BK_OK) {
+		os_printf("cp0: init audio transfer fail \r\n");
+		goto audio_transfer_exit;
+	}
+
+	delay(10000);
 
 	/* malloc buffer */
 /*	read_buffer_size = AUD_AEC_8K_FRAME_SAMP_SIZE/2;
@@ -258,6 +314,9 @@ static void audio_cp0_transfer_main(beken_thread_arg_t param_data)
 		audio_stop_transfer();
 		return ;
 	}
+
+	delay(10000);
+
 
 	bk_audio_get_decoder_remain_size();
 

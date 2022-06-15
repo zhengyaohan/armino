@@ -132,6 +132,8 @@ void sys_drv_usb_wakeup_enable(uint8_t index);
 void sys_drv_cpu_clk_div_set(uint32_t core_index, uint32_t value);
 uint32_t sys_drv_cpu_clk_div_get(uint32_t core_index);
 void sys_drv_low_power_hardware_init();
+int32 sys_drv_lp_vol_set(uint32_t value);
+uint32_t sys_drv_lp_vol_get();
 /*for  low power  function end*/
 uint32 sys_drv_get_device_id(void); // CMD_GET_DEVICE_ID
 uint32 sys_drv_get_chip_id(void); // CMD_GET_CHIP_ID

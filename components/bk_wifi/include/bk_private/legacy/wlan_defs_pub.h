@@ -184,7 +184,7 @@ typedef struct _network_InitTypeDef_st
 {
 	char wifi_mode;               /**< WiFi mode, BK_SOFT_AP or BK_STATION */
 	char wifi_ssid[33];           /**< For station, it's SSID of the AP to be connected, for AP, it's the SSID of our AP */
-	char wifi_key[64];            /**< Security key of the wlan needs to be connected, ignored in an open system.*/
+	char wifi_key[65];            /**< Security key of the wlan needs to be connected, ignored in an open system.*/
 	char local_ip_addr[16];       /**< Static IP configuration, Local IP address. */
 	char net_mask[16];            /**< Static IP configuration, Netmask. */
 	char gateway_ip_addr[16];     /**< Static IP configuration, Router IP address. */

@@ -170,6 +170,7 @@ _tx_retry:
 					retry_cnt ++;
 					if (retry_cnt >= IPERF_MAX_TX_RETRY) {
 						os_printf("iperf: tx reaches max retry(%u)\n", retry_cnt);
+						BK_ASSERT(0);
 						break;
 					} else
 						goto _tx_retry;

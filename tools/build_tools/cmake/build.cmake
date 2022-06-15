@@ -224,6 +224,14 @@ function(__build_init armino_path)
 
     armino_build_set_property(COMPILE_DEFINITIONS "-DAPP_VERSION=\"$ENV{APP_VERSION}\"" APPEND)
 
+    if($ENV{LIB_HASH} STREQUAL "NULL")
+        LOGI("LIB_HASH IS NULL")
+    else()
+        armino_build_set_property(COMPILE_DEFINITIONS "-DLIB_HASH=\"$ENV{LIB_HASH}\"" APPEND)
+        armino_build_set_property(COMPILE_DEFINITIONS "-DARMINO_SOC=${ARMINO_SOC}" APPEND)
+        LOGI("LIB_HASH IS \"$ENV{LIB_HASH}\"")
+    endif()
+
     #__build_get_armino_git_revision()
     __kconfig_init()
 

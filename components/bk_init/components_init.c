@@ -88,7 +88,7 @@ int wdt_init(void)
 {
 #if (CONFIG_FREERTOS)
 #if CONFIG_INT_WDT
-	BK_LOGI(TAG, "int watchdog enabled, period=%u\r\n", CONFIG_INT_WDT_PERIOD_MS);
+	BK_LOGD(TAG, "int watchdog enabled, period=%u\r\n", CONFIG_INT_WDT_PERIOD_MS);
 	bk_wdt_start(CONFIG_INT_WDT_PERIOD_MS);
 #else
 #if (CONFIG_SOC_BK7271)
@@ -103,7 +103,7 @@ int wdt_init(void)
 #if !(CONFIG_ALIOS)
 #if CONFIG_TASK_WDT
 	bk_task_wdt_start();
-	BK_LOGI(TAG, "task watchdog enabled, period=%u\r\n", CONFIG_TASK_WDT_PERIOD_MS);
+	BK_LOGD(TAG, "task watchdog enabled, period=%u\r\n", CONFIG_TASK_WDT_PERIOD_MS);
 #endif
 #endif
 	return BK_OK;
@@ -240,11 +240,15 @@ int components_init(void)
 {
 /*for bringup test*/
 #if CONFIG_SOC_BK7256XX || CONFIG_SOC_BK7256_CP1
-    driver_init();
+    if(driver_init())
+       return BK_FAIL;
+
     pm_init_todo();
     show_init_info();
     random_init();
-
+#if (!CONFIG_SLAVE_CORE)
+	wdt_init();
+#endif
 	ipc_init();
 
 #else

@@ -63,10 +63,10 @@ static void dma2d_isr_common(void);
   */
 bk_err_t bk_dma2d_driver_init(dma2d_config_t *dma2d)
 {
-	if(sys_drv_dma2d_set(1, 1) != 0) {
-		os_printf("dma2d sys clk config error \r\n");
-		return BK_FAIL;
-	}
+//if(sys_drv_dma2d_set(0, 0) != 0) {
+//		os_printf("dma2d sys clk config error \r\n");
+//		return BK_FAIL;
+//	}
 
 #if (USE_HAL_DMA2D_REGISTER_CALLBACKS == 1)
 	os_memset(&s_dma2d_isr, 0, sizeof(s_dma2d_isr));

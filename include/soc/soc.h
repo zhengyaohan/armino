@@ -31,6 +31,8 @@
 #include "soc/bk7235/soc.h"
 #elif CONFIG_SOC_BK7236
 #include "soc/bk7236/soc.h"
+#elif CONFIG_SOC_BK7236A
+#include "soc/bk7236a/soc.h"
 #elif CONFIG_SOC_BK7237
 #include "soc/bk7237/soc.h"
 #elif CONFIG_SOC_BK7251

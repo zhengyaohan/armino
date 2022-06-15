@@ -5,6 +5,7 @@
 #include <driver/i2c.h>
 #include <components/video_transfer.h>
 #include <components/dvp_camera.h>
+#include "video_transfer_log.h"
 #if (CONFIG_SDCARD_HOST)
 #include "ff.h"
 #include "diskio.h"
@@ -377,6 +378,9 @@ void image_save_dvp(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **a
 			os_printf("set camera ppi and fps error\n");
 			return;
 		}
+	} else if (os_strcmp(argv[1], "log") == 0) {
+		uint8_t enable = os_strtoul(argv[2], NULL, 10);
+		bk_video_transfer_log_enable(enable);
 	} else {
 		dvp_help();
 	}

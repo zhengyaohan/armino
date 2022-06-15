@@ -410,6 +410,14 @@ void sys_hal_low_power_hardware_init()
 {
 
 }
+int32 sys_hal_lp_vol_set(uint32_t value)
+{
+	return 0;
+}
+uint32_t sys_hal_lp_vol_get()
+{
+	return 0;
+}
 /*for low power function end*/
 /*sleep feature end*/
 

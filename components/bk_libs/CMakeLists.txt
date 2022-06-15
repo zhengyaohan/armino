@@ -1,5 +1,6 @@
 armino_build_get_property(armino_soc ARMINO_SOC)
-armino_component_register()
+set(incs include)
+armino_component_register(INCLUDE_DIRS "${incs}")
 
 file(GLOB common_libs ${CMAKE_CURRENT_SOURCE_DIR}/common/*.a)
 foreach(lib ${common_libs})

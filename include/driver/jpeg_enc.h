@@ -176,6 +176,22 @@ bk_err_t bk_jpeg_enc_set_yuv_mode(uint32_t mode);
 bk_err_t bk_jpeg_enc_set_enable(uint8_t enable);
 
 /**
+ * @brief     yuv format select
+ *
+ * This API will set yuv output format.
+ *
+ * @param value: 0:yuyv, 1:uyvy, 2:yyuv, 3:uvyy
+ *
+ * @attention 1: this function only used when jpeg at yuv mode
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_jpeg_enc_yuv_fmt_sel(uint32_t value);
+
+
+/**
  * @brief     get a frame size output from jpegenc module, uint byte
  *
  * @return

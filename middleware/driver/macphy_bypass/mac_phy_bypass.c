@@ -196,13 +196,15 @@ void mpb_set_txdelay(UINT32 delay_us)
 {
 #if 1
 	UINT32 delay_us_value;
+
 	// only has 120M clock
-	delay_us_value = (UINT32)(delay_us * 120);
+	delay_us_value = (UINT32)(delay_us * 120 + 0.5);
 
 	if (delay_us_value > MACBYP_INTERFRAME_DELAY_MASK)
 		delay_us_value = MACBYP_INTERFRAME_DELAY_MASK;
 
 	bk_wifi_set_mpb_interframe_delay(delay_us_value);
+
 #else
 	bk_wifi_set_mpb_interframe_delay(30 * 100);
 #endif

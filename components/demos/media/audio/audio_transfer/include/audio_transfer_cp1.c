@@ -195,6 +195,7 @@ static bk_err_t audio_adc_config(audio_sample_rate_t samp_rate)
 	bk_err_t ret = BK_OK;
 	aud_adc_config_t adc_config;
 
+	adc_config.mic_config = AUD_MIC_ALL_ENABLE;
 	adc_config.samp_rate = samp_rate;
 	adc_config.adc_enable = AUD_ADC_DISABLE;
 	adc_config.line_enable = AUD_ADC_LINE_DISABLE;
@@ -583,12 +584,20 @@ static bk_err_t audio_encoder_process(void)
 		law_data[i] = linear2alaw(pcm_data[i]);
 	}
 
+#if AUD_TRANS_DEBUG_ADC
+	size = ring_buffer_get_fill_size(&encoder_rb);
+	os_printf("encoder_rb: fill_size=%d \r\n", size);
+
+	size = ring_buffer_get_free_size(&encoder_rb);
+	os_printf("encoder_rb: free_size=%d \r\n", size);
+#endif
+
 	/* save the data after G711A processed to encoder_ring_buffer */
 	//size = ring_buffer_write(&encoder_rb, law_data, frame_sample);
 	size = ring_buffer_write(&encoder_rb, (uint8_t*)law_data, frame_sample);
 	if (size != frame_sample) {
-		os_printf("cp1: the data writeten to encoder_ring_buff is not a frame \r\n");
-		return BK_FAIL;
+		//os_printf("cp1: the data writeten to encoder_ring_buff fail \r\n");
+		//return BK_FAIL;
 	}
 
 #if AUD_TRANS_DEBUG_ADC
@@ -650,7 +659,7 @@ static bk_err_t audio_decoder_process(void)
 		//if (size != AUD_DECD_FRAME_SAMP_SIZE*2) {
 		size = ring_buffer_write(&speaker_rb, (uint8_t *)pcm_data, AUD_DECD_FRAME_SAMP_SIZE*2*2);
 		if (size != AUD_DECD_FRAME_SAMP_SIZE*2*2) {
-			os_printf("cp1: the data writeten to speaker_ring_buff is not a frame, size=%d \r\n", size);
+		//	os_printf("cp1: the data writeten to speaker_ring_buff is not a frame, size=%d \r\n", size);
 			return BK_FAIL;
 		}
 #if AUD_TRANS_DEBUG_DAC
@@ -958,7 +967,10 @@ static void audio_cp1_transfer_main(beken_thread_arg_t param_data)
 					break;
 
 				case AUDIO_CP1_ENCODER:
-					audio_encoder_process();
+					ret = audio_encoder_process();
+					if (ret != BK_OK) {
+						os_printf("cp1: audio_encoder_process excute fail \r\n");
+					}
 					break;
 
 				case AUDIO_CP1_DECODER:

@@ -44,7 +44,7 @@ void audio_cp0_read_done_callback(uint8_t *buffer, uint32_t length)
 //	uint32_t i = 0;
 	uint32 uiTemp = 0;
 
-	//os_printf("audio_cp0_read_done_callback: buffer=0x%p, length=%d \r\n", buffer, length);
+//	os_printf("audio_cp0_read_done_callback: buffer=0x%p, length=%d \r\n", buffer, length);
 
 	/* write data to file */
 	fr = f_write(&encoder_file, (void *)buffer, length, &uiTemp);
@@ -52,14 +52,7 @@ void audio_cp0_read_done_callback(uint8_t *buffer, uint32_t length)
 		os_printf("write %s fail.\r\n", encoder_file_name);
 		return;
 	}
-	//os_printf("write done \r\n");
-/*
-	os_printf("data: \r\n");
-	for (i=0; i<length; i++) {
-		os_printf("%x ", buffer[i]);
-	}
-	os_printf("\r\ndone. \r\n");
-*/
+	//os_printf("read done \r\n");
 }
 
 /* get encoder used size,

@@ -70,8 +70,23 @@ bk_err_t bk_aud_adc_init(aud_adc_work_mode_t adc_work_mode, const aud_adc_config
 			sys_drv_analog_reg12_set(0x81B0E0E0);
 
 			//enable mic1 and mic2
-			sys_drv_aud_mic1_en(1);
-			sys_drv_aud_mic2_en(1);
+			switch (adc_config->mic_config) {
+				case AUD_MIC_ALL_ENABLE:
+					sys_drv_aud_mic1_en(1);
+					sys_drv_aud_mic2_en(1);
+					break;
+
+				case AUD_MIC_MIC1_ENABLE:
+					sys_drv_aud_mic1_en(1);
+					break;
+
+				case AUD_MIC_MIC2_ENABLE:
+					sys_drv_aud_mic2_en(1);
+					break;
+
+				default:
+					break;
+			}
 
 			//reset mic after configuring parameters
 			sys_drv_aud_mic_rst_set(1);

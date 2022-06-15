@@ -12,6 +12,7 @@
 
 #include <components/spidma.h>
 #include <components/dvp_camera.h>
+#include "video_transfer_log.h"
 
 #if CONFIG_GENERAL_DMA
 #include "bk_general_dma.h"
@@ -95,6 +96,10 @@ typedef struct {
 #define TV_QITEM_COUNT      (60)
 beken_thread_t  tvideo_thread_hdl = NULL;
 beken_queue_t tvideo_msg_que = NULL;
+static uint8_t tvideo_log_enable = 0;
+static uint32_t g_frame_len = 0;
+static uint32_t g_frame_max = 0;
+static uint32_t g_frame_min = 0;
 
 bk_err_t bk_video_send_msg(uint32_t new_msg)
 {
@@ -194,6 +199,14 @@ static void tvideo_rx_handler(void *curptr, uint32_t newlen, uint32_t is_eof, ui
 				video_packet_t param;
 
 				if (is_eof) {
+					g_frame_len = frame_len;
+					if (g_frame_min == 0)
+						g_frame_min = g_frame_len;
+					if (g_frame_max < g_frame_len)
+						g_frame_max = g_frame_len;
+					if (g_frame_min > g_frame_len)
+						g_frame_min = g_frame_len;
+
 					pkt_cnt = frame_len / tvideo_st.node_len;
 					if (frame_len % tvideo_st.node_len)
 						pkt_cnt += 1;
@@ -324,6 +337,12 @@ static void tvideo_poll_handler(void)
 		elem = (video_elem_t *)co_list_pick(&tvideo_pool.ready);
 		if (elem) {
 			if (tvideo_pool.send_func) {
+				if (tvideo_log_enable) {
+					uint8_t is_eof = (uint8_t)*((uint8_t *)elem->buf_start + 1);
+					if (is_eof == 1) {
+						os_printf("current_frame: %d, max: %d, min: %d\r\n", g_frame_len, g_frame_max, g_frame_min);
+					}
+				}
 				send_len = tvideo_pool.send_func(elem->buf_start, elem->buf_len);
 				if (send_len != elem->buf_len)
 					break;
@@ -446,6 +465,12 @@ bk_err_t bk_video_transfer_init(video_setup_t *setup_cfg)
 		return kNoErr;
 	} else
 		return kInProgressErr;
+}
+
+
+void bk_video_transfer_log_enable(uint8_t enable)
+{
+	tvideo_log_enable = enable;
 }
 
 bk_err_t bk_video_transfer_deinit(void)

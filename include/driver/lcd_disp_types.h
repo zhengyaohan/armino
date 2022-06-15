@@ -47,6 +47,7 @@ typedef enum {
 	Y_PIXEL_8080 = 480,  /**<define 8080 lcd y size */
 	X_PIXEL_RGB = 480,   /**<define rgb lcd x size */
 	Y_PIXEL_RGB = 272,   /**<define rgb lcd x size */
+	Y_PIXEL_RGB_800 = 800,   /**<define rgb lcd x size */
 }display_pixel_format_t;
 
 /** rgb lcd input data format */

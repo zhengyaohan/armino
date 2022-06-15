@@ -54,3 +54,24 @@ bk_err_t gpio_exit_low_power(void *param);
 void gpio_get_interrupt_status(uint32_t *h_status, uint32_t *l_status);
 #endif
 
+#if CONFIG_GPIO_SIMULATE_UART_WRITE
+/**
+ * @brief	  Uses specifies GPIO to simulate UART write data
+ *
+ * This API Uses specifies GPIO to simulate UART write data:
+ *	 - Uses CPU poll wait to do delay, so it blocks CPU.
+ *	 - The caller should confirm the specifies GPIO is not used by other APP.
+ *
+ * @param *buff  Which buffers will be write with GPIO.
+ * @param len    How many bytes data will be wrote.
+ * @param gpio_id  Which GPIO will be simulated as UART write data.
+ * @param div    Baud rate == 1Mbps/(1+div)
+ *
+ * @attention 1. As this function just simulate uart write, it blocks the CPU,
+ *               so please don't write too much data.
+ *
+ * @return
+ */
+void gpio_simulate_uart_write(unsigned char *buff, uint32_t len, gpio_id_t gpio_id, uint32_t div);
+#endif
+

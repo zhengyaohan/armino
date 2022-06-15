@@ -114,7 +114,7 @@ void LITE_openlog(const char *ident)
 {
 	os_strncpy(logcb.name, ident, LOG_MOD_NAME_LEN);
 	logcb.name[LOG_MOD_NAME_LEN] = 0;
-	logcb.priority = 0;
+	logcb.priority = LOG_DEBUG_LEVEL;
 }
 
 void LITE_closelog(void)
@@ -166,7 +166,7 @@ int log_multi_line_internal(const char *f, const int l,
 		return 1;
 
 	LITE_printf("[%s] %s(%d): %s (Length: %d Bytes)\r\n",
-				lvl_names[LITE_get_loglevel()], f, l, title, (int)strlen(payload));
+				lvl_names[LITE_get_loglevel()], f, l, title, (int)os_strlen(payload));
 
 	pos = payload;
 	while (pos && *pos) {

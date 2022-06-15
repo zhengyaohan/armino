@@ -35,13 +35,19 @@ typedef struct {
 	uint32_t frame_id;
 	uint32_t frame_len;
 
-	void (*end_frame_handler)(uint32_t frame_len);
-	void (*frame_capture_handler)(uint32_t frame_len);
+	void (*end_frame_handler)(void *buf, uint32_t frame_len);
+	void (*frame_capture_handler)(void *buf, uint32_t frame_len);
 #if CONFIG_GENERAL_DMA
 	dma_isr_t dma_rx_handler;
 	uint8_t  dma_channel;
 #endif
 } uvc_desc_t;
+
+typedef struct {
+	uint32_t fps;
+	uint32_t width;
+	uint32_t height;
+}uvc_ppi_fps_t;
 
 typedef struct {
 	uint8_t  type;

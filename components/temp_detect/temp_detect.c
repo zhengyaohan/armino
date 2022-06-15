@@ -107,7 +107,7 @@ static uint16_t tempd_calculate_temperature(void)
 {
 	tempd_show_raw_temperature_data();
 
-#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236)
+#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A)
 	uint32_t sum = 0, index, count = 0;
 
 	for (index = 5; index < ADC_TEMP_BUFFER_SIZE; index++) {
@@ -572,7 +572,7 @@ int temp_detect_get_temperature(uint32_t *temperature)
 	return err;
 }
 
-#if (CONFIG_SOC_BK7256) ||(CONFIG_SOC_BK7236) ||(CONFIG_SOC_BK7231N)||(CONFIG_SOC_BK7235)||(CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_SOC_BK7256) ||(CONFIG_SOC_BK7236A) ||(CONFIG_SOC_BK7231N)||(CONFIG_SOC_BK7235)||(CONFIG_SOC_BK7256_CP1)
 static void temp_single_get_disable(void)
 {
     UINT32 status = DRV_SUCCESS;
@@ -605,7 +605,7 @@ static void temp_single_detect_handler(void)
                        tmp_single_desc.pData[2], tmp_single_desc.pData[3],
                        tmp_single_desc.pData[4]);
 
-#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236) ||(CONFIG_SOC_BK7256)
+#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) ||(CONFIG_SOC_BK7256)
         sum1 = tmp_single_desc.pData[6] + tmp_single_desc.pData[7];
         sum2 = tmp_single_desc.pData[8] + tmp_single_desc.pData[9];
         sum = sum1 / 2 + sum2 / 2;

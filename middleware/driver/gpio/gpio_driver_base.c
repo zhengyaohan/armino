@@ -24,7 +24,9 @@
 #if (CONFIG_SYSTEM_CTRL)
 #include "sys_driver.h"
 #endif
-
+#if CONFIG_GPIO_SIMULATE_UART_WRITE
+#include "bk_misc.h"
+#endif
 gpio_driver_t s_gpio = {0};
 static gpio_isr_t s_gpio_isr[SOC_GPIO_NUM] = {NULL};
 
@@ -589,6 +591,69 @@ bk_err_t bk_gpio_wakeup_enable(int64_t index, uint64_t type_l, uint64_t type_h)
 bk_err_t bk_gpio_wakeup_interrupt_clear()
 {
     return gpio_hal_wakeup_interrupt_clear();
+}
+#endif
+
+#if CONFIG_GPIO_SIMULATE_UART_WRITE
+/**
+ * @brief	  Uses specifies GPIO to simulate UART write data
+ *
+ * This API Uses specifies GPIO to simulate UART write data:
+ *	 - Uses CPU poll wait to do delay, so it blocks CPU.
+ *	 - The caller should confirm the specifies GPIO is not used by other APP.
+ *
+ * @param *buff  Which buffers will be write with GPIO.
+ * @param len    How many bytes data will be wrote.
+ * @param gpio_id  Which GPIO will be simulated as UART write data.
+ * @param div    Baud rate == 1Mbps/(1+div)
+ *
+ * @attention 1. As this function just simulate uart write, it blocks the CPU,
+ *               so please don't write too much data.
+ *
+ * @return
+ */
+void gpio_simulate_uart_write(unsigned char *buff, uint32_t len, gpio_id_t gpio_id, uint32_t div)
+{
+	volatile unsigned char c, n;
+	UINT32 param;
+	uint32_t div_cnt = div+1;
+
+	BK_LOG_ON_ERR(bk_gpio_disable_input(gpio_id));
+	BK_LOG_ON_ERR(bk_gpio_enable_output(gpio_id));
+
+	bk_gpio_set_output_high(gpio_id);
+	delay_us(div_cnt);
+
+	while (len--) {
+		//in while loop, to avoid disable IRQ too much time, release it if finish one byte.
+		GLOBAL_INT_DECLARATION();
+		GLOBAL_INT_DISABLE();
+
+		//UART start bit
+		bk_gpio_set_output_low(gpio_id);
+		delay_us(div_cnt);
+
+		//char value
+		c = *buff++;
+		n = 8;
+		while (n--) {
+			param = c & 0x01;
+			if (param) {
+				bk_gpio_set_output_high(gpio_id);
+			} else {
+				bk_gpio_set_output_low(gpio_id);
+			}
+
+			delay_us(div_cnt);
+			c >>= 1;
+		}
+
+		//UART stop bit
+		bk_gpio_set_output_high(gpio_id);
+		delay_us(div_cnt);
+
+		GLOBAL_INT_RESTORE();
+	}
 }
 #endif
 

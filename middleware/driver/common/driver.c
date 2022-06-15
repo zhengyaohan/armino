@@ -81,6 +81,11 @@
 #include "bk_usb.h"
 #endif
 
+#if CONFIG_CHIP_SUPPORT
+#include "chip_support.h"
+#endif
+
+
 //TODO only init driver model and necessary drivers
 #if CONFIG_POWER_CLOCK_RF
 #define   MODULES_POWER_OFF_ENABLE (1)
@@ -132,18 +137,6 @@ void power_clk_rf_init()
    //sys_drv_analog_set(ANALOG_REG0, param);
    //sys_drv_analog_set(ANALOG_REG0, param);
 
-   	/*set low power low voltage value */
-	param = sys_drv_analog_get(ANALOG_REG2);
-	param |= (0x1 << 25);
-	sys_drv_analog_set(ANALOG_REG2, param);
-
-	param = 0;
-	param = sys_drv_analog_get(ANALOG_REG3);
-	param &= ~(0x3f << 26);
-	param |= (0x3 << 26);
-	param |= (0x4 << 29);
-	sys_drv_analog_set(ANALOG_REG3, param);
-
 	//config apll
 	//param = 0;
 	//param = sys_drv_analog_get(ANALOG_REG4);
@@ -151,6 +144,16 @@ void power_clk_rf_init()
 	//param |= (0x14 << 5);
 	//sys_drv_analog_set(ANALOG_REG4, param);
 
+	/*set low power low voltage value */
+	param = sys_drv_analog_get(ANALOG_REG2);
+	param |= (0x1 << 25);
+	sys_drv_analog_set(ANALOG_REG2, param);
+
+	param = 0;
+	param = sys_drv_analog_get(ANALOG_REG3);
+	param &= ~(0x7 << 29);
+	param |= (0x4 << 29);
+	sys_drv_analog_set(ANALOG_REG3, param);
 	/*tempreture det enable for VIO*/
 	param = 0;
 	param = sys_drv_analog_get(ANALOG_REG6);
@@ -158,17 +161,6 @@ void power_clk_rf_init()
 	param &= ~(0x1 << SYS_ANA_REG6_EN_SLEEP_POS);
 	sys_drv_analog_set(ANALOG_REG6, param);
 
-	/*select lowpower lpo clk source*/
-	param = 0;
-	param = aon_pmu_drv_reg_get(PMU_REG0x41);
-	//param &= ~0x3; //select clk_DIVD as lpo_src
-	param |= 0x3; //select clk_rosc as lpo_src
-	aon_pmu_drv_reg_set(PMU_REG0x41,param);
-
-	param = 0;
-	param = aon_pmu_drv_reg_get(PMU_REG0);
-	param = 0x1; //memcheck bypass
-	aon_pmu_drv_reg_set(PMU_REG0,param);
 #if 0
 	param = 0;
 	param = aon_pmu_drv_reg_get(PMU_REG3);
@@ -262,6 +254,12 @@ int driver_init(void)
 	//Before UART is initialized, any call of bk_printf/os_print/BK_LOGx may
 	//cause problems, such as crash etc!
 	bk_uart_driver_init();
+
+#if CONFIG_CHIP_SUPPORT
+	if(!bk_is_chip_supported()) {
+		return BK_FAIL;
+	}
+#endif
 
 	os_show_memory_config_info(); //TODO - remove it after bk_early_printf() is supported.
 	drv_model_init();
@@ -358,9 +356,9 @@ int driver_init(void)
 #if CONFIG_USB
 	bk_usb_init();
 #if CONFIG_USB_HOST
-	bk_usb_open(0);
+	bk_usb_open(USB_HOST_MODE);
 #else
-	bk_usb_open(1);
+	bk_usb_open(USB_DEVICE_MODE);
 #endif
 #endif
 

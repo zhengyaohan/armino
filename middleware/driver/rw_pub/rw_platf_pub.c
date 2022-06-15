@@ -15,7 +15,7 @@ void rwxl_reset_patch(void)
 void hal_machw_init_diagnostic_ports(void)
 {
 	// Initialize diagnostic ports
-#if (CONFIG_SOC_BK7231) || (CONFIG_SOC_BK7236)
+#if (CONFIG_SOC_BK7231) || (CONFIG_SOC_BK7236A)
 	bk_wifi_debug_port_sel_pack(0x1C, 0x25);
 #else
 	bk_wifi_debug_port_sel_pack(0x01, 0x07);

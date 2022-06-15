@@ -7,7 +7,6 @@
 #include "bk_icu.h"
 #include "bk_usb.h"
 #include "bk_flash.h"
-#include "spi_pub.h"
 #include "bk_fft.h"
 #include "bk_i2s.h"
 #include "bk_saradc.h"

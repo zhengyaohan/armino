@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <remote name="origin" fetch=".." review="http://192.168.0.46/gerrit"/>
+  
+  <default remote="origin" revision="armino_main"/>
+  
+  <project name="iot/wcn/bootloader" path="bootloader" revision="00442c2b18bcd8881e4447020b26e67a7480ca9f" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/bootloader/aboot" path="bootloader/aboot" revision="e9d36bb543063e05cb3327a9c87df50f27a52432" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/ali_mqtt" path="components/ali_mqtt" revision="b8bb0e473b46224c423fed4ef01206468b3d9d60" upstream="armino_main" dest-branch="armino_main" groups="app"/>
+  <project name="iot/wcn/components/app" path="components/app" revision="b1048cb0986cf97a93dd3c5be8d9131cfdfd0b95" upstream="armino_main" dest-branch="armino_main" groups="app"/>
+  <project name="iot/wcn/components/at" path="components/at" revision="e35fc14bdb90b32379a16b255087282b64a6af66" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/at_server" path="components/at_server" revision="b03921a39653098e4f42c1aebc25e54d5f7e90c8" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/audio" path="components/audio" revision="ca105be68d91d1e5b0f10b73ec1c8f4823a98519" upstream="armino_main" dest-branch="armino_main" groups="media"/>
+  <project name="iot/wcn/components/base64" path="components/base64" revision="a65f20a6a40b1e036d3188c4424f440a8c10202f" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/bk_adapter" path="components/bk_adapter" revision="478b352d9636190acd9054ec15fcbdd63028864e" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/bk_ate" path="components/bk_ate" revision="7d11b12aa3794035f3ad51f35ef1c9b1ac1f877a" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/bk_audio" path="components/bk_audio" revision="abb80a5bf4f780374397d9f262bbc37b1684178a" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/bk_ble" path="components/bk_ble" revision="ef98a62fac105e74ee6c62ed84addfecce0ca9be" upstream="armino_main" dest-branch="armino_main" groups="bt"/>
+  <project name="iot/wcn/components/bk_bt" path="components/bk_bt" revision="c2eedb8aa0dbb909b04f1557ac9888cb172000f5" upstream="armino_main" dest-branch="armino_main" groups="bt"/>
+  <project name="iot/wcn/components/bk_cli" path="components/bk_cli" revision="ff9747e7824335bd14c57daa05a68879b903712b" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/bk_common" path="components/bk_common" revision="e16d972ba0f309c3f23cacc7d62ecf00b57ea6dd" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/bk_event" path="components/bk_event" revision="3e5d020a94cd947349968394609ea51ac3aeffa6" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/bk_init" path="components/bk_init" revision="9d6613f9885ca298c2a77f9df6ce033b0e11bb08" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/bk_libs" path="components/bk_libs" revision="875e775d6ac425d6be89a445fcaedef4a03b25be" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/bk_log" path="components/bk_log" revision="e602ecea63e14535953a97c0652fd9a0adbba07b" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/bk_netif" path="components/bk_netif" revision="32107819bf8c237ec2e55d4b7f9487809da4b0c5" upstream="armino_main" dest-branch="armino_main" groups="wifi-host"/>
+  <project name="iot/wcn/components/bk_ps" path="components/bk_ps" revision="74f0f5927e8d8d5540ce8f95bc1d60fe668f8e79" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/bk_rtos" path="components/bk_rtos" revision="db138bd136179fb08da62dec6ade0ae171c7c0ab" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/bk_startup" path="components/bk_startup" revision="0417a6ae971925b3f63b48f05544492c30c64846" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/bk_system" path="components/bk_system" revision="f4b1cde28ca4fcc46919218b2fa6794af3c5ad88" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/bk_usb" path="components/bk_usb" revision="fb35833f00fe370099af66925aa03714b0a885db" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/bk_wifi" path="components/bk_wifi" revision="e92ca614a6ea21fa73c6ddd03f56e343048bc6a1" upstream="armino_main" dest-branch="armino_main" groups="wifi-host"/>
+  <project name="iot/wcn/components/demos" path="components/demos" revision="c90b12660faed7c7916e66f5bed1ddc726c46b6e" upstream="armino_main" dest-branch="armino_main" groups="app"/>
+  <project name="iot/wcn/components/easy_flash" path="components/easy_flash" revision="81e5e0f0ee749ce4520eb45dc6c6812b8951575c" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/fatfs" path="components/fatfs" revision="3acb339d7a8bd54ccfe16065133655afb2538bb2" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/http" path="components/http" revision="219d2eaea5990b05bd0978b7d3fd8cc4156426f9" upstream="armino_main" dest-branch="armino_main" groups="wifi-host"/>
+  <project name="iot/wcn/components/key" path="components/key" revision="b3fbcf069778678f394023db11adbc04dc323c5b" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/key_handle" path="components/key_handle" revision="eca848f74c1316b6e36871b7bfa5cd7961184627" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/lwip_intf_v2_0" path="components/lwip_intf_v2_0" revision="2dd9a3235a6569d4d91a95451dacdbae31c5dd3e" upstream="armino_main" dest-branch="armino_main" groups="wifi-host"/>
+  <project name="iot/wcn/components/lwip_intf_v2_1" path="components/lwip_intf_v2_1" revision="ba3865c56b28844189e2025eb89f4a0b40dd50dc" upstream="armino_main" dest-branch="armino_main" groups="wifi-host"/>
+  <project name="iot/wcn/components/matter" path="components/matter" revision="943b6b2124c9ee6867c9829b24c1adedcd8cfbb6" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/mbedtls" path="components/mbedtls" revision="63f580adb2a4fa0ba509f8ac75136e390780d6b1" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/os_source" path="components/os_source" revision="c372d8586d2bd6417e27bad974d7365c48432b72" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/release" path="components/release" revision="4d2bbcf6f22cd66a215a6c4312bb71e8c2aa7472" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/saradc_intf" path="components/saradc_intf" revision="fbfd14ff543dd099718931f798a5cab204cef394" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/security" path="components/security" revision="32f39214f575421a962c74c62c8310e0b2f5989e" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/temp_detect" path="components/temp_detect" revision="c16000fb4f0b734c94fa830fc7c5473602364734" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/tfm" path="components/tfm" revision="20c87116820bef372ffe2eb1b6c986a3d1ca5d45" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/user_driver" path="components/user_driver" revision="c588a11952dd09eaac8ea19478928fa1ea850656" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/utf8" path="components/utf8" revision="82210e6158ad5028278048df7e45da2b34fa78cf" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/components/video" path="components/video" revision="779023088b365704fe5d8a58c5fa6ad8cffce576" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/docs" path="docs" revision="ee125916a8cc1eb8cbff87968f4dd4a1f09fe69a" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/include" path="include" revision="8cb882ad7c56da95010b94030741d2a94226b681" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/middleware" path="middleware" revision="81c95fd41a3b2aea532d3a00a192bc5115e9c1ba" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/projects" path="projects" revision="eebcaa6d8f00c428ea8320855f7ac280d0458854" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/properties" path="properties" revision="e24ad0bfd0dd4a02e0273807822fb27fa53b68d3" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/properties/arch" path="properties/arch" revision="7fefd63005fee1e3717425cd644ce13c7bd4e476" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/properties/modules/aec" path="properties/modules/aec" revision="4edbf893771ac9af58d7c89bfa5173fd91c5d520" upstream="armino_main" dest-branch="armino_main" groups="media"/>
+  <project name="iot/wcn/properties/modules/audio_codec" path="properties/modules/audio_codec" revision="4ed04fec28561c50dd2f53b89f2447a0bbd4af1a" upstream="armino_main" dest-branch="armino_main" groups="media"/>
+  <project name="iot/wcn/properties/modules/bk_airkiss" path="properties/modules/bk_airkiss" revision="8b747c07d12c956f3107d6b6c008e04c335a4735" upstream="armino_main" dest-branch="armino_main" groups="wifi-host"/>
+  <project name="iot/wcn/properties/modules/bk_cal" path="properties/modules/bk_cal" revision="0c20937571bc55fa665bd04da634a123d7ffa02e" upstream="armino_main" dest-branch="armino_main" groups="wifi"/>
+  <project name="iot/wcn/properties/modules/bk_coex" path="properties/modules/bk_coex" revision="14e07ec1a81fc661dfa06a3daf414ddbbba2fa2e" upstream="armino_main" dest-branch="armino_main" groups="coex"/>
+  <project name="iot/wcn/properties/modules/bk_hostapd" path="properties/modules/bk_hostapd" revision="60028a3b29a98d7f17f50a6ba0ad1ac921db999b" upstream="armino_main" dest-branch="armino_main" groups="wifi"/>
+  <project name="iot/wcn/properties/modules/bk_private" path="properties/modules/bk_private" revision="be960ad09d432b54a1238fa7e1babb7d7a18cd07" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/properties/modules/bk_wifi_impl" path="properties/modules/bk_wifi_impl" revision="8474c4640aed89ebba8d584772a0fb207d522bf6" upstream="armino_main" dest-branch="armino_main" groups="wifi"/>
+  <project name="iot/wcn/properties/modules/ble" path="properties/modules/ble" revision="ca56ebb7aa80b56acf8abdd389c66a94279e7c4b" upstream="armino_main" dest-branch="armino_main" groups="bt"/>
+  <project name="iot/wcn/properties/modules/ble_5_x_rw" path="properties/modules/ble_5_x_rw" revision="0477625b629bac445cc2fd388045cfd2a37e3f7b" upstream="armino_main" dest-branch="armino_main" groups="bt"/>
+  <project name="iot/wcn/properties/modules/ble_wifi_exchange" path="properties/modules/ble_wifi_exchange" revision="218c6158637ec05062ccdca2a651deab4af69940" upstream="armino_main" dest-branch="armino_main" groups="wifi"/>
+  <project name="iot/wcn/properties/modules/bt" path="properties/modules/bt" revision="154871a9c588864c0d370d1b045db0de0e131b34" upstream="armino_main" dest-branch="armino_main" groups="bt"/>
+  <project name="iot/wcn/properties/modules/btdm_5_2_rw" path="properties/modules/btdm_5_2_rw" revision="92a136452da0645b150db7f876871aaeb0ac7421" upstream="armino_main" dest-branch="armino_main" groups="bt"/>
+  <project name="iot/wcn/properties/modules/homekit" path="properties/modules/homekit" revision="27c00808ce1f39d16fe116e4f86c4dedd100eec6" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/properties/modules/ip" path="properties/modules/ip" revision="70e470449600d9f0d70053bbfc52e4e860553fce" upstream="armino_main" dest-branch="armino_main" groups="wifi"/>
+  <project name="iot/wcn/properties/modules/ip_ax" path="properties/modules/ip_ax" revision="9f5b13816d2b02b0f0e38069b3c07b9446e616c9" upstream="armino_main" dest-branch="armino_main" groups="wifi"/>
+  <project name="iot/wcn/properties/modules/mindtree" path="properties/modules/mindtree" revision="811fa81e67ad922905e7c872b4d8d351afd3a10b" upstream="armino_main" dest-branch="armino_main" groups="bt"/>
+  <project name="iot/wcn/properties/modules/net_param_intf" path="properties/modules/net_param_intf" revision="f033cca45e747644225031c6c337cdaa8e6d09f7" upstream="armino_main" dest-branch="armino_main" groups="wifi"/>
+  <project name="iot/wcn/properties/modules/pcm_resampler" path="properties/modules/pcm_resampler" revision="66e01f1a94e68693f1a831bc23886438e4e1dec0" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/properties/modules/power_save" path="properties/modules/power_save" revision="b7959ff4ad99f0e15901904ae945213a7394dba6" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/properties/modules/rf_test" path="properties/modules/rf_test" revision="109c9dcca4b355f0d57ec4a27e3b1d52ab226205" upstream="armino_main" dest-branch="armino_main" groups="wifi"/>
+  <project name="iot/wcn/properties/modules/rwnx_intf" path="properties/modules/rwnx_intf" revision="ef3e3478957c853232d71cb31fedfb3a9b398e39" upstream="armino_main" dest-branch="armino_main" groups="wifi"/>
+  <project name="iot/wcn/properties/modules/securityip" path="properties/modules/securityip" revision="4f0439b4e60be5df5adbaf3f63c6d8b0a5501cb9" upstream="armino_main" dest-branch="armino_main" groups="security"/>
+  <project name="iot/wcn/properties/modules/sensor" path="properties/modules/sensor" revision="668150cb097ece25f5285de8d3fcc6a044b9855e" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/properties/modules/uart_debug" path="properties/modules/uart_debug" revision="4f917875681906161d11edbe0e7012c0b432c27e" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/properties/modules/usb" path="properties/modules/usb" revision="e678455e6fb76b7b27c4f9c6a220c4807b9de509" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/properties/modules/vad" path="properties/modules/vad" revision="6fd17ec744ebae11e788c8d7f46c180252eaa9c8" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/properties/modules/video_codec" path="properties/modules/video_codec" revision="f06d6f4d67745cba357c7d41a29e4131e23a7fd7" upstream="armino_main" dest-branch="armino_main" groups="media"/>
+  <project name="iot/wcn/properties/modules/wfa_ca" path="properties/modules/wfa_ca" revision="97aac88b5a96b6013c3a7106ac3e51073401ebd8" upstream="armino_main" dest-branch="armino_main" groups="wifi-host"/>
+  <project name="iot/wcn/properties/modules/wolfssl" path="properties/modules/wolfssl" revision="3c2914e407ac35255a01e4154128cbb6eab95c17" upstream="armino_main" dest-branch="armino_main" groups="wifi-host"/>
+  <project name="iot/wcn/properties/modules/wpa_supplicant-2.9" path="properties/modules/wpa_supplicant-2.9" revision="48a5487225b03f97c55ae0c310e7e1563fd35873" upstream="armino_main" dest-branch="armino_main" groups="wifi-host"/>
+  <project name="iot/wcn/properties/soc" path="properties/soc" revision="a07e3b933c212f189aace05760c266965b79cfe9" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+  <project name="iot/wcn/tools/build_tools" path="tools/build_tools" revision="fa604897addb817924e667e82f418ebff72f3070" upstream="armino_main" dest-branch="armino_main" groups="platform">
+    <copyfile src="build_files/README.md" dest="README.md"/>
+    <copyfile src="build_files/README_CN.md" dest="README_CN.md"/>
+    <linkfile src="build_files/CMakeLists.txt" dest="CMakeLists.txt"/>
+    <linkfile src="build_files/Kconfig" dest="Kconfig"/>
+    <linkfile src="build_files/Makefile" dest="Makefile"/>
+    <linkfile src="build_files/requirements.txt" dest="requirements.txt"/>
+  </project>
+  <project name="iot/wcn/tools/env_tools" path="tools/env_tools" revision="e920ac16c0e397721ae28ce42959b1c8b8262099" upstream="armino_main" dest-branch="armino_main" groups="platform"/>
+</manifest>

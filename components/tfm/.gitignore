@@ -1,1 +1,6 @@
 cmake_build
+tfm_build
+build
+bk7236_bootrom_s
+tfm/tfm.si4project/
+test_build

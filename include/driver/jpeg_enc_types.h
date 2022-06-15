@@ -41,6 +41,16 @@ extern "C" {
 #define Y_PIXEL_720     (90)  /**< image resolution for hight: Y * 8 = 720  */
 #define X_PIXEL_1280    (160) /**< image resolution for hight: Y * 8 = 1280 */
 
+/**
+ * @brief jpeg_yuv_format_t when jpeg encode at yuv mode, the output yuv format type
+ */
+typedef enum {
+	JPEG_YUYV = 0, /**< YUYV, bit[31-0]=[YUYV] */
+	JPEG_UYVY = 1, /**< UYVY, bit[31-0]=[UYVY] */
+	JPEG_YYUV = 2, /**< YYUV, bit[31-0]=[YYUV] */
+	JPEG_UVYY = 3, /**< UVYY, bit[31-0]=[UVYY] */
+}jpeg_yuv_format_t;
+
 typedef enum {
 	END_OF_YUV = 0, /**< when work at yuv mode, transfer a complete frame will trigger this isr */
 	HEAD_OUTPUT,    /**< when work at jpeg encode mode, the head output complete will trigger this isr */
@@ -49,6 +59,7 @@ typedef enum {
 	VSYNC_NEGEDGE,  /**< when detect vsync negedge will trigger this isr */
 	ISR_MAX,
 }jpeg_isr_type_t;
+
 /**
  * @brief jpeg isr callback relay jpeg driver
  *

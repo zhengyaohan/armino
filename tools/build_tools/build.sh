@@ -39,8 +39,13 @@ else
 	if [ ${has_properties_lib_src} == "1" ]; then
 		echo "build armino properties lib first, then ${ARMINO_SOC}"
 		need_build_properties_lib=1
+		export LIB_HASH="NULL"
+
 	else
 		need_build_properties_lib=0
+		find components/bk_libs/${ARMINO_SOC} -name *.a | xargs cat > components/bk_libs/${ARMINO_SOC}.a
+		export LIB_HASH=$(md5sum components/bk_libs/${ARMINO_SOC}.a|cut -f1 -d " ")
+		rm -rf components/bk_libs/${ARMINO_SOC}.a
 	fi
 fi
 

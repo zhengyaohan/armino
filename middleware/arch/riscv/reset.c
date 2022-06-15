@@ -27,9 +27,6 @@ void close_wdt(void)
 //volatile int g_debug_mode=1;
 void reset_handler(void)
 {
-    /// TODO: DEBUG VERSION close the wdt
-	close_wdt();
-
     //write_csr(NDS_MCACHE_CTL, (read_csr(NDS_MCACHE_CTL) | 0x1)); // Enable  ICache
 	//write_csr(NDS_MCACHE_CTL, (read_csr(NDS_MCACHE_CTL) | 0x2)); // Enable  DCache
 	/*

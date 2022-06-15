@@ -64,7 +64,8 @@ void soc_driver_init(void)
 
 void soc_system_init(void)
 {
-	components_init();
+	if(components_init())
+		return;
 
 	bk_tick_init();
 

@@ -26,6 +26,7 @@
 
 #define HTTPCLIENT_MAX_HOST_LEN   64
 #define HTTPCLIENT_MAX_URL_LEN    256
+#define HTTPCLIENT_MAX_PORT_LEN 6
 
 #define HTTP_RETRIEVE_MORE_DATA   (1)            /**< More data needs to be retrieved. */
 
@@ -50,7 +51,7 @@ HTTP_DATA_ST bk_http = {
 HTTP_DATA_ST *bk_http_ptr = &bk_http;
 static UINT32 ota_wr_block = 0;
 
-static int httpclient_parse_host(const char *url, char *host, uint32_t maxhost_len);
+// static int httpclient_parse_host(const char *url, char *host, uint32_t maxhost_len);
 static int httpclient_parse_url(const char *url, char *scheme, uint32_t max_scheme_len, char *host,
 								uint32_t maxhost_len, int *port, char *path, uint32_t max_path_len);
 static int httpclient_conn(httpclient_t *client);
@@ -90,16 +91,21 @@ int httpclient_conn(httpclient_t *client)
 	return SUCCESS_RETURN;
 }
 
+
+
 int httpclient_parse_url(const char *url, char *scheme, uint32_t max_scheme_len, char *host, uint32_t maxhost_len,
 						 int *port, char *path, uint32_t max_path_len)
 {
 	char *scheme_ptr = (char *) url;
 	char *host_ptr = (char *) os_strstr(url, "://");
+	char port_array[HTTPCLIENT_MAX_PORT_LEN] = {0};
 	uint32_t host_len = 0;
+	uint32_t port_len = 0;
 	uint32_t path_len;
-	//char *port_ptr;
+	char *port_ptr;
 	char *path_ptr;
 	char *fragment_ptr;
+
 
 	if (host_ptr == NULL) {
 		log_err("Could not find host");
@@ -116,16 +122,39 @@ int httpclient_parse_url(const char *url, char *scheme, uint32_t max_scheme_len,
 
 	host_ptr += 3;
 
-	*port = 0;
-
 	path_ptr = os_strchr(host_ptr, '/');
 	if (NULL == path_ptr) {
 		log_err("invalid path");
 		return -1;
 	}
 
-	if (host_len == 0)
-		host_len = path_ptr - host_ptr;
+	port_ptr = os_strchr(host_ptr, ':');
+	if (NULL == port_ptr) {
+		*port = 0;
+		port_len = 0;
+	} else {
+		port_len = path_ptr - port_ptr;
+		if(port_len < HTTPCLIENT_MAX_PORT_LEN) {
+			//port_ptr -> :8192
+			os_memcpy(port_array, port_ptr + 1, port_len - 1);
+			port_array[port_len - 1] = '\0';
+			*port= os_strtoul(port_array, NULL, 10);
+		} else {
+			log_err("parse port error, port_len(%d).", port_len);
+			*port = 0;
+			port_len = 0;
+		}
+
+	}
+
+	log_info("port (%d) port_len(%d).", *port, port_len);
+
+
+	host_len = path_ptr - host_ptr - port_len;
+	if (host_len == 0) {
+		log_err("Parse Host error.");
+		return ERROR_HTTP_PARSE;
+	}
 
 	if (maxhost_len < host_len + 1) {
 		/* including NULL-terminating char */
@@ -152,32 +181,32 @@ int httpclient_parse_url(const char *url, char *scheme, uint32_t max_scheme_len,
 	return SUCCESS_RETURN;
 }
 
-int httpclient_parse_host(const char *url, char *host, uint32_t maxhost_len)
-{
-	const char *host_ptr = (const char *) os_strstr(url, "://");
-	uint32_t host_len = 0;
-	char *path_ptr;
+// int httpclient_parse_host(const char *url, char *host, uint32_t maxhost_len)
+// {
+// 	const char *host_ptr = (const char *) os_strstr(url, "://");
+// 	uint32_t host_len = 0;
+// 	char *path_ptr;
 
-	if (host_ptr == NULL) {
-		log_err("Could not find host");
-		return ERROR_HTTP_PARSE; /* URL is invalid */
-	}
-	host_ptr += 3;
+// 	if (host_ptr == NULL) {
+// 		log_err("Could not find host");
+// 		return ERROR_HTTP_PARSE; /* URL is invalid */
+// 	}
+// 	host_ptr += 3;
 
-	path_ptr = os_strchr(host_ptr, '/');
-	if (host_len == 0)
-		host_len = path_ptr - host_ptr;
+// 	path_ptr = os_strchr(host_ptr, '/');
+// 	if (host_len == 0)
+// 		host_len = path_ptr - host_ptr;
 
-	if (maxhost_len < host_len + 1) {
-		/* including NULL-terminating char */
-		log_err("Host str is too small (%d >= %d)", maxhost_len, host_len + 1);
-		return ERROR_HTTP_PARSE;
-	}
-	os_memcpy(host, host_ptr, host_len);
-	host[host_len] = '\0';
+// 	if (maxhost_len < host_len + 1) {
+// 		/* including NULL-terminating char */
+// 		log_err("Host str is too small (%d >= %d)", maxhost_len, host_len + 1);
+// 		return ERROR_HTTP_PARSE;
+// 	}
+// 	os_memcpy(host, host_ptr, host_len);
+// 	host[host_len] = '\0';
 
-	return SUCCESS_RETURN;
-}
+// 	return SUCCESS_RETURN;
+// }
 
 int httpclient_get_info(httpclient_t *client, char *send_buf, int *send_idx, char *buf,
 						uint32_t len) /* 0 on success, err code on failure */
@@ -902,50 +931,92 @@ int httpclient_common(httpclient_t *client, const char *url, int port, const cha
 {
 	iotx_time_t timer;
 	int ret = 0;
-	char host[HTTPCLIENT_MAX_HOST_LEN] = { 0 };
+	int url_port = 0;
+	char *host = NULL;
+	char *path = NULL;
+	char scheme[8] = { 0 };
 
-	if (0 == client->net.handle) {
-		//Establish connection if no.
-		httpclient_parse_host(url, host, sizeof(host));
-		log_debug("host: '%s', port: %d", host, port);
-
-		iotx_net_init(&client->net, host, port, ca_crt);
-
-		ret = httpclient_connect(client);
-		if (0 != ret) {
-			log_err("httpclient_connect is error,ret = %d", ret);
-			httpclient_close(client);
-			return ret;
+	do {
+		if (NULL == (host = (char *)os_zalloc(HTTPCLIENT_MAX_HOST_LEN))) {
+			log_err("not enough memory");
+			ret = FAIL_RETURN;
+			break;
 		}
 
-		ret = httpclient_send_request(client, url, method, client_data);
-		if (0 != ret) {
-			log_err("httpclient_send_request is error,ret = %d", ret);
-			httpclient_close(client);
-			return ret;
+		if (NULL == (path = (char *)os_zalloc(HTTPCLIENT_MAX_URL_LEN))) {
+			log_err("not enough memory");
+			ret = FAIL_RETURN;
+			break;
 		}
-	}
 
-	iotx_time_init(&timer);
-	utils_time_countdown_ms(&timer, timeout_ms);
+		if (0 == client->net.handle) {
+			//Establish connection if no.
+			// httpclient_parse_host(url, host, sizeof(host));
 
-	if ((NULL != client_data->response_buf)
-		|| (0 != client_data->response_buf_len)) {
-		ret = httpclient_recv_response(client, iotx_time_left(&timer), client_data);
-		if (ret < 0) {
-			log_err("httpclient_recv_response is error,ret = %d", ret);
-			http_flash_deinit();
-			httpclient_close(client);
-			return ret;
+			/* First we need to parse the url (http[s]://host[:port][/[path]]) */
+			ret = httpclient_parse_url(url, scheme, sizeof(scheme), host, HTTPCLIENT_MAX_HOST_LEN, &url_port, path, HTTPCLIENT_MAX_URL_LEN);
+			if (ret != SUCCESS_RETURN) {
+				log_err("httpclient_parse_url returned %d", ret);
+				break;
+			}
+
+			log_info("host: '%s', port: %d, url_port: %d.", host, port, url_port);
+
+			if(url_port == 0) {
+				url_port = port;
+			}
+
+			iotx_net_init(&client->net, host, url_port, ca_crt);
+
+			ret = httpclient_connect(client);
+			if (0 != ret) {
+				log_err("httpclient_connect is error,ret = %d", ret);
+				httpclient_close(client);
+				break;
+			}
+
+			ret = httpclient_send_request(client, url, method, client_data);
+			if (0 != ret) {
+				log_err("httpclient_send_request is error,ret = %d", ret);
+				httpclient_close(client);
+				break;
+			}
 		}
+
+		iotx_time_init(&timer);
+		utils_time_countdown_ms(&timer, timeout_ms);
+
+		if ((NULL != client_data->response_buf)
+			|| (0 != client_data->response_buf_len)) {
+			ret = httpclient_recv_response(client, iotx_time_left(&timer), client_data);
+			if (ret < 0) {
+				log_err("httpclient_recv_response is error,ret = %d", ret);
+				http_flash_deinit();
+				httpclient_close(client);
+				break;
+			}
+		}
+
+		if (! client_data->is_more) {
+			//Close the HTTP if no more data.
+			log_info("close http channel");
+			httpclient_close(client);
+		}
+
+		ret = (ret >= 0) ? 0 : -1;
+	} while(0);
+
+	if (NULL != host) {
+		os_free(host);
+		host = NULL;
 	}
 
-	if (! client_data->is_more) {
-		//Close the HTTP if no more data.
-		log_info("close http channel");
-		httpclient_close(client);
+	if (NULL != path) {
+		os_free(path);
+		path = NULL;
 	}
-	return (ret >= 0) ? 0 : -1;
+
+	return ret;
 }
 
 int utils_get_response_code(httpclient_t *client)

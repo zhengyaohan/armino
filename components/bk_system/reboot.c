@@ -49,7 +49,7 @@ void bk_reboot(void)
 
 	bk_wdt_stop();
 	BK_LOGI(TAG, "wdt reboot\r\n");
-#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236) || (CONFIG_SOC_BK7256XX)
+#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX)
 	delay_ms(100); //add delay for bk_writer BEKEN_DO_REBOOT cmd
 #endif
 	bk_wdt_start(wdt_val);

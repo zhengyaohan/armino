@@ -21,6 +21,7 @@
 #include "sys_types.h"
 #include <driver/aon_rtc.h>
 #include "platform.h"
+#include <arch_interrupt.h>
 
 static sys_hal_t s_sys_hal;
 uint32 sys_hal_get_int_group2_status(void);
@@ -121,7 +122,7 @@ void sys_hal_enter_deep_sleep(void * param)
     uint32_t modules_power_state=0;
 	uint32_t  clock_value = 0;
 	uint32_t  pmu_val2 = 0;
-
+	int       ret = 0;
 	/*mask all interner interrupt*/
 	sys_ll_set_cpu0_int_halt_clk_op_cpu0_halt(1);
 	/*1.switch cpu clock to xtal26m*/
@@ -153,8 +154,11 @@ void sys_hal_enter_deep_sleep(void * param)
     sys_ll_set_ana_reg19_value(clock_value);
 
 	/*4.set PMU parameters*/
-    aon_pmu_hal_set_sleep_parameters(0x4e111111);
-
+    ret = aon_pmu_hal_set_sleep_parameters(0x2);
+	if(ret== -1)
+	{
+		return;
+	}
     /*5.set power flag*/
 	modules_power_state = sys_ll_get_cpu_power_sleep_wakeup_value();
 	modules_power_state |= 0xa0000;
@@ -200,6 +204,17 @@ void sys_hal_exit_low_voltage()
 //uint32_t  g_previous_tick = 0;
 //uint32_t  g_wifi_previous_tick = 0;
 #define BIT_AON_PMU_WAKEUP_ENA      (0x1F0U)
+//specify:low voltage process can't be interrupt or the system can't response external interrupt after wakeup.
+#if 1
+#define MTIMER_LOW_VOLTAGE_MINIMUM_TICK (10400)	//26M, 400 us
+extern void mtimer_reset_next_tick(uint32_t minimum_offset);
+#define CONFIG_LOW_VOLTAGE_DEBUG 0
+#if CONFIG_LOW_VOLTAGE_DEBUG 
+uint64_t g_low_voltage_tick = 0;
+extern u64 riscv_get_mtimer(void);
+#endif
+#endif
+
 void sys_hal_enter_low_voltage(void)
 {
 	uint32_t  modules_power_state = 0;
@@ -212,6 +227,11 @@ void sys_hal_enter_low_voltage(void)
 	uint32_t  clk_div_temp = 0;
 	uint32_t  int_state1 = 0;
 	uint32_t  int_state2 = 0;
+	uint32_t  h_vol = 0;
+	int       ret = 0;
+#if CONFIG_LOW_VOLTAGE_DEBUG
+	uint64_t start_tick = riscv_get_mtimer();
+#endif
 
 	int_state1 = sys_ll_get_cpu0_int_0_31_en_value();
 	int_state2 = sys_ll_get_cpu0_int_32_63_en_value();
@@ -228,6 +248,21 @@ void sys_hal_enter_low_voltage(void)
 	__asm volatile( "nop" );
 	__asm volatile( "nop" );
 
+	//confirm here hasn't mtimer/external interrupt
+	if(arch_get_plic_pending_status() ||
+		mtimer_is_timeout())
+	{
+		sys_ll_set_cpu0_int_0_31_en_value(int_state1);
+		sys_ll_set_cpu0_int_32_63_en_value(int_state2);
+
+		return;
+	}
+
+	//below interval time is about 5240(maybe CPU/Flash clock changes):
+	//after sys_ll_set_cpu0_int_halt_clk_op_cpu0_int_mask
+	//before WFI
+	mtimer_reset_next_tick(MTIMER_LOW_VOLTAGE_MINIMUM_TICK);
+
       /*mask all interner interrupt*/
 	sys_ll_set_cpu0_int_halt_clk_op_cpu0_int_mask(1);
 
@@ -236,6 +271,8 @@ void sys_hal_enter_low_voltage(void)
 	clk_div_val1 =  sys_hal_all_modules_clk_div_get(CLK_DIV_REG1);
 	clk_div_val2 =  sys_hal_all_modules_clk_div_get(CLK_DIV_REG2);
 
+	sys_ll_set_ana_reg2_spi_latchb(0x1);
+	h_vol = sys_ll_get_ana_reg3_vhsel_ldodig();
 	/*1.switch cpu clock to xtal26m*/
 	sys_ll_set_cpu_clk_div_mode1_cksel_core(0);
 	sys_ll_set_cpu_clk_div_mode1_clkdiv_core(0);
@@ -261,8 +298,11 @@ void sys_hal_enter_low_voltage(void)
 
 
 	/*4.set sleep parameters*/
-	aon_pmu_hal_set_sleep_parameters(0x2B111FFF);//a)close isolat temp for bt/wifi wakeup in low voltage;b)let 1.5ms time for xtal 26m stability
-
+	ret = aon_pmu_hal_set_sleep_parameters(0x1);//a)close isolat temp for bt/wifi wakeup in low voltage;b)let 1.5ms time for xtal 26m stability
+	if(ret== -1)
+	{
+		return;
+	}
 	/*5.set power flag*/
 	modules_power_state = 0;
 	modules_power_state = sys_ll_get_cpu_power_sleep_wakeup_value();
@@ -280,6 +320,15 @@ void sys_hal_enter_low_voltage(void)
 	sys_ll_set_cpu0_int_32_63_en_cpu0_touched_int_en(0x1);
 	sys_ll_set_cpu0_int_32_63_en_cpu0_dm_irq_en(0x1);
 	set_csr(NDS_MIE, MIP_MTIP);
+
+//just debug:maybe some guys changed the CPU clock or Flash clock caused the time of 
+//MTIMER_LOW_VOLTAGE_MINIMUM_TICK isn't enough.
+//here can statistic the MAX time value.
+#if CONFIG_LOW_VOLTAGE_DEBUG
+	if(g_low_voltage_tick < riscv_get_mtimer() - start_tick)
+		g_low_voltage_tick = riscv_get_mtimer() - start_tick;
+#endif
+
 	/*6.mask all interner interrupt*/
 	//sys_ll_set_cpu0_int_halt_clk_op_cpu0_int_mask(1);
 	//__asm volatile( "wfi" );
@@ -295,7 +344,8 @@ void sys_hal_enter_low_voltage(void)
 			break;
 		}
 	}
-
+	sys_ll_set_ana_reg2_spi_latchb(0x1);
+	sys_ll_set_ana_reg3_vhsel_ldodig(h_vol);
 	extern uint32_t pm_wake_int_flag1, pm_wake_int_flag2;
 	extern uint32_t pm_wake_gpio_flag1, pm_wake_gpio_flag2;
 	extern gpio_driver_t s_gpio;
@@ -312,11 +362,11 @@ void sys_hal_enter_low_voltage(void)
 	}
 
 	/*add delay for xtal 26m, analog suggest 1.5ms,we add protect time to 2ms(1.5ms(hardware delay,0.5ms software delay))*/
-	previous_tick = bk_aon_rtc_get_current_tick();
+    previous_tick = bk_aon_rtc_get_current_tick(AON_RTC_ID_1);
 	current_tick = previous_tick;
 	while(((uint32_t)(current_tick - previous_tick)) < (uint32_t)(LOW_POWER_XTAL_26M_STABILITY_DELAY_TIME*RTC_TICKS_PER_1MS))/*32*0.5*/
 	{
-		current_tick = bk_aon_rtc_get_current_tick();
+		current_tick = bk_aon_rtc_get_current_tick(AON_RTC_ID_1);
 	}
 
 	/*7.restore state before low voltage*/
@@ -334,13 +384,13 @@ void sys_hal_enter_low_voltage(void)
 	//os_printf("low voltage wake up 123456\r\n");
 	/*add delay for xtal 26m, analog suggest 800us,we add protect time to 1ms*/
 
-	previous_tick = bk_aon_rtc_get_current_tick();
+	previous_tick = bk_aon_rtc_get_current_tick(AON_RTC_ID_1);
 	//g_previous_tick = previous_tick;
 	//g_wifi_previous_tick = previous_tick;
 	current_tick = previous_tick;
 	while(((uint32_t)(current_tick - previous_tick)) < (uint32_t)(LOW_POWER_DPLL_STABILITY_DELAY_TIME*RTC_TICKS_PER_1MS))/*32*1*/
 	{
-		current_tick = bk_aon_rtc_get_current_tick();
+		current_tick = bk_aon_rtc_get_current_tick(AON_RTC_ID_1);
 	}
 
 	/*9.restore clk div*/
@@ -659,6 +709,18 @@ void sys_hal_low_power_hardware_init()
 	aon_pmu_hal_reg_set(PMU_REG0x41,pmu_state);
 
 }
+int32 sys_hal_lp_vol_set(uint32_t value)
+{
+	sys_ll_set_ana_reg2_spi_latchb(0x1);
+	sys_ll_set_ana_reg3_vlsel_ldodig(value);
+	return 0;
+}
+uint32_t sys_hal_lp_vol_get()
+{
+	sys_ll_set_ana_reg2_spi_latchb(0x1);
+	return sys_ll_get_ana_reg3_vlsel_ldodig();
+}
+
 /*for low power function end*/
 /*sleep feature end*/
 

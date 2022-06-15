@@ -107,6 +107,9 @@ void sys_hal_rtc_wakeup_enable(uint32_t value);
 void sys_hal_cpu_clk_div_set(uint32_t core_index, uint32_t value);
 uint32_t sys_hal_cpu_clk_div_get(uint32_t core_index);
 void sys_hal_low_power_hardware_init();
+int32 sys_hal_lp_vol_set(uint32_t value);
+uint32_t sys_hal_lp_vol_get();
+
 /*low power feature end*/
 uint32 sys_hal_get_chip_id(void);
 uint32 sys_hal_get_device_id(void);

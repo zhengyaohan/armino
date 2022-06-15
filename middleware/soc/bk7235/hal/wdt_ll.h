@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-#define WDT_LL_REG_BASE(_wdt_unit_id)    (SOC_WDT_REG_BASE)
+#define WDT_LL_REG_BASE(_wdt_unit_id)    (SOC_AON_WDT_REG_BASE)
 
 static inline void wdt_ll_reset_config_to_default(wdt_hw_t *hw)
 {

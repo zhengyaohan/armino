@@ -105,7 +105,7 @@ void show_reset_reason(void)
 	BK_LOGI(TAG, "regs - %x, %x, %x\r\n", s_start_type, s_misc_value_save, s_mem_value_save);
 }
 
-#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236)
+#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A)
 //only can be do once
 RESET_SOURCE_STATUS reset_reason_init(void)
 {
