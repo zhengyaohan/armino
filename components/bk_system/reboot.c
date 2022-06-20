@@ -31,7 +31,7 @@ void bk_reboot(void)
 
 	BK_LOGI(TAG, "bk_reboot\r\n");
 
-#if (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_SOC_BK7256XX)
 	set_reboot_tag(REBOOT_TAG_REQ);
 #endif
 #if (CONFIG_SYSTEM_CTRL)

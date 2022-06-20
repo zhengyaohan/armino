@@ -18,8 +18,8 @@ typedef enum{
 typedef struct{
 	uint32_t src_addr; /*<  src image addr*/
 	uint32_t dst_addr; /*<  dst image addr*/
-	uint8_t x;         /*< src image crop x point coo*/
-	uint8_t y;         /*< src image crop y point coo*/
+	uint32_t x;         /*< src image crop x point coo*/
+	uint32_t y;         /*< src image crop y point coo*/
 	uint32_t src_width; /*< src image width*/
 	uint32_t src_height; /*< src image height*/
 	uint32_t dst_width;  /*< dst image width*/

@@ -153,9 +153,9 @@
  * a lot of data that needs to be copied, this should be set high.
  */
 #if (CONFIG_LWIP_MEM_REDUCE)
-#define MEM_SIZE (16*1024)
-#else
 #define MEM_SIZE (32*1024)
+#else
+#define MEM_SIZE (48*1024)
 #endif
 
 

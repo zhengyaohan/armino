@@ -122,13 +122,13 @@
 #define configSUPPORT_DYNAMIC_ALLOCATION		1
 #endif
 
-#if CONFIG_SOC_BK7256XX || CONFIG_SOC_BK7256_CP1
+#if CONFIG_SOC_BK7256XX
 #define configDYNAMIC_HEAP_SIZE                     0
 #else
 #define configDYNAMIC_HEAP_SIZE                     1
 #endif
 
-#if (CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_SLAVE_CORE)
 #define configTOTAL_HEAP_SIZE                       ( ( size_t ) ( 65 * 1024 ) )
 #else
 #define configTOTAL_HEAP_SIZE                       ( ( size_t ) ( 140 * 1024 ) )
@@ -190,7 +190,7 @@ to exclude the API function. */
 
 #define configBK_FREERTOS                           1
 
-#if CONFIG_SOC_BK7256XX || CONFIG_SOC_BK7256_CP1
+#if CONFIG_SOC_BK7256XX
 /****** Hardware/compiler specific settings. *******************************************/
 
 #define configISR_STACK_SIZE_WORDS 1024

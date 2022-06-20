@@ -30,7 +30,7 @@ static void run_all_tests(void)
 #endif
 
 
-#if(CONFIG_SOC_BK7256XX)
+#if(CONFIG_AON_RTC)
     RUN_TEST_GROUP(TEST_IOT_RTC);
 #endif
 }

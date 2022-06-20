@@ -115,6 +115,56 @@ static UINT32 last_WR_addr = 0;
 #define SDIO_RD_DATA             0
 #define SDIO_WR_DATA             1
 
+/*
+ * Func: check and wait the SD-CARD inserted
+ *
+ */
+static bool sdcard_check_inserted(void)
+{
+	UINT32 sd_data0;
+	gpio_config_t gpio_config = {0};
+	volatile uint32_t i = 0;
+	bool is_inserted = true;
+#if CONFIG_SOC_BK7256XX	//Temp code.
+	sd_data0 = 4;	//GPIO_4;
+#else
+#if (CONFIG_SD1_HOST_INTF)
+	sd_data0 = 36;
+#else
+	sd_data0 = 17;
+#endif
+#endif
+
+#if CONFIG_SOC_BK7256XX	//Temp code.
+	gpio_dev_unmap(sd_data0);
+#endif
+	gpio_config.io_mode = GPIO_INPUT_ENABLE;
+	gpio_config.pull_mode = GPIO_PULL_UP_EN;
+	bk_gpio_set_config(sd_data0, &gpio_config);
+	while (!bk_gpio_get_input(sd_data0))
+	{
+		i++;
+		if(i > 800000)	//240M CPU clock, 60M * 4wire flash:i++ is 125ns,total is about ~~10ms
+		{
+			os_printf("sdcard isn't insert\r\n");
+			is_inserted = false;
+			break;
+		}
+	}
+
+#if CONFIG_SOC_BK7256XX	//Temp code.
+	gpio_dev_map(sd_data0, GPIO_DEV_SDIO_HOST_DATA0);
+	bk_gpio_pull_up(sd_data0);
+	bk_gpio_set_capacity(sd_data0, 3);
+#else
+	gpio_config.io_mode = GPIO_IO_DISABLE;
+	gpio_config.pull_mode = GPIO_PULL_UP_EN;
+	gpio_config.func_mode = GPIO_SECOND_FUNC_ENABLE;
+	bk_gpio_set_config(sd_data0, &gpio_config);
+#endif
+
+	return is_inserted;
+}
 
 /******************************************************************************/
 /***************************** public function ********************************/
@@ -139,6 +189,11 @@ static void sdio_hw_init(void)
 	param = PSRAM_VDD_3_3V;
 	//sddev_control(DD_DEV_TYPE_SCTRL, CMD_QSPI_VDDRAM_VOLTAGE, &param);
 	sys_drv_set_qspi_vddram_voltage(param);
+#endif
+
+#if CONFIG_SDCARD_HOST
+	if(sdcard_check_inserted() == false)
+		return;
 #endif
 
 	/* config sdcard gpio */
@@ -810,53 +865,17 @@ void sdcard_get_card_info(SDCARD_S *card_info)
 	card_info->Addr_shift_bit = sdcard.Addr_shift_bit;
 }
 
-/*
- * Func: check and wait the SD-CARD inserted
- *
- */
-static void sdcard_check_inserted(void)
-{
-	UINT32 sd_data0;
-	gpio_config_t gpio_config = {0};
-
-#if CONFIG_SOC_BK7256XX	//Temp code.
-	sd_data0 = 4;	//GPIO_4;
-#else
-#if (CONFIG_SD1_HOST_INTF)
-	sd_data0 = 36;
-#else
-	sd_data0 = 17;
-#endif
-#endif
-
-#if CONFIG_SOC_BK7256XX	//Temp code.
-	gpio_dev_unmap(sd_data0);
-#endif
-	gpio_config.io_mode = GPIO_INPUT_ENABLE;
-	gpio_config.pull_mode = GPIO_PULL_UP_EN;
-	bk_gpio_set_config(sd_data0, &gpio_config);
-	while (!bk_gpio_get_input(sd_data0));
-
-#if CONFIG_SOC_BK7256XX	//Temp code.
-	gpio_dev_map(sd_data0, GPIO_DEV_SDIO_HOST_DATA0);
-	bk_gpio_pull_up(sd_data0);
-	bk_gpio_set_capacity(sd_data0, 3);
-#else
-	gpio_config.io_mode = GPIO_IO_DISABLE;
-	gpio_config.pull_mode = GPIO_PULL_UP_EN;
-	gpio_config.func_mode = GPIO_SECOND_FUNC_ENABLE;
-	bk_gpio_set_config(sd_data0, &gpio_config);
-#endif
-}
-
-
 SDIO_Error
 sdcard_read_single_block(UINT8 *readbuff, UINT32 readaddr, UINT32 blocksize)
 {
 	SDIO_CMD_S cmd;
 	SDIO_Error ret;
 
-	sdcard_check_inserted();
+#if CONFIG_SDCARD_HOST
+	if(sdcard_check_inserted() == false)
+		return SD_ERROR;
+#endif
+
 	sdio_clk_config(1);
 
 	REG_WRITE(REG_SDCARD_CMD_RSP_INT_SEL, 0xffffffff);
@@ -899,7 +918,10 @@ static void sd_read_data_init(void)
 {
 	UINT32 reg;
 
-	sdcard_check_inserted();
+#if CONFIG_SDCARD_HOST
+	if(sdcard_check_inserted() == false)
+		return;
+#endif
 
 	sdio_clk_config(1);
 	reg  = get_timeout_param(0);
@@ -1018,7 +1040,10 @@ SDIO_Error sdcard_read_multi_block(UINT8 *read_buff, int first_block, int block_
 		Ret = sdcard_send_write_stop(0);		//write stop
 	}
 
-	sdcard_check_inserted();
+#if CONFIG_SDCARD_HOST
+	if(sdcard_check_inserted() == false)
+		return SD_ERROR;
+#endif
 
 	sdio_clk_config(1);
 	reg  = get_timeout_param(0);
@@ -1100,7 +1125,10 @@ SDIO_Error sdcard_write_single_block(UINT8 *writebuff, UINT32 writeaddr)
 	SDIO_CMD_S cmd;
 	UINT32 tmpval, reg;
 
-	sdcard_check_inserted();
+#if CONFIG_SDCARD_HOST
+	if(sdcard_check_inserted() == false)
+		return SD_ERROR;
+#endif
 
 	sdio_clk_config(1);
 
@@ -1186,7 +1214,10 @@ static SDIO_Error sdcard_cmd25_process(UINT32 block_addr)
 	SDIO_CMD_S cmd;
 	UINT32 reg;
 
-	sdcard_check_inserted();
+#if CONFIG_SDCARD_HOST
+	if(sdcard_check_inserted() == false)
+		return SD_ERROR;
+#endif
 
 	sdio_clk_config(1);
 	REG_WRITE(REG_SDCARD_CMD_RSP_INT_SEL, 0xffffffff);
@@ -1207,6 +1238,7 @@ static SDIO_Error sdcard_cmd25_process(UINT32 block_addr)
 	cmd.err = sdio_wait_cmd_response(cmd.index);
 	return cmd.err;
 }
+
 ////////////////write:second phase///////////
 static SDIO_Error sdcard_write_data(UINT8 *write_buff, UINT32 block_num, UINT8 first_data_after_cmd)
 {
@@ -1321,7 +1353,10 @@ static SDIO_Error sdcard_send_write_stop(int err)
 		REG_WRITE(REG_SDCARD_CMD_RSP_INT_MASK, reg);
 		GLOBAL_INT_RESTORE();
 
-		sdcard_check_inserted();
+#if CONFIG_SDCARD_HOST
+		if(sdcard_check_inserted() == false)
+			return SD_ERROR;
+#endif
 	}
 	ret += sdcard_cmd12_process(0);
 	if (ret != SD_OK)
@@ -1348,7 +1383,7 @@ SDIO_Error sdcard_write_multi_block(UINT8 *write_buff, UINT32 first_block, UINT3
 	if (1 == no_need_send_cmd12_flag)
 		op_flag = 3;//stop has send
 
-	os_null_printf("===sd write: start = %x,block = %x,op_flag = %x=====\r\n", first_block, block_num, op_flag);
+	os_printf("===sd write: start = %d,block = %d,op_flag = %x=====\r\n", first_block, block_num, op_flag);
 
 	no_need_send_cmd12_flag = 0;
 	if (0 == op_flag)//continue write
@@ -1382,7 +1417,10 @@ SDIO_Error sdcard_write_multi_block(UINT8 *write_buff, UINT32 first_block, UINT3
 	UINT32 i, j, reg, tmpval;
 	GLOBAL_INT_DECLARATION();
 
-	sdcard_check_inserted();
+#if CONFIG_SDCARD_HOST
+	if(sdcard_check_inserted() == false)
+		return SD_ERROR;
+#endif
 
 	sdio_clk_config(1);
 	REG_WRITE(REG_SDCARD_CMD_RSP_INT_SEL, 0xffffffff);
@@ -1497,13 +1535,19 @@ SDIO_Error sdcard_write_multi_block(UINT8 *write_buff, UINT32 first_block, UINT3
 
 	GLOBAL_INT_RESTORE();
 
-	sdcard_check_inserted();
+#if CONFIG_SDCARD_HOST
+	if(sdcard_check_inserted() == false)
+		return SD_ERROR;
+#endif
 sndcmd12:
 	ret += sdcard_cmd12_process(0);
 	if (ret != SD_OK)
 		SDCARD_FATAL("===write err:%x,%x,%x====\r\n", first_block, ret, cmd.err);
 #if 0
-	sdcard_check_inserted();
+#if CONFIG_SDCARD_HOST
+	if(sdcard_check_inserted() == false)
+		return SD_ERROR;
+#endif
 	sdio_clk_config(0);
 #endif
 	return ret;
@@ -1623,6 +1667,9 @@ UINT32 sdcard_ctrl(UINT32 cmd, void *parm)
 	peri_busy_count_add();
 
 	switch (cmd) {
+		case 0:
+			sdcard_cmd12_process(0);
+			break;
 	default:
 		break;
 	}

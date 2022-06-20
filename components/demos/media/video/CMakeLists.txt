@@ -5,14 +5,15 @@ set(incs
 	uvc
 	video_transfer
 	image_save
+	"../lcd/common"
 	)
 set(srcs)
 
-if (CONFIG_DUAL_CORE)
+if (CONFIG_DUAL_CORE AND CONFIG_PSRAM)
 	list(APPEND srcs
 		"uvc_capture_display/uvc_mailbox.c"
 		)
-if (NOT CONFIG_SOC_BK7256_CP1)
+if (NOT CONFIG_SLAVE_CORE)
 	list(APPEND srcs
 			"uvc_capture_display/uvc_process_cpu0.c"
 			)
@@ -49,7 +50,8 @@ if (CONFIG_CAMERA OR CONFIG_SPIDMA)
 if (CONFIG_APP_DEMO_VIDEO_TRANSFER)
 	list(APPEND srcs
 		"video_transfer/video_transfer.c"
-		"dvp_capture/dvp_image_save.c"
+		"video_transfer/video_transfer_save.c"
+		"dvp_capture/dvp_capture.c"
 		)
 endif()
 endif()

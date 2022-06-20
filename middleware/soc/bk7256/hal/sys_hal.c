@@ -209,13 +209,13 @@ void sys_hal_exit_low_voltage()
 #define MTIMER_LOW_VOLTAGE_MINIMUM_TICK (10400)	//26M, 400 us
 extern void mtimer_reset_next_tick(uint32_t minimum_offset);
 #define CONFIG_LOW_VOLTAGE_DEBUG 0
-#if CONFIG_LOW_VOLTAGE_DEBUG 
+#if CONFIG_LOW_VOLTAGE_DEBUG
 uint64_t g_low_voltage_tick = 0;
 extern u64 riscv_get_mtimer(void);
 #endif
 #endif
 
-void sys_hal_enter_low_voltage(void)
+__attribute__((section(".itcm_sec_code"))) void sys_hal_enter_low_voltage(void)
 {
 	uint32_t  modules_power_state = 0;
 	uint32_t  clock_value = 0;
@@ -321,7 +321,7 @@ void sys_hal_enter_low_voltage(void)
 	sys_ll_set_cpu0_int_32_63_en_cpu0_dm_irq_en(0x1);
 	set_csr(NDS_MIE, MIP_MTIP);
 
-//just debug:maybe some guys changed the CPU clock or Flash clock caused the time of 
+//just debug:maybe some guys changed the CPU clock or Flash clock caused the time of
 //MTIMER_LOW_VOLTAGE_MINIMUM_TICK isn't enough.
 //here can statistic the MAX time value.
 #if CONFIG_LOW_VOLTAGE_DEBUG
@@ -543,6 +543,24 @@ void sys_hal_module_power_ctrl(power_module_name_t module,power_module_state_t p
 	}
 
 }
+int32 sys_hal_module_power_state_get(power_module_name_t module)
+{
+	uint32_t value = 0;
+	if((module >= POWER_MODULE_NAME_MEM1) && (module <= POWER_MODULE_NAME_WIFI_PHY))
+	{
+		value = 0;
+		value = sys_ll_get_cpu_power_sleep_wakeup_value();
+		value = ((value >> module) & 0x1);
+		return value;
+	}
+    else if(module == POWER_MODULE_NAME_CPU1)
+    {
+    	//sys_ll_get_cpu1_int_halt_clk_op_cpu1_pwr_dw();
+    	value = 0;
+    	return sys_ll_get_cpu_current_run_status_cpu1_pwr_dw_state();
+    }
+	return -1;
+}
 void sys_hal_module_RF_power_ctrl (module_name_t module,power_module_state_t power_state)
 {
     uint32_t value = 0;
@@ -708,6 +726,11 @@ void sys_hal_low_power_hardware_init()
 	pmu_state |= BIT_AON_PMU_WAKEUP_ENA;
 	aon_pmu_hal_reg_set(PMU_REG0x41,pmu_state);
 
+	/*clear sleep flag*/
+	pmu_state = 0;
+	pmu_state =  aon_pmu_hal_reg_get(PMU_REG2);
+	pmu_state |= ~(BIT(BIT_SLEEP_FLAG_DEEP_SLEEP));
+	aon_pmu_hal_reg_set(PMU_REG2,pmu_state);
 }
 int32 sys_hal_lp_vol_set(uint32_t value)
 {
@@ -876,11 +899,6 @@ uint32 sys_hal_set_intr_raw_status(uint32 param)
 
 	return reg;
 }
-
-int32 sys_hal_conf_pwm_plck(uint32 param);
-int32 sys_hal_conf_pwm_lpoclk(uint32 param);
-int32 sys_hal_conf_plck_26m(uint32 param);
-int32 sys_hal_conf_plck_dco(uint32 param);
 
 int32 sys_hal_set_jtag_mode(uint32 param)
 {

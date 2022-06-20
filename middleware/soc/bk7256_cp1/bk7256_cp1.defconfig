@@ -2,7 +2,8 @@
 #If the default value in Kconfig satisfy your needs, then you needn't to config again here.
 
 CONFIG_SOC_ARCH="riscv"
-CONFIG_SOC_BK7256_CP1=y
+CONFIG_SOC_BK7256XX=y
+CONFIG_SOC_BK7256=y
 CONFIG_SOC_STR="bk7256_cp1"
 
 
@@ -121,6 +122,7 @@ CONFIG_SHELL_ASYNCLOG=y
 CONFIG_I2S_TEST=y
 CONFIG_FFT_TEST=n
 CONFIG_LCD_TEST=y
+CONFIG_VIDEO_LCD=y
 CONFIG_DMA2D_TEST=y
 # end of Cli
 
@@ -142,7 +144,7 @@ CONFIG_DEEP_PS=n
 # CONFIG_TICK_CALI is not set
 # CONFIG_STA_PS is not set
 # end of Internal Kconfig
-
+CONFIG_STA_PS=y
 #
 # FreeRTOS
 #

@@ -9,6 +9,7 @@
 #define WR_RD_BUF_SIZE          1024
 #define TEST_MP3_FILE_NAME      "/Panama_Matteo.mp3"
 #define TEST_TXT_FILE_NAME      "/test1.txt"
+#define TEST_DUMP_FILE_NAME      "/dump1.txt"
 #define TEST_TXT_FILE_NAME1     "/中文名字可以有多长？想多长就多长，不信你咬我，信我请我吃饭.txt"
 
 #if CONFIG_SDCARD_HOST
@@ -210,7 +211,7 @@ void test_fatfs_append_write(DISK_NUMBER number, char *filename, char *content, 
 	if(filename)
 		sprintf(cFileName, "%d:/%s", number, filename);
 	else
-		sprintf(cFileName, "%d:%s", number, TEST_TXT_FILE_NAME);
+		sprintf(cFileName, "%d:/%s", number, TEST_TXT_FILE_NAME);
     os_printf("f_open \"%s\"\r\n", cFileName);
 
     fr = f_open(&file, cFileName, FA_OPEN_APPEND | FA_WRITE);
@@ -260,11 +261,226 @@ error1:
     f_close(&file);
 }
 
+#define TEST_FATFS_PACKET_LEN (1<<10)
+void test_fatfs_dump(DISK_NUMBER number, char *filename, uint32_t start_addr, uint32_t dump_len)
+{
+	FIL file;
+	FRESULT fr;
+	char cFileName[FF_MAX_LFN];
+	unsigned int uiTemp = 0;
+
+	os_printf("\r\n----- %s %d start -----\r\n", __func__, number);
+	os_printf("file_name=%s,start_addr=%d,len=%d \r\n", filename, start_addr, dump_len);
+
+	if(filename)
+		sprintf(cFileName, "%d:/%s", number, filename);
+	else
+		sprintf(cFileName, "%d:%s", number, TEST_DUMP_FILE_NAME);
+	os_printf("f_open \"%s\"\r\n", cFileName);
+
+	fr = f_open(&file, cFileName, FA_OPEN_APPEND | FA_WRITE);
+	if (fr != FR_OK)
+	{
+		os_printf("f_open failed 1 fr = %d\r\n", fr);
+		goto exit;
+	}
+
+	//write:one time write all contents
+	do
+	{
+		fr = f_write(&file, (uint8_t *)start_addr, dump_len, &uiTemp);
+		if (fr != FR_OK)
+		{
+			os_printf("f_write fail 1 fr = %d\r\n", fr);
+			goto exit;
+		}
+
+		os_printf("f_write len = %d\r\n", uiTemp);
+	} while(0);
+
+	//set file pointer to head
+	fr = f_lseek(&file, 0);
+	if (fr != FR_OK)
+	{
+		os_printf("f_lseek fail 1 fr = %d\r\n", fr);
+		goto exit;
+	}
+
+	//file close
+	fr = f_close(&file);
+	if (fr != FR_OK)
+	{
+		os_printf("f_close fail 1 fr = %d\r\n", fr);
+		goto exit;
+	}
+
+exit:
+	return;
+}
+
+#define TEST_FATFS_MAX_FILE_LEN (1<<20)
+#define TEST_FATFS_PACKET_LEN (1<<10)
+void test_fatfs_auto_test(DISK_NUMBER number, char *filename, uint32_t len, uint32_t test_count)
+{
+	uint32_t i = 0, j = 0, k = 0;
+	FIL file;
+	FRESULT fr;
+	char cFileName[FF_MAX_LFN];
+	uint8_t *content_p = 0;
+	unsigned int uiTemp = 0;
+	uint8_t *buf_p = NULL;
+	uint32_t packet_cnt = 0, bytes_cnt = 0;
+
+	os_printf("\r\n----- %s %d start -----\r\n", __func__, number);
+	os_printf("file_name=%s,len=%d,test_cnt=%d \r\n", filename, len, test_count);
+
+	if(filename)
+		sprintf(cFileName, "%d:/%s", number, filename);
+	else
+		sprintf(cFileName, "%d:%s", number, TEST_TXT_FILE_NAME);
+	os_printf("f_open \"%s\"\r\n", cFileName);
+
+	len = len < TEST_FATFS_MAX_FILE_LEN? len : TEST_FATFS_MAX_FILE_LEN;
+	packet_cnt = len / TEST_FATFS_PACKET_LEN;
+	bytes_cnt = len % TEST_FATFS_PACKET_LEN;
+
+	buf_p = os_malloc(TEST_FATFS_PACKET_LEN);
+	if (buf_p == NULL)
+	{
+		os_printf("malloc fail \r\n");
+		return;
+	}
+
+	for(i = 0; i < test_count; i++)
+	{
+		os_printf("test round=%d start \r\n", i);
+		fr = f_open(&file, cFileName, FA_OPEN_APPEND | FA_WRITE);
+		if (fr != FR_OK)
+		{
+			os_printf("f_open failed 1 fr = %d\r\n", fr);
+			goto exit;
+		}
+
+		//write:one time write all contents
+		do
+		{
+			fr = f_write(&file, (uint8_t *)content_p, len, &uiTemp);
+			if (fr != FR_OK)
+			{
+				os_printf("f_write fail 1 fr = %d\r\n", fr);
+				goto exit;
+			}
+
+			os_printf("f_write len = %d\r\n", uiTemp);
+		}while(0);
+
+		//set file pointer to head
+		fr = f_lseek(&file, 0);
+		if (fr != FR_OK)
+		{
+			os_printf("f_lseek fail 1 fr = %d\r\n", fr);
+			goto exit;
+		}
+
+		//file close
+		fr = f_close(&file);
+		if (fr != FR_OK)
+		{
+			os_printf("f_close fail 1 fr = %d\r\n", fr);
+			goto exit;
+		}
+
+		os_printf("check round=%d start \r\n", i);
+		fr = f_open(&file, cFileName, FA_OPEN_EXISTING | FA_READ);
+		if (fr != FR_OK)
+		{
+			os_printf("f_open failed 1 fr = %d\r\n", fr);
+			goto exit;
+		}
+
+		//set file pointer to head
+		fr = f_lseek(&file, 0);
+		if (fr != FR_OK)
+		{
+			os_printf("f_lseek fail 1 fr = %d\r\n", fr);
+			goto exit;
+		}
+
+		//read:as the buffer is not enough, so read each time less then TEST_FATFS_PACKET_LEN
+		for(j = 0; j < packet_cnt; j++)
+		{
+			fr = f_read(&file, (uint8_t *)buf_p, TEST_FATFS_PACKET_LEN, &uiTemp);
+			if (fr != FR_OK)
+			{
+				os_printf("f_read packet %d fail 1 fr = %d\r\n", j, fr);
+				goto exit;
+			}
+			os_printf("f_read len = %d\r\n", uiTemp);
+
+			//compare
+			for(k = 0; k < TEST_FATFS_PACKET_LEN; k++)
+			{
+				if(*(content_p	+ j * TEST_FATFS_PACKET_LEN + k) != (*(buf_p + k)))
+				{
+					os_printf("auto test fail packet[%d] byte[%d] err\r\n", j, k);
+					goto exit;
+				}
+			}
+		}
+
+		//left contents
+		if(bytes_cnt)
+		{
+			fr = f_read(&file, (uint8_t *)buf_p, bytes_cnt, &uiTemp);
+			if (fr != FR_OK)
+			{
+				os_printf("f_read last packet fail 1 fr = %d\r\n", fr);
+				goto exit;
+			}
+			os_printf("f_read len = %d\r\n", uiTemp);
+
+			//compare
+			for(k = 0; k < bytes_cnt; k++)
+			{
+				if(*(content_p	+ packet_cnt * TEST_FATFS_PACKET_LEN + k) != (*(buf_p + k)))
+				{
+					os_printf("auto test fail last packet byte[%d] err\r\n", k);
+					goto exit;
+				}
+			}
+		}
+
+		//set file pointer to head
+		fr = f_lseek(&file, 0);
+		if (fr != FR_OK)
+		{
+			os_printf("f_lseek fail 1 fr = %d\r\n", fr);
+			goto exit;
+		}
+
+		//file close
+		fr = f_close(&file);
+		if (fr != FR_OK)
+		{
+			os_printf("f_read last packet fail 1 fr = %d\r\n", fr);
+			goto exit;
+		}
+
+		os_printf("check round=%d end \r\n", i);
+	}
+
+	os_printf("auto test succ \r\n");
+
+exit:
+	os_free(buf_p);
+	buf_p = NULL;
+}
+
 void test_fatfs_format(DISK_NUMBER number)
 {
-    FRESULT fr;
-    char cFileName[FF_MAX_LFN];
-    //unsigned char ucRdTemp[WR_RD_BUF_SIZE];
+	FRESULT fr;
+	char cFileName[FF_MAX_LFN];
+	//unsigned char ucRdTemp[WR_RD_BUF_SIZE];
 	unsigned char *ucRdTemp = os_malloc(WR_RD_BUF_SIZE);
 	if(ucRdTemp == 0)
 	{
@@ -272,20 +488,21 @@ void test_fatfs_format(DISK_NUMBER number)
 		return;
 	}
 
-    os_printf("----- test_fatfs_format %d start -----\r\n", number);
+	os_printf("----- test_fatfs_format %d start -----\r\n", number);
 
-    sprintf(cFileName, "%d:", number);
-    fr = f_mkfs(cFileName, FM_ANY, 65536, ucRdTemp, WR_RD_BUF_SIZE);
-    if (fr != FR_OK)
-    {
-        os_printf("f_mkfs fr=%d failed!\r\n", fr);
-    }
-    else
-    {
-        os_printf("f_mkfs OK!\r\n");
-    }
+	sprintf(cFileName, "%d:", number);
+	fr = f_mkfs(cFileName, FM_ANY, 65536, ucRdTemp, WR_RD_BUF_SIZE);
+	if (fr != FR_OK)
+	{
+		os_free(ucRdTemp);
+		os_printf("f_mkfs fr=%d failed!\r\n", fr);
+	}
+	else
+	{
+		os_printf("f_mkfs OK!\r\n");
+	}
 
-    os_printf("----- test_fatfs_format %d over  -----\r\n", number);
+	os_printf("----- test_fatfs_format %d over  -----\r\n", number);
 
 	if(ucRdTemp)
 	{

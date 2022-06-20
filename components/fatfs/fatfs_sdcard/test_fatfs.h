@@ -28,6 +28,8 @@ extern "C" {
     extern void scan_file_system(DISK_NUMBER number);
     extern void test_fatfs_read(DISK_NUMBER number, char *filename);
 	extern void test_fatfs_append_write(DISK_NUMBER number, char *filename, char *content, uint32_t len);
+	extern void test_fatfs_dump(DISK_NUMBER number, char *filename, uint32_t start_addr, uint32_t dump_len);
+	extern void test_fatfs_auto_test(DISK_NUMBER number, char *filename, uint32_t len, uint32_t test_count);
     extern void test_fatfs_format(DISK_NUMBER number);
 #endif
 

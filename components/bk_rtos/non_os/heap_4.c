@@ -98,13 +98,13 @@ task.h is included from an application file. */
 #define TAG "os"
 #define configSUPPORT_DYNAMIC_ALLOCATION 1
 
-#if CONFIG_SOC_BK7256XX || CONFIG_SOC_BK7256_CP1
+#if CONFIG_SOC_BK7256XX
 #define configDYNAMIC_HEAP_SIZE                     0
 #else
 #define configDYNAMIC_HEAP_SIZE                     1
 #endif
 
-#if (CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_SOC_BK7256XX && CONFIG_SLAVE_CORE)
 #define configTOTAL_HEAP_SIZE                       ( ( size_t ) ( 30 * 1024 ) )
 #else
 #define configTOTAL_HEAP_SIZE                       ( ( size_t ) ( 120 * 1024 ) )
@@ -998,7 +998,7 @@ void vPortInitialiseBlocks( void )
 /*-----------------------------------------------------------*/
 
 #if configDYNAMIC_HEAP_SIZE
-#if (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_SOC_BK7256XX)
 #define HEAP_START_ADDRESS    (void*)(&ucHeap)
 #else
 extern unsigned char _empty_ram;
@@ -1012,9 +1012,9 @@ extern unsigned char _empty_ram;
 #define HEAP_END_ADDRESS      (void*)(0x00400000 + 192 * 1024)
 #elif (CONFIG_SOC_BK7271)
 #define HEAP_END_ADDRESS      (void*)(0x00400000 + 512 * 1024)
-#elif (CONFIG_SOC_BK7256XX)
+#elif (CONFIG_SOC_BK7256XX && CONFIG_MASTER_CORE)
 #define HEAP_END_ADDRESS      (void*)(HEAP_START_ADDRESS  + configTOTAL_HEAP_SIZE)
-#elif (CONFIG_SOC_BK7256_CP1)
+#elif (CONFIG_SOC_BK7256XX && CONFIG_SLAVE_CORE)
 #define HEAP_END_ADDRESS      (void*)(HEAP_START_ADDRESS  + configTOTAL_HEAP_SIZE)
 #else
 #define HEAP_END_ADDRESS      (void*)(0x00400000 + 256 * 1024)
@@ -1307,7 +1307,7 @@ INSERTED:
 extern unsigned char _bss_start, _bss_end, _data_ram_begin, _data_ram_end;
 void pvShowMemoryConfigInfo(void)
 {
-#if CONFIG_SOC_BK7256XX || CONFIG_SOC_BK7256_CP1
+#if CONFIG_SOC_BK7256XX
 #else
 #if configDYNAMIC_HEAP_SIZE
 	BK_LOGI(TAG, "\n");

@@ -14,6 +14,7 @@
 
 #include "bk_arch.h"
 #include "platform.h"
+#include "boot.h"
 
 extern void reset_vector(void);
 
@@ -69,6 +70,10 @@ void c_startup(void)
 	/* Clear bss section */
 	size = &_end - &_edata;
 	MEMSET(&_edata, 0, size);
+
+#if CONFIG_SAVE_BOOT_TIME_POINT
+	save_mtime_point(CPU_INIT_MEM_TIME);
+#endif
 }
 
 void system_init(void)

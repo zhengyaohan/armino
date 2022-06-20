@@ -48,7 +48,9 @@ extern "C" {
 #define CLI_CFG_PWR         0
 #endif
 #define CLI_CFG_TIMER       1
+#if CONFIG_INT_WDT
 #define CLI_CFG_WDT         1
+#endif
 #if CONFIG_TRNG_SUPPORT
 #define CLI_CFG_TRNG        1
 #else
@@ -194,7 +196,7 @@ extern "C" {
 #define CLI_CFG_I2S         0
 #endif
 
-#if (CONFIG_SOC_BK7256XX || CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_SOC_BK7256XX)
 
 #if CONFIG_DMA2D_TEST
 #define CLI_CFG_DMA2D  1
@@ -216,7 +218,7 @@ extern "C" {
 #define CLI_CFG_LCD  0
 #endif
 
-#if (CONFIG_DUAL_CORE && CONFIG_AUDIO_TEST && !CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_DUAL_CORE && CONFIG_AUDIO_TEST && !CONFIG_SLAVE_CORE)
 #define CLI_CFG_AUD_CP0     1
 #endif
 
@@ -241,7 +243,7 @@ extern "C" {
 #define CLI_CFG_vault		0
 #endif
 
-#if ((CONFIG_SOC_BK7256XX || CONFIG_USB_UVC) && CONFIG_DUAL_CORE)
+#if ((CONFIG_SOC_BK7256XX || CONFIG_USB_UVC) && CONFIG_DUAL_CORE && CONFIG_PSRAM)
 #define CLI_CFG_UVC        1
 #else
 #define CLI_CFG_UVC        0

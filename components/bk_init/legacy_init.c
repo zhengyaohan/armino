@@ -18,6 +18,7 @@
 #include <components/event.h>
 #include <driver/uart.h>
 #include <string.h>
+#include "boot.h"
 #if CONFIG_BLE
 #include "modules/ble.h"
 #include "ble_api_5_x.h"
@@ -35,6 +36,8 @@
 #endif
 
 #include "sdk_version.h"
+
+void rtos_user_app_launch_over(void);
 
 volatile const uint8_t build_version[] = __DATE__ " " __TIME__;
 
@@ -197,12 +200,23 @@ int legacy_init(void)
 	vnd_cal_overlay();
 #endif
 
-#if (CONFIG_SOC_BK7256XX)
+#if (CONFIG_SOC_BK7256XX && !CONFIG_SLAVE_CORE)
+
+	#if CONFIG_SAVE_BOOT_TIME_POINT
+	save_mtime_point(CPU_START_WIFI_INIT_TIME);
+	#endif
 	app_wifi_init();
+	#if CONFIG_SAVE_BOOT_TIME_POINT
+	save_mtime_point(CPU_FINISH_WIFI_INIT_TIME);
+	#endif
+
+	rtos_user_app_launch_over();
+
 #if (CONFIG_BLUETOOTH)
 	app_ble_init();
 #endif
-#elif (CONFIG_SOC_BK7256_CP1)
+
+#elif (CONFIG_SLAVE_CORE)
 
 #else
 	app_sdio_init();

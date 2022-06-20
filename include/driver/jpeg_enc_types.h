@@ -104,7 +104,28 @@ typedef struct {
 	dma_isr_t dma_rx_handler;       /**< dma transfer finish isr callbck */
 	uint8_t dma_channel;           /**< dma channel used for transfer jpeg encoder data */
 #endif
+
+#if CONFIG_VIDEO_LCD
+	uint8_t dma_lcd_channel;      /**< dma channel used for lcd display */
+	uint8_t *jpeg_dec_src_addr;   /**< jepg data, and jpeg dec arc addr */
+	uint8_t *jpeg_dec_dst_addr;    /**< jepg dec data dst addr */
+	uint8_t *lcd_display_addr;     /**< lcd diaplay data base addr */
+	uint16_t jpeg_dec_pixel_x;    /**< jepg dec x_pixel */
+	uint8_t dma_lcd_int_cnt;      /**< lcd disaply dma transfer cnt */
+	void (*jpeg_dec_callback)(void * src, void * dst); /**< jpeg dec callback */
+#endif
 } jpegenc_desc_t;
+
+typedef enum {
+	READY = 0, 	       	 /**<  jpeg deca and display ready */
+	MEMCPYING, 	       	 /**<  jepg data mem cpying */
+	JPEGDE_START, 	     /**<  jepg dec start */
+	JPEGDECING,	      	 /**<  jepg decing */
+	DISPLAYING 	       	 /**<  jepg dec complete, lcd display */
+}lcd_satus_t;
+
+
+
 
 /**
  * @}

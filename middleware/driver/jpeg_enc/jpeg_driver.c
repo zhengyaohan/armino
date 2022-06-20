@@ -164,7 +164,7 @@ bk_err_t bk_jpeg_enc_driver_init(void)
 	}
 #if CONFIG_SYSTEM_CTRL
 	//power on
-	pm_module_vote_power_ctrl(PM_POWER_MODULE_NAME_VIDP, PM_POWER_MODULE_STATE_ON);
+	pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_JPEG_EN, PM_POWER_MODULE_STATE_ON);
 #endif
 
 	os_memset(&s_jpeg, 0, sizeof(s_jpeg));
@@ -183,7 +183,7 @@ bk_err_t bk_jpeg_enc_driver_deinit(void)
 	bk_int_isr_unregister(INT_SRC_JPEG);
 #if CONFIG_SYSTEM_CTRL
 	// power off
-	pm_module_vote_power_ctrl(PM_POWER_MODULE_NAME_VIDP, PM_POWER_MODULE_STATE_OFF);
+	pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_JPEG_EN, PM_POWER_MODULE_STATE_OFF);
 #endif
 
 	s_jpeg_driver_is_init = false;

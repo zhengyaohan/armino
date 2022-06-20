@@ -76,18 +76,15 @@ void sys_hal_set_sdio_clk_sel(uint32_t value);
 uint32_t sys_hal_get_sdio_clk_sel();
 /** Platform SDIO End **/
 
-
-/** Platform efuse Start **/
-void sys_hal_efuse_read_byte(uint32_t param);
-
-void sys_hal_efuse_write_byte(uint32_t param);
-/** Platform efuse End **/
 /*low power feature start*/
 void sys_hal_enter_deep_sleep(void *param);
 void sys_hal_enter_normal_sleep();
 void sys_hal_enter_normal_wakeup();
+#if CONFIG_SOC_BK7256XX
+__attribute__((section(".itcm_sec_code"))) void sys_hal_enter_low_voltage(void);
+#else
 void sys_hal_enter_low_voltage(void);
-void sys_hal_enter_low_voltage(void);
+#endif
 void sys_hal_module_power_ctrl(power_module_name_t module,power_module_state_t power_state);
 void sys_hal_wakeup_interrupt_clear(wakeup_source_t interrupt_source);
 void sys_hal_module_power_ctrl(power_module_name_t module,power_module_state_t power_state);
@@ -109,28 +106,13 @@ uint32_t sys_hal_cpu_clk_div_get(uint32_t core_index);
 void sys_hal_low_power_hardware_init();
 int32 sys_hal_lp_vol_set(uint32_t value);
 uint32_t sys_hal_lp_vol_get();
+int32 sys_hal_module_power_state_get(power_module_name_t module);
 
 /*low power feature end*/
 uint32 sys_hal_get_chip_id(void);
 uint32 sys_hal_get_device_id(void);
-int32 sys_hal_dsp_power_down(void);
-int32 sys_hal_dsp_power_up(void);
 int32 sys_hal_usb_power_down(void);
 int32 sys_hal_usb_power_up(void);
-int32 sys_hal_lbus_power_down(void);
-int32 sys_hal_lbus_power_up(void);
-int32 sys_hal_rtos_idle_sleep(void *param);
-int32 sys_hal_rtos_idle_wakeup(void);
-int32 sys_hal_rtos_deep_sleep(void *param);
-uint32 sys_hal_get_sctrl_retetion(void);
-int32 sys_hal_set_sctrl_retetion(uint32 param);
-int32 sys_hal_unconditional_mac_down(void);
-int32 sys_hal_unconditional_mac_up(void);
-int32 sys_hal_fix_dpll_div(void);
-int32 sys_hal_set_low_pwr_clk(uint32 param);
-int32 sys_hal_set_gadc_sel(uint32 param);
-int32 sys_hal_clkgating_disable(uint32 param);
-int32 sys_hal_clkgating_enable(uint32 param);
 int32 sys_hal_int_disable(uint32 param);
 int32 sys_hal_int_enable(uint32 param);
 int32 sys_hal_int_group2_disable(uint32 param);
@@ -148,12 +130,6 @@ uint32 sys_hal_get_fiq_reg_status(void);
 uint32 sys_hal_set_fiq_reg_status(uint32 param);
 uint32 sys_hal_get_intr_raw_status(void);
 uint32 sys_hal_set_intr_raw_status(uint32 param);
-int32 sys_hal_func_clk_pwr_down(uint32 param);
-int32 sys_hal_func_clk_pwr_up(uint32 param);
-int32 sys_hal_conf_pwm_plck(uint32 param);
-int32 sys_hal_conf_pwm_lpoclk(uint32 param);
-int32 sys_hal_conf_plck_26m(uint32 param);
-int32 sys_hal_conf_plck_dco(uint32 param);
 int32 sys_hal_set_jtag_mode(uint32 param);
 uint32 sys_hal_get_jtag_mode(void);
 
@@ -420,21 +396,13 @@ uint32 sys_hal_get_xvr_clk_en();
 void sys_hal_set_power_on_btsp(bool value);
 uint32 sys_hal_get_power_on_btsp();
 #endif
-	
-		
+
+
 #if 1
 void sys_hal_set_bts_wakeup_platform_en(bool value);
 uint32 sys_hal_get_bts_wakeup_platform_en();
 void sys_hal_set_bts_sleep_exit_req(bool value);
 uint32 sys_hal_get_bts_sleep_exit_req();
-#endif
-				
-					
-#if 1
-void sys_hal_set_cpu0_dm_irq_en(bool value);
-uint32 sys_hal_get_cpu0_dm_irq_en();
-void sys_hal_set_cpu0_ble_irq_en(uint32 value);
-uint32 sys_hal_get_cpu0_ble_irq_en();
 #endif
 
 /* generated codes by python tool with address mapping */

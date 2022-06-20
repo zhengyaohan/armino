@@ -28,7 +28,7 @@ beken_thread_t com_mb_thread_handle = NULL;
 static beken_queue_t com_msg_que = NULL;
 #define TU_QITEM_COUNT      (60)
 
-//#if CONFIG_SOC_BK7256_CP1
+//#if CONFIG_SLAVE_CORE
 
 static bk_err_t com_send_msg(com_msg_t msg)
 {

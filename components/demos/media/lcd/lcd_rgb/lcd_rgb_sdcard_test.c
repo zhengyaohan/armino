@@ -224,9 +224,7 @@ void lcd_rgb_sdcard_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, cha
 	unsigned char *pDstImg = (unsigned char *) 0x60000000;
 
 	bk_gpio_set_output_high(GPIO_2);
-	if (os_strcmp(argv[1], "jpeg_dec") == 0){
-		err = image_16bit_scaling(pSrcImg, pDstImg, src_w, src_h, dst_w, dst_h);
-	} else if (os_strcmp(argv[1], "compress_only") == 0){
+	if (os_strcmp(argv[1], "compress_only") == 0){
 		err = image_16bit_scaling(pSrcImg, pDstImg, src_w, src_h, dst_w, dst_h);
 	} else if (os_strcmp(argv[1], "compress_rotate") == 0) { 
 		err = image_16bit_scaling_rotate(pSrcImg, pDstImg, src_w, src_h, dst_w, dst_h);

@@ -69,7 +69,7 @@ bk_err_t bk_jpeg_dec_start(void);
  *     - BK_OK: succeed
  *     - others: other errors.
  */
-bk_err_t bk_jpeg_dec_complete_cb(jpeg_dec_isr_t isr, void *param);
+bk_err_t bk_jpeg_dec_complete_cb(jpeg_dec_isr_t isr, jpeg_dec_xpixel_t pixel_x);
 #else
 
 /**

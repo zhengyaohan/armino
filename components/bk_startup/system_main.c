@@ -23,6 +23,9 @@
 #include <modules/pm.h>
 #endif
 
+#include "boot.h"
+
+
 #if (!CONFIG_SLAVE_CORE)
 
 static beken_thread_function_t s_user_app_entry = NULL;
@@ -60,6 +63,10 @@ void rtos_user_app_waiting_for_launch(void)
 	if(ret < 0){
 		os_printf("get sema failed");
 	}
+
+#if CONFIG_SAVE_BOOT_TIME_POINT
+	save_mtime_point(CPU_APP_ENTRY_TIME);
+#endif
 }
 #endif
 
@@ -212,6 +219,10 @@ static void user_app_thread( void *arg )
 		s_user_app_entry(0);
 	}
 
+#if CONFIG_SAVE_BOOT_TIME_POINT
+	save_mtime_point(CPU_APP_FINISH_TIME);
+#endif
+
 	rtos_delete_thread( NULL );
 }
 
@@ -232,6 +243,10 @@ extern void ChipTest(void);
 extern bool ate_is_enabled(void);
 static void app_main_thread(void *arg)
 {
+#if CONFIG_SAVE_BOOT_TIME_POINT
+	save_mtime_point(CPU_MAIN_ENTRY_TIME);
+#endif
+
 #if (!CONFIG_SLAVE_CORE)
 	rtos_user_app_preinit();
 #endif
@@ -262,9 +277,15 @@ static void app_main_thread(void *arg)
     {
         os_printf("ATE enabled = 1\r\n");
     }
-#if (!CONFIG_SLAVE_CORE)
-	rtos_user_app_launch_over();
+
+// #if (!CONFIG_SLAVE_CORE)
+// 	 rtos_user_app_launch_over();
+// #endif
+
+#if CONFIG_SAVE_BOOT_TIME_POINT
+	save_mtime_point(CPU_MIAN_FINISH_TIME);
 #endif
+
 	rtos_delete_thread(NULL);
 }
 
@@ -279,6 +300,10 @@ void start_app_main_thread(void)
 
 void entry_main(void)
 {
+#if CONFIG_SAVE_BOOT_TIME_POINT
+	save_mtime_point(CPU_MAIN_ENTRY_TIME);
+#endif
+
 	rtos_init();
 
 #if (CONFIG_ATE_TEST)
@@ -288,10 +313,19 @@ void entry_main(void)
 	if(components_init())
 		return;
 
+#if CONFIG_SAVE_BOOT_TIME_POINT
+	save_mtime_point(CPU_INIT_DRIVER_TIME);
+#endif
+
 	start_app_main_thread();
 #if (!CONFIG_SLAVE_CORE)
 	start_user_app_thread();
 #endif
+
+#if CONFIG_SAVE_BOOT_TIME_POINT
+	save_mtime_point(CPU_START_SCHE_TIME);
+#endif
+
 	rtos_start_scheduler();
 }
 

@@ -40,7 +40,7 @@ void sys_drv_init();
 /* Platform Misc End **/
 
 
-#if CONFIG_USB    //功能宏开关 
+#if CONFIG_USB    //功能宏开关
 void sys_drv_usb_power_down(void);
 
 void sys_drv_usb_clock_ctrl(bool ctrl, void *arg);
@@ -95,19 +95,17 @@ void sys_driver_set_sdio_clk_sel(uint32_t value);
 uint32_t sys_driver_get_sdio_clk_sel();
 #endif
 
-void sys_drv_efuse_read_byte(uint32_t param);
-
-void sys_drv_efuse_write_byte(uint32_t param);
-
 void sys_drv_enter_deep_sleep(void * param);
 
-void sys_drv_enter_normal_sleep(UINT32 peri_clk);
+void sys_drv_enter_normal_sleep(uint32_t peri_clk);
 
 void sys_drv_enter_normal_wakeup();
 void sys_drv_enter_low_voltage();
 
 /*for low power  function start*/
 void sys_drv_module_power_ctrl(power_module_name_t module,power_module_state_t power_state);
+
+int32 sys_drv_module_power_state_get(power_module_name_t module);
 
 void sys_drv_module_RF_power_ctrl (module_name_t module,power_module_state_t power_state);
 
@@ -171,8 +169,6 @@ dev_clk_dco_div_t sys_drv_get_dco_div(void);
 void sys_drv_arm_wakeup_enable(uint32_t param);
 void sys_drv_arm_wakeup_disable(uint32_t param);
 uint32_t sys_drv_get_arm_wakeup(void);
-int32 sys_drv_func_clk_pwr_down(uint32 param);
-int32 sys_drv_func_clk_pwr_up(uint32 param);
 /*wake up control end*/
 
 void sys_drv_sadc_int_enable(void);
@@ -388,7 +384,7 @@ uint32_t sys_drv_psram_set_clkdiv(uint32_t value);
 
 uint32_t sys_drv_cali_dpll(uint32_t param);
 uint32_t sys_drv_bias_reg_set(uint32_t param);
-uint32_t sys_drv_bias_reg_clean(uint32_t param); 
+uint32_t sys_drv_bias_reg_clean(uint32_t param);
 uint32_t sys_drv_bias_reg_read(void);
 uint32_t sys_drv_bias_reg_write(uint32_t param);
 #if 0

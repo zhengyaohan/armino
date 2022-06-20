@@ -305,7 +305,7 @@ extern void gpio_usb_second_function(void);
 #define GPIO_USB_DN_PIN				GPIO7
 #endif
 
-#elif (CONFIG_SOC_BK7256XX) ||(CONFIG_SOC_BK7256_CP1)
+#elif (CONFIG_SOC_BK7256XX)
 #define GPIO_USB_DP_PIN				GPIO_12
 #define GPIO_USB_DN_PIN				GPIO_13
 

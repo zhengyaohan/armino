@@ -29,6 +29,13 @@ typedef void (*jpeg_dec_isr_t)(void *param);  /**< jpegdec complete callback fun
 typedef void (*jpeg_dec_isr_t)(void);               /**< jpegdec int isr register func type */
 #endif
 
+typedef enum {
+	JPEGDEC_X_PIXEL_320 = 0, /**<define image  pixel x */
+	JPEGDEC_X_PIXEL_480,     /**<define image  pixel x */
+	JPEGDEC_X_PIXEL_640,     /**<define image	pixel x */
+	JPEGDEC_X_PIXEL_720      /**<define image  pixel x */
+}jpeg_dec_xpixel_t;
+
 /*
  * @}
  */

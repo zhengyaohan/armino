@@ -102,6 +102,16 @@ int jpg_decoder_init(void)
 	return 0;
 }
 
+int jpg_decoder_deinit(void)
+{
+	if(NULL != jpg_dec_st.workbuf) {
+		os_free(jpg_dec_st.workbuf);
+		jpg_dec_st.workbuf = NULL;
+	}
+	os_memset(&jpg_dec_st, 0, sizeof(jpg_dec_st));
+	return kNoErr;
+}
+
 static void* alloc_pool (	/* Pointer to allocated memory block (NULL:no memory available) */
 	JDEC* jd,		/* Pointer to the decompressor object */
 	uint16_t nd		/* Number of bytes to allocate */
@@ -137,16 +147,15 @@ JRESULT jd_decomp (
 	
 	BASE_RD_LEN = 20480*4-1;
 	if(size  == 0)
-		BASE_WR_LEN = 4147200;
+		BASE_WR_LEN = 153600;
 	else if(size == 1)
-	    BASE_WR_LEN = 1843200;
+	    BASE_WR_LEN = 261120; //480_272 add
 	else if(size == 2)
 	    BASE_WR_LEN = 614400;
 	else if(size == 3)
-	    BASE_WR_LEN = 153600;
+	    BASE_WR_LEN = 1843200;
 	else
-	    BASE_WR_LEN = 261120; //lea add
-
+		BASE_WR_LEN = 1843200;
 	//mx = jd->msx * 8; my = jd->msy * 8;			/* Size of the MCU (pixel) */
     REG_JPEG_XPIXEL = jd->width;
 	REG_DC_CLR;

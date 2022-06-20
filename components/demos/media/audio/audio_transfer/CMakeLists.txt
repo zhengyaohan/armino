@@ -1,19 +1,19 @@
-if (CONFIG_AUDIO_TEST AND CONFIG_AUDIO_RISCV_IP_V1_0 AND CONFIG_DUAL_CORE)
-
 set(incs . include)
+
+if (CONFIG_AUDIO_TEST AND CONFIG_AUDIO_RISCV_IP_V1_0 AND CONFIG_DUAL_CORE)
 
 set(srcs
 	include/audio_mailbox.c
 	)
 
-if (NOT CONFIG_SOC_BK7256_CP1)
+if (NOT CONFIG_SLAVE_CORE)
 	list(APPEND srcs
 				include/audio_transfer_cp0.c
 				audio_transfer_cp0_demo.c
 		)
 endif()
 
-if (CONFIG_SOC_BK7256_CP1)
+if (CONFIG_SLAVE_CORE)
 	list(APPEND srcs
 				include/audio_transfer_cp1.c
 				audio_transfer_cp1_demo.c

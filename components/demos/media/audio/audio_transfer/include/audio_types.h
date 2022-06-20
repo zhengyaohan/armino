@@ -36,6 +36,7 @@ extern "C" {
 #define PSRAM_AUD_DECD_RING_BUFF_SIZE        640     //根据解码器decoder每帧数据处理的尺寸设置，2*DECD_Frame_Size
 #define AUD_DECD_FRAME_SAMP_SIZE             PSRAM_AUD_DECD_RING_BUFF_SIZE/2
 
+
 //#define AUD_DMA_SIZE    0xFFFF
 //#define MB_CHNL_AUD     2
 

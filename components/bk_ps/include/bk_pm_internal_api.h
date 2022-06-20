@@ -24,6 +24,8 @@ void pm_hardware_init();
 
 int pm_module_wakeup_time_set(uint32_t module_name, uint32_t  wakeup_time);
 
+bk_err_t pm_core_bus_clock_ctrl(uint32_t cksel_core, uint32_t ckdiv_core,uint32_t ckdiv_bus, uint32_t ckdiv_cpu0,uint32_t ckdiv_cpu1);
+
 /*for debug log ctrl*/
 void pm_debug_ctrl(uint32_t debug_en);
 

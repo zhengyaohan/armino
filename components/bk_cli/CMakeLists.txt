@@ -21,12 +21,17 @@ set(srcs
 	cli_timer.c
 	cli_temp_detect.c
 	cli_uart.c
-	cli_wdt.c
 	cli_security.c
 	cli_spi.c
 	cli_exception.c
 	cli_icu.c
 	)
+
+if (CONFIG_INT_WDT)
+	list(APPEND srcs
+		cli_wdt.c
+	)
+endif()
 
 if (CONFIG_STA_PS)
 	list(APPEND srcs
@@ -179,7 +184,7 @@ if (CONFIG_SOC_BK7256XX)
 endif()
 
 if (CONFIG_SOC_BK7256XX OR CONFIG_USB_UVC)
-if (CONFIG_DUAL_CORE)
+if (CONFIG_DUAL_CORE AND CONFIG_PSRAM)
 	list(APPEND srcs "cli_uvc.c")
 endif()
 endif()
@@ -228,7 +233,7 @@ endif() #if(CONFIG_AUDIO)
 
 if (CONFIG_AUDIO_TEST)
 if (CONFIG_AUDIO_RISCV_IP_V1_0 AND CONFIG_DUAL_CORE)
-if (NOT CONFIG_SOC_BK7256_CP1)
+if (NOT CONFIG_SLAVE_CORE)
 	list(APPEND srcs cli_aud_cp0.c)
 endif()
 endif()

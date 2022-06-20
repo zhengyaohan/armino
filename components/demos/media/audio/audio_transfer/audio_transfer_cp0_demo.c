@@ -20,8 +20,16 @@
 #include "ff.h"
 #include "diskio.h"
 
+#define  AUDIO_AEC_DUMP_DEBUG  0
+
+
 #define READ_SIZE    160
 #define WRITE_SIZE    320
+
+#if AUDIO_AEC_DUMP_DEBUG
+#define PSRAM_AUDIO_AEC_SIN_DUMP_DEBUG_BASE      PSRAM_AUD_DECD_RING_BUFF_BASE + 1500
+#define PSRAM_AUDIO_AEC_REF_DUMP_DEBUG_BASE      PSRAM_AUDIO_AEC_SIN_DUMP_DEBUG_BASE + 600
+#endif
 
 FIL encoder_file;
 FIL decoder_file;
@@ -29,6 +37,14 @@ FIL decoder_file;
 
 char encoder_file_name[] = "1:/g711_encoder_data.pcm";    //save mic data received
 char decoder_file_name[] = "1:/g711_decoder_data.pcm";    //save speaker data sended
+#if AUDIO_AEC_DUMP_DEBUG
+static char sin_file_name[] = "1:/sin.pcm";
+static char ref_file_name[] = "1:/ref.pcm";
+static char unused_file_name[] = "1:/unused.pcm";
+FIL sin_file;
+FIL ref_file;
+FIL unused_file;
+#endif
 
 static uint8_t *temp_read_buffer = NULL;
 static uint8_t *temp_write_buffer = NULL;
@@ -44,7 +60,7 @@ void audio_cp0_read_done_callback(uint8_t *buffer, uint32_t length)
 //	uint32_t i = 0;
 	uint32 uiTemp = 0;
 
-//	os_printf("audio_cp0_read_done_callback: buffer=0x%p, length=%d \r\n", buffer, length);
+	//os_printf("audio_cp0_read_done_callback: buffer=0x%p, length=%d \r\n", buffer, length);
 
 	/* write data to file */
 	fr = f_write(&encoder_file, (void *)buffer, length, &uiTemp);
@@ -53,6 +69,31 @@ void audio_cp0_read_done_callback(uint8_t *buffer, uint32_t length)
 		return;
 	}
 	//os_printf("read done \r\n");
+
+#if AUDIO_AEC_DUMP_DEBUG
+	/* write sin data to file */
+	fr = f_write(&sin_file, (void *)PSRAM_AUDIO_AEC_SIN_DUMP_DEBUG_BASE, 320, &uiTemp);
+	if (fr != FR_OK) {
+		os_printf("write %s fail.\r\n", sin_file_name);
+		return;
+	}
+
+	/* write ref data to file */
+	fr = f_write(&ref_file, (void *)PSRAM_AUDIO_AEC_REF_DUMP_DEBUG_BASE, 320, &uiTemp);
+	if (fr != FR_OK) {
+		os_printf("write %s fail.\r\n", ref_file_name);
+		return;
+	}
+
+	/* write unused data to file */
+	fr = f_write(&unused_file, (void *)PSRAM_AUDIO_AEC_REF_DUMP_DEBUG_BASE, 320, &uiTemp);
+	if (fr != FR_OK) {
+		os_printf("write %s fail.\r\n", unused_file_name);
+		return;
+	}
+
+	//os_printf("write done \r\n");
+#endif
 }
 
 /* get encoder used size,
@@ -169,7 +210,7 @@ void cli_cp0_audio_transfer_cmd(char *pcWriteBuffer, int xWriteBufferLen, int ar
 		os_printf("malloc temp_write_buffer:%p complete \r\n", temp_write_buffer);
 
 		/*open file to save mic data has been encoding by g711a */
-		fr = f_open(&encoder_file, encoder_file_name, FA_OPEN_APPEND | FA_WRITE);
+		fr = f_open(&encoder_file, encoder_file_name, FA_CREATE_ALWAYS | FA_WRITE);
 		if (fr != FR_OK) {
 			os_printf("open %s fail.\r\n", encoder_file_name);
 			return;
@@ -181,6 +222,29 @@ void cli_cp0_audio_transfer_cmd(char *pcWriteBuffer, int xWriteBufferLen, int ar
 			os_printf("open %s fail.\r\n", decoder_file_name);
 			return;
 		}
+
+#if AUDIO_AEC_DUMP_DEBUG
+		/*open file to save sin data of AEC */
+		fr = f_open(&sin_file, sin_file_name, FA_CREATE_ALWAYS | FA_WRITE);
+		if (fr != FR_OK) {
+			os_printf("open %s fail.\r\n", sin_file_name);
+			return;
+		}
+
+		/*open file to save ref data of AEC */
+		fr = f_open(&ref_file, ref_file_name, FA_CREATE_ALWAYS | FA_WRITE);
+		if (fr != FR_OK) {
+			os_printf("open %s fail.\r\n", ref_file_name);
+			return;
+		}
+
+		/*open file to save unused data of AEC */
+		fr = f_open(&unused_file, unused_file_name, FA_CREATE_ALWAYS | FA_WRITE);
+		if (fr != FR_OK) {
+			os_printf("open %s fail.\r\n", unused_file_name);
+			return;
+		}
+#endif
 
 		/* register callbacks */
 		bk_audio_register_rw_cb(audio_cp0_read_done_callback,
@@ -224,6 +288,31 @@ void cli_cp0_audio_transfer_cmd(char *pcWriteBuffer, int xWriteBufferLen, int ar
 			return;
 		}
 		os_printf("cp0: close file complete \r\n");
+
+#if AUDIO_AEC_DUMP_DEBUG
+		/* close sin file */
+		fr = f_close(&sin_file);
+		if (fr != FR_OK) {
+			os_printf("close %s fail!\r\n", sin_file_name);
+			return;
+		}
+		os_printf("cp0: close sin file complete \r\n");
+
+		/* close ref file */
+		fr = f_close(&ref_file);
+		if (fr != FR_OK) {
+			os_printf("close %s fail!\r\n", ref_file_name);
+			return;
+		}
+		os_printf("cp0: close ref file complete \r\n");
+
+		/* close unused file */
+		fr = f_close(&unused_file);
+		if (fr != FR_OK) {
+			os_printf("close %s fail!\r\n", unused_file_name);
+			return;
+		}
+#endif
 
 		/* free memory */
 		os_free(temp_read_buffer);

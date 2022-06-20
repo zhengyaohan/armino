@@ -119,7 +119,7 @@ int memory_debug_todo(void)
 //TODO put it to better place, check with XB/HT
 static int pm_init_todo(void)
 {
-#if CONFIG_SOC_BK7256XX || CONFIG_SOC_BK7256_CP1
+#if CONFIG_SOC_BK7256XX
 
 #else
 #if CONFIG_DEEP_PS
@@ -149,7 +149,7 @@ static inline void show_chip_id(void)
 
 static inline void show_sdk_lib_version(void)
 {
-#if (!CONFIG_SOC_BK7256_CP1)
+#if (!CONFIG_SLAVE_CORE)
 	extern char* bk_get_internal_lib_version(void);
 	char* ver = bk_get_internal_lib_version();
 	BK_LOGI(TAG, "armino internal lib rev: %s\n", ver);
@@ -165,7 +165,7 @@ static void show_armino_version(void)
 
 static void show_init_info(void)
 {
-#if CONFIG_SOC_BK7256XX || CONFIG_SOC_BK7256_CP1
+#if CONFIG_SOC_BK7256XX
     show_armino_version();
 #else
 	show_reset_reason();
@@ -239,7 +239,7 @@ void UartDbgInit()
 int components_init(void)
 {
 /*for bringup test*/
-#if CONFIG_SOC_BK7256XX || CONFIG_SOC_BK7256_CP1
+#if CONFIG_SOC_BK7256XX
     if(driver_init())
        return BK_FAIL;
 

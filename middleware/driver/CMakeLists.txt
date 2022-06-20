@@ -37,6 +37,16 @@ set(incs
 set(srcs
 	common/driver.c
 	sys_ctrl/sys_driver.c
+	sys_ctrl/sys_driver_common.c
+	sys_ctrl/sys_ps_driver.c
+	sys_ctrl/sys_int_driver.c
+	sys_ctrl/sys_clock_driver.c
+	sys_ctrl/sys_bt_driver.c
+	sys_ctrl/sys_wifi_driver.c
+	sys_ctrl/sys_audio_driver.c
+	sys_ctrl/sys_video_driver.c
+	sys_ctrl/sys_psram_driver.c
+	sys_ctrl/sys_touch_driver.c
 	common/dd.c
 	common/drv_model.c
 	icu/icu_driver.c
@@ -47,28 +57,40 @@ set(srcs
 	spi/spi_statis.c
 	sys_ctrl/sys_ctrl.c
 	pmu/aon_pmu_driver.c
+	flash/flash.c
+	macphy_bypass/mac_phy_bypass.c
+	gpio/gpio_driver_base.c
+	uart/uart_driver.c
+	uart/uart_statis.c
+	uart/printf.c
+	rw_pub/rw_platf_pub.c
+	saradc/adc_driver.c
+	saradc/adc_statis.c
+	security/security.c
+	security/hal_aes.c
+	security/hal_sha.c
+	spinlock/amp_res_lock.c
 	)
 
+if (CONFIG_MPC)
+	list(APPEND incs
+		mpc
+	)
 
 	list(APPEND srcs
-		flash/flash.c
-		macphy_bypass/mac_phy_bypass.c
-		gpio/gpio_driver_base.c
-		uart/uart_driver.c
-		uart/uart_statis.c
-		uart/printf.c
-		rw_pub/rw_platf_pub.c
-		saradc/adc_driver.c
-		saradc/adc_statis.c
-		security/security.c
-		security/hal_aes.c
-		security/hal_sha.c
-		spinlock/amp_res_lock.c
+		mpc/mpc_driver.c
 	)
+endif()
 
 if (CONFIG_CHIP_SUPPORT)
 	list(APPEND srcs
 		chip_support/chip_support.c
+	)
+endif()
+
+if (CONFIG_USB)
+	list(APPEND srcs
+		sys_ctrl/sys_usb_driver.c
 	)
 endif()
 
@@ -104,7 +126,7 @@ if (CONFIG_PWM)
 		)
 endif()  #if (CONFIG_PWM)
 
-if ((NOT CONFIG_SOC_BK7256XX) AND (NOT CONFIG_SOC_BK7256_CP1))
+if (NOT CONFIG_SOC_BK7256XX)
 if (CONFIG_I2S)
 	list(APPEND srcs
 		i2s/i2s.c
@@ -112,7 +134,7 @@ if (CONFIG_I2S)
 endif()  #if (CONFIG_I2S)
 endif()
 
-if ((NOT CONFIG_SOC_BK7256XX) AND (NOT CONFIG_SOC_BK7256_CP1))
+if (NOT CONFIG_SOC_BK7256XX)
 if (CONFIG_FFT)
 	list(APPEND srcs
 		fft/fft.c
@@ -120,13 +142,13 @@ if (CONFIG_FFT)
 endif()
 endif()
 
-if (CONFIG_SOC_BK7256XX OR CONFIG_SOC_BK7256_CP1)
+if (CONFIG_SOC_BK7256XX)
 	list(APPEND srcs
 		"flash/flash_bypass.c"
 		)
 endif()
 
-if (CONFIG_SOC_BK7256XX OR CONFIG_SOC_BK7256_CP1)
+if (CONFIG_SOC_BK7256XX)
 if (CONFIG_FFT)
 	list(APPEND incs
 		"fft"
@@ -138,7 +160,7 @@ if (CONFIG_FFT)
 endif()
 endif()
 
-if (CONFIG_SOC_BK7256XX OR CONFIG_SOC_BK7256_CP1)
+if (CONFIG_SOC_BK7256XX)
 if (CONFIG_I2S)
 	list(APPEND incs
 		"i2s"
@@ -275,7 +297,7 @@ if (CONFIG_AUDIO_RISCV_IP_V1_0)
 endif()
 
 if (CONFIG_SBC)
-if (CONFIG_SOC_BK7256XX OR CONFIG_SOC_BK7256_CP1)
+if (CONFIG_SOC_BK7256XX)
 	list(APPEND srcs
 		"sbc/sbc_driver.c"
 		)
@@ -293,7 +315,7 @@ endif()
 endif() #if (CONFIG_AUDIO)
 
 if (CONFIG_TOUCH)
-if (CONFIG_SOC_BK7256XX OR CONFIG_SOC_BK7256_CP1)
+if (CONFIG_SOC_BK7256XX)
 	list(APPEND srcs
 		"touch/touch_driver.c"
 		)
@@ -319,7 +341,7 @@ if (CONFIG_SOC_BK7271)
 endif()
 endif() #if (NOT CONFIG_FULLY_HOSTED)
 
-if (CONFIG_SOC_BK7256XX OR CONFIG_SOC_BK7256_CP1)
+if (CONFIG_SOC_BK7256XX)
 	list(APPEND srcs
 		"bk7256/mailbox_driver.c"
 		)

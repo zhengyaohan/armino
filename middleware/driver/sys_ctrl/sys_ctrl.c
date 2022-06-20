@@ -22,14 +22,14 @@
 #include "bk_phy.h"
 #include <os/os.h>
 
-#if (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7256_CP1)
+#if (!CONFIG_SOC_BK7256XX)
 
 #if CONFIG_BLE
 #include <modules/ble.h>
 #endif
 #if ((CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7236))
 #define GPIO_WAKEUP_INT_BAK_ADDR bk_wifi_get_la_base_address()
-#elif (CONFIG_SOC_BK7256_CP1)
+#elif (CONFIG_SOC_BK7256XX && CONFIG_SLAVE_CORE)
 #define GPIO_WAKEUP_INT_BAK_ADDR (0x00808000)
 #else
 #define GPIO_WAKEUP_INT_BAK_ADDR (0x0080a084)
@@ -79,7 +79,7 @@ static UINT32 ps_block_value = 0;
 #if CONFIG_DEEP_PS
 static UINT32 deep_sleep_gpio_floating_map = 0;
 static uint32_t gpio_0_31_status = 0;
-#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7256_CP1)
+#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX)
 static uint32_t gpio_32_39_status = 0;
 static UINT32 deep_sleep_gpio_last_floating_map = 0;
 #endif
@@ -94,7 +94,7 @@ static const DD_OPERATIONS sctrl_op = {
 };
 #endif
 
-#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7256XX)
 void sctrl_fix_dpll_div(void);
 #endif
 
@@ -127,7 +127,7 @@ void sctrl_cali_dpll(UINT8 flag)
 {
 	UINT32 param;
 
-#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX) // || (CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX)
 	extern void bk7011_update_tx_power_when_cal_dpll(int start_or_stop);
 
 	bk7011_update_tx_power_when_cal_dpll(1);
@@ -157,14 +157,14 @@ void sctrl_cali_dpll(UINT8 flag)
 	param |= (SPI_DET_EN);
 	sctrl_analog_set(SCTRL_ANALOG_CTRL0, param);
 
-#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX) // || (CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX)
 	bk7011_update_tx_power_when_cal_dpll(0);
 #endif
 }
 
 void sctrl_dpll_isr(void)
 {
-#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7256XX) // || (CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7256XX)
 	if ((DEVICE_ID_BK7231N_P & DEVICE_ID_MASK) != (sctrl_ctrl(CMD_GET_DEVICE_ID, NULL) & DEVICE_ID_MASK))
 	{
 		os_printf("BIAS Cali\r\n");
@@ -236,7 +236,7 @@ void clock_dco_cali(UINT32 speed)
 		reg_val = sys_drv_analog_get(ANALOG_REG1);
 		reg_val &= ~((DCO_CNTI_MASK << DCO_CNTI_POSI) | (DCO_DIV_MASK << DCO_DIV_POSI));
 		reg_val |= ((0xDD & DCO_CNTI_MASK) << DCO_CNTI_POSI);
-#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7256_CP1) && (!CONFIG_SOC_BK7236)
+#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7236)
 		reg_val |= DIV_BYPASS_BIT;
 #endif
 		sys_drv_analog_set(ANALOG_REG1, reg_val);
@@ -275,7 +275,7 @@ void clock_dco_cali(UINT32 speed)
 
 	reg_val = sys_drv_analog_get(ANALOG_REG1);
 	reg_val &= ~(SPI_RST_BIT);
-#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX)
 	reg_val &= ~(DCO_AMSEL_BIT);
 #endif
 	sys_drv_analog_set(ANALOG_REG1, reg_val);
@@ -311,7 +311,7 @@ void sctrl_dco_cali(UINT32 speed)
 		reg_val = sctrl_analog_get(SCTRL_ANALOG_CTRL1);
 		reg_val &= ~((DCO_CNTI_MASK << DCO_CNTI_POSI) | (DCO_DIV_MASK << DCO_DIV_POSI));
 		reg_val |= ((0xDD & DCO_CNTI_MASK) << DCO_CNTI_POSI);
-#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7256_CP1) && (!CONFIG_SOC_BK7236)
+#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7236)
 		reg_val |= DIV_BYPASS_BIT;
 #endif
 		sctrl_analog_set(SCTRL_ANALOG_CTRL1, reg_val);
@@ -350,7 +350,7 @@ void sctrl_dco_cali(UINT32 speed)
 
 	reg_val = sctrl_analog_get(SCTRL_ANALOG_CTRL1);
 	reg_val &= ~(SPI_RST_BIT);
-#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX)
 	reg_val &= ~(DCO_AMSEL_BIT);
 #endif
 	sctrl_analog_set(SCTRL_ANALOG_CTRL1, reg_val);
@@ -459,7 +459,7 @@ void sctrl_init(void)
 
 #if CONFIG_SYS_REDUCE_NORMAL_POWER
 	param |= ((MCLK_DIV_7 & MCLK_DIV_MASK) << MCLK_DIV_POSI);
-#elif (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7256_CP1)
+#elif (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7256XX)
 	param |= ((MCLK_DIV_5 & MCLK_DIV_MASK) << MCLK_DIV_POSI);
 #elif (CONFIG_SOC_BK7271)
 	param |= ((MCLK_DIV_3 & MCLK_DIV_MASK) << MCLK_DIV_POSI);
@@ -472,7 +472,7 @@ void sctrl_init(void)
 
 	param |= ((MCLK_FIELD_DPLL & MCLK_MUX_MASK) << MCLK_MUX_POSI);
 
-#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX)
 	param |= (BLE_RF_PTA_EN_BIT);
 #endif
 	REG_WRITE(SCTRL_CONTROL, param);
@@ -500,7 +500,7 @@ void sctrl_init(void)
 	//170209,from 0x819A54B to 0x819A55B for auto detect dpll unlock
 	//170614 from 0x819A55B to 0x819A59B for more easy to trigger
 	//181101 xamp:0xf-0 for xtal may dead
-#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX)
 #if (CONFIG_XTAL_FREQ_40M)
 	param = 0x71125B57;
 #else
@@ -515,7 +515,7 @@ void sctrl_init(void)
 
 	sctrl_cali_dpll(0);
 
-#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX)
 	param = 0x3CC019C2;//wangjian20200918 Reg0x17<1>=1
 	/* BK7271: 0x17[28:26] sw_c<2:0>   0   R/W DCO Frequency Triming; 000=freq max; 111=freq min; */
 #elif (CONFIG_SOC_BK7271)
@@ -533,7 +533,7 @@ void sctrl_init(void)
 
 #if (CONFIG_SOC_BK7231)
 	param = 0x24006000;
-#elif (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7256_CP1)
+#elif (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7256XX)
 	if ((DEVICE_ID_BK7231N_P & DEVICE_ID_MASK) == (sctrl_ctrl(CMD_GET_DEVICE_ID, NULL) & DEVICE_ID_MASK))
 	{
 		param = 0x580020E2;//wangjian20210422<28:23>=30 as default for BK7231P
@@ -556,7 +556,7 @@ void sctrl_init(void)
 
 #if (CONFIG_SOC_BK7251)
 	param = CHARGE_ANALOG_CTRL3_CHARGE_DEFAULT_VALUE;
-#elif (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7256_CP1)
+#elif (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX)
 	param = 0x70000000; //wangjiang20200822 0x00000000->0x70000000
 #elif (CONFIG_SOC_BK7271)
 	param = 0x004CA800;
@@ -570,7 +570,7 @@ void sctrl_init(void)
 	param = 0x59E04520;
 #elif (CONFIG_SOC_BK7251)
 	param = CHARGE_ANALOG_CTRL4_CAL_DEFAULT_VALUE;
-#elif (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7256_CP1)
+#elif (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX)
 	param = 0x19C04520;
 #elif (CONFIG_SOC_BK7271)
 	param = 0x800C1000;
@@ -584,7 +584,7 @@ void sctrl_init(void)
 
 	sctrl_sub_reset();
 
-#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7256XX)
 	if ((DEVICE_ID_BK7231N_P & DEVICE_ID_MASK) != (sctrl_ctrl(CMD_GET_DEVICE_ID, NULL) & DEVICE_ID_MASK)) {
 		sctrl_fix_dpll_div();
 	}
@@ -594,7 +594,7 @@ void sctrl_init(void)
 	REG_WRITE(SCTRL_CLK_GATING, 0x3f);
 
 	/* increase VDD voltage*/
-#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX)
 	param = 4;//wyg// original=3
 #elif CONFIG_SYS_REDUCE_NORMAL_POWER
 	param = 4;
@@ -884,7 +884,7 @@ void sctrl_subsys_power(UINT32 cmd)
 		break;
 #else
 
-#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7256_CP1) && (!CONFIG_SOC_BK7236)
+#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7236)
 	case CMD_SCTRL_USB_POWERDOWN:
 		reg = SCTRL_USB_PWR;
 		reg_val = REG_READ(SCTRL_USB_PWR);
@@ -1003,7 +1003,7 @@ void sctrl_subsys_reset(UINT32 cmd)
 	return;
 }
 
-#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7256XX)
 void sctrl_fix_dpll_div(void)
 {
 	volatile INT32   i;
@@ -1040,7 +1040,7 @@ void sctrl_fix_dpll_div(void)
 }
 #endif
 
-#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7256XX)
 void sctrl_mdm_reset(void)
 {
 	volatile INT32 i;
@@ -1097,7 +1097,7 @@ void sctrl_enter_rtos_idle_sleep(PS_DEEP_CTRL_PARAM deep_param)
 	if (4 == flash_get_line_mode())
 		flash_set_line_mode(2);
 
-#if (!CONFIG_SOC_BK7256_CP1)
+#if (!(CONFIG_SOC_BK7256XX && CONFIG_SLAVE_CORE))
 	uart_wait_tx_over();
 #endif
 
@@ -1326,11 +1326,11 @@ void sctrl_exit_rtos_idle_sleep(void)
 int bk_init_deep_wakeup_gpio_status(void)
 {
 	gpio_0_31_status = REG_READ(GPIO_WAKEUP_INT_STATUS_BAK);
-#if(!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7256_CP1)
+#if(!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX)
 	gpio_32_39_status = REG_READ(GPIO_WAKEUP_INT_STATUS1_BAK);
 #endif
 	REG_WRITE(SCTRL_GPIO_WAKEUP_INT_STATUS, 0xFFFFFFFF);
-	#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7256_CP1) && (!CONFIG_SOC_BK7236)
+	#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7236)
 	REG_WRITE(SCTRL_GPIO_WAKEUP_INT_STATUS1, 0xFFFFFFFF);
 	#endif
 	return 0;
@@ -1340,12 +1340,12 @@ int bk_misc_wakeup_get_gpio_num(void)
 	int wakeup_gpio_num = -1;
 
 	REG_WRITE(SCTRL_GPIO_WAKEUP_INT_STATUS, 0xFFFFFFFF);
-	#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7256_CP1) && (!CONFIG_SOC_BK7236)
+	#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7236)
 	REG_WRITE(SCTRL_GPIO_WAKEUP_INT_STATUS1, 0xFFFFFFFF);
 	#endif
 
 	if((0 == gpio_0_31_status)
-	#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7256_CP1) && (!CONFIG_SOC_BK7236)
+	#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7236)
 	&& (0 == gpio_32_39_status)
 	#endif
 	)
@@ -1367,7 +1367,7 @@ int bk_misc_wakeup_get_gpio_num(void)
 			gpio_0_31_status = gpio_0_31_status >> 1;
 		}
 	}
-	#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7256_CP1) && (!CONFIG_SOC_BK7236)
+	#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7236)
 	else if(gpio_32_39_status)
 	{
 		for(int i=32;i<40;i++)
@@ -1396,12 +1396,12 @@ RESET_SOURCE_STATUS sctrl_get_deep_sleep_wake_soure(void)
 		waked_source = RESET_SOURCE_DEEPPS_RTC;
 	}
 	else if(gpio_0_31_status
-#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7256_CP1) && (!CONFIG_SOC_BK7236)
+#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7236)
 	|| gpio_32_39_status
 #endif
 			)
 		waked_source = RESET_SOURCE_DEEPPS_GPIO;
-#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7256_CP1) && (!CONFIG_SOC_BK7236)
+#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7236)
 	else if (REG_READ(SCTRL_USB_PLUG_WAKEUP) & (USB_PLUG_IN_INT_BIT | USB_PLUG_OUT_INT_BIT))
 		waked_source = RESET_SOURCE_DEEPPS_USB;
 #endif
@@ -1420,7 +1420,7 @@ UINT32 sctrl_get_deep_sleep_gpio_floating_map(void)
 	return deep_sleep_gpio_floating_map;
 }
 
-#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7256_CP1)
+#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX)
 void sctrl_set_deep_sleep_gpio_last_floating_map(UINT32 gpio_last_floating_map)
 {
 	deep_sleep_gpio_last_floating_map = gpio_last_floating_map;
@@ -2190,7 +2190,7 @@ UINT32 sctrl_ctrl(UINT32 cmd, void *param)
 		sctrl_cali_dpll(0);
 		break;
 
-#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX)
 	case CMD_BLE_RF_PTA_EN:
 		reg = REG_READ(SCTRL_CONTROL);
 		reg |= (BLE_RF_PTA_EN_BIT);
@@ -2256,7 +2256,7 @@ UINT32 sctrl_ctrl(UINT32 cmd, void *param)
 		break;
 #endif
 
-#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7256_CP1) && (!CONFIG_SOC_BK7236)
+#if (!CONFIG_SOC_BK7231N) && (!CONFIG_SOC_BK7236A) && (!CONFIG_SOC_BK7256XX) && (!CONFIG_SOC_BK7236)
 	case CMD_QSPI_VDDRAM_VOLTAGE:
 		reg = REG_READ(SCTRL_CONTROL);
 		reg &= ~(PSRAM_VDDPAD_VOLT_MASK << PSRAM_VDDPAD_VOLT_POSI);
@@ -2561,7 +2561,7 @@ UINT32 sctrl_ctrl(UINT32 cmd, void *param)
 		break;
 
 	case CMD_SCTRL_SET_GADC_SEL:
-#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7256_CP1) || (CONFIG_SOC_BK7236)
+#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7236)
 		reg = sctrl_analog_get(SCTRL_ANALOG_CTRL4);
 		reg &= ~(GADC_CAL_SEL_MASK << GADC_CAL_SEL_POSI);
 		reg |= (((*(UINT32 *)param) & GADC_CAL_SEL_MASK) << GADC_CAL_SEL_POSI);
@@ -2649,7 +2649,7 @@ UINT32 sctrl_ctrl(UINT32 cmd, void *param)
 		REG_WRITE(SCTRL_BLOCK_EN_MUX, reg);
 		break;
 
-#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7256XX)
 	case CMD_SCTRL_FIX_DPLL_DIV:
 		if ((DEVICE_ID_BK7231N_P & DEVICE_ID_MASK) != (sctrl_ctrl(CMD_GET_DEVICE_ID, NULL) & DEVICE_ID_MASK)) {
 			sctrl_fix_dpll_div();

@@ -331,7 +331,7 @@ void lcd_rgb_display_jpeg(char *pcWriteBuffer, int xWriteBufferLen, int argc, ch
 	os_printf("yuv mode default vyuy \r\n");
 
 	bk_jpeg_enc_register_isr(END_OF_FRAME, jpeg_enc_end_of_frame_cb, NULL);
-	bk_jpeg_dec_complete_cb(jpeg_dec_end_of_frame_cb, NULL);
+	bk_jpeg_dec_complete_cb(jpeg_dec_end_of_frame_cb, JPEGDEC_X_PIXEL_480);
 	
 	os_printf("jpeg enc init.\r\n");
 	jpeg_config.yuv_mode = 0;

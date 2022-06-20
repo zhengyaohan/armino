@@ -959,14 +959,28 @@ extern unsigned char _empty_ram;
 #define HEAP_END_ADDRESS      (void*)(0x00400000 + 192 * 1024)
 #elif (CONFIG_SOC_BK7271)
 #define HEAP_END_ADDRESS      (void*)(0x00400000 + 512 * 1024)
-#elif (CONFIG_SOC_BK7235)
+
+#elif (CONFIG_SOC_BK7235 && !CONFIG_DUAL_CORE)
 #define HEAP_END_ADDRESS      (void*)(0x30000000 + 512 * 1024)
-#elif (CONFIG_SOC_BK7237)
+#elif (CONFIG_SOC_BK7235 && CONFIG_MASTER_CORE)
 #define HEAP_END_ADDRESS      (void*)(0x30000000 + 384 * 1024)
-#elif (CONFIG_SOC_BK7256)
-#define HEAP_END_ADDRESS      (void*)(0x30000000 + 384 * 1024)
-#elif (CONFIG_SOC_BK7256_CP1)
+#elif (CONFIG_SOC_BK7235 && CONFIG_SLAVE_CORE)
 #define HEAP_END_ADDRESS      (void*)(0x30060000 + 127 * 1024) // 1k for swap
+
+#elif (CONFIG_SOC_BK7237 && !CONFIG_DUAL_CORE)
+#define HEAP_END_ADDRESS      (void*)(0x30000000 + 512 * 1024)
+#elif (CONFIG_SOC_BK7237 && CONFIG_MASTER_CORE)
+#define HEAP_END_ADDRESS      (void*)(0x30000000 + 384 * 1024)
+#elif (CONFIG_SOC_BK7237 && CONFIG_SLAVE_CORE)
+#define HEAP_END_ADDRESS      (void*)(0x30060000 + 127 * 1024) // 1k for swap
+
+#elif (CONFIG_SOC_BK7256 && !CONFIG_DUAL_CORE)
+#define HEAP_END_ADDRESS      (void*)(0x30000000 + 512 * 1024)
+#elif (CONFIG_SOC_BK7256 && CONFIG_MASTER_CORE)
+#define HEAP_END_ADDRESS      (void*)(0x30000000 + 384 * 1024)
+#elif (CONFIG_SOC_BK7256 && CONFIG_SLAVE_CORE)
+#define HEAP_END_ADDRESS      (void*)(0x30060000 + 127 * 1024) // 1k for swap
+
 #else
 #define HEAP_END_ADDRESS      (void*)(0x00400000 + 256 * 1024)
 #endif
@@ -1259,7 +1273,7 @@ INSERTED:
 extern unsigned char _bss_start, _bss_end, _data_ram_begin, _data_ram_end;
 void pvShowMemoryConfigInfo(void)
 {
-#if CONFIG_SOC_BK7256XX || CONFIG_SOC_BK7256_CP1
+#if CONFIG_SOC_BK7256XX
 #else
 #if configDYNAMIC_HEAP_SIZE
 	BK_LOGI(TAG, "\n");

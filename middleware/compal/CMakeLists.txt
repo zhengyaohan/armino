@@ -24,9 +24,12 @@ if(CONFIG_COMMON_IO)
 				common_io/iot_gpio.c
 				common_io/iot_flash.c
 				common_io/iot_timer.c
-				common_io/iot_rtc.c
 				common_io/iot_reset.c
 	)
+
+if(CONFIG_AON_RTC)
+	list(APPEND srcs	common_io/iot_rtc.c)
+endif()
 
 if(CONFIG_PWM)
 	list(APPEND srcs	common_io/iot_pwm.c)
@@ -57,9 +60,15 @@ endif()
 				common_io/test/test_iot_watchdog.c
 				common_io/test/test_iot_reset.c
 				common_io/test/test_iot_efuse.c
-				common_io/test/test_iot_rtc.c
 				common_io/test/all_tests.c
 	)
+
+if(CONFIG_AON_RTC)
+	list(APPEND srcs
+				common_io/test/test_iot_rtc.c
+	)
+endif()
+
 	list(APPEND incs
 				unity/extras/fixture/src
 				unity/src

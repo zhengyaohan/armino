@@ -4,8 +4,8 @@
 #include <os/str.h>
 #include <os/os.h>
 #include "bk_cli.h"
+#include <modules/pm.h>
 
-#include "sys_driver.h"
 #include <common/bk_err.h>
 #include <driver/lcd.h>
 #include <driver/dma.h>
@@ -15,17 +15,20 @@
 
 #define JPEGDEC_DATA_ADDR     (0x601E0000) // JPEG DEC DATA
 #define YUV_RESIZE_ADDR       (0x60500000) // YUV RESIZE DATA
-#define DMA_TRANSFER_LEN      0xFF00//480*272/2;
+//#define DMA_TRANSFER_LEN      0xFF00//480*272/2;
 
 extern void delay(INT32 num);
 
 static uint8_t dma_int_cnt = 0;
+static uint8_t dma_all_cnt = 0;
 static uint8_t dma_channel_id = 0;
 static uint8_t dis_clk_div = 0;
 static uint8_t g_uvc_frame_rate = 10;
+static uint8_t g_lcd_dev = 0;
 static bool g_uvc_enable = false;
 static uint32_t g_image_width = 640;
 static uint32_t g_image_height = 480;
+static uint32_t g_dma_transfer_len = 0xFF00;
 
 beken_thread_t  uvc_cpu1_demo_thread_handle = NULL;
 beken_queue_t uvc_cpu1_demo_msg_que = NULL;
@@ -58,33 +61,36 @@ static bk_err_t uvc_cpu1_send_msg(uint8_t type, uint32_t data)
 	return kNoResourcesErr;
 }
 
-static void image_resize_to_480_272(uint32_t input_size, uint8_t *input_ptr, uint8_t *output_ptr)
+static void image_resize_to_480_272(uint32_t width, uint32_t height, uint8_t *input_ptr, uint8_t *output_ptr)
 {
-	uint8_t *left_top_ptr = NULL;
-	uint32_t left_top_x = 0;
-	uint32_t left_top_y = 0;
-	uint32_t width = 0;
-	uint32_t compy_length = 480 * 2; // every col have 480 pixel
-	switch (input_size) {
-	case 720:
-		left_top_x = 400;
-		left_top_y = 224;
-		width = 1280;
-		break;
-	case 480:
-		left_top_x = 80;
-		left_top_y = 104;
-		width = 640;
-		break;
-	default:
-		return;
-	}
+	if (g_lcd_dev) {
+		uint8_t *left_top_ptr = NULL;
+		uint32_t left_top_x = 0;
+		uint32_t left_top_y = 0;
+		uint32_t compy_length = 480 * 2; // every col have 480 pixel
 
-	left_top_ptr = ((left_top_y - 1) * width + left_top_x) * 2 + input_ptr;
-	for (uint32_t col = left_top_y; col < (left_top_y + 272); col++) {
-		os_memcpy(output_ptr, left_top_ptr, compy_length);
-		left_top_ptr += width * 2;
-		output_ptr += compy_length;
+		if (width == 1280 && height == 720) {
+			left_top_x = 400;
+			left_top_y = 224;
+		} else if (width == 640 && height == 480) {
+			left_top_x = 80;
+			left_top_y = 104;
+		} else if (width == 480 && height == 272) {
+			os_memcmp(output_ptr, input_ptr, width * height * 2);
+			return;
+		} else {
+			os_printf("Not support\r\n");
+		}
+
+		left_top_ptr = ((left_top_y - 1) * width + left_top_x) * 2 + input_ptr;
+		for (uint32_t col = left_top_y; col < (left_top_y + 272); col++) {
+			os_memcpy(output_ptr, left_top_ptr, compy_length);
+			left_top_ptr += width * 2;
+			output_ptr += compy_length;
+		}
+	} else {
+		//output_ptr = input_ptr;
+		os_memcpy(output_ptr, input_ptr, width * height * 2);
 	}
 }
 
@@ -100,7 +106,7 @@ static void dma_jpeg_dec_to_lcdfifo_isr(dma_id_t id)
 {
 	uint32_t source_start_addr;
 	dma_int_cnt++;
-	if(dma_int_cnt == 4)
+	if(dma_int_cnt == dma_all_cnt)
 	{
 		if (g_uvc_enable) {
 			dma_int_cnt = 0;
@@ -111,11 +117,11 @@ static void dma_jpeg_dec_to_lcdfifo_isr(dma_id_t id)
 			dma_int_cnt = 0;
 			source_start_addr = (uint32_t)YUV_RESIZE_ADDR;
 			bk_dma_set_src_addr(dma_channel_id, source_start_addr, 0);
-			bk_dma_start(dma_channel_id);
+			bk_dma_stop(dma_channel_id);
 		}
 	}
 	else {
-		source_start_addr = (uint32_t)YUV_RESIZE_ADDR + (uint32_t)(DMA_TRANSFER_LEN * dma_int_cnt);
+		source_start_addr = (uint32_t)YUV_RESIZE_ADDR + (uint32_t)(g_dma_transfer_len * dma_int_cnt);
 		bk_dma_set_src_addr(dma_channel_id, source_start_addr, 0);
 		bk_dma_start(dma_channel_id);
 	}
@@ -130,7 +136,7 @@ static void dma_jpeg_dec_to_lcdfifo(void)
 	dma_config.src.dev = DMA_DEV_DTCM;
 	dma_config.src.width = DMA_DATA_WIDTH_32BITS;
 	dma_config.src.start_addr = (uint32) YUV_RESIZE_ADDR;
-	dma_config.src.end_addr = (uint32) YUV_RESIZE_ADDR + DMA_TRANSFER_LEN;
+	dma_config.src.end_addr = (uint32) YUV_RESIZE_ADDR + g_dma_transfer_len;
 	dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
 	dma_config.dst.dev = DMA_DEV_LCD_DATA;
 	dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
@@ -144,14 +150,14 @@ static void dma_jpeg_dec_to_lcdfifo(void)
 
 	BK_LOG_ON_ERR(bk_dma_init(dma_channel_id, &dma_config));
 
-	BK_LOG_ON_ERR(bk_dma_set_transfer_len(dma_channel_id, DMA_TRANSFER_LEN));
+	BK_LOG_ON_ERR(bk_dma_set_transfer_len(dma_channel_id, g_dma_transfer_len));
 	BK_LOG_ON_ERR(bk_dma_register_isr(dma_channel_id, NULL, dma_jpeg_dec_to_lcdfifo_isr));
 	BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(dma_channel_id));
 }
 
 static void uvc_jpegdec_frame_end_callback(void)
 {
-	image_resize_to_480_272(g_image_height, (uint8_t *)JPEGDEC_DATA_ADDR, (uint8_t *)YUV_RESIZE_ADDR);
+	image_resize_to_480_272(g_image_width, g_image_height, (uint8_t *)JPEGDEC_DATA_ADDR, (uint8_t *)YUV_RESIZE_ADDR);
 	bk_lcd_rgb_display_en(1);
 	bk_dma_start(dma_channel_id);
 }
@@ -179,12 +185,22 @@ static bk_err_t uvc_cpu1_uvc_init(uint32_t frame_resolution, uint32_t fps, uint3
 
 	// step 1: init lcd
 	if (dis_clk_div != 0) {
-		// step 1: video power_up
-		sys_drv_module_power_ctrl(POWER_MODULE_NAME_VIDP,POWER_MODULE_STATE_ON);
+		// step 1: lcd power_up
+		pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_LCD, PM_POWER_MODULE_STATE_ON);
 
 		bk_lcd_driver_init(LCD_96M);
 
-		bk_lcd_rgb_init(dis_clk_div, X_PIXEL_RGB, Y_PIXEL_RGB, ORGINAL_YUYV_DATA);
+		if (g_image_width == X_PIXEL_RGB && g_image_height == Y_PIXEL_RGB_800) {
+			g_lcd_dev = 0;
+			bk_lcd_rgb_init(dis_clk_div, X_PIXEL_RGB, Y_PIXEL_RGB_800, ORGINAL_YUYV_DATA);
+			dma_all_cnt = 15;
+			g_dma_transfer_len = 0xC800;
+		} else {
+			g_lcd_dev = 1;
+			bk_lcd_rgb_init(dis_clk_div, X_PIXEL_RGB, Y_PIXEL_RGB, ORGINAL_YUYV_DATA);
+			dma_all_cnt = 4;
+			g_dma_transfer_len = 0xFF00;
+		}
 
 		bk_lcd_isr_register(RGB_OUTPUT_EOF, lcd_display_frame_isr);
 
@@ -251,8 +267,8 @@ static bk_err_t uvc_cpu1_deinit(void)
 		// step 3: deinit lcd
 		bk_lcd_rgb_display_en(0);
 
-		// step 4: video power off
-		sys_drv_module_power_ctrl(POWER_MODULE_NAME_VIDP,POWER_MODULE_STATE_OFF);
+		// step 4: lcd power off
+		pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_LCD, PM_POWER_MODULE_STATE_OFF);
 	}
 	return BK_OK;
 }
@@ -263,16 +279,10 @@ static bk_err_t uvc_cpu1_process_cpu0_cmd(uint32_t cmd_type)
 	switch (cmd_type) {
 		case UVC_MB_UVC_START:
 		{
-			if (dis_clk_div != 0) {
-				// step 1: stop dma
-				bk_dma_stop(dma_channel_id);
-				dma_int_cnt = 0;
-			}
-
-			// step 2: enable uvc_enable flag
+			// step 1: enable uvc_enable flag
 			g_uvc_enable = true;
 
-			// step 3: start uvc
+			// step 2: start uvc
 			err = bk_uvc_set_start();
 			if (err != kNoErr) {
 				os_printf("uvc set start failed!\r\n");
@@ -282,24 +292,24 @@ static bk_err_t uvc_cpu1_process_cpu0_cmd(uint32_t cmd_type)
 		}
 		case UVC_MB_UVC_STOP:
 		{
-			if (dis_clk_div != 0) {
-				// step 1: stop rgb display
-				bk_lcd_rgb_display_en(0);
-
-				// step 2: stop dma
-				bk_dma_stop(dma_channel_id);
-				dma_int_cnt = 0;
-				bk_dma_set_src_addr(dma_channel_id, (uint32_t)YUV_RESIZE_ADDR, 0);
-			}
-
-			// step 3: stop uvc
+			// step 1: stop uvc
 			err = bk_uvc_set_stop();
 			if (err != kNoErr) {
 				os_printf("uvc set stop failed!\r\n");
 				break;
 			}
 
-			// step 2: diasble uvc_enable flag
+			if (dis_clk_div != 0) {
+				// step 2: stop rgb display
+				bk_lcd_rgb_display_en(0);
+
+				// step 3: stop dma
+				bk_dma_stop(dma_channel_id);
+				dma_int_cnt = 0;
+				bk_dma_set_src_addr(dma_channel_id, (uint32_t)YUV_RESIZE_ADDR, 0);
+			}
+
+			// step 4: diasble uvc_enable flag
 			g_uvc_enable = false;
 			os_printf("cpu1 uvc stop ok\r\n");
 			break;
@@ -462,6 +472,10 @@ void uvc_process_cpu1(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		}
 	} else if (os_strcmp(argv[1], "ppi_fps") == 0) {
 		uint16_t count = os_strtoul(argv[2], NULL, 10);
+		if (count > 12) {
+			os_printf("NOT Support over 12 kind of image resolution type\r\n");
+			return;
+		}
 		uvc_ppi_fps_t * param = os_malloc(count * sizeof (uvc_ppi_fps_t));
 		if (param == NULL) {
 			os_printf("memory not enough\r\n");

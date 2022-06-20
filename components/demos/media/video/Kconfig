@@ -29,3 +29,7 @@ config JPEG_DECODE
 config SPIDMA
 	bool "Enable SPI DMA"
 	default n
+	
+	config VIDEO_LCD
+	bool "Enable SPI DMA"
+	default n

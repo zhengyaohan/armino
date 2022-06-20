@@ -160,7 +160,7 @@ void bk_misc_update_set_type(uint32_t type)
 	uint32_t misc_value = type & SW_RETENTION_VAL_MASK;
 	sctrl_ctrl(CMD_SET_SCTRL_RETETION, &misc_value);
 }
-#elif (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7256_CP1)
+#elif (CONFIG_SOC_BK7256XX)
 RESET_SOURCE_STATUS reset_reason_init(void)
 {
 	return RESET_SOURCE_UNKNOWN;

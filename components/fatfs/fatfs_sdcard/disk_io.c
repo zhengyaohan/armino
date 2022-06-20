@@ -204,7 +204,7 @@ DRESULT disk_ioctl (
 		switch(cmd)
 		{
 		case CTRL_SYNC:
-			os_printf("not support CTRL_SYNC \r\n");
+			//os_printf("not support CTRL_SYNC \r\n");
 			res = RES_OK;
 			break;
 		case GET_SECTOR_SIZE:

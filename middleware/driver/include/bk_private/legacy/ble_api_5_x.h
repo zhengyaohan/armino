@@ -786,3 +786,13 @@ typedef struct
     uint16_t len;
 } ble_att_notify_t;
 
+typedef struct
+{
+    uint16_t evt_type;
+    uint8_t    peer_address_type;
+    bd_addr_t  peer_address;
+    uint8_t rssi;
+    uint8_t *data;
+    uint8_t data_len;
+    uint8_t *name;
+} ble_adv_report_t;

@@ -28,7 +28,7 @@
 #endif
 #include "bk_uart_debug.h"
 #include "bk_api_cli.h"
-#if CONFIG_SOC_BK7256_CP1
+#if CONFIG_SLAVE_CORE
 #include "media_common.h"
 #endif
 
@@ -321,18 +321,19 @@ static void cli_ate_main(uint32_t data)
 	int cnt = 0;
 	uint8_t rx_data;
 
-        if(NULL == ate_test_semaphore)
-    	{
-              ret = rtos_init_semaphore(&ate_test_semaphore, 1);
-        	if (kNoErr != ret)
-            		os_printf("cli_ate_main: ATE create background sema failed\r\n");
-    	}
+	if(NULL == ate_test_semaphore)
+	{
+		ret = rtos_init_semaphore(&ate_test_semaphore, 1);
+		if (kNoErr != ret)
+			os_printf("cli_ate_main: ATE create background sema failed\r\n");
+	}
 
 	bk_uart_disable_sw_fifo(CONFIG_UART_PRINT_PORT);
 	bk_uart_register_rx_isr(CONFIG_UART_PRINT_PORT, (uart_isr_t)ate_uart_rx_isr, NULL);
 	bk_uart_enable_rx_interrupt(CONFIG_UART_PRINT_PORT);
 
 	send_device_id();
+	ate_test_multiple_cpus_init();
 
 	while (1) {
 
@@ -1500,7 +1501,7 @@ int bk_cli_init(void)
 	pCli->echo_disabled = 0;
 #endif
 
-#if CONFIG_SOC_BK7256_CP1
+#if CONFIG_SLAVE_CORE
 	ret = common_mb_init();
 	if (ret != kNoErr) {
 		os_printf("Error: Failed to create common_mb thread: %d\r\n", ret);

@@ -11,6 +11,8 @@ menu "SOC_CONFIG"
 		default SOC_BK7256 if "$ARMINO_SOC" = "bk7256"
 		default SOC_BK7256_CP1 if "$ARMINO_SOC" = "bk7256_cp1"
 		default SOC_BK7235 if "$ARMINO_SOC" = "bk7235"
+		default SOC_BK7235 if "$ARMINO_SOC" = "bk7235a"
+		default SOC_BK7235 if "$ARMINO_SOC" = "bk7235b"
 		default SOC_BK7237 if "$ARMINO_SOC" = "bk7237"
 
 		config SOC_BK7231N

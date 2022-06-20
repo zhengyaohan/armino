@@ -3,15 +3,16 @@
 #include <os/str.h>
 #include <os/os.h>
 #include <stdlib.h>
-#include <components/system.h>
+//#include <components/system.h>
 #include "driver/lcd_disp_types.h"
 #include <driver/lcd.h>
 #include <driver/dma.h>
 #include "bk_cli.h"
-#include "sys_driver.h"
+//#include "sys_driver.h"
 #include <lcd_dma2d_config.h>
 #include <driver/psram.h>
 #include "lcd_spi_config.h"
+#include <modules/pm.h>
 
 #define LCD_FRAMEADDR     0x60000000
 
@@ -94,10 +95,12 @@ void lcd_device_init_handler(char *pcWriteBuffer, int xWriteBufferLen, int argc,
 		// step 2: init gpio
 		lcd_init_gpio();
 		spi_init_gpio();
-		sys_drv_module_power_ctrl(POWER_MODULE_NAME_VIDP,POWER_MODULE_STATE_ON);
+		//sys_drv_module_power_ctrl(POWER_MODULE_NAME_VIDP,POWER_MODULE_STATE_ON);
+		pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_LCD, PM_POWER_MODULE_STATE_ON);
+		pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_DMA2D, PM_POWER_MODULE_STATE_ON);
 	} else if (os_strcmp(argv[1], "gc9503v") == 0) {
 		uint32_t time = 0;
-		
+
 		time = os_strtoul(argv[2], NULL, 10);
 		lcd_set_spi_delay_time(time);
 		
@@ -125,7 +128,7 @@ void lcd_device_init_handler(char *pcWriteBuffer, int xWriteBufferLen, int argc,
 			dma_transfer_len = 0xC800;
 			dma_all_cnt = 15;
 		}
-		
+
 		dis_clk_div = os_strtoul(argv[4], NULL, 10);
 		color = os_strtoul(argv[5], NULL, 16);
 		os_printf("color:%04x\r\n", color);

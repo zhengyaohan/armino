@@ -8,6 +8,8 @@
 #include "modules/pm.h"
 #include "sys_driver.h"
 #include "bk_pm_internal_api.h"
+#include <driver/mailbox_channel.h>
+#if CONFIG_MCU_PS
 static void cli_ps_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 #if PS_SUPPORT_MANUAL_SLEEP
@@ -65,7 +67,8 @@ static void cli_ps_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 _invalid_ps_arg:
 	os_printf("Usage:ps {rfdtim|mcudtim|rf_timer} {1/0}\r\n");
 }
-#if CONFIG_AON_RTC
+#endif
+#if CONFIG_SYSTEM_CTRL
 static UINT32 s_cli_sleep_mode = 0;
 static UINT32 s_pm_vote1 = 0;
 static UINT32 s_pm_vote2 = 0;
@@ -93,9 +96,7 @@ static void cli_pm_rtc_callback()
 		pm_module_vote_sleep_ctrl(s_pm_vote2,0x0,0x0);
 		pm_module_vote_sleep_ctrl(s_pm_vote3,0x0,0x0);
 	}
-	
 	os_printf("cli_pm_callback\r\n");
-	
 }
 extern void stop_slave_core(void);
 static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -276,6 +277,68 @@ static void cli_pm_vol(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 	pm_lp_vol_set(pm_vol);
 
 }
+static void cli_pm_clk(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	UINT32 pm_clk_state  = 0;
+	UINT32 pm_module_id  = 0;
+	if (argc != 3)
+	{
+		os_printf("set pm clk parameter invalid %d\r\n",argc);
+		return;
+	}
+
+	pm_module_id = os_strtoul(argv[1], NULL, 10);
+	pm_clk_state = os_strtoul(argv[2], NULL, 10);
+	if ((pm_clk_state < 0) || (pm_clk_state > 1) || (pm_module_id < 0) || (pm_module_id > 31))
+	{
+		os_printf("set pm clk value invalid %d %d\r\n",pm_clk_state,pm_module_id);
+		return;
+	}
+	pm_clock_ctrl(pm_module_id,pm_clk_state);
+
+}
+static void cli_pm_power(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	UINT32 pm_power_state  = 0;
+	UINT32 pm_module_id  = 0;
+	if (argc != 3)
+	{
+		os_printf("set pm power parameter invalid %d\r\n",argc);
+		return;
+	}
+
+	pm_module_id = os_strtoul(argv[1], NULL, 10);
+	pm_power_state = os_strtoul(argv[2], NULL, 10);
+	if ((pm_power_state < 0) || (pm_power_state > 1) || (pm_module_id < 0) || (pm_module_id > 31))
+	{
+		os_printf("set pm power value invalid %d %d \r\n",pm_power_state,pm_module_id);
+		return;
+	}
+
+	pm_module_vote_power_ctrl(pm_module_id,pm_power_state);
+
+}
+static void cli_pm_freq(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	UINT32 pm_freq  = 0;
+	UINT32 pm_module_id  = 0;
+	if (argc != 3)
+	{
+		os_printf("set pm freq parameter invalid %d\r\n",argc);
+		return;
+	}
+
+	pm_module_id = os_strtoul(argv[1], NULL, 10);
+	pm_freq = os_strtoul(argv[2], NULL, 10);
+	if ((pm_freq < 0) || (pm_freq > 3) || (pm_module_id < 0) || (pm_module_id > 31))
+	{
+		os_printf("set pm freq value invalid %d %d \r\n",pm_freq,pm_module_id);
+		return;
+	}
+
+	pm_module_vote_cpu_freq(pm_module_id,pm_freq);
+
+}
 static void cli_pm_lpo(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 	UINT32 pm_lpo  = 0;
@@ -368,12 +431,14 @@ static void cli_dvfs_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, cha
 	if(cksel_core > 3)
 	{
 		os_printf("set dvfs cksel core > 3 invalid %d\r\n",cksel_core);
+		GLOBAL_INT_RESTORE();
 		return;
 	}
 
 	if((ckdiv_core > CLI_DVFS_FREQUNCY_DIV_MAX) || (ckdiv_bus > CLI_DVFS_FREQUNCY_DIV_BUS_MAX)||(ckdiv_cpu0 > CLI_DVFS_FREQUNCY_DIV_MAX)||(ckdiv_cpu0 > CLI_DVFS_FREQUNCY_DIV_MAX))
 	{
 		os_printf("set dvfs ckdiv_core ckdiv_bus ckdiv_cpu0  ckdiv_cpu0  > 15 invalid\r\n");
+		GLOBAL_INT_RESTORE();
 		return;
 	}
 
@@ -434,6 +499,7 @@ static void cli_dvfs_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, cha
 	GLOBAL_INT_RESTORE();
 }
 #endif
+#if CONFIG_MCU_PS
 static void cli_deep_sleep_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 	PS_DEEP_CTRL_PARAM deep_sleep_param;
@@ -582,19 +648,24 @@ void cli_pwr_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv
 		bk_wifi_ap_set_power(pwr);
 	}
 }
-
+#endif
 #define PWR_CMD_CNT (sizeof(s_pwr_commands) / sizeof(struct cli_command))
 static const struct cli_command s_pwr_commands[] = {
+#if CONFIG_MCU_PS
 	{"ps", "ps {rfdtim|mcudtim|rf_timer} {1|0}", cli_ps_cmd},
 	{"mac_ps", "mac_ps {func} [param1] [param2]", cli_mac_ps_cmd},
 	{"deep_sleep", "deep_sleep [param]", cli_deep_sleep_cmd},
-#if CONFIG_AON_RTC
+#endif
+#if CONFIG_SYSTEM_CTRL
 	{"pm", "pm [sleep_mode] [wake_source] [vote1] [vote2] [vote3] [param1] [param2] [param3]", cli_pm_cmd},
 	{"dvfs", "dvfs [cksel_core] [ckdiv_core] [ckdiv_bus] [ckdiv_cpu0] [ckdiv_cpu1]", cli_dvfs_cmd},
 	{"pm_vote", "pm_vote [pm_sleep_mode] [pm_vote] [pm_vote_value] [pm_sleep_time]", cli_pm_vote_cmd},
 	{"pm_debug", "pm_debug [debug_en_value]", cli_pm_debug},
 	{"pm_lpo", "pm_lpo [lpo_type]", cli_pm_lpo},
 	{"pm_vol", "pm_vol [vol_value]", cli_pm_vol},
+	{"pm_clk", "pm_clk [module_name][clk_state]", cli_pm_clk},
+	{"pm_power", "pm_power [module_name][ power state]", cli_pm_power},
+	{"pm_freq", "pm_freq [module_name][ frequency]", cli_pm_freq},
 #endif
 #if CONFIG_TPC_PA_MAP
 	{"pwr", "pwr {sta|ap} pwr", cli_pwr_cmd },

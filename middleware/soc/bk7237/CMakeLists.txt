@@ -87,7 +87,7 @@ set(LD_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_custom_command(
 	OUTPUT ${target}_out.ld
-	COMMAND "${CMAKE_C_COMPILER}" -C -P -x c -E -o ${target}_out.ld -I ${config_dir} ${LD_DIR}/${target}.ld
+	COMMAND "${CMAKE_C_COMPILER}" -C -P -x c -E -o ${target}_out.ld -I ${config_dir} ${LD_DIR}/${target}_bsp.ld
 	MAIN_DEPENDENCY ${LD_DIR}/${target}.ld ${sdkconfig_header}
 	COMMENT "Generating linker script..."
 	VERBATIM)

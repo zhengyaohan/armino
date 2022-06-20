@@ -10,6 +10,7 @@ set(incs
 	)
 set(srcs "stub.c")
 list(APPEND srcs
+	"hal/mpc_hal_debug.c"
 	"hal/pwm_hal_debug.c"
 	"hal/pwm_ll.c"
 	"hal/timer_hal_debug.c"

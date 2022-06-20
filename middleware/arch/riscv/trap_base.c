@@ -23,12 +23,11 @@
 #include <driver/wdt.h>
 #include <bk_wdt.h>
 
-#if (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7235)
-#define RAM_BASE_ADDR 0x30000000
-#define RAM_DUMP_SIZE (384*1024)
-#elif CONFIG_SOC_BK7256_CP1
+
+#if (CONFIG_SOC_BK7256XX && CONFIG_SLAVE_CORE)
 #define RAM_BASE_ADDR 0x30060000
-#define RAM_DUMP_SIZE (128*1024)
+#else
+#define RAM_BASE_ADDR 0x30000000
 #endif
 
 #define SYS_DELAY_TIME_5S	    (85000000UL)
@@ -152,9 +151,10 @@ void trap_handler(unsigned long mcause, SAVED_CONTEXT *context)
 		// Make sure the interrupt is disable
 		uint32_t int_level = rtos_disable_int();
 
+#if CONFIG_INT_WDT
 		close_wdt();
 		bk_task_wdt_stop();
-
+#endif
 		/* Handled Trap */
 		g_enter_exception = 1;
 		BK_LOG_FLUSH();
@@ -305,3 +305,93 @@ void user_nmi_handler(unsigned long mcause) {
 	}
 	close_wdt();
 }
+
+#if CONFIG_SAVE_BOOT_TIME_POINT
+
+static uint64_t s_saved_boot_info[2*CPU_SAVED_TIME_MAX];
+
+extern uint64_t riscv_get_mtimer(void);
+extern uint64_t riscv_get_instruct_cnt(void);
+
+static uint32_t get_saved_time_info_addr(uint32_t time_point) {
+	uint32_t addr = 0;
+
+	if (CPU_BOOT_TIME == time_point) {
+		//The BSS section not ready at cpu boot time point
+		addr = CPU_BOOT_TIME_ADDR;
+	} else if (time_point < CPU_SAVED_TIME_MAX){
+		addr = (uint32_t)&s_saved_boot_info[2*time_point];
+	}
+
+	return addr;
+}
+
+void save_mtime_point(uint32_t time_point) {
+	uint32_t addr = get_saved_time_info_addr(time_point);
+
+	if (0 != addr) {
+		*((uint64_t *)addr) = riscv_get_mtimer();
+		*((uint64_t *)addr + 1) = riscv_get_instruct_cnt();
+	}
+}
+
+void show_saved_mtime_point(uint32_t time_point) {
+	uint32_t addr = get_saved_time_info_addr(time_point);
+
+	if (0 != addr) {
+		uint64_t saved_time = *((uint64_t *)addr);
+		uint64_t saved_inst_cnt = *((uint64_t *)addr + 1);
+		uint32_t saved_time_ms = (u32)(saved_time & 0xFFFFFFFF) / 26000;
+		BK_DUMP_OUT("saved time: 0x%x:0x%08x\r\n", (u32)(saved_time >> 32), (u32)(saved_time & 0xFFFFFFFF));
+		BK_DUMP_OUT("saved time: %ldms\r\n", saved_time_ms);
+		BK_DUMP_OUT("saved inst_cnt: 0x%x:0x%08x\r\n", (u32)(saved_inst_cnt >> 32), (u32)(saved_inst_cnt & 0xFFFFFFFF));
+	}
+}
+
+void show_saved_mtime_info(void)
+{
+	BK_DUMP_OUT("==============Show Boot Time===================\r\n");
+	show_saved_mtime_point(CPU_BOOT_TIME);
+
+	BK_DUMP_OUT("==============Show Init Mem Time===================\r\n");
+	show_saved_mtime_point(CPU_INIT_MEM_TIME);
+
+	BK_DUMP_OUT("==============Show MAIN Emtry Time===================\r\n");
+	show_saved_mtime_point(CPU_MAIN_ENTRY_TIME);
+
+	BK_DUMP_OUT("==============Show INIT Driver Time===================\r\n");
+	show_saved_mtime_point(CPU_INIT_DRIVER_TIME);
+
+	BK_DUMP_OUT("==============Show App Entry Time===================\r\n");
+	show_saved_mtime_point(CPU_APP_ENTRY_TIME);
+
+	BK_DUMP_OUT("==============Show Start Sche Time===================\r\n");
+	show_saved_mtime_point(CPU_START_SCHE_TIME);
+
+	BK_DUMP_OUT("==============Show Start Wifi init Time===================\r\n");
+	show_saved_mtime_point(CPU_START_WIFI_INIT_TIME);
+
+	BK_DUMP_OUT("==============Show Finish Wifi init Time===================\r\n");
+	show_saved_mtime_point(CPU_FINISH_WIFI_INIT_TIME);
+
+	BK_DUMP_OUT("==============Show App Finish Time===================\r\n");
+	show_saved_mtime_point(CPU_APP_FINISH_TIME);
+
+	BK_DUMP_OUT("==============Show Main Finish Time===================\r\n");
+	show_saved_mtime_point(CPU_MIAN_FINISH_TIME);
+
+	BK_DUMP_OUT("==============Show Start Connect Time===================\r\n");
+	show_saved_mtime_point(CPU_START_CONNECT_TIME);
+
+	BK_DUMP_OUT("==============Show Wifi Connected Time===================\r\n");
+	show_saved_mtime_point(CPU_CONNECTED_TIME);
+}
+
+
+void show_current_time_point(const char *info) {
+	uint64_t current_time = riscv_get_mtimer();;
+	uint32_t current_time_ms = (u32) (current_time/26000);
+	BK_DUMP_OUT("%s: current time: %ldms\r\n", info, current_time_ms);
+}
+
+#endif

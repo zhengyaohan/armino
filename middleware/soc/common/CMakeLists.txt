@@ -21,7 +21,13 @@ set(srcs
 if (CONFIG_FLASH)
 	list(APPEND srcs
 		hal/flash_hal.c
-		)
+	)
+endif()
+
+if (CONFIG_MPC)
+	list(APPEND srcs
+		hal/mpc_hal.c
+	)
 endif()
 
 if (CONFIG_FFT)
@@ -91,7 +97,7 @@ if(CONFIG_SECURITYIP)
 endif()
 
 if(CONFIG_AUDIO)
-if(CONFIG_SOC_BK7256XX OR CONFIG_SOC_BK7256_CP1)
+if(CONFIG_SOC_BK7256XX)
 	list(APPEND srcs
 		"hal/aud_hal.c"
 	)

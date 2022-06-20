@@ -201,6 +201,8 @@ CONFIG_BLE_CONN_NUM=1
 # Driver
 #
 
+CONFIG_MPC=y
+
 #
 # Watchdog
 #
@@ -385,3 +387,4 @@ CONFIG_STA_AUTO_RECONNECT=y
 # end of Supplicant
 # end of Components Configuration
 # end of ARMINO Configuration
+

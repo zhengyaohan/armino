@@ -28,6 +28,7 @@
 #include <driver/dma.h>
 #include "dma_driver.h"
 #include "sys_driver.h"
+#include <modules/pm.h>
 
 typedef struct {
 	lcd_isr_t lcd_8080_frame_start_handler;
@@ -230,16 +231,14 @@ bk_err_t bk_lcd_rgb_deinit(void)
 bk_err_t bk_lcd_power_on_ctrl(bool is_lcd_power_on)
 {
 	if(is_lcd_power_on) {
-		sys_drv_module_power_ctrl(POWER_MODULE_NAME_VIDP,POWER_MODULE_STATE_ON);
-		//sys_drv_dev_clk_pwr_up(CLK_PWR_ID_DISP, CLK_PWR_CTRL_PWR_UP);
+		//sys_drv_module_power_ctrl(POWER_MODULE_NAME_VIDP,POWER_MODULE_STATE_ON);
+		pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_LCD, PM_POWER_MODULE_STATE_ON);
 	} else {
-		sys_drv_module_power_ctrl(POWER_MODULE_NAME_VIDP, POWER_MODULE_STATE_OFF);
-		//sys_drv_dev_clk_pwr_up(CLK_PWR_ID_DISP, CLK_PWR_CTRL_PWR_DOWN);
+		//sys_drv_module_power_ctrl(POWER_MODULE_NAME_VIDP, POWER_MODULE_STATE_OFF);
+		pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_LCD, PM_POWER_MODULE_STATE_OFF);
 	}
 	return BK_OK;
 }
-
-
 
  bk_err_t  bk_lcd_8080_write_cmd(uint32_t cmd)
 {

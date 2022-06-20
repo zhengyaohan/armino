@@ -232,6 +232,13 @@ function(__build_init armino_path)
         LOGI("LIB_HASH IS \"$ENV{LIB_HASH}\"")
     endif()
 
+	if(NOT $ENV{PROJECT})
+		if($ENV{PROJECT} STREQUAL "ate_mini_code")
+			armino_build_set_property(COMPILE_DEFINITIONS "-DCONFIG_ATE_TEST=1" APPEND)
+			LOGI("PROJECT IS \"$ENV{PROJECT}\"")
+		endif()
+	endif()
+
     #__build_get_armino_git_revision()
     __kconfig_init()
 

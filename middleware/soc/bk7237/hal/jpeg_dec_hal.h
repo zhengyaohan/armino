@@ -113,6 +113,7 @@ void JpegdecInit(JDEC* jdec,  uint32_t * dec_src_addr);
 
 int jpg_decoder_init(void);
 
+int jpg_decoder_deinit(void);
 
 #ifdef __cplusplus
 }

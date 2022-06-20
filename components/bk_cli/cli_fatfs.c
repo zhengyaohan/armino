@@ -11,11 +11,11 @@ static void fatfs_operate(char *pcWriteBuffer, int xWriteBufferLen, int argc, ch
 	DISK_NUMBER drv_num = DISK_NUMBER_SDIO_SD;
 	char file_name[64];
 	char write_content[64];
-	uint32_t content_len = 0;
+	uint32_t content_len = 0, test_cnt = 0;
 	
 	if (argc >= 3) {
 		cmd = argv[1][0];
-		drv_num = os_strtoul(argv[2], NULL, 16);
+		drv_num = os_strtoul(argv[2], NULL, 10);
 		if(argc >= 4)
 		{
 			snprintf(&file_name[0], sizeof(file_name) - 1, argv[3]);
@@ -28,9 +28,12 @@ static void fatfs_operate(char *pcWriteBuffer, int xWriteBufferLen, int argc, ch
 
 				if(argc >= 6)
 				{
-					content_len = os_strtoul(argv[5], NULL, 16);
+					content_len = os_strtoul(argv[5], NULL, 10);
 					content_len = content_len > (sizeof(write_content) - 1) ? (sizeof(write_content) - 1) : content_len;
 					content_len = content_len > strlen(write_content)? strlen(write_content) : content_len;
+
+					//re-use in autotest
+					test_cnt = os_strtoul(argv[5], NULL, 10);
 				}
 			}
 		}
@@ -46,6 +49,27 @@ static void fatfs_operate(char *pcWriteBuffer, int xWriteBufferLen, int argc, ch
 		case 'W':
 			test_fatfs_append_write(drv_num, file_name, write_content, content_len);
 			os_printf("append and write:%s,%s\r\n", file_name, write_content);
+			break;
+		//fatfstest D dev-num file-name start-addr dump-len
+		case 'D':
+		{
+			uint32_t start_addr = 0;
+			if(argc >= 5)
+			{
+				start_addr = os_strtoul(argv[4], NULL, 10);
+			}
+			test_fatfs_dump(drv_num, file_name, start_addr, content_len);
+			break;
+		}
+
+		//fatfstest A dev-num file-name write-len test_cnt
+		//fatfstest A 1 autotest.txt 12487 3
+		case 'A':
+			if(argc >= 5)
+			{
+				content_len = os_strtoul(argv[4], NULL, 10);
+			}
+			test_fatfs_auto_test(drv_num, file_name, content_len, test_cnt);
 			break;
 		case 'F':
 			test_fatfs_format(drv_num);

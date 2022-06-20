@@ -20,7 +20,6 @@
 #include <components/system.h>
 
 #define PRODUCT_KEY             "aclsemi"
-#define PRODUCT_SECRET          "gIH3WXHo84Jq5XtJ"
 #define DEVICE_NAME             "bk7256"
 #define DEVICE_SECRET           "nMwWRZrjupURGSByK7qu3uCwzEYUHORu"
 
@@ -192,14 +191,14 @@ static void mqtt_subcribe_topic(void *pclient, const char *topic) {
 
         if (NULL != topic) {
             /* Subscribe the specific topic */
-            rc = IOT_MQTT_Subscribe(pclient, topic, IOTX_MQTT_QOS1, mqtt_cmd_msg_handle, NULL);
+            rc = IOT_MQTT_Subscribe(pclient, topic, IOTX_MQTT_QOS0, mqtt_cmd_msg_handle, NULL);
             if (rc < 0) {
                 // IOT_MQTT_Destroy(&pclient);
                 log_info("IOT_MQTT_Subscribe() topic(%s) failed, rc = %d.\n", topic, rc);
             }
         } else {
             /* Subscribe the specific topic */
-            rc = IOT_MQTT_Subscribe(pclient, TOPIC_CMD, IOTX_MQTT_QOS1, mqtt_cmd_msg_handle, NULL);
+            rc = IOT_MQTT_Subscribe(pclient, TOPIC_CMD, IOTX_MQTT_QOS0, mqtt_cmd_msg_handle, NULL);
             if (rc < 0) {
 
                 log_info("IOT_MQTT_Subscribe() TOPIC_CMD failed, rc = %d.\n", rc);
@@ -221,7 +220,7 @@ static void mqtt_publish_data(void *pclient) {
     /* Initialize topic information */
     memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
 
-    topic_msg.qos = IOTX_MQTT_QOS1;
+    topic_msg.qos = IOTX_MQTT_QOS0;
     topic_msg.retain = 0;
     topic_msg.dup = 0;
 
@@ -398,7 +397,7 @@ int mqtt_client_example(const char *host_name, const char *username,
     mqtt_params.password = pconn_info->password;
     mqtt_params.pub_key = pconn_info->pub_key;
 
-    mqtt_params.request_timeout_ms = 2000;
+    mqtt_params.request_timeout_ms = 3000;
     mqtt_params.clean_session = 0;
     mqtt_params.keepalive_interval_ms = 60000;
     mqtt_params.pread_buf = msg_readbuf;

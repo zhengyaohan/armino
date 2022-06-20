@@ -351,6 +351,12 @@ menu "Driver"
 				bool "Enable CALENDAR"
 				default n
 	endmenu
+	
+	menu "MPC"
+			config MPC
+				bool "Enable MPC"
+				default n
+	endmenu
 
 	menu "System control"
 		config SYS_REDUCE_NORMAL_POWER

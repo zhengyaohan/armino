@@ -494,6 +494,10 @@ void sys_hal_module_power_ctrl(power_module_name_t module,power_module_state_t p
 	}
 
 }
+int32 sys_hal_module_power_state_get(power_module_name_t module)
+{
+	return 0;
+}
 void sys_hal_module_RF_power_ctrl (module_name_t module,power_module_state_t power_state)
 {
     uint32_t value = 0;
@@ -823,11 +827,6 @@ uint32 sys_hal_set_intr_raw_status(uint32 param)
 
 	return reg;
 }
-
-int32 sys_hal_conf_pwm_plck(uint32 param);
-int32 sys_hal_conf_pwm_lpoclk(uint32 param);
-int32 sys_hal_conf_plck_26m(uint32 param);
-int32 sys_hal_conf_plck_dco(uint32 param);
 
 int32 sys_hal_set_jtag_mode(uint32 param)
 {

@@ -7,9 +7,10 @@ extern "C" {
 #endif
 
 #include <driver/int.h>
+#include "common/bk_err.h"
+
 
 #define PARAM_DATA_VALID  (0xFFFF)
-
 
 typedef enum
 {
@@ -71,20 +72,28 @@ typedef enum
 }pm_wakeup_source_e;
 typedef enum
 {
-	PM_POWER_MODULE_NAME_MEM1 = 0,
-	PM_POWER_MODULE_NAME_MEM2,
-	PM_POWER_MODULE_NAME_MEM3,
-	PM_POWER_MODULE_NAME_ENCP,
-	PM_POWER_MODULE_NAME_BAKP,
-	PM_POWER_MODULE_NAME_AHBP,
-	PM_POWER_MODULE_NAME_AUDP,
-	PM_POWER_MODULE_NAME_VIDP,
-	PM_POWER_MODULE_NAME_BTSP,      //8
-	PM_POWER_MODULE_NAME_WIFIP_MAC, //9
-	PM_POWER_MODULE_NAME_WIFI_PHY,
-	PM_POWER_MODULE_NAME_CPU1 ,     //11
-	PM_POWER_MODULE_NAME_APP ,      //12
-	PM_POWER_MODULE_NAME_NONE
+	PM_POWER_MODULE_NAME_MEM1 = 0,   // 0
+	PM_POWER_MODULE_NAME_MEM2,       // 1
+	PM_POWER_MODULE_NAME_MEM3,       // 2
+	PM_POWER_MODULE_NAME_ENCP,       // 3
+	PM_POWER_MODULE_NAME_BAKP,       // 4
+	PM_POWER_MODULE_NAME_AHBP,       // 5
+	PM_POWER_MODULE_NAME_AUDP,       // 6
+	PM_POWER_MODULE_NAME_VIDP,       // 7
+	PM_POWER_MODULE_NAME_BTSP,       // 8
+	PM_POWER_MODULE_NAME_WIFIP_MAC,  // 9
+	PM_POWER_MODULE_NAME_WIFI_PHY,   // 10
+	PM_POWER_MODULE_NAME_CPU1 ,      // 11
+	PM_POWER_MODULE_NAME_APP ,       // 12  app not power domain
+	PM_POWER_SUB_MODULE_NAME_AUDP_FFT ,     // 13
+	PM_POWER_SUB_MODULE_NAME_AUDP_SBC ,     // 14
+	PM_POWER_SUB_MODULE_NAME_AUDP_AUDIO ,   // 15
+	PM_POWER_SUB_MODULE_NAME_AUDP_I2S ,     // 16
+	PM_POWER_SUB_MODULE_NAME_VIDP_JPEG_EN , // 17
+	PM_POWER_SUB_MODULE_NAME_VIDP_JPEG_DE , // 18
+	PM_POWER_SUB_MODULE_NAME_VIDP_DMA2D ,   // 19
+	PM_POWER_SUB_MODULE_NAME_VIDP_LCD ,     // 20
+	PM_POWER_MODULE_NAME_NONE               // 21
 }pm_power_module_name_e;
 
 typedef enum
@@ -106,6 +115,122 @@ typedef enum
 	PM_LPO_SRC_ROSC,    //32K from ROSC
 	PM_LPO_SRC_DEFAULT  //32K from ROSC
 }pm_lpo_src_e;
+typedef enum
+{
+	PM_CLK_ID_I2C1 = 0, // 0
+	PM_CLK_ID_SPI_1,    // 1
+	PM_CLK_ID_UART1,    // 2
+	PM_CLK_ID_PWM_1,    // 3
+	PM_CLK_ID_TIMER_1,  // 4
+	PM_CLK_ID_SARADC,   // 5
+	PM_CLK_ID_IRDA,     // 6
+	PM_CLK_ID_EFUSE,    // 7
+	PM_CLK_ID_I2C2,     // 8
+	PM_CLK_ID_SPI_2,    // 9
+	PM_CLK_ID_UART2,    // 10
+	PM_CLK_ID_UART3,    // 11
+	PM_CLK_ID_PWM_2,    // 12
+	PM_CLK_ID_TIMER_2,  // 13
+	PM_CLK_ID_TIMER_3,  // 14
+	PM_CLK_ID_OTP,      // 15
+	PM_CLK_ID_I2S_1,    // 16
+	PM_CLK_ID_USB_1,    // 17
+	PM_CLK_ID_CAN,      // 18
+	PM_CLK_ID_PSRAM,    // 19
+	PM_CLK_ID_QSPI_1,   // 20
+	PM_CLK_ID_QSPI_2,   // 21
+	PM_CLK_ID_SDIO,     // 22
+	PM_CLK_ID_AUXS,     // 23
+	PM_CLK_ID_BTDM,     // 24
+	PM_CLK_ID_XVR,      // 25
+	PM_CLK_ID_MAC,      // 26
+	PM_CLK_ID_PHY,      // 27
+	PM_CLK_ID_JPEG,     // 28
+	PM_CLK_ID_DISP,     // 29
+	PM_CLK_ID_AUDIO,    // 30
+	PM_CLK_ID_WDG_CPU,  // 31
+
+	PM_CLK_ID_NONE
+}pm_dev_clk_e;
+typedef enum
+{
+	PM_CLK_CTRL_PWR_DOWN = 0,
+	PM_CLK_CTRL_PWR_UP,
+}pm_dev_clk_pwr_e;
+typedef enum
+{
+	PM_DEV_ID_I2C1 = 0, // 0
+	PM_DEV_ID_SPI_1,    // 1
+	PM_DEV_ID_UART1,    // 2
+	PM_DEV_ID_PWM_1,    // 3
+	PM_DEV_ID_TIMER_1,  // 4
+	PM_DEV_ID_SARADC,   // 5
+	PM_DEV_ID_IRDA,     // 6
+	PM_DEV_ID_EFUSE,    // 7
+	PM_DEV_ID_I2C2,     // 8
+	PM_DEV_ID_SPI_2,    // 9
+	PM_DEV_ID_UART2,    // 10
+	PM_DEV_ID_UART3,    // 11
+	PM_DEV_ID_PWM_2,    // 12
+	PM_DEV_ID_TIMER_2,  // 13
+	PM_DEV_ID_TIMER_3,  // 14
+	PM_DEV_ID_OTP,      // 15
+	PM_DEV_ID_I2S_1,    // 16
+	PM_DEV_ID_USB_1,    // 17
+	PM_DEV_ID_CAN,      // 18
+	PM_DEV_ID_PSRAM,    // 19
+	PM_DEV_ID_QSPI_1,   // 20
+	PM_DEV_ID_QSPI_2,   // 21
+	PM_DEV_ID_SDIO,     // 22
+	PM_DEV_ID_AUXS,     // 23
+	PM_DEV_ID_BTDM,     // 24
+	PM_DEV_ID_XVR,      // 25
+	PM_DEV_ID_MAC,      // 26
+	PM_DEV_ID_PHY,      // 27
+	PM_DEV_ID_JPEG,     // 28
+	PM_DEV_ID_DISP,     // 29
+	PM_DEV_ID_AUDIO,    // 30
+	PM_DEV_ID_WDG_CPU,  // 31
+
+	PM_DEV_ID_MAX
+}pm_dev_id_e;
+typedef enum
+{
+	PM_CPU_FRQ_26M = 0,  // 0:CPU:26M,BUS:26M
+	PM_CPU_FRQ_120M,     // 1:CPU:120M,BUS:120M
+	PM_CPU_FRQ_240M,     // 2:CPU:240M,BUS:120M
+	PM_CPU_FRQ_320M      // 3:CPU:320M,BUS:160M
+}pm_cpu_freq_e;
+/**
+ * @brief vote cpu frequency
+ *
+ * select the cpu frequency
+ *
+ * @attention
+ * - This API is used to vote ,then select the cpu frequency
+ *
+ * @param
+ * -module:module id;cpu_freq:cpu frequency(320M,240M,120M,26M)
+ * @return
+ *  - BK_OK: succeed
+ *  - others: other errors.
+ */
+bk_err_t pm_module_vote_cpu_freq(pm_dev_id_e module,pm_cpu_freq_e cpu_freq);
+/**
+ * @brief clock ctrl
+ *
+ * enable or disable dev clock
+ *
+ * @attention
+ * - This API is used to enable or disable dev clock
+ *
+ * @param
+ * -module:device id;clock_state:PM_CLK_CTRL_PWR_DOWN or  PM_CLK_CTRL_PWR_DOWN
+ * @return
+ *  - BK_OK: succeed
+ *  - others: other errors.
+ */
+bk_err_t pm_clock_ctrl(pm_dev_clk_e module,pm_dev_clk_pwr_e clock_state);
 /**
  * @brief lp voltage set
  *
@@ -117,10 +242,11 @@ typedef enum
  * @param
  * -uint32_t:0x0:0.6v;0x1:0.7v;0x2:0.8v;0x3:0.9v;0x4:1.0v;0x5:1.1v;0x6:1.2v;0x7:1.3v;
  * @return
- *    - BK_OK: succeed
+ * - BK_OK: succeed
+ * - others: other errors.
  *
  */
-int pm_lp_vol_set( uint32_t lp_vol);
+bk_err_t pm_lp_vol_set( uint32_t lp_vol);
 
 /**
  * @brief lp voltage get
@@ -148,10 +274,10 @@ uint32_t pm_lp_vol_get();
  * @param
  * -lpo_src:0x0:32K from 26m;0x1:32K from 26m;0x2:32K from ROSC;0x3:32K from ROSC
  * @return
- *    - BK_OK: succeed
- *
+ * - BK_OK: succeed
+ * - others: other errors.
  */
-int pm_lpo_src_set(pm_lpo_src_e lpo_src);
+bk_err_t pm_lpo_src_set(pm_lpo_src_e lpo_src);
 
 /**
  * @brief lpo source get
@@ -179,10 +305,10 @@ pm_lpo_src_e pm_lpo_src_get();
  * @param
  * -power_state:0x0:enable the mcu power manage;0x1:disable the mcu power manage
  * @return
- *    - BK_OK: succeed
- *
+ *  - BK_OK: succeed
+ *  - others: other errors.
  */
-int pm_mcu_pm_ctrl(uint32_t power_state);
+bk_err_t pm_mcu_pm_ctrl(uint32_t power_state);
 
 /**
  * @brief get the mcu power feature state
@@ -208,13 +334,13 @@ uint32_t pm_mcu_pm_state_get();
  * @attention
  * - This API set sleep mode
  *
- * @param sleep mode
+ * @param sleep mode:0x0:NORMAL_SLEEP;0x1:LOW_VOLTAGE;0x2:DEEP_SLEEP;0x3:DEFAULT(if it meet low voltage,enter low voltage,otherwise enter normal sleep);
  *
  * @return
  * - BK_OK: succeed
- *
+ * - others: other errors.
  */
-int pm_sleep_mode_set(pm_sleep_mode_e sleep_mode);
+bk_err_t pm_sleep_mode_set(pm_sleep_mode_e sleep_mode);
 
 /**
  * @brief set wakeup source
@@ -229,9 +355,9 @@ int pm_sleep_mode_set(pm_sleep_mode_e sleep_mode);
  * -source_param: the wakeup source parameter
  * @return
  * - BK_OK: succeed
- *
+ * - others: other errors.
  */
-int pm_wakeup_source_set(pm_wakeup_source_e wakeup_source, void* source_param);
+bk_err_t pm_wakeup_source_set(pm_wakeup_source_e wakeup_source, void* source_param);
 
 /**
  * @brief module vote sleep ctrl
@@ -247,10 +373,10 @@ int pm_wakeup_source_set(pm_wakeup_source_e wakeup_source, void* source_param);
  * -sleep_state:0x1:enter sleep;0x0:exit sleep
  * -sleep_time: sleep time
  * @return
- *    - BK_OK: succeed
- *
+ * - BK_OK: succeed
+ * - others: other errors.
  */
-int pm_module_vote_sleep_ctrl(pm_power_module_name_e module,uint32_t sleep_state,uint32_t sleep_time);
+bk_err_t pm_module_vote_sleep_ctrl(pm_power_module_name_e module,uint32_t sleep_state,uint32_t sleep_time);
 
 /**
  * @brief pm module vote power ctrl
@@ -265,9 +391,9 @@ int pm_module_vote_sleep_ctrl(pm_power_module_name_e module,uint32_t sleep_state
  * -power_state:0x1:power off;0x0:power on
  * @return
  * - BK_OK: succeed
- *
+ * - others: other errors.
  */
-int pm_module_vote_power_ctrl(pm_power_module_name_e module,pm_power_module_state_e power_state);
+bk_err_t pm_module_vote_power_ctrl(pm_power_module_name_e module,pm_power_module_state_e power_state);
 
 /**
  * @brief pm suppress ticks and sleep
@@ -281,9 +407,9 @@ int pm_module_vote_power_ctrl(pm_power_module_name_e module,pm_power_module_stat
  * -sleep_ticks:sleep time using tick unit
  * @return
  * - BK_OK: succeed
- *
+ * - others: other errors.
  */
-int pm_suppress_ticks_and_sleep(uint32_t sleep_ticks);
+bk_err_t pm_suppress_ticks_and_sleep(uint32_t sleep_ticks);
 /**
  * @brief enter sleep
  *

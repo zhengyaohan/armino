@@ -31,6 +31,14 @@
 #define  AUD_TRANS_DEBUG_DAC  0
 #define  AUD_TRANS_DEBUG_ADC  0
 #define  AUD_DEBUG  0
+#define  AUDIO_TRANSFER_AEC_SOFTWARE_MODE  0
+#define  AUDIO_AEC_DUMP_DEBUG  0
+
+
+#if AUDIO_AEC_DUMP_DEBUG
+#define PSRAM_AUDIO_AEC_SIN_DUMP_DEBUG_BASE      PSRAM_AUD_DECD_RING_BUFF_BASE + 1500
+#define PSRAM_AUDIO_AEC_REF_DUMP_DEBUG_BASE      PSRAM_AUDIO_AEC_SIN_DUMP_DEBUG_BASE + 600
+#endif
 
 
 typedef enum {
@@ -54,14 +62,24 @@ static uint32_t frame_sample = 0;        //一帧AEC处理数据的点数
 int16_t* ref_addr = NULL;
 int16_t* mic_addr = NULL;
 int16_t* out_addr = NULL;
+#if AUDIO_TRANSFER_AEC_SOFTWARE_MODE
+int32_t *mic_ring_buff = NULL;     //存放audio adc采集到的mic信号
+int32_t *ref_ring_buff = NULL;     //存放aec的ref信号
+#else
 int16_t* temp_mic_ref_addr = NULL;
 int32_t *mic_ref_ring_buff = NULL;     //存放audio adc采集到的mic信号的ref参考信号
+#endif
 int16_t *aec_ring_buff = NULL;         //存放经过aec算法处理后的mic信号
 int32_t *speaker_ring_buff = NULL;     //存放经过decoder解码后的dac信号
 
 dma_id_t adc_dma_id = DMA_ID_MAX;
 dma_id_t dac_dma_id = DMA_ID_MAX;
+#if AUDIO_TRANSFER_AEC_SOFTWARE_MODE
+static RingBufferContext mic_rb;
+static RingBufferContext ref_rb;
+#else
 static RingBufferContext mic_ref_rb;
+#endif
 static RingBufferContext aec_rb;
 static RingBufferContext encoder_rb;
 static RingBufferContext decoder_rb;
@@ -195,7 +213,11 @@ static bk_err_t audio_adc_config(audio_sample_rate_t samp_rate)
 	bk_err_t ret = BK_OK;
 	aud_adc_config_t adc_config;
 
+#if AUDIO_TRANSFER_AEC_SOFTWARE_MODE
+	adc_config.mic_config = AUD_MIC_MIC1_ENABLE;
+#else
 	adc_config.mic_config = AUD_MIC_ALL_ENABLE;
+#endif
 	adc_config.samp_rate = samp_rate;
 	adc_config.adc_enable = AUD_ADC_DISABLE;
 	adc_config.line_enable = AUD_ADC_LINE_DISABLE;
@@ -264,11 +286,16 @@ static bk_err_t audio_dac_config(audio_sample_rate_t samp_rate)
 
 	dac_config.dac_enable = AUD_DAC_DISABLE;
 	//dac_config.samp_rate = samp_rate;
-	dac_config.samp_rate = AUDIO_SAMP_RATE_8K;
+	//dac_config.samp_rate = AUDIO_SAMP_RATE_8K;
+	dac_config.samp_rate = AUD_DAC_SAMP_RATE_SOURCE_8K;
 	dac_config.dac_hpf2_coef_B2 = 0x3A22;
 	dac_config.dac_hpf2_bypass_enable = AUD_DAC_HPF_BYPASS_ENABLE;
 	dac_config.dac_hpf1_bypass_enable = AUD_DAC_HPF_BYPASS_ENABLE;
-	dac_config.dac_set_gain = 0x15;    //default 2D  3F
+#if AUDIO_TRANSFER_AEC_SOFTWARE_MODE
+	dac_config.dac_set_gain = 0x32;    //default 2D  3F  15
+#else
+	dac_config.dac_set_gain = 0x3F;    //default 2D  3F  15
+#endif
 	dac_config.dac_clk_invert = AUD_DAC_CLK_INVERT_RISING;
 
 	dac_config.dac_hpf2_coef_B0 = 0x3A22;
@@ -329,10 +356,17 @@ static void audio_aec_config(audio_sample_rate_t samp_rate)
 	aec_ctrl(aec, AEC_CTRL_CMD_SET_FLAGS, 0x1f);							  //库内各模块开关; aec_init内默认赋值0x1f;
 
 	/* 回声消除相关 */
-	aec_ctrl(aec, AEC_CTRL_CMD_SET_MIC_DELAY, 10);							  //设置参考信号延迟(采样点数，需要dump数据观察)
+#if AUDIO_TRANSFER_AEC_SOFTWARE_MODE
+	aec_ctrl(aec, AEC_CTRL_CMD_SET_MIC_DELAY, 272);							  //设置参考信号延迟(采样点数，需要dump数据观察)
+	aec_ctrl(aec, AEC_CTRL_CMD_SET_EC_DEPTH, 60);							  //建议取值范围1~50; 后面几个参数建议先用aec_init内的默认值，具体需要根据实际情况调试; 总得来说回声越大需要调的越大
+	aec_ctrl(aec, AEC_CTRL_CMD_SET_TxRxThr, 60);							  //建议取值范围10~64
+	aec_ctrl(aec, AEC_CTRL_CMD_SET_TxRxFlr, 40);							  //建议取值范围1~10
+#else
+	aec_ctrl(aec, AEC_CTRL_CMD_SET_MIC_DELAY, 10); 						  //设置参考信号延迟(采样点数，需要dump数据观察)
 	aec_ctrl(aec, AEC_CTRL_CMD_SET_EC_DEPTH, 0);							  //建议取值范围1~50; 后面几个参数建议先用aec_init内的默认值，具体需要根据实际情况调试; 总得来说回声越大需要调的越大
 	aec_ctrl(aec, AEC_CTRL_CMD_SET_TxRxThr, 13);							  //建议取值范围10~64
 	aec_ctrl(aec, AEC_CTRL_CMD_SET_TxRxFlr, 1); 							  //建议取值范围1~10
+#endif
 	aec_ctrl(aec, AEC_CTRL_CMD_SET_REF_SCALE, 0);							  //取值0,1,2；rx数据如果幅值太小的话适当放大
 	aec_ctrl(aec, AEC_CTRL_CMD_SET_VOL, 14);								  //通话过程中如果需要经常调节喇叭音量就设置下当前音量等级
 	/* 降噪相关 */
@@ -368,9 +402,14 @@ static bk_err_t audio_adc_dma_config(dma_id_t dma_id, int32_t *ring_buff_addr, u
 	dma_config.mode = DMA_WORK_MODE_REPEAT;
 	dma_config.chan_prio = 1;
 	dma_config.src.dev = DMA_DEV_AUDIO;
-	dma_config.src.width = DMA_DATA_WIDTH_32BITS;
 	dma_config.dst.dev = DMA_DEV_DTCM;
+#if AUDIO_TRANSFER_AEC_SOFTWARE_MODE
+	dma_config.src.width = DMA_DATA_WIDTH_16BITS;
 	dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
+#else
+	dma_config.src.width = DMA_DATA_WIDTH_32BITS;
+	dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
+#endif
 
 	/* get adc fifo address */
 	if (bk_aud_get_adc_fifo_addr(&adc_port_addr) != BK_OK) {
@@ -379,8 +418,13 @@ static bk_err_t audio_adc_dma_config(dma_id_t dma_id, int32_t *ring_buff_addr, u
 	} else {
 		dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
 		dma_config.src.addr_loop_en = DMA_ADDR_LOOP_ENABLE;
+#if AUDIO_TRANSFER_AEC_SOFTWARE_MODE
 		dma_config.src.start_addr = adc_port_addr;
 		dma_config.src.end_addr = adc_port_addr + 4;
+#else
+		dma_config.src.start_addr = adc_port_addr;
+		dma_config.src.end_addr = adc_port_addr + 4;
+#endif
 	}
 
 	dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE;
@@ -451,10 +495,14 @@ static bk_err_t audio_dac_dma_config(dma_id_t dma_id, int32_t *ring_buff_addr, u
 	dma_config.mode = DMA_WORK_MODE_REPEAT;
 	dma_config.chan_prio = 1;
 	dma_config.src.dev = DMA_DEV_DTCM;
-	dma_config.src.width = DMA_DATA_WIDTH_32BITS;
 	dma_config.dst.dev = DMA_DEV_AUDIO;
+#if AUDIO_TRANSFER_AEC_SOFTWARE_MODE
+	dma_config.src.width = DMA_DATA_WIDTH_32BITS;
+	dma_config.dst.width = DMA_DATA_WIDTH_16BITS;
+#else
+	dma_config.src.width = DMA_DATA_WIDTH_32BITS;
 	dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
-
+#endif
 	/* get dac fifo address */
 	if (bk_aud_get_dac_fifo_addr(&dac_port_addr) != BK_OK) {
 		os_printf("get dac fifo address failed\r\n");
@@ -494,7 +542,6 @@ static bk_err_t audio_aec_process(void)
 {
 	bk_err_t ret = BK_OK;
 	uint32_t size = 0;
-	uint32_t i = 0;
 	audio_cp1_msg_t msg;
 #if AUD_DEBUG
 	os_printf("[audio_aec_process] \r\n");
@@ -508,8 +555,37 @@ static bk_err_t audio_aec_process(void)
 	os_printf("mic_ref_rb: free_size=%d \r\n", size);
 #endif
 
+#if AUDIO_TRANSFER_AEC_SOFTWARE_MODE
+	/* get a fram mic data from mic_ring_buff */
+	size = ring_buffer_read(&mic_rb, (uint8_t*)mic_addr, frame_sample*2);
+	if (size != frame_sample*2) {
+		os_printf("cp1: the mic data readed from mic_ring_buff is not a frame \r\n");
+		return BK_FAIL;
+	}
+
+	//os_printf("mic_addr: mic_addr[0]= %02x, mic_addr[0]= %02x \r\n", mic_addr[0], mic_addr[1]);
+
+	/* read ref data from ref_ring_buff */
+	size = ring_buffer_read(&ref_rb, (uint8_t*)ref_addr, frame_sample*2);
+	if (size != frame_sample*2) {
+		os_printf("cp1: the ref data readed from ref_ring_buff is not a frame \r\n");
+		//return BK_FAIL;
+		//os_memcpy(ref_addr, 0, frame_sample*2);
+	}
+	//os_printf("ref_addr: ref_addr[0]= %02x, ref_addr[0]= %02x \r\n", ref_addr[0], ref_addr[1]);
+
+#if AUDIO_AEC_DUMP_DEBUG
+	os_memcpy((void *)PSRAM_AUDIO_AEC_SIN_DUMP_DEBUG_BASE, mic_addr, frame_sample*2);
+	os_memcpy((void *)PSRAM_AUDIO_AEC_REF_DUMP_DEBUG_BASE, ref_addr, frame_sample*2);
+	//os_printf("memcopy complete \r\n");
+#endif
+
+	/* aec process data */
+	aec_proc(aec, ref_addr, mic_addr, out_addr);
+	//os_printf("out_addr: out_addr[0]= %02x, out_addr[0]= %02x \r\n", out_addr[0], out_addr[1]);
+#else
 	/* get a fram mic and ref data from mic_ref_ring_buff */
-	//size = ring_buffer_read(&mic_ref_rb, (uint8_t*)out_addr, frame_sample*2*2);
+	uint32_t i = 0;
 	size = ring_buffer_read(&mic_ref_rb, (uint8_t*)temp_mic_ref_addr, frame_sample*2*2);
 	if (size != frame_sample*2*2) {
 		os_printf("cp1: the mic and ref data readed from mic_ref_ring_buff is not a frame \r\n");
@@ -524,6 +600,7 @@ static bk_err_t audio_aec_process(void)
 
 	/* aec process data */
 	aec_proc(aec, ref_addr, mic_addr, out_addr);
+#endif  //AUDIO_TRANSFER_AEC_SOFTWARE_MODE
 
 	/* save mic data after aec processed to aec_ring_buffer */
 	//size = ring_buffer_write(&aec_rb, (uint8_t*)out_addr, frame_sample*2);
@@ -582,6 +659,7 @@ static bk_err_t audio_encoder_process(void)
 	/* G711A encoding pcm data to a-law data*/
 	for (i=0; i<frame_sample; i++) {
 		law_data[i] = linear2alaw(pcm_data[i]);
+		//os_printf("pcm_data[%d]: %d \r\n", i, pcm_data[i]);
 	}
 
 #if AUD_TRANS_DEBUG_ADC
@@ -623,9 +701,16 @@ static bk_err_t audio_decoder_process(void)
 	uint32_t fill_size = 0;
 	uint32_t i = 0;
 	audio_mailbox_msg_t mb_msg;
-	//uint16_t pcm_data[AUD_DECD_FRAME_SAMP_SIZE] = {0};
-	int16_t pcm_data[AUD_DECD_FRAME_SAMP_SIZE*2] = {0};
 	unsigned char law_data[AUD_DECD_FRAME_SAMP_SIZE] = {0};
+#if AUDIO_TRANSFER_AEC_SOFTWARE_MODE
+	//int16_t ref_data[AUD_DECD_FRAME_SAMP_SIZE] = {0};
+	uint32_t mic_fill_size = 0;
+	uint32_t speaker_fill_size = 0;
+	int16_t pcm_data[AUD_DECD_FRAME_SAMP_SIZE] = {0};
+#else
+	int16_t pcm_data[AUD_DECD_FRAME_SAMP_SIZE*2] = {0};
+#endif
+
 
 #if AUD_DEBUG
 	os_printf("[audio_decoder_process] \r\n");
@@ -649,19 +734,47 @@ static bk_err_t audio_decoder_process(void)
 
 		/* G711A decoding a-law data to pcm data*/
 		for (i=0; i<AUD_DECD_FRAME_SAMP_SIZE; i++) {
-			//pcm_data[i] = linear2alaw(law_data[i]);
+#if AUDIO_TRANSFER_AEC_SOFTWARE_MODE
+			pcm_data[i] = alaw2linear(law_data[i]);
+#else
 			pcm_data[2*i] = alaw2linear(law_data[i]);
 			pcm_data[2*i + 1] = pcm_data[2*i];
+#endif
 		}
 
+#if AUDIO_TRANSFER_AEC_SOFTWARE_MODE
+		/* read mic fill data size */
+		mic_fill_size = ring_buffer_get_fill_size(&mic_rb);
+		mic_fill_size = 0;
+		os_printf("mic_rb: fill_size=%d \r\n", size);
+		speaker_fill_size = ring_buffer_get_fill_size(&speaker_rb);
+		speaker_fill_size = 272;
+		os_printf("speaker_rb: fill_size=%d \r\n", size);
+		/* 设置参考信号延迟(采样点数，需要dump数据观察) */
+		aec_ctrl(aec, AEC_CTRL_CMD_SET_MIC_DELAY, mic_fill_size + speaker_fill_size + 2);
+#endif
+
 		/* save the data after G711A processed to encoder_ring_buffer */
-		//size = ring_buffer_write(&speaker_rb, (uint8_t *)pcm_data, AUD_DECD_FRAME_SAMP_SIZE*2);
-		//if (size != AUD_DECD_FRAME_SAMP_SIZE*2) {
+#if AUDIO_TRANSFER_AEC_SOFTWARE_MODE
+		size = ring_buffer_write(&speaker_rb, (uint8_t *)pcm_data, AUD_DECD_FRAME_SAMP_SIZE*2);
+		if (size != AUD_DECD_FRAME_SAMP_SIZE*2) {
+			os_printf("cp1: the data writeten to speaker_ring_buff is not a frame, size=%d \r\n", size);
+			return BK_FAIL;
+		}
+
+		size = ring_buffer_write(&ref_rb, (uint8_t *)pcm_data, AUD_DECD_FRAME_SAMP_SIZE*2);
+		if (size != AUD_DECD_FRAME_SAMP_SIZE*2) {
+			os_printf("cp1: the data writeten to ref_ring_buff is not a frame, size=%d \r\n", size);
+			return BK_FAIL;
+		}
+#else
 		size = ring_buffer_write(&speaker_rb, (uint8_t *)pcm_data, AUD_DECD_FRAME_SAMP_SIZE*2*2);
 		if (size != AUD_DECD_FRAME_SAMP_SIZE*2*2) {
 		//	os_printf("cp1: the data writeten to speaker_ring_buff is not a frame, size=%d \r\n", size);
 			return BK_FAIL;
 		}
+#endif
+
 #if AUD_TRANS_DEBUG_DAC
 		i =0;
 		i = ring_buffer_get_fill_size(&speaker_rb);
@@ -832,12 +945,28 @@ static void audio_cp1_transfer_main(beken_thread_arg_t param_data)
 	frame_sample = 160;
 
 	/* malloc mic and ref ring buffer (AEC_Frame_Size=frame_sample*2) */
+#if AUDIO_TRANSFER_AEC_SOFTWARE_MODE
+	os_printf("mic_ring_buff: %d \r\n", frame_sample*2*2);
+	mic_ring_buff = os_malloc(frame_sample*2*2);
+	if (mic_ring_buff == NULL) {
+		os_printf("cp1: malloc mic ring buffer fail \r\n");
+		goto audio_transfer_exit;
+	}
+
+	os_printf("ref_ring_buff: %d \r\n", AUD_DECD_FRAME_SAMP_SIZE*2*2);
+	ref_ring_buff = os_malloc(AUD_DECD_FRAME_SAMP_SIZE*2*2);
+	if (ref_ring_buff == NULL) {
+		os_printf("cp1: malloc ref ring buffer fail \r\n");
+		goto audio_transfer_exit;
+	}
+#else
 	os_printf("mic_ref_ring_buff: %d \r\n", frame_sample*2*2*2);
 	mic_ref_ring_buff = os_malloc(frame_sample*2*2*2);
 	if (mic_ref_ring_buff == NULL) {
 		os_printf("cp1: malloc mic and ref ring buffer fail \r\n");
 		goto audio_transfer_exit;
 	}
+#endif
 
 	/* malloc aec ring buffer to save mic data has been aec processed */
 	aec_ring_buff = os_malloc(frame_sample*2*2);
@@ -863,8 +992,13 @@ static void audio_cp1_transfer_main(beken_thread_arg_t param_data)
 	}
 	os_printf("adc_dma_id: %d \r\n", adc_dma_id);
 
+#if AUDIO_TRANSFER_AEC_SOFTWARE_MODE
+	/* config audio adc dma to carry mic data to "mic_ring_buff" */
+	ret = audio_adc_dma_config(adc_dma_id, mic_ring_buff, frame_sample*2*2, frame_sample*2);
+#else
 	/* config audio adc dma to carry mic and ref data to "mic_ref_ring_buff" */
 	ret = audio_adc_dma_config(adc_dma_id, mic_ref_ring_buff, frame_sample*2*2*2, frame_sample*2*2);
+#endif
 	if (ret != BK_OK) {
 		os_printf("cp1: config audio adc dma fail \r\n");
 		return;
@@ -893,8 +1027,11 @@ static void audio_cp1_transfer_main(beken_thread_arg_t param_data)
 	/* malloc decoder ring buffer (size: 2*PSRAM_AUD_DECD_RING_BUFF_SIZE) */
 
 	/* malloc speaker ring buffer (size: 2*PSRAM_AUD_DECD_RING_BUFF_SIZE) */
-	//speaker_ring_buff = os_malloc(PSRAM_AUD_DECD_RING_BUFF_SIZE*2);
+#if AUDIO_TRANSFER_AEC_SOFTWARE_MODE
+	speaker_ring_buff = os_malloc(PSRAM_AUD_DECD_RING_BUFF_SIZE*2);
+#else
 	speaker_ring_buff = os_malloc(PSRAM_AUD_DECD_RING_BUFF_SIZE*2*2);    //单声道扩充为双声道播放
+#endif
 	if (speaker_ring_buff == NULL) {
 		os_printf("cp1: malloc speaker ring buffer fail \r\n");
 	}
@@ -917,8 +1054,11 @@ static void audio_cp1_transfer_main(beken_thread_arg_t param_data)
 	os_printf("dac_dma_id: %d \r\n", dac_dma_id);
 
 	/* config audio dac dma to carry dac data to "speaker_ring_buff" */
-	//ret = audio_dac_dma_config(dac_dma_id, speaker_ring_buff, PSRAM_AUD_DECD_RING_BUFF_SIZE*2, PSRAM_AUD_DECD_RING_BUFF_SIZE);
+#if AUDIO_TRANSFER_AEC_SOFTWARE_MODE
+	ret = audio_dac_dma_config(dac_dma_id, speaker_ring_buff, PSRAM_AUD_DECD_RING_BUFF_SIZE*2, PSRAM_AUD_DECD_RING_BUFF_SIZE);
+#else
 	ret = audio_dac_dma_config(dac_dma_id, speaker_ring_buff, PSRAM_AUD_DECD_RING_BUFF_SIZE*2*2, PSRAM_AUD_DECD_RING_BUFF_SIZE*2);
+#endif
 	if (ret != BK_OK) {
 		os_printf("cp1: config audio dac dma fail \r\n");
 		return;
@@ -926,8 +1066,15 @@ static void audio_cp1_transfer_main(beken_thread_arg_t param_data)
 	os_printf("cp1: step7: init and config DMA to carry dac data complete \r\n");
 
 	/*  -------------------------step8: init all audio ring buffers -------------------------------- */
+#if AUDIO_TRANSFER_AEC_SOFTWARE_MODE
+	/* init mic_ring_buff */
+	ring_buffer_init(&mic_rb, (uint8_t*)mic_ring_buff, frame_sample*2*2, adc_dma_id, RB_DMA_TYPE_WRITE);
+	/* init ref_ring_buff */
+	ring_buffer_init(&ref_rb, (uint8_t*)ref_ring_buff, AUD_DECD_FRAME_SAMP_SIZE*2*2, adc_dma_id, RB_DMA_TYPE_NULL);
+#else
 	/* init mic_ref_ring_buff */
 	ring_buffer_init(&mic_ref_rb, (uint8_t*)mic_ref_ring_buff, frame_sample*2*2*2, adc_dma_id, RB_DMA_TYPE_WRITE);
+#endif
 
 	/* init aec_ring_buff */
 	ring_buffer_init(&aec_rb, (uint8_t*)aec_ring_buff, frame_sample*2*2, DMA_ID_MAX, RB_DMA_TYPE_NULL);
@@ -939,16 +1086,22 @@ static void audio_cp1_transfer_main(beken_thread_arg_t param_data)
 	ring_buffer_init(&decoder_rb, (uint8_t*)PSRAM_AUD_DECD_RING_BUFF_BASE, PSRAM_AUD_DECD_RING_BUFF_SIZE, DMA_ID_MAX, RB_DMA_TYPE_NULL);
 
 	/* init speaker_ref_ring_buff */
-	//ring_buffer_init(&speaker_rb, (uint8_t*)speaker_ring_buff, PSRAM_AUD_DECD_RING_BUFF_SIZE*2, dac_dma_id, RB_DMA_TYPE_READ);
+#if AUDIO_TRANSFER_AEC_SOFTWARE_MODE
+	ring_buffer_init(&speaker_rb, (uint8_t*)speaker_ring_buff, PSRAM_AUD_DECD_RING_BUFF_SIZE*2, dac_dma_id, RB_DMA_TYPE_READ);
+#else
 	ring_buffer_init(&speaker_rb, (uint8_t*)speaker_ring_buff, PSRAM_AUD_DECD_RING_BUFF_SIZE*2*2, dac_dma_id, RB_DMA_TYPE_READ);
+#endif
 	os_printf("cp1: step8: init all audio ring buffers complete \r\n");
 
+#if AUDIO_TRANSFER_AEC_SOFTWARE_MODE
+	os_printf("cp1: init complete \r\n");
+#else
 	temp_mic_ref_addr = (int16_t *)os_malloc(AUD_AEC_8K_FRAME_SAMP_SIZE*2);
 	if (temp_mic_ref_addr == NULL) {
 		os_printf("cp1: malloc temp_mic_ref_addr fail \r\n");
 	}
 	os_printf("cp1: step9: malloc temp_mic_ref_addr used in aec complete \r\n");
-
+#endif
 
 	while(1) {
 		audio_cp1_msg_t msg;
@@ -1022,15 +1175,25 @@ audio_transfer_exit:
 	os_free(aec);
 
 	/* free audio ring buffer */
+#if AUDIO_TRANSFER_AEC_SOFTWARE_MODE
+	ring_buffer_clear(&mic_rb);
+	ring_buffer_clear(&ref_rb);
+#else
 	ring_buffer_clear(&mic_ref_rb);
+#endif
 	ring_buffer_clear(&aec_rb);
 	ring_buffer_clear(&encoder_rb);
 	ring_buffer_clear(&decoder_rb);
 	ring_buffer_clear(&speaker_rb);
+#if AUDIO_TRANSFER_AEC_SOFTWARE_MODE
+	os_free(mic_ring_buff);
+	os_free(ref_ring_buff);
+#else
 	os_free(mic_ref_ring_buff);
+	os_free(temp_mic_ref_addr);
+#endif
 	os_free(aec_ring_buff);
 	os_free(speaker_ring_buff);
-	os_free(temp_mic_ref_addr);
 
 	/* disable mailbox */
 	aud_mailbox_deinit();

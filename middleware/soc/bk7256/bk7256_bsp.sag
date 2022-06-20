@@ -90,20 +90,17 @@ CPU0_LOAD2 0x00018800  0x1A7800
 		ADDR _dtcm_bss_end
 	}
 
-	SRAM1 0x30000000 0x10000
+	SRAM 0x30000000 0x60000
 	{
 		LOADADDR NEXT _bt_data_lmastart
 		ADDR NEXT   _bt_data_start
 		* KEEP (.bt_spec_data)
 		LOADADDR _bt_data_end
-	}
 
-	SRAM2 0x30010000 0x50000
-	{
 		LOADADDR NEXT _data_lmastart
 		ADDR NEXT _data_start
-		*(+RW,+ZI)
-        STACK = 0x20007FE0
+		*(+RW,+ZI LMA_FORCE_ALIGN)
+		STACK = 0x20007FE0
 	}
 
 	SWAP  0x3007fc00 0x400

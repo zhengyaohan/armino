@@ -67,7 +67,7 @@ static int tempd_init_temperature_raw_data(void)
 static void temp_sensor_enable(void)
 {
 
-#if (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_SOC_BK7256XX)
     sys_drv_en_tempdet(1);
 #else
     uint32_t param;
@@ -80,7 +80,7 @@ static void temp_sensor_enable(void)
 
 static void temp_sensor_disable(void)
 {
-#if (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_SOC_BK7256XX)
     sys_drv_en_tempdet(0);
 #else
 
@@ -390,7 +390,7 @@ static void tempd_init(uint32_t init_temperature)
 	s_tempd.last_xtal_val = (uint32_t)(init_temperature);
 	s_tempd.xtal_threshold_val = ADC_XTAL_DIST_INTIAL_VAL;
 
-    #if (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7256_CP1)
+    #if (CONFIG_SOC_BK7256XX)
     s_tempd.xtal_init_val = sys_drv_analog_get_xtalh_ctune();// to do,need remove old interface after all adaption is finished
     #else
     s_tempd.xtal_init_val = sddev_control(DD_DEV_TYPE_SCTRL, CMD_SCTRL_GET_XTALH_CTUNE, NULL);
@@ -572,7 +572,7 @@ int temp_detect_get_temperature(uint32_t *temperature)
 	return err;
 }
 
-#if (CONFIG_SOC_BK7256) ||(CONFIG_SOC_BK7236A) ||(CONFIG_SOC_BK7231N)||(CONFIG_SOC_BK7235)||(CONFIG_SOC_BK7256_CP1)
+#if (CONFIG_SOC_BK7256XX) ||(CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7231N)
 static void temp_single_get_disable(void)
 {
     UINT32 status = DRV_SUCCESS;

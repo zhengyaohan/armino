@@ -13,6 +13,7 @@
 #include <components/spidma.h>
 #include <components/dvp_camera.h>
 #include "video_transfer_log.h"
+#include "video_transfer_save.h"
 
 #if CONFIG_GENERAL_DMA
 #include "bk_general_dma.h"
@@ -55,6 +56,7 @@ typedef struct {
 	struct co_list_hdr hdr;
 	void *buf_start;
 	uint32_t buf_len;
+	uint32_t frame_id;
 } video_elem_t;
 
 typedef struct {
@@ -97,9 +99,15 @@ typedef struct {
 beken_thread_t  tvideo_thread_hdl = NULL;
 beken_queue_t tvideo_msg_que = NULL;
 static uint8_t tvideo_log_enable = 0;
+static uint8_t tvideo_image_save_enable = 0;
+static uint8_t g_frame_eof = 1;
 static uint32_t g_frame_len = 0;
 static uint32_t g_frame_max = 0;
 static uint32_t g_frame_min = 0;
+static uint32_t g_frame_id = 1;
+static uint32_t g_flag = 0;
+static uint32_t g_eof_flag = 0;
+static uint32_t g_lost_frame_id = 0;
 
 bk_err_t bk_video_send_msg(uint32_t new_msg)
 {
@@ -181,6 +189,15 @@ static void tvideo_rx_handler(void *curptr, uint32_t newlen, uint32_t is_eof, ui
 		if (!newlen)
 			break;
 
+		if (is_eof == 0 && g_eof_flag == 1) {
+			g_flag = 0;
+		}
+
+		g_eof_flag = is_eof;
+
+		if (g_flag && is_eof == 0)
+			break;
+
 #if TVIDEO_DROP_DATA_NONODE
 		// drop pkt has happened, so drop it, until spidma timeout handler.
 		if (tvideo_pool.drop_pkt_flag & TVIDEO_DROP_DATA_FLAG)
@@ -228,6 +245,7 @@ static void tvideo_rx_handler(void *curptr, uint32_t newlen, uint32_t is_eof, ui
 				}
 				//elem->buf_len = tvideo_st.node_len + sizeof(TV_HDR_ST);
 				elem->buf_len = newlen + tvideo_pool.pkt_header_size;
+				elem->frame_id = tvideo_pool.frame_id;
 			} else
 #endif //#if (TVIDEO_USE_HDR && CONFIG_CAMERA)
 			{
@@ -258,6 +276,8 @@ static void tvideo_rx_handler(void *curptr, uint32_t newlen, uint32_t is_eof, ui
 				co_list_concat(&tvideo_pool.free, &tvideo_pool.receiving);
 #else
 			TVIDEO_WPRT("lost\r\n");
+			g_lost_frame_id = tvideo_pool.frame_id;
+			g_flag = 1;
 #endif
 		}
 	} while (0);
@@ -337,15 +357,33 @@ static void tvideo_poll_handler(void)
 		elem = (video_elem_t *)co_list_pick(&tvideo_pool.ready);
 		if (elem) {
 			if (tvideo_pool.send_func) {
-				if (tvideo_log_enable) {
+				// enbale output log or save image enable
+				if (tvideo_log_enable || tvideo_image_save_enable) {
 					uint8_t is_eof = (uint8_t)*((uint8_t *)elem->buf_start + 1);
-					if (is_eof == 1) {
-						os_printf("current_frame: %d, max: %d, min: %d\r\n", g_frame_len, g_frame_max, g_frame_min);
+
+					if (tvideo_log_enable) {
+						if (is_eof == 1) {
+							os_printf("current_frame: %d, max: %d, min: %d\r\n", g_frame_len, g_frame_max, g_frame_min);
+						}
+					}
+
+					if (tvideo_image_save_enable) {
+						if (g_frame_eof > is_eof) {
+							f_create_file_to_sdcard(g_frame_id++);
+						}
+						g_frame_eof = is_eof;
+
+						f_write_data_to_sdcard(elem->buf_start + 4, elem->buf_len - 4, is_eof);
 					}
 				}
-				send_len = tvideo_pool.send_func(elem->buf_start, elem->buf_len);
-				if (send_len != elem->buf_len)
-					break;
+				
+				if (elem->frame_id == g_lost_frame_id && ((uint8_t)*((uint8_t *)elem->buf_start + 1) == 0)) {
+//					os_printf("frame_id = %d\r\n", g_lost_frame_id);
+				} else {
+					send_len = tvideo_pool.send_func(elem->buf_start, elem->buf_len);
+					if (send_len != elem->buf_len)
+						break;
+				}
 			}
 
 			co_list_pop_front(&tvideo_pool.ready);
@@ -414,6 +452,10 @@ tvideo_exit:
 		bk_camera_deinit();
 	}
 
+	//if (tvideo_image_save_enable)
+	f_close_write_to_sdcard();
+	g_frame_id = 1;
+
 	if (tvideo_st.rxbuf) {
 		os_free(tvideo_st.rxbuf);
 		tvideo_st.rxbuf = NULL;
@@ -452,7 +494,7 @@ bk_err_t bk_video_transfer_init(video_setup_t *setup_cfg)
 								 4,
 								 "video_intf",
 								 (beken_thread_function_t)video_transfer_main,
-								 1024,
+								 4 * 1024,
 								 (beken_thread_arg_t)&video_transfer_setup_bak);
 		if (ret != kNoErr) {
 			rtos_deinit_queue(&tvideo_msg_que);
@@ -471,6 +513,11 @@ bk_err_t bk_video_transfer_init(video_setup_t *setup_cfg)
 void bk_video_transfer_log_enable(uint8_t enable)
 {
 	tvideo_log_enable = enable;
+}
+
+void bk_video_transfer_image_save_enable(uint8_t enable)
+{
+	tvideo_image_save_enable = enable;
 }
 
 bk_err_t bk_video_transfer_deinit(void)

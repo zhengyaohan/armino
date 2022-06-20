@@ -102,6 +102,16 @@ int jpg_decoder_init(void)
 	return 0;
 }
 
+int jpg_decoder_deinit(void)
+{
+	if(NULL != jpg_dec_st.workbuf) {
+		os_free(jpg_dec_st.workbuf);
+		jpg_dec_st.workbuf = NULL;
+	}
+	os_memset(&jpg_dec_st, 0, sizeof(jpg_dec_st));
+	return kNoErr;
+}
+
 static void* alloc_pool (	/* Pointer to allocated memory block (NULL:no memory available) */
 	JDEC* jd,		/* Pointer to the decompressor object */
 	uint16_t nd		/* Number of bytes to allocate */
