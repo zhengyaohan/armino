@@ -116,20 +116,20 @@ void yuv_blend(uint32_t bgimg_addr, uint32_t fgimg_addr)
 
 	uint32_t src_w = 480;
 	uint32_t src_h = 272;
-//	uint32_t dst_w = 100;
-//	uint32_t dst_h = 60;
-	uint32_t dst_w = 120;
-	uint32_t dst_h = 56;
+	uint32_t dst_w = 100;
+	uint32_t dst_h = 60;
+//	uint32_t dst_w = 120;
+//	uint32_t dst_h = 56;
 	uint32_t alpha_value = 40;
 
 	uint32_t x = src_w - dst_w;
 	uint32_t y = src_h - dst_h;
 	uint32_t bg_offset = src_w - dst_w;
-	uint32_t addr_temp = dst_w*dst_h*2;
-
+	uint32_t addr_temp = src_h*src_w*2;
+	uint32_t dst_addr_temp = dst_w*dst_h*2;
 	uint16_t *pbg_offstart = (uint16_t *)p_bgImg + (y * src_w) + x;
-	unsigned char *p_crop = (unsigned char *) (p_fgImg + addr_temp);
-	unsigned char *p_crop2rgb = (unsigned char *) (p_fgImg + 2 * addr_temp);
+	unsigned char *p_crop = (unsigned char *) (p_bgImg + addr_temp);
+	unsigned char *p_crop2rgb = (unsigned char *) (p_crop + dst_addr_temp);
 
 	/*crop yuv -- 0.74ms*/
 	dma2d_memcpy_rgb565_data((uint32_t)pbg_offstart, (uint32_t)p_crop, bg_offset, 0, dst_w, dst_h);

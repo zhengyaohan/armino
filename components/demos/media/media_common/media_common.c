@@ -22,11 +22,16 @@
 #include "sys_driver.h"
 #include "media_common.h"
 #include "mailbox_channel.h"
+#include "video_mailbox.h"
+#include "video_transfer_cpu1.h"
 
 
 beken_thread_t com_mb_thread_handle = NULL;
 static beken_queue_t com_msg_que = NULL;
 #define TU_QITEM_COUNT      (60)
+
+video_transfer_setup_t video_cfg = {0};
+
 
 //#if CONFIG_SLAVE_CORE
 
@@ -74,10 +79,15 @@ static void com_mailbox_rx_isr(common_mailbox_msg_t *com_mb, mb_chnl_cmd_t *cmd_
 			break;
 
 		case COM_MB_START_VIDEO_CMD:
+		{
 			/* init video transfer task */
 			msg.op = COM_VIDEO;
+			video_cfg.dev_id = cmd_buf->param1;
+			video_cfg.frame_rate = cmd_buf->param2;
+			video_cfg.resolution = cmd_buf->param3;
 			ret = com_send_msg(msg);
-			return;
+			break;
+		}
 
 		case COM_MB_NULL:
 		case COM_MB_CMPL:
@@ -111,6 +121,18 @@ bk_err_t common_audio_process(void)
 	ret = bk_audio_cp1_transfer_init(&config);
 	if (ret != BK_OK) {
 		os_printf("cp1: start audio_transfer fail \r\n");
+		return ret;
+	}
+
+	return BK_OK;
+}
+
+bk_err_t common_video_process(void)
+{
+	bk_err_t ret = BK_OK;
+	ret = bk_video_transfer_cpu1_init(&video_cfg);
+	if (ret != BK_OK) {
+		os_printf("cp1: start video_transfer fail \r\n");
 		return ret;
 	}
 
@@ -151,7 +173,13 @@ static void common_mb_main(void)
 
 				case COM_VIDEO:
 					/* call video transfer init api */
-					//TODO
+					ret = common_video_process();
+					if (ret != BK_OK) {
+						os_printf("[COM] init video transfer fail \r\n");
+					} else {
+						/* send COM_MB_CMPL mailbox message to cpu0 */
+						//TODO
+					}
 					break;
 
 				case COM_SEND:

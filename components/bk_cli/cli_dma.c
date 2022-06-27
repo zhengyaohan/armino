@@ -15,6 +15,7 @@
 #include <os/os.h>
 #include "cli.h"
 #include <driver/dma.h>
+#include "bk_general_dma.h"
 
 #define SEND_BUF_LEN 1024
 
@@ -25,6 +26,7 @@ static void cli_dma_help(void)
     CLI_LOGI("dma_int {id} {reg|enable|disable}\n");
     CLI_LOGI("dma_chnl alloc \n");
     CLI_LOGI("dma_chnl_free {id} \n");
+    CLI_LOGI("dma_memcopy_test {copy} {count|in_number1|in_number2|out_number1|out_number2}\r\n");
 }
 
 static void cli_dma_driver_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -183,6 +185,58 @@ static void cli_dma_chnl_free(char *pcWriteBuffer, int xWriteBufferLen, int argc
     }
 }
 
+static void cli_dma_memcpy_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+
+    if (argc < 7) {
+        cli_dma_help();
+        return;
+    }
+    uint32_t *out_buffer = NULL;
+    uint32_t *in_buffer = NULL;
+    uint32_t in_write_buffer[2] = {0};
+	uint32_t out_write_buffer[2] = {0};
+
+    int count = 1;
+    if (os_strcmp(argv[1], "copy") == 0) {
+        count = os_strtoul(argv[2], NULL, 10);
+
+        in_write_buffer[0] = os_strtoul(argv[3], NULL, 10);
+        CLI_LOGD("cli_dma_memcpy_TEST IN_buffer[0]: %d\r\n", in_write_buffer[0]);
+        in_write_buffer[1] = os_strtoul(argv[4], NULL, 10);
+        CLI_LOGD("cli_dma_memcpy_TEST IN_buffer[1]: %d\r\n", in_write_buffer[1]);
+        in_buffer = in_write_buffer;
+
+
+        out_write_buffer[0] = os_strtoul(argv[5], NULL, 10);
+        CLI_LOGD("cli_dma_memcpy_TEST OUT_buffer[0]: %d\r\n", out_write_buffer[0]);
+        out_write_buffer[1] = os_strtoul(argv[6], NULL, 10);
+        CLI_LOGD("cli_dma_memcpy_TEST OUT_buffer[1]: %d\r\n", out_write_buffer[1]);
+        out_buffer = out_write_buffer;
+
+        while(count) {
+              for(int j = 0; j < 2; j++) {
+                  CLI_LOGI("cli_dma_memcpy_test BEFORE IN_buffer[%d]: %d\r\n", j,in_buffer[j]);
+                  CLI_LOGI("cli_dma_memcpy_test BEFORE OUT_buffer[%d]: %d\r\n", j,out_buffer[j]);
+              }
+              CLI_LOGI("===============================================\r\n");
+
+              dma_memcpy(out_buffer, in_buffer, 2 * sizeof(uint32_t));
+
+              for(int i = 0; i < 2; i++) {
+                  CLI_LOGI("cli_dma_memcpy_test AFTER IN_buffer[%d]: %d\r\n", i,in_buffer[i]);
+                  CLI_LOGI("cli_dma_memcpy_test AFTER OUT_buffer[%d]: %d\r\n", i,out_buffer[i]);
+              }
+              CLI_LOGI("#############################################\r\n");
+
+              count--;
+        }
+
+    } else {
+        cli_dma_help();
+        return;
+    }
+}
 
 #define DMA_CMD_CNT (sizeof(s_dma_commands) / sizeof(struct cli_command))
 static const struct cli_command s_dma_commands[] = {
@@ -191,6 +245,7 @@ static const struct cli_command s_dma_commands[] = {
     {"dma_int", "dma_int {id} {reg|enable_hf_fini|disable_hf_fini|enable_fini|disable_fini}", cli_dma_int_cmd},
     {"dma_chnl", "dma_chnl alloc", cli_dma_chnl_alloc},
     {"dma_chnl_free", "dma_chnl_free {id}", cli_dma_chnl_free},
+    {"dma_memcopy_test", "copy {count|in_number1|in_number2|out_number1|out_number2}", cli_dma_memcpy_test},
 };
 
 int cli_dma_init(void)

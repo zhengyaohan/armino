@@ -58,6 +58,10 @@ static void fatfs_operate(char *pcWriteBuffer, int xWriteBufferLen, int argc, ch
 			{
 				start_addr = os_strtoul(argv[4], NULL, 10);
 			}
+			if(argc >= 6)
+			{
+				content_len = os_strtoul(argv[5], NULL, 10);
+			}
 			test_fatfs_dump(drv_num, file_name, start_addr, content_len);
 			break;
 		}

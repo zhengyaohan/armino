@@ -151,9 +151,6 @@ void lcd_8080_init(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **ar
 		s_dma_transfer_param.dma_frame_end_flag = 0; 
 		s_dma_transfer_param.dma_int_cnt = 0;
 
-		os_printf("lcd power on. \r\n");
-		bk_lcd_power_on_ctrl(1);
-
 		os_printf("lcd driver init. \r\n");
 		bk_lcd_driver_init(LCD_96M);
 
@@ -231,7 +228,6 @@ void lcd_8080_close(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **a
 	os_printf("deinit lcd dma and free lcd dma ch\r\n");
 	bk_psram_deinit();
 	os_printf("psram deinit. \r\n");
-	bk_lcd_power_on_ctrl(0);
 	os_printf("lcd power down. \r\n");
 	os_printf("lcd 8080 closed. \r\n");
 }

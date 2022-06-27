@@ -197,6 +197,7 @@ DRESULT disk_ioctl (
 )
 {
 	DRESULT res = FR_OK;
+	int result;
 
 	switch (pdrv) {
 	case DEV_SD :
@@ -205,6 +206,12 @@ DRESULT disk_ioctl (
 		{
 		case CTRL_SYNC:
 			//os_printf("not support CTRL_SYNC \r\n");
+			if(sdcard_hdl!=DD_HANDLE_UNVALID)
+			{
+				result =  ddev_control(sdcard_hdl, 0, 0);
+				if(result != RES_OK)
+					res = result;
+			}
 			res = RES_OK;
 			break;
 		case GET_SECTOR_SIZE:

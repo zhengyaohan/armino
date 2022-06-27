@@ -7,6 +7,7 @@
 #include <components/dvp_camera.h>
 #include "video_transfer_log.h"
 #include "video_transfer_save.h"
+#include "video_transfer_cpu0.h"
 #if (CONFIG_SDCARD_HOST)
 #include "ff.h"
 #include "diskio.h"
@@ -25,7 +26,7 @@ extern void delay(int num);//TODO fix me
 
 static void dvp_help(void)
 {
-	os_printf("dvp_image {init|save_image file_id|deinit}\r\n");
+	os_printf("dvp_image {init|capture file_id|set_cfg|log|save_image|video_transfer|deinit}\r\n");
 }
 
 #if (CONFIG_PSRAM)
@@ -389,12 +390,42 @@ error1:
 	} else if (os_strcmp(argv[1], "save_image") == 0) {
 		uint8_t enable = os_strtoul(argv[2], NULL, 10);
 		bk_video_transfer_image_save_enable(enable);
+	} else if (os_strcmp(argv[1], "pkt_calc") == 0) {
+		uint8_t enable = os_strtoul(argv[2], NULL, 10);
+		bk_video_transfer_pkt_calc_enable(enable);
+	} else if (os_strcmp(argv[1], "pkt_reset") == 0) {
+		uint8_t enable = os_strtoul(argv[2], NULL, 10);
+		bk_video_transfer_pkt_reset_enable(enable);
 	}
+	
 #if CONFIG_VIDEO_LCD
 	else if (os_strcmp(argv[1], "lcd_video") == 0) {
 		uint8_t enable = os_strtoul(argv[2], NULL, 10);
 		bk_lcd_video_enable(enable);
+		uint8_t blend_enable = os_strtoul(argv[3], NULL, 10);
+		bk_lcd_video_blending(blend_enable);
 	} 
+#endif
+#if CONFIG_DUAL_CORE
+	else if (os_strcmp(argv[1], "video_transfer") == 0) {
+		uint32_t dev = 0;
+		uint32_t frame_rate = 0;
+		uint32_t resolution = 0;
+
+		if (argc != 6) {
+			os_printf("input param error\n");
+			return;
+		}
+
+		dev = os_strtoul(argv[2], NULL, 10);
+		resolution = (os_strtoul(argv[3], NULL, 10) << 16) | os_strtoul(argv[4], NULL, 10);
+		frame_rate = os_strtoul(argv[5], NULL, 10);
+
+		video_transfer_set_camera_config(resolution, frame_rate, dev);
+	} else if (os_strcmp(argv[1], "cpu0_save_image") == 0) {
+		uint8_t enable = os_strtoul(argv[2], NULL, 10);
+		video_transfer_cpu0_set_save_image_enable(enable);
+	}
 #endif
 	else {
 		dvp_help();

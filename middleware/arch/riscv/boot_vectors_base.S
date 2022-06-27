@@ -101,6 +101,18 @@ nmi_handler:
 .org  0x100
 .word 0x32374B42
 .word 0x00003635
+.word 0x00000000
+.word 0x00000000
+.org  0x110
+.word 0x64616568    /*head: sign head address*/
+.word 0x00000000
+.word 0x00000000
+.word 0x00000000
+.org  0x120
+.word 0x00000000    /*version: provide to version number setting*/
+.word 0x00000000
+.word 0x00000000
+.word 0x00000000
 .option pop
 	.section .text
 

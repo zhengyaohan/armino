@@ -355,6 +355,7 @@ static int app_demo_softap_setup(void)
 
     APP_DEMO_SOFTAP_PRT("set ip info: %s,%s,%s\r\n", ip4_config.ip, ip4_config.mask, ip4_config.dns);
     APP_DEMO_SOFTAP_PRT("ssid:%s  key:%s\r\n", ap_config.ssid, ap_config.password);
+	bk_wifi_set_video_transfer_state(1);
 	BK_LOG_ON_ERR(bk_netif_set_ip4_config(NETIF_IF_AP, &ip4_config));
 	BK_LOG_ON_ERR(bk_wifi_ap_set_config(&ap_config));
 	BK_LOG_ON_ERR(bk_wifi_ap_start());
@@ -386,7 +387,7 @@ static int app_softap_user_config_setup(void)
 
     APP_DEMO_SOFTAP_PRT("set ip info: %s,%s,%s\r\n", ip4_config.ip, ip4_config.mask, ip4_config.dns);
     APP_DEMO_SOFTAP_PRT("ssid:%s  key:%s\r\n", ap_config.ssid, ap_config.password);
-
+	bk_wifi_set_video_transfer_state(1);
 	BK_LOG_ON_ERR(bk_netif_set_ip4_config(NETIF_IF_AP, &ip4_config));
 	BK_LOG_ON_ERR(bk_wifi_ap_set_config(&ap_config));
 	BK_LOG_ON_ERR(bk_wifi_ap_start());
@@ -596,9 +597,10 @@ void app_demo_softap_exit(void)
 {
     APP_DEMO_SOFTAP_PRT("app_demo_sta_exit\r\n");
 
+    bk_wifi_set_video_transfer_state(0);
     if (g_demo_softap)
     {
-        app_demo_softap_send_msg(DAP_EXIT, 0);
+      app_demo_softap_send_msg(DAP_EXIT, 0);
 
         while (g_demo_softap)
         {

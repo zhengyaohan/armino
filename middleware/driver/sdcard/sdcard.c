@@ -34,6 +34,7 @@
 #define SEND_STATUS               13
 #define READ_SINGLE_BLOCK         17
 #define WRITE_BLOCK               24
+#define WRITE_MULTI_BLOCK         25
 #define SD_APP_OP_COND            41
 #define IO_RW_DIRECT              52  /* ac   [31:0] See below   R5  */
 #define IO_RW_EXTENDED            53  /* adtc [31:0] See below   R5  */
@@ -1383,7 +1384,7 @@ SDIO_Error sdcard_write_multi_block(UINT8 *write_buff, UINT32 first_block, UINT3
 	if (1 == no_need_send_cmd12_flag)
 		op_flag = 3;//stop has send
 
-	os_printf("===sd write: start = %d,block = %d,op_flag = %x=====\r\n", first_block, block_num, op_flag);
+	//os_printf("===sd write: start = %d,block_num = %d,op_flag = %d=====\r\n", first_block, block_num, op_flag);
 
 	no_need_send_cmd12_flag = 0;
 	if (0 == op_flag)//continue write
@@ -1392,10 +1393,12 @@ SDIO_Error sdcard_write_multi_block(UINT8 *write_buff, UINT32 first_block, UINT3
 		if (1 == op_flag) {
 			/************if last state is single read:not send stop;***************/
 			ret = sdcard_send_read_stop();
-		} else if (op_flag == 2)
+		} else if (op_flag == 2) {
 			ret = sdcard_send_write_stop(0);
+		}
 
-		ret += sdcard_cmd25_process(first_block);;
+		//CMD25:notify sdcard,will write multi-block data
+		ret += sdcard_cmd25_process(first_block);
 		if (SD_OK == ret)
 			ret += sdcard_write_data(write_buff, block_num, 1);
 		else
@@ -1597,7 +1600,7 @@ UINT32 sdcard_read(char *user_buf, UINT32 count, UINT32 op_flag)
 {
 	UINT32 result = SD_OK;
 #if 1
-//	os_printf("sd_read:buf = %x, count=%d,op_flag=%d\r\n", user_buf, count, op_flag);
+	//os_printf("sd_read:buf = %x, count=%d,sector num=%d\r\n", user_buf, count, op_flag);
 	result = sdcard_read_multi_block((uint8 *)user_buf, op_flag, count);
 //	os_printf("read finish\r\n");
 	return result;
@@ -1667,8 +1670,14 @@ UINT32 sdcard_ctrl(UINT32 cmd, void *parm)
 	peri_busy_count_add();
 
 	switch (cmd) {
-		case 0:
+		case 0:	//it's called in fatfs:disk_io.c
+#if CONFIG_SOC_BK7256XX	//JIRA BK7256-1674
+			sdcard_send_write_stop(0);
+			no_need_send_cmd12_flag = 1;
+
+#else	//reserve previous codes.
 			sdcard_cmd12_process(0);
+#endif
 			break;
 	default:
 		break;

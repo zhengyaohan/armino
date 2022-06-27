@@ -358,6 +358,25 @@ static void cli_pm_lpo(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 	pm_lpo_src_set(pm_lpo);
 
 }
+static void cli_pm_ctrl(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	UINT32 pm_ctrl  = 0;
+	if (argc != 2)
+	{
+		os_printf("set pm ctrl parameter invalid %d\r\n",argc);
+		return;
+	}
+
+	pm_ctrl = os_strtoul(argv[1], NULL, 10);
+	if ((pm_ctrl < 0) || (pm_ctrl > 1))
+	{
+		os_printf("set pm ctrl value invalid %d\r\n",pm_ctrl);
+		return;
+	}
+
+	pm_mcu_pm_ctrl(pm_ctrl);
+
+}
 static void cli_pm_vote_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 	UINT32 pm_sleep_mode   = 0;
@@ -666,6 +685,7 @@ static const struct cli_command s_pwr_commands[] = {
 	{"pm_clk", "pm_clk [module_name][clk_state]", cli_pm_clk},
 	{"pm_power", "pm_power [module_name][ power state]", cli_pm_power},
 	{"pm_freq", "pm_freq [module_name][ frequency]", cli_pm_freq},
+	{"pm_ctrl", "pm_ctrl [ctrl_value]", cli_pm_ctrl},
 #endif
 #if CONFIG_TPC_PA_MAP
 	{"pwr", "pwr {sta|ap} pwr", cli_pwr_cmd },

@@ -40,8 +40,7 @@ static dma_isr_t s_dma_finish_isr[SOC_DMA_CHAN_NUM_PER_UNIT] = {NULL};
 static dma_isr_t s_dma_half_finish_isr[SOC_DMA_CHAN_NUM_PER_UNIT] = {NULL};
 static bool s_dma_driver_is_init = false;
 static dma_chnl_pool_t s_dma_chnl_pool = {0};
-
-#define DMA_MEMCPY_CHANNEL    DMA_ID_0
+static dma_id_t dma_memcpy_chnl = 0;
 
 #define DMA_RETURN_ON_NOT_INIT() do {\
         if (!s_dma_driver_is_init) {\
@@ -117,14 +116,30 @@ bk_err_t dma_chnl_free(u32 user_id, dma_id_t chnl_id)
 {
 	if( chnl_id >= DMA_ID_MAX )
 		return BK_ERR_DMA_ID;
-	
+
 	if( s_dma_chnl_pool.chnl_user[chnl_id] != user_id )
 		return BK_ERR_PARAM;
-	
+
 	s_dma_chnl_pool.chnl_bitmap &= ~(0x01 << chnl_id);
 	s_dma_chnl_pool.chnl_user[chnl_id] = -1;
 
 	return BK_OK;
+}
+
+/*
+ * Request memcpy function channels during driver initialization to
+ * prevent calls in interrupts.
+ *
+ */
+static void dma_memcpy_alloc_chnl(void)
+{
+	dma_memcpy_chnl = bk_dma_alloc(DMA_DEV_DTCM);
+	DMA_LOGD("dma_memcpy_alloc_chnl dma_memcpy_chnl: %d\r\n", dma_memcpy_chnl);
+}
+
+static void dma_memcpy_free_chnl(void)
+{
+	bk_dma_free(DMA_DEV_DTCM, dma_memcpy_chnl);
 }
 
 /* used internally. */
@@ -132,7 +147,7 @@ u32 dma_chnl_user(dma_id_t chnl_id)
 {
 	if( chnl_id >= DMA_ID_MAX )
 		return -1;
-	
+
 	return s_dma_chnl_pool.chnl_user[chnl_id];
 }
 
@@ -161,6 +176,8 @@ bk_err_t bk_dma_driver_init(void)
 
     s_dma_driver_is_init = true;
 
+    dma_memcpy_alloc_chnl();
+
     return BK_OK;
 }
 
@@ -179,6 +196,7 @@ bk_err_t bk_dma_driver_deinit(void)
 #else
     icu_disable_dma_interrupt();
 #endif
+    dma_memcpy_free_chnl();
 
     s_dma_driver_is_init = false;
 
@@ -537,6 +555,19 @@ uint32_t dma_get_dest_write_addr(dma_id_t id)
     return dma_hal_get_dest_write_addr(&s_dma.hal, id);
 }
 
+static void dma_memcpy_half_finish_isr(dma_id_t dma_id)
+{
+	DMA_LOGD("dma_memcpy_half_finish_isr!\r\n");
+	bk_dma_disable_half_finish_interrupt(dma_id);
+}
+
+static void dma_memcpy_finish_isr(dma_id_t dma_id)
+{
+	DMA_LOGD("dma_memcpy_finish_isr!\r\n");
+	bk_dma_disable_finish_interrupt(dma_id);
+	bk_dma_register_isr(dma_id, NULL, NULL);
+}
+
 bk_err_t dma_memcpy(void *out, const void *in, uint32_t len)
 {
     dma_config_t dma_config;
@@ -558,7 +589,8 @@ bk_err_t dma_memcpy(void *out, const void *in, uint32_t len)
     dma_config.dst.start_addr = (uint32_t)out;
     dma_config.dst.end_addr = (uint32_t)(out + len);
 
-    dma_id_t cpy_chnl = bk_dma_alloc(DMA_DEV_DTCM);
+    dma_id_t cpy_chnl = dma_memcpy_chnl;
+    DMA_LOGD("dma_memcpy cpy_chnl: %d\r\n", cpy_chnl);
 
     if(cpy_chnl >= DMA_ID_MAX)
         return BK_FAIL;
@@ -567,12 +599,13 @@ bk_err_t dma_memcpy(void *out, const void *in, uint32_t len)
     GLOBAL_INT_DISABLE();
 
     bk_dma_init(cpy_chnl, &dma_config);
+    bk_dma_register_isr(cpy_chnl, (void *)dma_memcpy_half_finish_isr, (void *)dma_memcpy_finish_isr);
+    bk_dma_enable_half_finish_interrupt(cpy_chnl);
+    bk_dma_enable_finish_interrupt(cpy_chnl);
     dma_hal_set_transfer_len(&s_dma.hal, cpy_chnl, len);
     dma_hal_start_common(&s_dma.hal, cpy_chnl);
     BK_WHILE (dma_hal_get_enable_status(&s_dma.hal, cpy_chnl));
     GLOBAL_INT_RESTORE();
-
-    bk_dma_free(DMA_DEV_DTCM, cpy_chnl);
 
     return BK_OK;
 
@@ -583,14 +616,18 @@ static void dma_isr(void)
     dma_hal_t *hal = &s_dma.hal;
     for (int id = 0; id < SOC_DMA_CHAN_NUM_PER_UNIT; id++) {
         if (dma_hal_is_half_finish_interrupt_triggered(hal, id)) {
-            dma_hal_clear_half_finish_interrupt_status(hal, id);
+            DMA_LOGD("dma_isr HALF FINISH TRIGGERED! id: %d\r\n", id);
             if (s_dma_half_finish_isr[id]) {
+                DMA_LOGD("dma_isr HALF_finish_isr! id: %d\r\n", id);
+                dma_hal_clear_half_finish_interrupt_status(hal, id);
                 s_dma_half_finish_isr[id](id);
             }
         }
         if (dma_hal_is_finish_interrupt_triggered(hal, id)) {
-            dma_hal_clear_finish_interrupt_status(hal, id);
+            DMA_LOGD("dma_isr ALL FINISH TRIGGERED! id: %d\r\n", id);
             if (s_dma_finish_isr[id]) {
+                DMA_LOGD("dma_isr ALL_finish_isr! id: %d\r\n", id);
+                dma_hal_clear_finish_interrupt_status(hal, id);
                 s_dma_finish_isr[id](id);
             }
         }

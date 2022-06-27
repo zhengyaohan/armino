@@ -98,13 +98,8 @@ void sys_drv_set_cpu1_reset(uint32_t reset_value)
 void sys_drv_enable_mac_wakeup_source()
 {
  	uint32_t int_level = rtos_disable_int();
-	uint32_t ret = SYS_DRV_FAILURE;
-	ret = sys_amp_res_acquire();
 
 	sys_hal_enable_mac_wakeup_source();
-
-	if(!ret)
-		ret = sys_amp_res_release();
 
 	rtos_enable_int(int_level);
 }

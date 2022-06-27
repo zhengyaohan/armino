@@ -254,7 +254,6 @@ bk_err_t bk_jpeg_enc_register_frame_end_isr(jpeg_isr_t isr, void *param);
  */
 bk_err_t bk_jpeg_enc_register_isr(jpeg_isr_type_t type_id, jpeg_isr_t isr, void *param);
 
-
 /**
  * @brief     enable jpeg gpio
  *
@@ -268,6 +267,22 @@ bk_err_t bk_jpeg_enc_register_isr(jpeg_isr_type_t type_id, jpeg_isr_t isr, void 
  *    - others: other errors.
  */
 bk_err_t bk_jpeg_enc_dvp_gpio_enable(void);
+
+/**
+ * @brief     get jpeg enc fifo addr
+ *
+ * This API will get jpeg encode fifo addr in param
+ *
+ * param fifo_addr: fifo addr
+ *
+ * @attention 1. only work in jpeg encode mode is effective
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_jpeg_enc_get_fifo_addr(uint32_t *fifo_addr);
+
 
 /**
  * @}

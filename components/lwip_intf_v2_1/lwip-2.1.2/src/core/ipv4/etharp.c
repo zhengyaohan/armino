@@ -56,6 +56,7 @@
 #include "netif/ethernet.h"
 
 #include <string.h>
+#include "net.h"
 
 #ifdef LWIP_HOOK_FILENAME
 #include LWIP_HOOK_FILENAME
@@ -731,6 +732,12 @@ etharp_input(struct pbuf *p, struct netif *netif)
        * @todo How should we handle redundant (fail-over) interfaces? */
       dhcp_arp_reply(netif, &sipaddr);
 #endif /* (LWIP_DHCP && DHCP_DOES_ARP_CHECK) */
+
+	 if (ip4_addr_cmp(&sipaddr, netif_ip4_addr(netif))) {
+	 bk_printf("ip conflict!!!\r\n");	 //check for conflict
+	 sta_ip_mode_set(1);
+	 }
+
       break;
     default:
       LWIP_DEBUGF(ETHARP_DEBUG | LWIP_DBG_TRACE, ("etharp_input: ARP unknown opcode type %"S16_F"\n", lwip_htons(hdr->opcode)));

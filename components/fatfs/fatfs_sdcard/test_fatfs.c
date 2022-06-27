@@ -270,13 +270,13 @@ void test_fatfs_dump(DISK_NUMBER number, char *filename, uint32_t start_addr, ui
 	unsigned int uiTemp = 0;
 
 	os_printf("\r\n----- %s %d start -----\r\n", __func__, number);
-	os_printf("file_name=%s,start_addr=%d,len=%d \r\n", filename, start_addr, dump_len);
+	os_printf("file_name=%s,start_addr=0x%0x,len=%d \r\n", filename, start_addr, dump_len);
 
 	if(filename)
 		sprintf(cFileName, "%d:/%s", number, filename);
 	else
 		sprintf(cFileName, "%d:%s", number, TEST_DUMP_FILE_NAME);
-	os_printf("f_open \"%s\"\r\n", cFileName);
+	os_printf("f_open start \"%s\"\r\n", cFileName);
 
 	fr = f_open(&file, cFileName, FA_OPEN_APPEND | FA_WRITE);
 	if (fr != FR_OK)
@@ -285,6 +285,7 @@ void test_fatfs_dump(DISK_NUMBER number, char *filename, uint32_t start_addr, ui
 		goto exit;
 	}
 
+	os_printf("f_write start\r\n");
 	//write:one time write all contents
 	do
 	{
@@ -295,17 +296,20 @@ void test_fatfs_dump(DISK_NUMBER number, char *filename, uint32_t start_addr, ui
 			goto exit;
 		}
 
-		os_printf("f_write len = %d\r\n", uiTemp);
+		os_printf("f_write end len = %d\r\n", uiTemp);
 	} while(0);
 
+#if 1
 	//set file pointer to head
+	os_printf("f_lseek start\r\n");
 	fr = f_lseek(&file, 0);
 	if (fr != FR_OK)
 	{
 		os_printf("f_lseek fail 1 fr = %d\r\n", fr);
 		goto exit;
 	}
-
+#endif
+	os_printf("f_close start\r\n");
 	//file close
 	fr = f_close(&file);
 	if (fr != FR_OK)
@@ -496,6 +500,7 @@ void test_fatfs_format(DISK_NUMBER number)
 	{
 		os_free(ucRdTemp);
 		os_printf("f_mkfs fr=%d failed!\r\n", fr);
+		return;
 	}
 	else
 	{

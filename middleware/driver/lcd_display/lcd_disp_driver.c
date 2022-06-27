@@ -85,10 +85,11 @@ bk_err_t bk_lcd_driver_init(lcd_clk_t clk)
 {
 	bk_err_t ret = BK_OK;
 
+	pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_LCD, PM_POWER_MODULE_STATE_ON);
+	pm_clock_ctrl(PM_CLK_ID_DISP, CLK_PWR_CTRL_PWR_UP);
+	if (clk == LCD_20M) {
 	/* 0:clk_320M  1:clk_480M */
 	/*  Frequency division : F/(1+clkdiv_disp_l+clkdiv_disp_h*2)*/
-	//sys_drv_lcd_set(clk_src_sel, clk_div_l, clk_div_h, 1, 0);
-	if (clk == LCD_20M) {
 		ret = sys_drv_lcd_set(0, 1, 7, 1, 0);
 	}else if (clk == LCD_30M) {
 		ret = sys_drv_lcd_set(1, 1, 7, 1, 0);
@@ -180,6 +181,8 @@ bk_err_t bk_lcd_8080_deinit(void)
 	lcd_hal_8080_display_enable(0);
 	lcd_hal_8080_start_transfer(0);
 	lcd_hal_mem_clr();
+	pm_clock_ctrl(PM_CLK_ID_DISP, CLK_PWR_CTRL_PWR_DOWN);
+	pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_LCD, PM_POWER_MODULE_STATE_OFF);
 	if(sys_drv_lcd_close() != 0) {
 		os_printf("lcd system deinit reg config error \r\n");
 		return BK_FAIL;
@@ -221,6 +224,8 @@ bk_err_t bk_lcd_rgb_deinit(void)
 	lcd_hal_rgb_display_sel(0);
 	lcd_hal_mem_clr();
 	bk_int_isr_unregister(INT_SRC_LCD);
+	pm_clock_ctrl(PM_CLK_ID_DISP, CLK_PWR_CTRL_PWR_DOWN);
+	pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_LCD, PM_POWER_MODULE_STATE_OFF);
 	if(sys_drv_lcd_close() != 0) {
 		os_printf("lcd system deinit reg config error \r\n");
 		return BK_FAIL;
@@ -228,17 +233,6 @@ bk_err_t bk_lcd_rgb_deinit(void)
 	return BK_OK;
 }
 
-bk_err_t bk_lcd_power_on_ctrl(bool is_lcd_power_on)
-{
-	if(is_lcd_power_on) {
-		//sys_drv_module_power_ctrl(POWER_MODULE_NAME_VIDP,POWER_MODULE_STATE_ON);
-		pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_LCD, PM_POWER_MODULE_STATE_ON);
-	} else {
-		//sys_drv_module_power_ctrl(POWER_MODULE_NAME_VIDP, POWER_MODULE_STATE_OFF);
-		pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_LCD, PM_POWER_MODULE_STATE_OFF);
-	}
-	return BK_OK;
-}
 
  bk_err_t  bk_lcd_8080_write_cmd(uint32_t cmd)
 {

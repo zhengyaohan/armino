@@ -59,6 +59,12 @@ CONFIG_OTA_HTTP=y
 CONFIG_AT_CMD=y
 
 #
+# PSRAM
+#
+CONFIG_PSRAM=n
+# end of PSRAM
+
+#
 # Audio
 #
 CONFIG_AUDIO=n
@@ -76,6 +82,22 @@ CONFIG_JPEG_ENCODE=y
 CONFIG_JPEG_DECODE=n
 # end of Video
 #
+
+#
+# Video transfer
+#
+CONFIG_CAMERA=y
+CONFIG_USE_APP_DEMO_VIDEO_TRANSSER=y
+CONFIG_APP_DEMO_VIDEO_TRANSFER=y
+CONFIG_NET_WORK_VIDEO_TRANSFER=y
+CONFIG_CAMERA_USE_I2C0=y
+#CONFIG_WIFI_P2P is not set
+#CONFIG_P2P is not set
+#CONFIG_P2P_GO is not set
+#CONFIG_WIFI_WPS is not set
+#CONFIG_WPS is not set
+#
+#end of Video
 # Touch
 #
 CONFIG_TOUCH=y
@@ -253,30 +275,6 @@ CONFIG_BLE_PS=y
 # CONFIG_BLE_MESH_RW is not set
 # end of BLE 5.x
 
-
-
-#
-# PSRAM
-#
-CONFIG_PSRAM=n
-# end of PSRAM
-
-#
-# Video
-#
-CONFIG_CAMERA=y
-CONFIG_USE_APP_DEMO_VIDEO_TRANSSER=y
-CONFIG_APP_DEMO_VIDEO_TRANSFER=y
-CONFIG_NET_WORK_VIDEO_TRANSFER=y
-CONFIG_CAMERA_USE_I2C0=y
-#CONFIG_WIFI_P2P is not set
-CFG_TX_BUFING=y
-#CONFIG_P2P is not set
-#CONFIG_P2P_GO is not set
-#CONFIG_WIFI_WPS is not set
-#CONFIG_WPS is not set
-#
-#end of Video 
 CONFIG_MAC_BSSID=y
 #
 # Driver

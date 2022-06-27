@@ -34,6 +34,8 @@ void bk_video_transfer_image_save_enable(uint8_t enable);
 
 void bk_lcd_video_enable(uint8_t enable);
 
+void bk_lcd_video_blending(uint8_t blend_enable);
+
 
 #ifdef __cplusplus
 }

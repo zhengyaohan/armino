@@ -221,16 +221,19 @@ SDIO_Error sdio_wait_cmd_response(UINT32 cmd)
 	REG_WRITE(REG_SDCARD_CMD_RSP_INT_SEL, SD_CMD_RSP);//clear the int flag
 	if ((reg & SDCARD_CMDRSP_TIMEOUT_INT) /*||(reg&SDCARD_CMDRSP_NORSP_END_INT)*/) {
 		if ((cmd != 1))
-			SDCARD_WARN("sdcard cmd %x timeout,cmdresp_int_reg:0x%x\r\n", cmd, reg);
+			SDCARD_WARN("sdcard cmd %d timeout,cmdresp_int_reg:0x%x\r\n", cmd, reg);
 		return SD_CMD_RSP_TIMEOUT;
 	}
 	if (reg & SDCARD_CMDRSP_CMD_CRC_FAIL) {
 
 		if ((cmd != 41) && (cmd != 2) && (cmd != 9) && (cmd != 1)) {
-			SDCARD_WARN("sdcard cmd %x crcfail,cmdresp_int_reg:0x%x\r\n", cmd, reg);
+			SDCARD_WARN("sdcard cmd %d crcfail,cmdresp_int_reg:0x%x\r\n", cmd, reg);
 			return SD_CMD_CRC_FAIL;
 		}
 	}
+
+	//os_printf("%s cmd=%d\r\n", __func__, cmd);
+
 	return SD_OK;
 }
 

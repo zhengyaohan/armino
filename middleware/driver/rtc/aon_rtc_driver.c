@@ -419,6 +419,27 @@ bk_err_t bk_aon_rtc_register_tick_isr(aon_rtc_id_t id, aon_rtc_isr_t isr, void *
 	return BK_OK;
 }
 
+/*
+ * aon rtc set tick uses 3 cycles of 32k in ASIC,
+ * cpu should check whether set tick success.
+ * If twice set tick in 3/32 ms, the second time set tick value will be failed.
+ */
+static void aon_rtc_set_tick(aon_rtc_hal_t *hal, uint32_t val)
+{
+	volatile int i = 0;
+
+	aon_rtc_hal_set_tick_val(hal, val);
+	while(aon_rtc_hal_get_tick_val_lpo(hal) != val)
+	{
+		i++;
+		if(i > 768)	//32k, 3ticks == 3/32 ms:++is 30 cycles
+		{
+			AON_RTC_LOGE("%s:set tick timeout\r\n", __func__);
+			break;
+		}
+	}
+}
+
 bk_err_t bk_aon_rtc_register_upper_isr(aon_rtc_id_t id, aon_rtc_isr_t isr, void *param)
 {
 	//AON_RTC_RETURN_ON_INVALID_ID(id);
@@ -489,7 +510,7 @@ static bk_err_t aon_rtc_isr_handler(aon_rtc_id_t id)
 		{
 			//+1:to assume set it valid,maybe aon rtc add 1 tick when set the value now.
 			BK_ASSERT(bk_aon_rtc_get_current_tick(id) + 1/*AON_RTC_PRECISION_TICK*/ < s_aon_rtc[id].alarm_head_p->expired_tick);	//4:reserve enough time to set the tick
-			aon_rtc_hal_set_tick_val(&s_aon_rtc[id].hal, (uint32_t)s_aon_rtc[id].alarm_head_p->expired_tick);
+			aon_rtc_set_tick(&s_aon_rtc[id].hal, (uint32_t)s_aon_rtc[id].alarm_head_p->expired_tick);
 #if AON_RTC_DEBUG
 			s_isr_debug_set_tick[(s_isr_cnt)%AON_RTC_ISR_DEBUG_MAX_CNT] = (uint32_t)s_aon_rtc[id].alarm_head_p->expired_tick;
 #endif
@@ -497,7 +518,7 @@ static bk_err_t aon_rtc_isr_handler(aon_rtc_id_t id)
 		}
 		else
 		{
-			aon_rtc_hal_set_tick_val(&s_aon_rtc[id].hal, AON_RTC_ROUND_TICK);
+			aon_rtc_set_tick(&s_aon_rtc[id].hal, AON_RTC_ROUND_TICK);
 			AON_RTC_LOGI("no alarm:cur_tick=0x%x\r\n", (uint32_t)bk_aon_rtc_get_current_tick(id));
 		}
 	}
@@ -705,7 +726,7 @@ bk_err_t bk_aon_rtc_create(aon_rtc_id_t id, uint32_t tick, bool period)
 		//confirm tick val <= upper value, or tick int never be entry.
 		aon_rtc_hal_set_upper_val(&s_aon_rtc[id].hal, AON_RTC_UPPER_VAL_MAX);
 
-		aon_rtc_hal_set_tick_val(&s_aon_rtc[id].hal, tick);
+		aon_rtc_set_tick(&s_aon_rtc[id].hal, tick);
 		aon_rtc_hal_enable_tick_int(&s_aon_rtc[id].hal);
 	}
 
@@ -755,6 +776,12 @@ bk_err_t bk_alarm_register(aon_rtc_id_t id, alarm_info_t *alarm_info_p)
 	uint32_t int_level = 0;
 
 	AON_RTC_LOGD("%s[+]\r\n", __func__);
+
+	if(id >= AON_RTC_ID_MAX)
+	{
+		AON_RTC_LOGE("%s:id=%d\r\n", __func__, id);
+		return BK_ERR_PARAM;
+	}
 
 	if(alarm_info_p == NULL)
 	{
@@ -810,7 +837,7 @@ bk_err_t bk_alarm_register(aon_rtc_id_t id, alarm_info_t *alarm_info_p)
 	{
 		//+1:to assume set it valid,maybe aon rtc add 1 tick when set the value now.
 		BK_ASSERT(bk_aon_rtc_get_current_tick(id) + 1/*AON_RTC_PRECISION_TICK*/ < s_aon_rtc[id].alarm_head_p->expired_tick);	//4:reserve enough time to set the tick
-		aon_rtc_hal_set_tick_val(&s_aon_rtc[id].hal, (uint32_t)s_aon_rtc[id].alarm_head_p->expired_tick);
+		aon_rtc_set_tick(&s_aon_rtc[id].hal, (uint32_t)s_aon_rtc[id].alarm_head_p->expired_tick);
 	}
 
 	aon_rtc_hal_enable_tick_int(&s_aon_rtc[id].hal);
@@ -833,6 +860,12 @@ bk_err_t bk_alarm_unregister(aon_rtc_id_t id, uint8_t *name_p)
 
 	AON_RTC_LOGD("%s[+]\r\n", __func__);
 
+	if(id >= AON_RTC_ID_MAX)
+	{
+		AON_RTC_LOGE("%s:id=%d\r\n", __func__, id);
+		return BK_ERR_PARAM;
+	}
+
 	int_level = rtos_disable_int();
 	previous_head_node_p = s_aon_rtc[id].alarm_head_p;
 	remove_node_p = alarm_remove_node(id, name_p);
@@ -844,12 +877,12 @@ bk_err_t bk_alarm_unregister(aon_rtc_id_t id, uint8_t *name_p)
 		{
 			//+1:to assume set it valid,maybe aon rtc add 1 tick when set the value now.
 			BK_ASSERT(bk_aon_rtc_get_current_tick(id) + 1/*AON_RTC_PRECISION_TICK*/ < s_aon_rtc[id].alarm_head_p->expired_tick);	//reserve enough time to set the tick
-			aon_rtc_hal_set_tick_val(&s_aon_rtc[id].hal, (uint32_t)s_aon_rtc[id].alarm_head_p->expired_tick);
+			aon_rtc_set_tick(&s_aon_rtc[id].hal, (uint32_t)s_aon_rtc[id].alarm_head_p->expired_tick);
 			AON_RTC_LOGD("next tick=0x%x, cur_tick=0x%x\r\n", s_aon_rtc[id].alarm_head_p->expired_tick, bk_aon_rtc_get_current_tick(id));
 		}
 		else	//has no nodes now
 		{
-			aon_rtc_hal_set_tick_val(&s_aon_rtc[id].hal, AON_RTC_ROUND_TICK);
+			aon_rtc_set_tick(&s_aon_rtc[id].hal, AON_RTC_ROUND_TICK);
 			AON_RTC_LOGI("no alarm:cur_tick=0x%x\r\n", bk_aon_rtc_get_current_tick(id));
 		}
 	}
@@ -875,6 +908,12 @@ bk_err_t bk_aon_rtc_open_rtc_wakeup(uint32_t period)
 
 uint64_t bk_aon_rtc_get_current_tick(aon_rtc_id_t id)
 {
+	if(id >= AON_RTC_ID_MAX)
+	{
+		AON_RTC_LOGE("%s:id=%d\r\n", __func__, id);
+		return 0;
+	}
+
 	return ((s_high_tick[id] << 32) + aon_rtc_hal_get_counter_val(&s_aon_rtc[id].hal));
 }
 
@@ -936,7 +975,7 @@ void bk_aon_rtc_timing_test(aon_rtc_id_t id, uint32_t round, uint32_t cycles, ui
 		start_tick = aon_rtc_hal_get_counter_val(&s_aon_rtc[id].hal);
 		for(j = 0; j < cycles; j++)
 		{
-			aon_rtc_hal_set_tick_val(&s_aon_rtc[id].hal, set_tick);
+			aon_rtc_set_tick(&s_aon_rtc[id].hal, set_tick);
 		}
 		end_tick = aon_rtc_hal_get_counter_val(&s_aon_rtc[id].hal);
 
@@ -955,7 +994,7 @@ void bk_aon_rtc_timing_test(aon_rtc_id_t id, uint32_t round, uint32_t cycles, ui
 		start_tick = aon_rtc_hal_get_counter_val(&s_aon_rtc[id].hal);
 		for(j = 0; j < cycles; j++)
 		{
-			aon_rtc_hal_set_tick_val(&s_aon_rtc[id].hal, set_tick);
+			aon_rtc_set_tick(&s_aon_rtc[id].hal, set_tick);
 			if(set_tick != aon_rtc_hal_get_tick_val(&s_aon_rtc[id].hal))
 			{
 				fail_cnt++;

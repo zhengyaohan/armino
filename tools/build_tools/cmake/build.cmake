@@ -105,7 +105,7 @@ function(__build_set_default_build_specifications)
     endif()
 
     list(APPEND compile_definitions "-D_GNU_SOURCE")
-	list(APPEND compile_options     "-g"
+    list(APPEND compile_options     "-g"
                                     "-Os"
                                     "-std=c99"
                                     "-nostdlib"
@@ -231,13 +231,6 @@ function(__build_init armino_path)
         armino_build_set_property(COMPILE_DEFINITIONS "-DARMINO_SOC=${ARMINO_SOC}" APPEND)
         LOGI("LIB_HASH IS \"$ENV{LIB_HASH}\"")
     endif()
-
-	if(NOT $ENV{PROJECT})
-		if($ENV{PROJECT} STREQUAL "ate_mini_code")
-			armino_build_set_property(COMPILE_DEFINITIONS "-DCONFIG_ATE_TEST=1" APPEND)
-			LOGI("PROJECT IS \"$ENV{PROJECT}\"")
-		endif()
-	endif()
 
     #__build_get_armino_git_revision()
     __kconfig_init()
@@ -654,6 +647,26 @@ function(armino_build_parse_config_file_list)
 
         if(EXISTS "${CMAKE_SOURCE_DIR}/config/${ARMINO_SOC}.config")
             list(APPEND _sdkconfig_defaults "${CMAKE_SOURCE_DIR}/config/${ARMINO_SOC}.config")
+        endif()
+
+        string(FIND ${CMAKE_SOURCE_DIR} "properties_libs" str_index)
+
+        if(NOT str_index EQUAL -1)
+            if("$ENV{PROJECT}" STREQUAL "")
+                set(PROJECT "legacy_app")
+                STRING(REPLACE "properties_libs" ${PROJECT} CMAKE_SOURCE_DIR_TMP ${CMAKE_SOURCE_DIR})
+            else()
+                STRING(REPLACE "properties_libs" $ENV{PROJECT} CMAKE_SOURCE_DIR_TMP ${CMAKE_SOURCE_DIR})
+            endif()
+
+            if(EXISTS "${CMAKE_SOURCE_DIR_TMP}/properties_libs/common.config")
+                list(APPEND _sdkconfig_defaults "${CMAKE_SOURCE_DIR_TMP}/properties_libs/common.config")
+            endif()
+
+            if(EXISTS "${CMAKE_SOURCE_DIR_TMP}/properties_libs/${ARMINO_SOC}.config")
+                list(APPEND _sdkconfig_defaults "${CMAKE_SOURCE_DIR_TMP}/properties_libs/${ARMINO_SOC}.config")
+            endif()
+
         endif()
 
         if(EXISTS "${soc_path}/${ARMINO_SOC}/${ARMINO_SOC}.defconfig")

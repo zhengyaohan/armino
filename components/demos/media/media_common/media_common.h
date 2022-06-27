@@ -53,7 +53,6 @@ typedef struct {
 
 bk_err_t common_mb_init(void);
 
-
 #ifdef __cplusplus
 }
 #endif

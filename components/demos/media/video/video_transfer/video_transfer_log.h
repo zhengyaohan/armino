@@ -21,6 +21,8 @@ extern "C" {
 #endif
 
 void bk_video_transfer_log_enable(uint8_t enable);
+void bk_video_transfer_pkt_calc_enable(uint8_t enable);
+void bk_video_transfer_pkt_reset_enable(uint8_t enable);
 
 #ifdef __cplusplus
 }

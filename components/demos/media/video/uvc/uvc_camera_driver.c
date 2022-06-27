@@ -194,7 +194,6 @@ static void uvc_dma_config(void)
 	BK_LOG_ON_ERR(bk_dma_set_transfer_len(uvc_intf.dma_channel, uvc_intf.node_len));
 	BK_LOG_ON_ERR(bk_dma_register_isr(uvc_intf.dma_channel, NULL, uvc_intf.dma_rx_handler));
 	BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(uvc_intf.dma_channel));
-	BK_LOG_ON_ERR(bk_dma_enable_half_finish_interrupt(uvc_intf.dma_channel));
 #endif
 }
 

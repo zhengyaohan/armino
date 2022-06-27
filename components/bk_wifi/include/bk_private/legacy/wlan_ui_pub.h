@@ -622,6 +622,14 @@ uint8_t *wlan_get_mesh_bssid(void);
 #endif
 
 /**
+ * @brief  Set Wi-Fi state
+ *
+ * This function set Wi-Fi state to stop active scan, to ensure
+ *	softap video_transfer
+ */
+void bk_wifi_set_video_transfer_state(bool enable);
+
+/**
  * @}
  */
 

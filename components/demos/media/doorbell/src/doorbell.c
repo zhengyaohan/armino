@@ -19,6 +19,8 @@
 #include <driver/dma.h>
 #include <modules/audio_ring_buff.h>
 #include "audio_transfer_cp0.h"
+#include "video_transfer_cpu0.h"
+
 
 
 #define DBD_TAG       "doorbell"
@@ -62,6 +64,8 @@ static uint8_t *temp_write_buffer = NULL;
 static uint8_t *audio_rx_ring_buffer = NULL;    //save data received from apk
 static RingBufferContext audio_rx_rb;
 bool temp_write_buffer_status = false;
+
+bool video_transfer_use_cpu1 = false;
 
 
 int demo_doorbell_udp_send_packet(uint8_t *data, uint32_t len)
@@ -274,28 +278,9 @@ void demo_doorbell_add_pkt_header(video_packet_t *param)
 
 static void demo_doorbell_udp_handle_cmd_data(UINT8 *data, UINT16 len)
 {
-	uint8_t crc_cal;
+	UINT32 cmd = (UINT32)data[0] << 24 | (UINT32)data[1] << 16 | (UINT32)data[2] << 8 | data[3];
 
-	DBD("demo_doorbell_udp_handle_cmd_data\r\n");
-
-	if ((data[0] != CMD_HEADER_CODE) && (len != CMD_LEN) && (data[len - 1] != CMD_TAIL_CODE))
-		return;
-
-	crc_cal = (data[1] ^ data[2] ^ data[3] ^ data[4] ^ data[5]);
-
-	if (crc_cal != data[6]) {
-		if (((crc_cal == CMD_HEADER_CODE) || (crc_cal == CMD_TAIL_CODE))
-			&& (crc_cal + 1 == data[6]))
-			// drop this paket for crc is the same with Header or Tailer
-			return;
-		else // change to right crc
-			data[6] = crc_cal;
-	}
-
-	{
-		for (int i = 0; i < len; i++)
-			uart_write_byte(UART_ID_0, data[i]);
-	}
+	DBD("doorbell cmd: %08X, len: %d\n", cmd, len);
 }
 
 static void demo_doorbell_udp_app_connected(void)
@@ -360,13 +345,19 @@ static void demo_doorbell_udp_receiver(UINT8 *data, UINT32 len, struct sockaddr_
 			setup.pkt_header_size = sizeof(media_hdr_t);
 			setup.add_pkt_header = demo_doorbell_add_pkt_header;
 
-			bk_video_transfer_init(&setup);
+			if (video_transfer_use_cpu1)
+				bk_video_transfer_cpu0_init(&setup);
+			else
+				bk_video_transfer_init(&setup);
 #endif
 		} else if (data[1] == DOORBELL_CMD_STOP_IMG) {
 			DBD("udp close\r\n");
 
 #if (CONFIG_SPIDMA || CONFIG_CAMERA)
-			bk_video_transfer_deinit();
+			if (video_transfer_use_cpu1)
+				bk_video_transfer_cpu0_deinit();
+			else
+				bk_video_transfer_deinit();
 #endif
 
 			GLOBAL_INT_DISABLE();
@@ -520,6 +511,7 @@ static void demo_doorbell_udp_main(beken_thread_arg_t data)
 	timeout.tv_usec = (APP_DEMO_UDP_SOCKET_TIMEOUT % 1000) * 1000;
 
 	/* init audio transfer driver */
+
 	cp0_audio_transfer_init();
 
 	GLOBAL_INT_DISABLE();
@@ -574,7 +566,6 @@ static void demo_doorbell_udp_main(beken_thread_arg_t data)
 
 					demo_doorbell_udp_handle_cmd_data(rcv_buf, rcv_len);
 				}
-
 			}
 #if DEMO_DOORBELL_EN_VOICE_TRANSFER
 			if (FD_ISSET(demo_doorbell_udp_voice_fd, &watchfd)) {
@@ -588,7 +579,6 @@ static void demo_doorbell_udp_main(beken_thread_arg_t data)
 				} else {
 					rcv_len = (rcv_len > APP_DEMO_UDP_RCV_BUF_LEN) ? APP_DEMO_UDP_RCV_BUF_LEN : rcv_len;
 					rcv_buf[rcv_len] = 0;
-
 					demo_doorbell_udp_voice_receiver(rcv_buf, rcv_len, demo_doorbell_voice_udp_remote);
 				}
 			}
@@ -690,6 +680,11 @@ void demo_doorbell_udp_deinit(void)
 void cli_doorbell_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 	os_printf("cli_doorbell_test_cmd\r\n");
+	uint8_t enable = os_strtoul(argv[1], NULL, 10);
+	if (enable)
+		video_transfer_use_cpu1 = true;
+	else
+		video_transfer_use_cpu1 = false;
 	demo_doorbell_udp_init();
 }
 

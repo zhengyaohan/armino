@@ -61,6 +61,12 @@ CONFIG_AT=n
 CONFIG_AT_CMD=y
 
 #
+# PSRAM
+#
+CONFIG_PSRAM=y
+# end of PSRAM
+
+#
 # Audio
 #
 CONFIG_AUDIO=y
@@ -75,10 +81,25 @@ CONFIG_SBC=y
 #
 # end of SBC
 
+# Video
+#
 CONFIG_LCD=y
 CONFIG_DMA2D=y
 CONFIG_JPEG_DEC=y
+CONFIG_JPEG_ENCODE=y
+# JPEG DECODE SW
+CONFIG_JPEG_DECODE=y
+# end of Video
 #
+
+#
+# Video transfer
+#
+CONFIG_CAMERA=y
+CONFIG_CAMERA_USE_I2C1=y
+#
+#end of Video 
+
 # Calibration
 #
 # CONFIG_CALI is not set
@@ -240,32 +261,6 @@ CONFIG_BLE_PS=y
 # CONFIG_BLE_INIT_NUM is not set
 # CONFIG_BLE_CONN_NUM is not set
 # end of BLE 5.x
-
-#
-# JPEG ENCODE
-#
-CONFIG_JPEG_ENCODE=y
-# end of JPEG ENCODE
-
-#
-# JPEG_DECODE SW
-#
-CONFIG_JPEG_DECODE=y
-# end of JPEG_DECODE SW
-
-#
-# PSRAM
-#
-CONFIG_PSRAM=y
-# end of PSRAM
-
-#
-# Video
-#
-CONFIG_CAMERA=y
-CONFIG_CAMERA_USE_I2C1=y
-#
-#end of Video 
 
 #
 # Driver

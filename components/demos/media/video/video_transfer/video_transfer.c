@@ -3,7 +3,7 @@
 
 #include <os/os.h>
 #include <common/bk_kernel_err.h>
-#include "video_co_list.h"
+#include "video_transfer_common.h"
 
 #include <components/video_transfer.h>
 
@@ -31,75 +31,20 @@
 #define TVIDEO_FATAL                null_prf
 #endif
 
-#define TVIDEO_DROP_DATA_NONODE     0
-#define TVIDEO_USE_HDR              1
-
-#define TVIDEO_RXNODE_SIZE_UDP      1472
-#define TVIDEO_RXNODE_SIZE_TCP      1460
-#ifndef TVIDEO_RXNODE_SIZE
-#define TVIDEO_RXNODE_SIZE          TVIDEO_RXNODE_SIZE_UDP
-#endif
-
-#define TVIDEO_DROP_DATA_FLAG       0x01
-
-#if TVIDEO_DROP_DATA_NONODE
-#define TVIDEO_POOL_LEN             (TVIDEO_RXNODE_SIZE * 38)  // 54KB
-#else
-#define TVIDEO_POOL_LEN             (TVIDEO_RXNODE_SIZE * 25)  // 7KB
-#endif
-
-#define TVIDEO_RXBUF_LEN            (TVIDEO_RXNODE_SIZE_UDP * 4)
-
 video_config_t tvideo_st;
-
-typedef struct {
-	struct co_list_hdr hdr;
-	void *buf_start;
-	uint32_t buf_len;
-	uint32_t frame_id;
-} video_elem_t;
-
-typedef struct {
-	//uint8_t*  pool[TVIDEO_POOL_LEN];
-	uint8_t *pool;
-	video_elem_t elem[TVIDEO_POOL_LEN / TVIDEO_RXNODE_SIZE];
-	struct co_list free;
-	struct co_list ready;
-
-#if TVIDEO_DROP_DATA_NONODE
-	struct co_list receiving;
-	uint32_t drop_pkt_flag;
-#endif
-
-	uint16_t open_type;
-	uint16_t send_type;
-	video_transfer_send_func send_func;
-	video_transfer_start_cb start_cb;
-	video_transfer_end_cb end_cb;
-
-#if(TVIDEO_USE_HDR && CONFIG_CAMERA)
-	uint16_t frame_id;
-	uint16_t pkt_header_size;
-	tvideo_add_pkt_header add_pkt_header;
-#endif
-} video_pool_t;
-
 video_pool_t tvideo_pool;
-
-enum {
-	TV_INT_POLL          = 0,
-	TV_EXIT,
-};
 
 typedef struct {
 	uint32_t data;
 } video_msg_t;
 
-#define TV_QITEM_COUNT      (60)
+#define TV_QITEM_COUNT      (120)
 beken_thread_t  tvideo_thread_hdl = NULL;
 beken_queue_t tvideo_msg_que = NULL;
 static uint8_t tvideo_log_enable = 0;
 static uint8_t tvideo_image_save_enable = 0;
+static uint8_t tvideo_pkt_calc_enable = 0;
+static uint8_t tvideo_pkt_reset_enable = 0;
 static uint8_t g_frame_eof = 1;
 static uint32_t g_frame_len = 0;
 static uint32_t g_frame_max = 0;
@@ -108,6 +53,12 @@ static uint32_t g_frame_id = 1;
 static uint32_t g_flag = 0;
 static uint32_t g_eof_flag = 0;
 static uint32_t g_lost_frame_id = 0;
+static uint32_t g_packet_count = 0;
+static uint32_t g_pkt_total = 0;
+static uint32_t g_pkt_lost = 0;
+extern uint32_t g_pkt_send_fail;
+extern uint32_t g_pkt_send;
+static uint32_t g_pkt_push = 0;
 
 bk_err_t bk_video_send_msg(uint32_t new_msg)
 {
@@ -185,18 +136,22 @@ static void tvideo_pool_init(void *data)
 static void tvideo_rx_handler(void *curptr, uint32_t newlen, uint32_t is_eof, uint32_t frame_len)
 {
 	video_elem_t *elem = NULL;
+	g_pkt_total++;
 	do {
 		if (!newlen)
 			break;
 
-		if (is_eof == 0 && g_eof_flag == 1) {
+		if (g_flag && is_eof == 0 && g_eof_flag == 1) {
+//			os_printf("frame_id_new = %d\r\n", tvideo_pool.frame_id);
 			g_flag = 0;
 		}
 
 		g_eof_flag = is_eof;
 
-		if (g_flag && is_eof == 0)
-			break;
+		if (g_flag && is_eof == 0) {
+			g_pkt_lost++;
+			return;
+		}
 
 #if TVIDEO_DROP_DATA_NONODE
 		// drop pkt has happened, so drop it, until spidma timeout handler.
@@ -265,6 +220,9 @@ static void tvideo_rx_handler(void *curptr, uint32_t newlen, uint32_t is_eof, ui
 #else
 			co_list_push_back(&tvideo_pool.ready, (struct co_list_hdr *)&elem->hdr);
 #endif
+			g_packet_count++;
+			g_pkt_push++;
+
 		} else {
 #if TVIDEO_DROP_DATA_NONODE
 			// not node for receive pkt, drop aready received, and also drop
@@ -276,13 +234,29 @@ static void tvideo_rx_handler(void *curptr, uint32_t newlen, uint32_t is_eof, ui
 				co_list_concat(&tvideo_pool.free, &tvideo_pool.receiving);
 #else
 			TVIDEO_WPRT("lost\r\n");
+			g_pkt_lost++;
 			g_lost_frame_id = tvideo_pool.frame_id;
 			g_flag = 1;
+			if (is_eof == 1) {
+				bk_video_send_msg(VIDEO_CPU0_SEND);
+				g_packet_count = 0;
+				return;
+			}
 #endif
 		}
 	} while (0);
 
-	bk_video_send_msg(TV_INT_POLL);
+	if ((g_packet_count > 0 && g_packet_count <= 4) && is_eof == 1) {
+		bk_video_send_msg(VIDEO_CPU0_SEND);
+		g_packet_count = 0;
+		return;
+	}
+
+	if (g_packet_count == 4) {
+		bk_video_send_msg(VIDEO_CPU0_SEND);
+		g_packet_count = 0;
+	}
+
 }
 
 static void tvideo_end_frame_handler(void)
@@ -299,7 +273,7 @@ static void tvideo_end_frame_handler(void)
 		tvideo_pool.frame_id++;
 #endif
 
-	bk_video_send_msg(TV_INT_POLL);
+	bk_video_send_msg(VIDEO_CPU0_SEND);
 }
 
 static void tvideo_config_desc(void)
@@ -419,11 +393,11 @@ static void video_transfer_main(beken_thread_arg_t data)
 		err = rtos_pop_from_queue(&tvideo_msg_que, &msg, BEKEN_WAIT_FOREVER);
 		if (kNoErr == err) {
 			switch (msg.data) {
-			case TV_INT_POLL:
+			case VIDEO_CPU0_SEND:
 				tvideo_poll_handler();
 				break;
 
-			case TV_EXIT:
+			case VIDEO_CPU0_EXIT:
 				goto tvideo_exit;
 				break;
 
@@ -520,11 +494,42 @@ void bk_video_transfer_image_save_enable(uint8_t enable)
 	tvideo_image_save_enable = enable;
 }
 
+void bk_video_transfer_pkt_calc_enable(uint8_t enable)
+{
+	tvideo_pkt_calc_enable = enable;
+	if (tvideo_pkt_calc_enable) {
+		os_printf("total = %d\r\n", g_pkt_total);
+		os_printf("lost = %d\r\n", g_pkt_lost);
+		os_printf("push = %d\r\n", g_pkt_push);
+		os_printf("send = %d\r\n", g_pkt_send);
+		os_printf("sendfail = %d\r\n", g_pkt_send_fail);
+	}
+}
+
+void bk_video_transfer_pkt_reset_enable(uint8_t enable)
+{
+	tvideo_pkt_reset_enable = enable;
+
+	if (tvideo_pkt_reset_enable) {
+		g_pkt_total = 0;
+		g_pkt_lost = 0;
+		g_pkt_push = 0;
+		g_pkt_send = 0;
+		g_pkt_send_fail =0;
+
+		os_printf("total = %d\r\n", g_pkt_total);
+		os_printf("lost = %d\r\n", g_pkt_lost);
+		os_printf("push = %d\r\n", g_pkt_push);
+		os_printf("send = %d\r\n", g_pkt_send);
+		os_printf("sendfail = %d\r\n", g_pkt_send_fail);
+	}
+}
+
 bk_err_t bk_video_transfer_deinit(void)
 {
 	TVIDEO_PRT("video_transfer_deinit\r\n");
 
-	bk_video_send_msg(TV_EXIT);
+	bk_video_send_msg(VIDEO_CPU0_EXIT);
 
 	while (tvideo_thread_hdl)
 		rtos_delay_milliseconds(10);

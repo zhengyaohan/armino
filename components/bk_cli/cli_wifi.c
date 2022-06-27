@@ -140,6 +140,25 @@ void cli_monitor_show(void)
 	}
 }
 
+void cli_wifi_set_interval_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	uint8_t interval = 0;
+	int ret = 0;
+
+	if (argc < 2) {
+		CLI_LOGI("invalid argc num");
+		return;
+	}
+
+	interval = (uint8_t)os_strtoul(argv[1], NULL, 10);
+	ret = bk_wifi_send_listen_interval_req(interval);
+
+	if (!ret)
+		CLI_LOGI("set_interval ok");
+	else
+		CLI_LOGI("set_interval failed");
+}
+
 void cli_monitor_stop(void)
 {
 	if (s_monitor_result) {
@@ -766,6 +785,7 @@ static const struct cli_command s_wifi_commands[] = {
 	{"sta_eap", "sta_eap ssid password [identity] [client_cert] [private_key]", cli_wifi_sta_eap_cmd},
 #endif
 	{"stop", "stop {sta|ap}", cli_wifi_stop_cmd},
+	{"set_interval", "set listen interval}", cli_wifi_set_interval_cmd},
 	{"monitor", "monitor {1~13|15|99}", cli_wifi_monitor_cmd},
 	{"state", "state - show STA/AP state", cli_wifi_state_cmd},
 	{"channel", "channel {1~13} - set monitor channel", cli_wifi_monitor_channel_cmd},

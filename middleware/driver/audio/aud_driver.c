@@ -193,7 +193,8 @@ bk_err_t bk_aud_driver_init(void)
 	//sys_drv_aud_power_en(0);    //temp used
 	//select 26M XTAL clock and enable audio clock
 	sys_drv_aud_select_clock(0);
-	sys_drv_aud_clock_en(1);
+	//sys_drv_aud_clock_en(1);
+	pm_clock_ctrl(PM_CLK_ID_AUDIO, CLK_PWR_CTRL_PWR_UP);
 	//enable audpll en
 	sys_drv_aud_audpll_en(1);
 
@@ -256,7 +257,8 @@ bk_err_t bk_aud_driver_deinit(void)
 	//disable audpll en
 	sys_drv_aud_audpll_en(0);
 
-	sys_drv_aud_clock_en(0);
+	//sys_drv_aud_clock_en(0);
+	pm_clock_ctrl(PM_CLK_ID_AUDIO, CLK_PWR_CTRL_PWR_DOWN);
 
 	//power down
 	pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_AUDP_AUDIO, PM_POWER_MODULE_STATE_OFF);

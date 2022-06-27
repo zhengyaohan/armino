@@ -8,6 +8,9 @@ extern "C" {
 /* @brief Overview about lcds demo
  *
  */
+#define       LCD_BLEND_IMAGE1     0x3A0000 //flash phy addr 0x3DA000
+#define       LCD_BLEND_IMAGE2     0x3A2F00 //flash phy addr 0x3DD200
+
 
 typedef enum{
 	YUYV = 0,

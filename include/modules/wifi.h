@@ -790,6 +790,24 @@ bk_err_t bk_wifi_set_mac_address(char *mac);
 bk_err_t bk_wifi_manual_cal_rfcali_status(void);
 
 /**
+ * @brief  Register a cb of probe request for ap.
+ *
+ * @param cb callback function of probe request to register
+ *
+ */
+bk_err_t bk_wifi_ap_vif_probe_req_frame_cb_register(void *cb);
+
+/**
+ * @brief  Set listen interval.
+ *
+ * @return
+ * 	-BK_OK: on success
+ * 	-others:real error, used for future.
+ *
+ */
+bk_err_t bk_wifi_send_listen_interval_req(uint8_t interval);
+
+/**
  * @}
  */
 

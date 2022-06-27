@@ -99,13 +99,7 @@ void lcd_rgb_init(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **arg
 
 	uint32_t yuv_mode = os_strtoul(argv[2], NULL, 10) & 0xFFFF;
 	os_printf("yuv_mode  = %d \r\n", yuv_mode);
-
-	// if rgb lcd rgb565 datat  dma_dst_w=1 is 16bit, if is yuv data, dma_dst_w=2 is 32bit
-	uint32_t dma_dst_w = os_strtoul(argv[3], NULL, 10) & 0xFFFF;
-	os_printf("lcd dma_dst_w  = %d \r\n", dma_dst_w);
-
-	os_printf("lcd power on. \r\n");
-	bk_lcd_power_on_ctrl(1);
+	
 	os_printf("psram init. \r\n");
 	bk_psram_init(0x00054043);
 //	bk_gpio_enable_output(GPIO_2); //output

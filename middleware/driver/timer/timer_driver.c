@@ -92,6 +92,9 @@ static void timer_clock_enable(timer_id_t id)
 		case 1:
 			sys_drv_dev_clk_pwr_up(CLK_PWR_ID_TIMER_2, CLK_PWR_CTRL_PWR_UP);
 			break;
+		case 2:
+			sys_drv_dev_clk_pwr_up(CLK_PWR_ID_TIMER_3, CLK_PWR_CTRL_PWR_UP);
+			break;
 		default:
 			break;
 	}
@@ -109,6 +112,9 @@ static void timer_clock_disable(timer_id_t id)
 			break;
 		case 1:
 			sys_drv_dev_clk_pwr_up(CLK_PWR_ID_TIMER_2, CLK_PWR_CTRL_PWR_DOWN);
+			break;
+		case 2:
+			sys_drv_dev_clk_pwr_up(CLK_PWR_ID_TIMER_3, CLK_PWR_CTRL_PWR_DOWN);
 			break;
 		default:
 			break;

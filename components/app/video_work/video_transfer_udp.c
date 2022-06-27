@@ -34,6 +34,8 @@
 #define APP_DEMO_UDP_RCV_BUF_LEN        1472
 #define APP_DEMO_UDP_SOCKET_TIMEOUT     100  // ms
 
+uint32_t g_pkt_send_fail = 0;
+uint32_t g_pkt_send = 0;
 int app_demo_udp_img_fd = -1;
 volatile int app_demo_udp_romote_connected = 0;
 volatile int app_demo_udp_run = 0;
@@ -66,27 +68,11 @@ void app_demo_add_pkt_header(video_packet_t *param)
 
 static void app_demo_udp_handle_cmd_data(UINT8 *data, UINT16 len)
 {
-	uint8_t crc_cal;
+	UINT32 cmd = (UINT32)data[0] << 24 | (UINT32)data[1] << 16 | (UINT32)data[2] << 8 | data[3];
 
-	if ((data[0] != CMD_HEADER_CODE) && (len != CMD_LEN) && (data[len - 1] != CMD_TAIL_CODE))
-		return;
-
-	crc_cal = (data[1] ^ data[2] ^ data[3] ^ data[4] ^ data[5]);
-
-	if (crc_cal != data[6]) {
-		if (((crc_cal == CMD_HEADER_CODE) || (crc_cal == CMD_TAIL_CODE))
-			&& (crc_cal + 1 == data[6]))
-			// drop this paket for crc is the same with Header or Tailer
-			return;
-		else // change to right crc
-			data[6] = crc_cal;
-	}
-
-	{
-		for (int i = 0; i < len; i++)
-			uart_write_byte(UART_ID_0, data[i]);
-	}
+	APP_DEMO_UDP_PRT("video transfer udp cmd: %08X, len: %d\n", cmd, len);
 }
+
 
 static void app_demo_udp_app_connected(void)
 {
@@ -441,14 +427,17 @@ int app_demo_udp_send_packet(uint8_t *data, uint32_t len)
 	if (!app_demo_udp_romote_connected)
 		return 0;
 
+	g_pkt_send++;
+
 	send_byte = sendto(app_demo_udp_img_fd, data, len, MSG_DONTWAIT | MSG_MORE,
 					   (struct sockaddr *)app_demo_remote, sizeof(struct sockaddr_in));
 
 	if (send_byte < 0) {
 		/* err */
 		//APP_DEMO_UDP_PRT("send return fd:%d\r\n", send_byte);
+		g_pkt_send_fail++;
 		send_byte = 0;
-	}
+	} 
 
 	return send_byte;
 }

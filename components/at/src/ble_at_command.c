@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "at_common.h"
-
+#include "modules/wifi.h"
+#include <driver/gpio.h>
 
 #if CONFIG_BLE//(CONFIG_BLE_5_X || CONFIG_BTDM_5_2)
 #include "at_ble_common.h"
@@ -821,10 +822,8 @@ int ble_set_adv_param_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc,
     }
     else
     {
-        err = bk_ble_set_extended_adv_params(0x00, 0x01, adv_param.adv_intv_min,
-                    adv_param.adv_intv_max, adv_param.chnl_map, adv_param.own_addr_type,
-                    0x00, NULL, 0x00U, 0x7F, adv_param.prim_phy, 0x00,
-                    adv_param.second_phy, 0x00, 0x01, ble_at_cmd_cb);
+        err = bk_ble_set_advertising_params(adv_param.adv_intv_min, adv_param.adv_intv_max, adv_param.chnl_map,
+            adv_param.own_addr_type,adv_param.prim_phy, adv_param.second_phy, ble_at_cmd_cb);
 
         if (err != BK_ERR_BLE_SUCCESS)
         {
@@ -938,7 +937,7 @@ int ble_set_adv_data_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, 
     }
     else
     {
-        err = bk_ble_set_extended_adv_data(0x00, 0x03, 0x01, adv_data, adv_len, ble_at_cmd_cb);
+        err = bk_ble_set_advertising_data(adv_data, adv_len, ble_at_cmd_cb);
         if (err != BK_ERR_BLE_SUCCESS)
         {
             goto error;
@@ -1087,37 +1086,71 @@ int ble_set_scan_rsp_data_handle(char *pcWriteBuffer, int xWriteBufferLen, int a
         }
     }
 
-    actv_idx = bk_ble_find_actv_state_idx_handle(AT_ACTV_ADV_CREATED);
-    if (actv_idx == AT_BLE_MAX_ACTV)
+    if(bk_ble_get_host_stack_type() != BK_BLE_HOST_STACK_TYPE_ETHERMIND)
     {
-        actv_idx = bk_ble_find_actv_state_idx_handle(AT_ACTV_ADV_STARTED);
+        actv_idx = bk_ble_find_actv_state_idx_handle(AT_ACTV_ADV_CREATED);
         if (actv_idx == AT_BLE_MAX_ACTV)
         {
-            os_printf("ble adv not set params before\n");
-            err = kNoResourcesErr;
+            actv_idx = bk_ble_find_actv_state_idx_handle(AT_ACTV_ADV_STARTED);
+            if (actv_idx == AT_BLE_MAX_ACTV)
+            {
+                os_printf("ble adv not set params before\n");
+                err = kNoResourcesErr;
+                goto error;
+            }
+        }
+
+        err = bk_ble_set_scan_rsp_data(actv_idx, scan_rsp_data, data_len, ble_at_cmd_cb);
+        if (err != BK_ERR_BLE_SUCCESS)
             goto error;
+        if(ble_at_cmd_sema != NULL) {
+            err = rtos_get_semaphore(&ble_at_cmd_sema, AT_SYNC_CMD_TIMEOUT_MS);
+            if(err != kNoErr) {
+                goto error;
+            } else {
+                if (at_cmd_status == BK_ERR_BLE_SUCCESS)
+                {
+                    msg = AT_CMD_RSP_SUCCEED;
+                    os_memcpy(pcWriteBuffer, msg, os_strlen(msg));
+                    rtos_deinit_semaphore(&ble_at_cmd_sema);
+                    return 0;
+                }
+                else
+                {
+                    err = at_cmd_status;
+                    goto error;
+                }
+            }
         }
     }
-
-    err = bk_ble_set_scan_rsp_data(actv_idx, scan_rsp_data, data_len, ble_at_cmd_cb);
-    if (err != BK_ERR_BLE_SUCCESS)
-        goto error;
-    if(ble_at_cmd_sema != NULL) {
-        err = rtos_get_semaphore(&ble_at_cmd_sema, AT_SYNC_CMD_TIMEOUT_MS);
-        if(err != kNoErr) {
+    else
+    {
+        err = bk_ble_set_scan_response_data(data_len, scan_rsp_data, ble_at_cmd_cb);
+        if (err != BK_ERR_BLE_SUCCESS)
+        {
             goto error;
-        } else {
-            if (at_cmd_status == BK_ERR_BLE_SUCCESS)
+        }
+        if(ble_at_cmd_sema != NULL)
+        {
+            err = rtos_get_semaphore(&ble_at_cmd_sema, AT_SYNC_CMD_TIMEOUT_MS);
+            if(err != kNoErr)
             {
-                msg = AT_CMD_RSP_SUCCEED;
-                os_memcpy(pcWriteBuffer, msg, os_strlen(msg));
-                rtos_deinit_semaphore(&ble_at_cmd_sema);
-                return 0;
+                goto error;
             }
             else
             {
-                err = at_cmd_status;
-                goto error;
+                if (at_cmd_status == BK_ERR_BLE_SUCCESS)
+                {
+                    msg = AT_CMD_RSP_SUCCEED;
+                    os_memcpy(pcWriteBuffer, msg, os_strlen(msg));
+                    rtos_deinit_semaphore(&ble_at_cmd_sema);
+                    return 0;
+                }
+                else
+                {
+                    err = at_cmd_status;
+                    goto error;
+                }
             }
         }
     }
@@ -1221,10 +1254,7 @@ int ble_set_adv_enable_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc
     }
     else
     {
-        uint8_t handle = 0x00;
-        uint16_t duration = 0x00;
-        uint8_t max_extd_adv_evts = 0x60;
-        err = bk_ble_set_extended_adv_enable(enable, 1, &handle, &duration, &max_extd_adv_evts, ble_at_cmd_cb);
+        err = bk_ble_set_advertising_enable(enable, ble_at_cmd_cb);
         if (err != BK_ERR_BLE_SUCCESS)
         {
             goto error;
@@ -1368,11 +1398,8 @@ int ble_set_scan_param_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc
     }
     else
     {
-        UINT16 scan_intv[2] = {0};
-        UINT16 scan_wd[2] = {0};
-        scan_intv[0]=scan_intv[1]=scan_param.scan_intv;
-        scan_wd[0]=scan_wd[1]=scan_param.scan_wd;
-        err = bk_ble_set_extended_scan_params(scan_param.own_addr_type, 0x00, scan_param.scan_phy, scan_intv, scan_wd, ble_at_cmd_cb);
+
+        err = bk_ble_set_scan_parameters(scan_param.own_addr_type, 0x00, scan_param.scan_phy, scan_param.scan_intv, scan_param.scan_wd, ble_at_cmd_cb);
 
         if (err != BK_ERR_BLE_SUCCESS)
         {
@@ -1526,7 +1553,7 @@ int ble_set_scan_enable_handle(char *pcWriteBuffer, int xWriteBufferLen, int arg
     }
     else
     {
-        err = bk_ble_set_extended_scan_enable(enable, filt_duplicate, duration, period, ble_at_cmd_cb);
+        err = bk_ble_set_scan_enable_extended(enable, filt_duplicate, duration, period, ble_at_cmd_cb);
 
         if (err != BK_ERR_BLE_SUCCESS)
         {
@@ -2817,7 +2844,7 @@ static API_RESULT ethermind_test_gatt_char_handler
     }
     else
     {
-        retval = BK_FAIL;
+//        retval = BK_FAIL;
     }
 
     return retval;
@@ -2927,6 +2954,14 @@ static int ble_register_service_handle(char *pcWriteBuffer, int xWriteBufferLen,
         uint16_t               property;
         ATT_VALUE            char_value;
 
+        if (ble_at_cmd_table[16].is_sync_cmd)
+        {
+            err = rtos_init_semaphore(&ble_at_cmd_sema, 1);
+            if (err != kNoErr)
+            {
+                goto error;
+            }
+        }
 
         bk_ble_set_notice_cb(ble_at_notice_cb);
 
@@ -2965,6 +3000,7 @@ static int ble_register_service_handle(char *pcWriteBuffer, int xWriteBufferLen,
             char_value.val          = (uint8_t *)"";//(UCHAR *)s_ethermind_send_test_value;
             char_value.len          = 0;//strlen((char *)char_value.val);
             char_value.actual_len   = 0;//char_value.len;
+
 
             retval = bk_ble_gatt_db_add_characteristic
                        (
@@ -3036,7 +3072,6 @@ static int ble_register_service_handle(char *pcWriteBuffer, int xWriteBufferLen,
                        &s_ethermind_send_size_handle
                    );
         }
-
 
         if (0 != retval)
         {
@@ -4258,44 +4293,52 @@ void *ble_mqtt_loop_client = NULL;
 
 static void mqtt_loop_timer_callback(void *param)
 {
-	if (loop_type == LT_WIFI_ONLY)
-	{
-	    iotx_mqtt_topic_info_t topic_msg;
-	    char msg_pub[250] = {0};
-	    int rc = -1;
+    if (loop_type == LT_WIFI_ONLY)
+    {
+        iotx_mqtt_topic_info_t topic_msg;
+        char msg_pub[350] = {0};
+        int rc = -1;
+        char rev_data[250] = {0};
 
-	    /* Initialize topic information */
-	    memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
+        /* Initialize topic information */
+        memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
 
-	    topic_msg.qos = IOTX_MQTT_QOS0;
-	    topic_msg.retain = 0;
-	    topic_msg.dup = 0;
+        topic_msg.qos = IOTX_MQTT_QOS0;
+        topic_msg.retain = 0;
+        topic_msg.dup = 0;
 
-	    /* Generate topic message */
-	    int msg_len = snprintf(msg_pub, sizeof(msg_pub), "{\"attr_name\":\"le_loop\", \"attr_value\":\"%d\"}", loop_ci_index++);
-	    if (msg_len < 0) {
-	        os_printf("Error occur! Exit program.\n");
-	    }
+        /* Generate topic message */
+        int msg_len = snprintf(msg_pub, sizeof(msg_pub), "{\"link_id\":\"%d\", \"rev_len\":\"%d\", \"rev_data\":\"", 0, 250);
 
-	    topic_msg.payload = (void *)msg_pub;
-	    topic_msg.payload_len = msg_len;
+        if (msg_len < 0) {
+            os_printf("Error occur! Exit program.\n");
+        }
 
-	    rc = IOT_MQTT_Publish(ble_mqtt_loop_client, loop_topic_ci, &topic_msg);
-	    if (rc < 0) {
-	        os_printf("error occur when publish.\n");
-	    }
-	    os_printf("packet-id=%u, publish topic msg=%s.\n", (uint32_t)rc, msg_pub);
-	}
+        sprintf(rev_data, "%d-%d", loop_ci_index++, loop_sr_index);
+        os_memcpy(&msg_pub[msg_len], rev_data, 250);
+        msg_len += 250;
+
+        msg_pub[msg_len++] = '"';
+        msg_pub[msg_len++] = '}';
+
+        topic_msg.payload = (void *)msg_pub;
+        topic_msg.payload_len = msg_len;
+
+        rc = IOT_MQTT_Publish(ble_mqtt_loop_client, loop_topic_ci, &topic_msg);
+        if (rc < 0) {
+            os_printf("error occur when publish.\n");
+        }
+        os_printf("packet-id=%u, publish topic msg=%s.\n", (uint32_t)rc, msg_pub);
+    }
 
 
-	if (loop_ci_index == loop_count)
-	{
-		rtos_stop_timer(mqtt_loop_timer);
-		os_free(mqtt_loop_timer);
-		mqtt_loop_timer = NULL;
-		os_printf("stop\n");
-	}
-
+    if (loop_ci_index == loop_count)
+    {
+        rtos_stop_timer(mqtt_loop_timer);
+        os_free(mqtt_loop_timer);
+        mqtt_loop_timer = NULL;
+        os_printf("stop\n");
+    }
 
 }
 
@@ -4371,6 +4414,9 @@ void ble_mqtt_loop_event_handle(void *pcontext, void *pclient, iotx_mqtt_event_m
     }
 }
 
+#define REQ_TIMEOUT_MS (5000)
+#define TRX_BUF_SIZE (7*1024)
+
 void *ble_mqtt_open(const char *host_name, const char *username,
                         const char *password)
 {
@@ -4379,7 +4425,7 @@ void *ble_mqtt_open(const char *host_name, const char *username,
 
 	if (ble_mqtt_loop_tx_buffer == NULL)
 	{
-		ble_mqtt_loop_tx_buffer = (char *)os_malloc(2048);
+		ble_mqtt_loop_tx_buffer = (char *)os_malloc(TRX_BUF_SIZE);
 
 		if (ble_mqtt_loop_tx_buffer == NULL)
 		{
@@ -4390,7 +4436,7 @@ void *ble_mqtt_open(const char *host_name, const char *username,
 
 	if (ble_mqtt_loop_rx_buffer == NULL)
 	{
-		ble_mqtt_loop_rx_buffer = (char *)os_malloc(2048);
+		ble_mqtt_loop_rx_buffer = (char *)os_malloc(TRX_BUF_SIZE);
 
 		if (ble_mqtt_loop_rx_buffer == NULL)
 		{
@@ -4419,13 +4465,13 @@ void *ble_mqtt_open(const char *host_name, const char *username,
     mqtt_params.password = pconn_info->password;
     mqtt_params.pub_key = pconn_info->pub_key;
 
-    mqtt_params.request_timeout_ms = 2000;
+    mqtt_params.request_timeout_ms = REQ_TIMEOUT_MS;
     mqtt_params.clean_session = 0;
     mqtt_params.keepalive_interval_ms = 60000;
     mqtt_params.pread_buf = ble_mqtt_loop_rx_buffer;
-    mqtt_params.read_buf_size = 2048;
+    mqtt_params.read_buf_size = TRX_BUF_SIZE;
     mqtt_params.pwrite_buf = ble_mqtt_loop_tx_buffer;
-    mqtt_params.write_buf_size = 2048;
+    mqtt_params.write_buf_size = TRX_BUF_SIZE;
 
     mqtt_params.handle_event.h_fp = ble_mqtt_loop_event_handle;
     mqtt_params.handle_event.pcontext = NULL;
@@ -4452,20 +4498,33 @@ error:
 	return NULL;
 }
 
+enum
+{
+    COEX_DEMO_MSG_NULL = 0,
+    COEX_DEMO_MSG_TX = 0,
+};
+
+typedef struct
+{
+    uint8_t type;
+    uint16_t len;
+    char *data;
+} coex_demo_msg_t;
+
+beken_queue_t coex_demo_msg_que = NULL;
+beken_thread_t coex_demo_thread_handle = NULL;
+#define COEX_DEMO_MSG_COUNT          (30)
+
 static void ble_send_data_2_mqtt(uint8 con_idx, uint16_t len, uint8 *data)
 {
-    iotx_mqtt_topic_info_t topic_msg;
+    coex_demo_msg_t demo_msg;
     char msg_pub[350] = {0};
     int rc = -1;
 
-    /* Initialize topic information */
-    os_memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
+    os_memset(&demo_msg, 0x0, sizeof(coex_demo_msg_t));
 
-    topic_msg.qos = IOTX_MQTT_QOS0;
-    topic_msg.retain = 0;
-    topic_msg.dup = 0;
-
-    //loop_ci_index++;
+    if (coex_demo_msg_que == NULL)
+        return;
 
     /* Generate topic message */
     int msg_len = snprintf(msg_pub, sizeof(msg_pub), "{\"link_id\":\"%d\", \"rev_len\":\"%d\", \"rev_data\":\"", con_idx, len);
@@ -4481,15 +4540,26 @@ static void ble_send_data_2_mqtt(uint8 con_idx, uint16_t len, uint8 *data)
 
     //os_printf("total msg_len = %d\n",msg_len);
 
-    topic_msg.payload = (void *)msg_pub;
-    topic_msg.payload_len = msg_len;
-
-    rc = IOT_MQTT_Publish(ble_mqtt_loop_client, loop_topic_ci, &topic_msg);
-    if (rc < 0) {
-        os_printf("error occur when publish.\n");
+    demo_msg.data = (char *) os_malloc(msg_len);
+    if (demo_msg.data == NULL)
+    {
+        os_printf("%s, malloc failed\r\n", __func__);
+        return;
     }
-    //os_printf("packet-id=%u, publish topic msg=%s.\n", (uint32_t)rc, msg_pub);
 
+    os_memcpy(demo_msg.data, msg_pub, msg_len);
+    demo_msg.type = COEX_DEMO_MSG_TX;
+    demo_msg.len = msg_len;
+
+    rc = rtos_push_to_queue(&coex_demo_msg_que, &demo_msg, BEKEN_NO_WAIT);
+    if(kNoErr != rc)
+    {
+        os_printf("%s, send queue failed\r\n",__func__);
+        if (demo_msg.data)
+        {
+            os_free(demo_msg.data);
+        }
+    }
 }
 
 static void ble_mqtt_loop_recv_handle(void *pcontext, void *pclient, iotx_mqtt_event_msg_pt msg)
@@ -4532,6 +4602,118 @@ static void ble_mqtt_loop_recv_handle(void *pcontext, void *pclient, iotx_mqtt_e
             }
         }
 
+    }
+}
+
+#if CONFIG_ARCH_RISCV
+extern u64 riscv_get_mtimer(void);
+#endif
+void coex_demo_main(void *arg)
+{
+#if CONFIG_ARCH_RISCV
+    uint64_t current_delay_max = 0;
+    uint8_t packet_sent_count = 0;
+#endif
+    while (1) {
+        bk_err_t err;
+        coex_demo_msg_t msg;
+
+        err = rtos_pop_from_queue(&coex_demo_msg_que, &msg, BEKEN_WAIT_FOREVER);
+        if (kNoErr == err)
+        {
+            switch (msg.type) {
+                case COEX_DEMO_MSG_TX:
+                    {
+                        int rc = -1;
+                        iotx_mqtt_topic_info_t topic_msg;
+#if CONFIG_ARCH_RISCV
+                        uint64_t current_time_begin,current_time_end, current_delay = 0;
+#endif
+                        /* Initialize topic information */
+                        os_memset(&topic_msg, 0x0, sizeof(iotx_mqtt_topic_info_t));
+
+                        topic_msg.qos = IOTX_MQTT_QOS0;
+                        topic_msg.retain = 0;
+                        topic_msg.dup = 0;
+                        topic_msg.payload = (void *)msg.data;
+                        topic_msg.payload_len = msg.len;
+#if CONFIG_ARCH_RISCV
+                        //bk_gpio_pull_up(GPIO_2);
+                        current_time_begin = riscv_get_mtimer();
+#endif
+                        rc = IOT_MQTT_Publish(ble_mqtt_loop_client, loop_topic_ci, &topic_msg);
+                        if (rc < 0)
+                        {
+                            os_printf("error occur when publish.\n");
+                        }
+                        else
+                        {
+                            //os_printf("packet-id=%u, publish topic msg=%s.\n", (uint32_t)rc, msg.data);
+                        }
+                        os_free(msg.data);
+#if CONFIG_ARCH_RISCV
+                        current_time_end = riscv_get_mtimer();
+                        current_delay = current_time_end - current_time_begin;
+
+                        if (current_delay > current_delay_max)
+                        {
+                            current_delay_max = current_delay;
+                        }
+                        packet_sent_count++;
+                        if (packet_sent_count >= 10)
+                        {
+                            os_printf("mqtt pulish max delay %ld us.\n",(u32)(current_delay_max/26));
+                            packet_sent_count = 0;
+                            current_delay_max = 0;
+                        }
+#endif
+                        //bk_gpio_pull_down(GPIO_2);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    rtos_deinit_queue(&coex_demo_msg_que);
+    coex_demo_msg_que = NULL;
+    coex_demo_thread_handle = NULL;
+    rtos_delete_thread(NULL);
+}
+
+int coex_demo_task_init(void)
+{
+    bk_err_t ret = BK_OK;
+    if ((!coex_demo_thread_handle) && (!coex_demo_msg_que))
+    {
+        ret = rtos_init_queue(&coex_demo_msg_que,
+                              "coex_demo_msg_que",
+                              sizeof(coex_demo_msg_t),
+                              COEX_DEMO_MSG_COUNT);
+        if (ret != kNoErr) {
+            os_printf("coex demo msg queue failed \r\n");
+            return BK_FAIL;
+        }
+
+        ret = rtos_create_thread(&coex_demo_thread_handle,
+                             BEKEN_DEFAULT_WORKER_PRIORITY,
+                             "coex_demo",
+                             (beken_thread_function_t)coex_demo_main,
+                             4096,
+                             (beken_thread_arg_t)0);
+        if (ret != kNoErr) {
+            os_printf("coex demo task fail \r\n");
+            rtos_deinit_queue(&coex_demo_msg_que);
+            coex_demo_msg_que = NULL;
+            coex_demo_thread_handle = NULL;
+        }
+
+        return kNoErr;
+    }
+    else
+    {
+        return kInProgressErr;
     }
 }
 
@@ -4586,19 +4768,21 @@ int ble_mqtt_loop_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, cha
 			mqtt_loop_timer = (beken_timer_t*)os_malloc(sizeof(beken_timer_t));
 		}
 
+		uint8_t sta_mac[6];
+		bk_wifi_sta_get_mac((uint8_t *)sta_mac);
 
-		snprintf(loop_topic_sr, 25, "%s", argv[1]);
-		snprintf(loop_topic_ci, 25, "%s", argv[2]);
+		snprintf(loop_topic_sr, 25, "/ble/lpsr/%02x%02x%02x", sta_mac[3], sta_mac[4], sta_mac[5] + 1);
+		snprintf(loop_topic_ci, 25, "/ble/lpci/%02x%02x%02x", sta_mac[3], sta_mac[4], sta_mac[5] + 1);
 
-        loop_interval = os_strtoul(argv[3], NULL, 10) & 0xFFFF;
-        loop_count = os_strtoul(argv[4], NULL, 10) & 0xFFFF;
+		loop_interval = os_strtoul(argv[1], NULL, 10) & 0xFFFF;
+		loop_count = os_strtoul(argv[2], NULL, 10) & 0xFFFF;
 		loop_type = LT_WIFI_ONLY;
 
 		loop_sr_index = 0;
 		loop_ci_index = 0;
 
 		os_printf("WIFI only test, interval: %u, count: %u\n", loop_interval, loop_count);
-		os_printf("topic: %s:%s", loop_topic_sr, loop_topic_ci);
+		os_printf("topic: %s:%s\n", loop_topic_sr, loop_topic_ci);
 
 		if (IOT_MQTT_Subscribe(ble_mqtt_loop_client, loop_topic_sr, IOTX_MQTT_QOS0, ble_mqtt_loop_recv_handle, NULL) < 0) {
 		
@@ -4640,8 +4824,11 @@ int ble_mqtt_loop_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, cha
 
 		loop_type = LT_COEX;
 
-		snprintf(loop_topic_sr, 25, "%s", argv[1]);
-		snprintf(loop_topic_ci, 25, "%s", argv[2]);
+		uint8_t sta_mac[6];
+		bk_wifi_sta_get_mac((uint8_t *)sta_mac);
+
+		snprintf(loop_topic_sr, 25, "/ble/lpsr/%02x%02x%02x", sta_mac[3], sta_mac[4], sta_mac[5] + 1);
+		snprintf(loop_topic_ci, 25, "/ble/lpci/%02x%02x%02x", sta_mac[3], sta_mac[4], sta_mac[5] + 1);
 
 		loop_sr_index = 0;
 		loop_ci_index = 0;
@@ -4652,6 +4839,8 @@ int ble_mqtt_loop_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, cha
 		{
 			os_printf("IOT_MQTT_Subscribe() TOPIC_CMD failed\n");
 		}
+
+		coex_demo_task_init();
 	}
 
 	msg = AT_CMD_RSP_SUCCEED;

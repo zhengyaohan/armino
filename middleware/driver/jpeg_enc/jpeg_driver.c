@@ -52,7 +52,8 @@ static void jpeg_power_config_set(const jpeg_config_t *config)
 	sys_drv_set_jpeg_clk_sel(1);
 	sys_drv_set_clk_div_mode1_clkdiv_jpeg(config->sys_clk_div);
 	sys_drv_set_jpeg_disckg(1);
-	sys_drv_dev_clk_pwr_up(CLK_PWR_ID_JPEG, CLK_PWR_CTRL_PWR_UP);
+	//sys_drv_dev_clk_pwr_up(CLK_PWR_ID_JPEG, CLK_PWR_CTRL_PWR_UP);
+	pm_clock_ctrl(PM_CLK_ID_JPEG, CLK_PWR_CTRL_PWR_UP);
 }
 #endif
 
@@ -104,7 +105,6 @@ static void jpeg_dma_rx_init(const jpeg_config_t *config)
 		BK_LOG_ON_ERR(bk_dma_set_transfer_len(jpeg_dma_rx_id, config->node_len));
 		BK_LOG_ON_ERR(bk_dma_register_isr(jpeg_dma_rx_id, NULL, config->dma_rx_finish_handler));
 		BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(jpeg_dma_rx_id));
-		BK_LOG_ON_ERR(bk_dma_enable_half_finish_interrupt(jpeg_dma_rx_id));
 		BK_LOG_ON_ERR(bk_dma_start(jpeg_dma_rx_id));
 	}
 }
@@ -133,8 +133,9 @@ static void jpeg_deinit_common(void)
 	jpeg_hal_stop_common(&s_jpeg.hal);
 	jpeg_hal_reset_config_to_default(&s_jpeg.hal);
 #if (CONFIG_SYSTEM_CTRL)
+	pm_clock_ctrl(PM_CLK_ID_JPEG, CLK_PWR_CTRL_PWR_DOWN);
 	sys_hal_set_jpeg_disckg(0);
-	sys_drv_dev_clk_pwr_up(CLK_PWR_ID_JPEG, CLK_PWR_CTRL_PWR_DOWN);
+	//sys_drv_dev_clk_pwr_up(CLK_PWR_ID_JPEG, CLK_PWR_CTRL_PWR_DOWN);
 	sys_drv_int_disable(JPEGENC_INTERRUPT_CTRL_BIT);
 #else
 	icu_disable_jpeg_interrupt();
@@ -150,8 +151,9 @@ static void jpeg_cli_deinit_common(void)
 	jpeg_hal_stop_common(&s_jpeg.hal);
 	jpeg_hal_reset_config_to_default(&s_jpeg.hal);
 #if (CONFIG_SYSTEM_CTRL)
+	pm_clock_ctrl(PM_CLK_ID_JPEG, CLK_PWR_CTRL_PWR_DOWN);
 	sys_hal_set_jpeg_disckg(0);
-	sys_drv_dev_clk_pwr_up(CLK_PWR_ID_JPEG, CLK_PWR_CTRL_PWR_DOWN);
+	//sys_drv_dev_clk_pwr_up(CLK_PWR_ID_JPEG, CLK_PWR_CTRL_PWR_DOWN);
 	sys_drv_int_disable(JPEGENC_INTERRUPT_CTRL_BIT);
 #endif
 	jpeg_deinit_gpio();
@@ -284,6 +286,13 @@ bk_err_t bk_jpeg_enc_dvp_gpio_enable(void)
 		gpio_dev_map(jpeg_gpio_map_table[i].gpio_id, jpeg_gpio_map_table[i].dev);
 	}
 
+	return BK_OK;
+}
+
+bk_err_t bk_jpeg_enc_get_fifo_addr(uint32_t *fifo_addr)
+{
+	JPEG_RETURN_ON_NOT_INIT();
+	*fifo_addr = JPEG_R_RX_FIFO;
 	return BK_OK;
 }
 

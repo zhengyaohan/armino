@@ -112,6 +112,7 @@ typedef struct {
 	uint8_t *lcd_display_addr;     /**< lcd diaplay data base addr */
 	uint16_t jpeg_dec_pixel_x;    /**< jepg dec x_pixel */
 	uint8_t dma_lcd_int_cnt;      /**< lcd disaply dma transfer cnt */
+	uint8_t lcd_blend_frame_cnt;
 	void (*jpeg_dec_callback)(void * src, void * dst); /**< jpeg dec callback */
 #endif
 } jpegenc_desc_t;

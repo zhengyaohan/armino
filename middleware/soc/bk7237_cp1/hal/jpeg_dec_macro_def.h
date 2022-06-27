@@ -1,8 +1,6 @@
 #ifndef _JPEG_DEC_HAL_H_
 #define _JPEG_DEC_HAL_H_
 
-int jpg_decoder_init();
-void jpg_decoder_deinit(void);
 int jpg_decoder_fun(unsigned char *jpg_buf, unsigned char ** Y_buf, int pic_size);
 void jpg_get_pic_size(int *width, int *heigth);
 

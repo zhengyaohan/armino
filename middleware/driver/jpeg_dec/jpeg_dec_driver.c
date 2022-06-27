@@ -87,7 +87,7 @@ bk_err_t bk_jpeg_dec_init(uint32_t * dec_src_addr, uint32_t *dec_dest_addr)
 	switch (s_jpeg_decoder_isr.param) {
 		case JPEGDEC_X_PIXEL_720: // PIXEL_1280_720
 			jpegdec_pixel_x = 1280;
-			jpegdec_block_num = 64800;
+			jpegdec_block_num = 28800;
 			break;
 		case JPEGDEC_X_PIXEL_640: //PIXEL_640_480
 			jpegdec_pixel_x = 640;
@@ -140,7 +140,7 @@ bk_err_t bk_jpeg_dec_complete_cb(jpeg_dec_isr_t isr, jpeg_dec_xpixel_t pixel_x)
 
 static void jpeg_decoder_isr(void)
 {
-	bk_gpio_set_output_high(GPIO_4);
+	//bk_gpio_set_output_high(GPIO_4);
 	uint8_t  bm4;
 	uint32_t pixel_x = jpegdec_pixel_x;
 	uint32_t block_num = jpegdec_block_num;
@@ -177,7 +177,7 @@ static void jpeg_decoder_isr(void)
 		dec_busy2_clr;
 		REG_DEC_START;
 	}
-	bk_gpio_set_output_low(GPIO_4);
+	//bk_gpio_set_output_low(GPIO_4);
 }
 
 static void jpeg_decoder_isr_common(void)

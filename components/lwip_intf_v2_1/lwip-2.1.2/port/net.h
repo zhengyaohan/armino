@@ -18,6 +18,7 @@ extern int net_wlan_remove_netif(uint8_t *mac);
 extern int net_get_if_macaddr(void *macaddr, void *intrfc_handle);
 extern int net_get_if_addr(struct wlan_ip_config *addr, void *intrfc_handle);
 extern void ip_address_set(int iface, int dhcp, char *ip, char *mask, char*gw, char*dns);
+extern void sta_ip_mode_set(int dhcp);
 
 #ifdef __cplusplus
 }
