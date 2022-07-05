@@ -150,6 +150,7 @@ void trap_handler(unsigned long mcause, SAVED_CONTEXT *context)
 	if (0 == g_enter_exception) {
 		// Make sure the interrupt is disable
 		uint32_t int_level = rtos_disable_int();
+		uint32_t mie_status = rtos_disable_mie_int();
 
 #if CONFIG_INT_WDT
 		close_wdt();
@@ -164,6 +165,7 @@ void trap_handler(unsigned long mcause, SAVED_CONTEXT *context)
 		BK_DUMP_OUT("Unhandled Trap : mcause = 0x%x, mepc = 0x%x\r\n", mcause, context->mepc);
 		while(g_enter_exception);
 
+		rtos_enable_mie_int(mie_status);
 		rtos_enable_int(int_level);
 	}
 
@@ -296,14 +298,22 @@ inline uint32_t get_reboot_tag(void) {
 }
 
 
-void user_nmi_handler(unsigned long mcause) {
+void user_nmi_handler(unsigned long mcause, unsigned long ra) {
 	if(mcause == MCAUSE_CAUSE_WATCHDOG) {
 		if( REBOOT_TAG_REQ == get_reboot_tag() ) {
 			BK_DUMP_OUT("Wait reboot.\r\n");
 			while(1);
 		}
 	}
+
+#if CONFIG_INT_WDT
 	close_wdt();
+	bk_task_wdt_stop();
+#endif
+
+	BK_DUMP_OUT("========Call NULL func pointer, please check the code near ra reg.========\r\n");
+	BK_DUMP_OUT("1 ra x 0x%lx\r\n", *(uint32_t *)ra);
+	BK_DUMP_OUT("========Call NULL func pointer, please check the code near ra reg.========\r\n");
 }
 
 #if CONFIG_SAVE_BOOT_TIME_POINT

@@ -200,6 +200,34 @@ BK7256为双CPU核系统，默认配置为双核，目前需要分别编译cpu1�
         CONFIG_FREERTOS_V9=n
         CONFIG_FREERTOS_V10=n
 
+- 系列芯片宏的使用与差异
+
+    + 宏CONFIG_SOC_BK7256XX 表示BK7256系列::
+
+        属于BK7235/BK7237/BK7256公共芯片宏，CPU1也需要定义该宏
+		配置方式：CONFIG_SOC_BK7256XX=y
+		
+
+    + 区分同系列芯片的宏(不用于区分其他芯片)::
+
+		CONFIG_SOC_BK7256, CPU1需要定义该宏和CONFIG_SLAVE_CORE组合区分BK7256_CPU1
+		配置方式：CONFIG_SOC_BK7256=y
+		
+
+    + 字符串系列芯片的宏(用于编译阶段区分其他芯片)::
+
+         cpu0/cpu1有区分：
+		 CPU0写法：CONFIG_SOC_STR="bk7256"
+		 CPU1写法：CONFIG_SOC_STR="bk7256_cp1"
+
+
+    + 双核CPU0,CPU1相关宏区分(用于代码区分)::
+
+        CONFIG_DUAL_CORE            #双核功能
+        CONFIG_MASTER_CORE          #依赖于CONFIG_DUAL_CORE，CPU0与CPU1的区别
+        CONFIG_SLAVE_CORE           #依赖于CONFIG_DUAL_CORE，CPU0与CPU1的区别
+        单核：上面的三个宏都不定义
+
 
 
 新建工程

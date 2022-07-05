@@ -28,7 +28,7 @@
 #endif
 #include "bk_uart_debug.h"
 #include "bk_api_cli.h"
-#if CONFIG_SLAVE_CORE
+#if (CONFIG_SLAVE_CORE && CONFIG_MEDIA)
 #include "media_common.h"
 #endif
 
@@ -1501,7 +1501,7 @@ int bk_cli_init(void)
 	pCli->echo_disabled = 0;
 #endif
 
-#if CONFIG_SLAVE_CORE
+#if (CONFIG_SLAVE_CORE && CONFIG_MEDIA)
 	ret = common_mb_init();
 	if (ret != kNoErr) {
 		os_printf("Error: Failed to create common_mb thread: %d\r\n", ret);

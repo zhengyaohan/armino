@@ -56,7 +56,13 @@ def package_json_rebuild():
             config_json = json.load(local_json)
 
     for firmware_file in config_json["section"]:
-        pakfile = "{}/middleware/boards/{}/{}".format(armino_path, chip, firmware_file["firmware"])
+        if os.path.exists("{}/projects/{}/{}/{}".format(armino_path, os.getenv("PROJECT"), chip, firmware_file["firmware"])):
+            pakfile = "{}/projects/{}/{}/{}".format(armino_path, os.getenv("PROJECT"), chip,firmware_file["firmware"])
+        else:
+            if os.path.exists("{}/projects/{}/{}".format(armino_path, os.getenv("PROJECT"), firmware_file["firmware"])):
+                pakfile = "{}/projects/{}/{}".format(armino_path, os.getenv("PROJECT"),firmware_file["firmware"])
+            else:
+                pakfile = "{}/middleware/boards/{}/{}".format(armino_path, chip, firmware_file["firmware"])
 
         if (os.path.isfile(pakfile)):
             shutil.copy(pakfile, "{}/{}".format(build_path, firmware_file["firmware"]))

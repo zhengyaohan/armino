@@ -11,7 +11,8 @@ static void fatfs_operate(char *pcWriteBuffer, int xWriteBufferLen, int argc, ch
 	DISK_NUMBER drv_num = DISK_NUMBER_SDIO_SD;
 	char file_name[64];
 	char write_content[64];
-	uint32_t content_len = 0, test_cnt = 0;
+	uint64_t content_len = 0;
+	uint32_t test_cnt = 0;
 	
 	if (argc >= 3) {
 		cmd = argv[1][0];
@@ -43,8 +44,12 @@ static void fatfs_operate(char *pcWriteBuffer, int xWriteBufferLen, int argc, ch
 			os_printf("mount:%s\r\n", disk_name[drv_num%DISK_NUMBER_COUNT]);
 			break;
 		case 'R':
-			test_fatfs_read(drv_num, file_name);
-			os_printf("read %s\r\n", file_name);
+			if (argc >= 5)
+				content_len = os_strtoul(argv[4], NULL, 10);
+			else
+				content_len = 0x0fffffffffffffff;	//read finish
+			test_fatfs_read(drv_num, file_name, content_len);
+			os_printf("read %s, len_h = %d, len_l = %d\r\n", file_name, (uint32_t)(content_len>>32), (uint32_t)content_len);
 			break;
 		case 'W':
 			test_fatfs_append_write(drv_num, file_name, write_content, content_len);

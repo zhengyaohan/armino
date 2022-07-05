@@ -110,8 +110,6 @@ static int video_buffer_recv_data(uint8_t * data, uint32_t len)
 
 						// all frame data have received, wakeup usr thread
 						rtos_set_semaphore(&g_video_buff->aready_semaphore);
-
-						return g_video_buff->frame_len;
 					}
 				}
 			} else {
@@ -121,9 +119,9 @@ static int video_buffer_recv_data(uint8_t * data, uint32_t len)
 				GLOBAL_INT_RESTORE();
 				// all frame data not have received, psram not enough
 				rtos_set_semaphore(&g_video_buff->aready_semaphore);
-				return 0;
 			}
 		}
+		return len;
 	}
 
 	return len;
@@ -262,13 +260,13 @@ static int video_buff_read_image(void)
 		g_video_buff->buf_len = 0x3F000;
 		GLOBAL_INT_RESTORE();
 
-		timeout = BEKEN_WAIT_FOREVER;
+		timeout = 2000;// 2 second
 
 		ret = rtos_get_semaphore(&g_video_buff->aready_semaphore, timeout);
 		if (ret == kNoErr) {
 			frame_len = g_video_buff->frame_len;
 		} else {
-			os_printf("read frame time out\r\n");
+			os_printf("capture time out\r\n");
 			frame_len = 0;
 		}
 
@@ -340,7 +338,7 @@ void image_save_dvp(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **a
 
 		sprintf(cFileName, "%d:/%d_%s", DISK_NUMBER_SDIO_SD, file_id, file_path);
 
-		FRESULT fr = f_open(&fp1, cFileName, FA_OPEN_APPEND | FA_WRITE);
+		FRESULT fr = f_open(&fp1, cFileName, FA_CREATE_ALWAYS | FA_WRITE);
 		if (fr != FR_OK) {
 			os_printf("can not open file:%s!\n", cFileName);
 			return;
@@ -363,8 +361,8 @@ error1:
 		fr = f_close(&fp1);
 		if (fr != FR_OK) {
 			os_printf("can not close file:%s!\n", file_path);
-			return;
 		}
+		video_buff_set_close();
 #else
 		os_printf("Not Support, SDcard not support!\n");
 #endif
@@ -404,6 +402,8 @@ error1:
 		bk_lcd_video_enable(enable);
 		uint8_t blend_enable = os_strtoul(argv[3], NULL, 10);
 		bk_lcd_video_blending(blend_enable);
+ 		uint8_t rotate_enable = os_strtoul(argv[4], NULL, 10);
+		bk_lcd_video_rotate(rotate_enable);
 	} 
 #endif
 #if CONFIG_DUAL_CORE

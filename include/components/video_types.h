@@ -23,6 +23,7 @@ extern "C" {
 #define    PARAM_JPEG_SRC_ADDR_BASE       0X60100000 /**< LCD DISPLAY Define jpeg dec src addr*/
 #define    PARAM_JPEG_DEC_DST_ADDR_BASE   0X60300000 /**< LCD DISPLAY Define jpeg dec dst addr*/
 #define    PARAM_LCD_DISPLAY_ADDR_BASE    0X60500000 /**< if lcd display data is jpegdec data,the display addr = PARAM_JPEG_DEC_DST_ADDR_BASE*/
+#define    PARAM_LCD_ROTATE_BASE          0X60700000 /**< if ENABLE rotate function*/
 
 /**
  * @brief camera image resolution type

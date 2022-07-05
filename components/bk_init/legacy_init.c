@@ -35,6 +35,10 @@
 #include "vnd_cal.h"
 #endif
 
+#ifdef CONFIG_MEDIA
+#include "media_core.h"
+#endif
+
 #include "sdk_version.h"
 
 void rtos_user_app_launch_over(void);
@@ -212,6 +216,11 @@ int legacy_init(void)
 
 	rtos_user_app_launch_over();
 
+#ifdef CONFIG_MEDIA
+	media_major_init();
+#endif
+
+
 #if (CONFIG_BLUETOOTH)
 	app_ble_init();
 #endif
@@ -232,6 +241,10 @@ int legacy_init(void)
 #endif
 
 	app_cli_init();
+
+#if defined(CONFIG_MEDIA) && defined(CONFIG_SLAVE_CORE)
+	media_minor_init();
+#endif
 
 #if (CONFIG_FREERTOS)
 #if CONFIG_SEMI_HOSTED

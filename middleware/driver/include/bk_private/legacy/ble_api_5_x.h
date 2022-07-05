@@ -626,7 +626,7 @@ void bk_ble_bt_gatt_db_get_char_val_hndl(GATT_DB_HANDLE *gdbh, ATT_ATTR_HANDLE *
 #ifndef _H_BT_ATT_API_
 #define _H_BT_ATT_API_
 
-#define GATT_MAX_CHAR_DESCRIPTORS 6U
+#define GATT_MAX_CHAR_DESCRIPTORS 6U //todo: remove, use drnay array
 
 typedef struct
 {
@@ -671,6 +671,7 @@ typedef struct
 } GATT_CHAR_DESC_PARAM;
 
 
+
 /* Characteristic Information */
 typedef struct
 {
@@ -686,7 +687,7 @@ typedef struct
     /* Characteristic UUID */
     ATT_UUID uuid;
 
-#ifdef ATT_128_BIT_UUID_FORMAT
+#if 1//def ATT_128_BIT_UUID_FORMAT
     /* Characteristic UUID Type */
     UCHAR uuid_type;
 #endif /* ATT_128_BIT_UUID_FORMAT */
@@ -702,10 +703,48 @@ typedef struct
 
     /* Characteristic descriptor array */
     GATT_CHAR_DESC_PARAM descriptor[GATT_MAX_CHAR_DESCRIPTORS];
-
 } GATT_CHARACTERISTIC_PARAM;
 
+
 #endif
+
+
+
+/* Characteristic Information */
+typedef struct
+{
+    /* Characteristic Range */
+    ATT_HANDLE_RANGE range;
+
+    /* Characteristic Property */
+    UCHAR cproperty;
+
+    /* Characteristic Value Handle */
+    ATT_ATTR_HANDLE value_handle;
+
+    /* Characteristic UUID */
+    ATT_UUID uuid;
+
+#if 1//def ATT_128_BIT_UUID_FORMAT
+    /* Characteristic UUID Type */
+    UCHAR uuid_type;
+#endif /* ATT_128_BIT_UUID_FORMAT */
+
+    /* Characteristic desciptor index*/
+    UCHAR desc_index;
+
+    /* Characteristics Value Offset */
+    UINT16 val_offset;
+
+    /* Characteristic Value Length */
+    UINT16 val_length;
+
+    /* Characteristic descriptor array */
+    GATT_CHAR_DESC_PARAM *descriptor; //GATT_MAX_CHAR_DESCRIPTORS
+} ble_gatt_characteristic_param_t; //change from GATT_CHARACTERISTIC_PARAM
+
+
+
 
 
 typedef struct
@@ -723,6 +762,7 @@ typedef struct
     API_RESULT event_result;
     ATT_HANDLE att_handle;
 
+    //ble_gatt_characteristic_param_t *character;
     GATT_CHARACTERISTIC_PARAM *character;
     uint16_t count;
 } ble_discovery_char_t;
@@ -781,6 +821,7 @@ typedef struct
 {
     API_RESULT event_result;
     ATT_HANDLE att_handle;
+    ATT_ATTR_HANDLE attr_handle;
 
     uint8_t *data;
     uint16_t len;

@@ -82,7 +82,7 @@ typedef enum
 	PM_POWER_MODULE_NAME_VIDP,       // 7
 	PM_POWER_MODULE_NAME_BTSP,       // 8
 	PM_POWER_MODULE_NAME_WIFIP_MAC,  // 9
-	PM_POWER_MODULE_NAME_WIFI_PHY,   // 10
+	PM_POWER_MODULE_NAME_PHY,        // 10
 	PM_POWER_MODULE_NAME_CPU1 ,      // 11
 	PM_POWER_MODULE_NAME_APP ,       // 12  app not power domain
 	PM_POWER_SUB_MODULE_NAME_AUDP_FFT ,     // 13
@@ -93,9 +93,44 @@ typedef enum
 	PM_POWER_SUB_MODULE_NAME_VIDP_JPEG_DE , // 18
 	PM_POWER_SUB_MODULE_NAME_VIDP_DMA2D ,   // 19
 	PM_POWER_SUB_MODULE_NAME_VIDP_LCD ,     // 20
-	PM_POWER_MODULE_NAME_NONE               // 21
-}pm_power_module_name_e;
+	PM_POWER_SUB_MODULE_NAME_PHY_BT ,       // 21
+	PM_POWER_SUB_MODULE_NAME_PHY_WIFI ,     // 22
 
+	PM_POWER_MODULE_NAME_NONE               // 23
+}pm_power_module_name_e;
+typedef enum
+{
+	PM_SLEEP_MODULE_NAME_MEM1 = 0,   // 0
+	PM_SLEEP_MODULE_NAME_MEM2,       // 1
+	PM_SLEEP_MODULE_NAME_MEM3,       // 2
+	PM_SLEEP_MODULE_NAME_ENCP,       // 3
+	PM_SLEEP_MODULE_NAME_BAKP,       // 4
+	PM_SLEEP_MODULE_NAME_AHBP,       // 5
+	PM_SLEEP_MODULE_NAME_AUDP,       // 6
+	PM_SLEEP_MODULE_NAME_VIDP,       // 7
+	PM_SLEEP_MODULE_NAME_BTSP,       // 8
+	PM_SLEEP_MODULE_NAME_WIFIP_MAC,  // 9
+	PM_SLEEP_MODULE_NAME_WIFI_PHY,   // 10
+	PM_SLEEP_MODULE_NAME_CPU1 ,      // 11
+	PM_SLEEP_MODULE_NAME_APP ,       // 12
+	PM_SLEEP_MODULE_NAME_APP1 ,      // 13
+	PM_SLEEP_MODULE_NAME_APP2 ,      // 14
+	PM_SLEEP_MODULE_NAME_APP3 ,      // 15
+	PM_SLEEP_MODULE_NAME_APP4 ,      // 16
+	PM_SLEEP_MODULE_NAME_APP5 ,      // 17
+	PM_SLEEP_MODULE_NAME_APP6 ,      // 18
+	PM_SLEEP_MODULE_NAME_APP7 ,      // 19
+	PM_SLEEP_MODULE_NAME_APP8 ,      // 20
+	PM_SLEEP_SUB_MODULE_NAME_AUDP_FFT ,     // 21
+	PM_SLEEP_SUB_MODULE_NAME_AUDP_SBC ,     // 22
+	PM_SLEEP_SUB_MODULE_NAME_AUDP_AUDIO ,   // 23
+	PM_SLEEP_SUB_MODULE_NAME_AUDP_I2S ,     // 24
+	PM_SLEEP_SUB_MODULE_NAME_VIDP_JPEG_EN , // 25
+	PM_SLEEP_SUB_MODULE_NAME_VIDP_JPEG_DE , // 26
+	PM_SLEEP_SUB_MODULE_NAME_VIDP_DMA2D ,   // 27
+	PM_SLEEP_SUB_MODULE_NAME_VIDP_LCD ,     // 28
+	PM_SLEEP_MODULE_NAME_NONE               // 29
+}pm_sleep_module_name_e;
 typedef enum
 {
 	PM_POWER_MODULE_STATE_ON = 0,
@@ -201,6 +236,7 @@ typedef enum
 	PM_CPU_FRQ_240M,     // 2:CPU:240M,BUS:120M
 	PM_CPU_FRQ_320M      // 3:CPU:320M,BUS:160M
 }pm_cpu_freq_e;
+
 /**
  * @brief vote cpu frequency
  *
@@ -376,7 +412,7 @@ bk_err_t pm_wakeup_source_set(pm_wakeup_source_e wakeup_source, void* source_par
  * - BK_OK: succeed
  * - others: other errors.
  */
-bk_err_t pm_module_vote_sleep_ctrl(pm_power_module_name_e module,uint32_t sleep_state,uint32_t sleep_time);
+bk_err_t pm_module_vote_sleep_ctrl(pm_sleep_module_name_e module,uint32_t sleep_state,uint32_t sleep_time);
 
 /**
  * @brief pm module vote power ctrl

@@ -1,0 +1,23 @@
+if (CONFIG_AUDIO_TEST AND CONFIG_AUDIO_RISCV_IP_V1_0 AND CONFIG_DUAL_CORE AND CONFIG_AUDIO_TRANSFER_APK)
+
+set(incs . include)
+
+set(srcs
+	include/audio_mailbox.c
+	)
+
+if (NOT CONFIG_SLAVE_CORE)
+	list(APPEND srcs
+				audio_transfer_cp0.c
+		)
+endif()
+
+if (CONFIG_SLAVE_CORE)
+	list(APPEND srcs
+				audio_transfer_cp1.c
+		)
+endif()
+
+endif()
+
+armino_component_register(SRCS "${srcs}" INCLUDE_DIRS "${incs}" PRIV_REQUIRES bk_common media_common)

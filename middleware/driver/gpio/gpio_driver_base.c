@@ -525,6 +525,15 @@ bk_err_t gpio_enter_low_power(void *param)
 	}
 #endif
 
+	/*
+	 * !!! NOTES NOTES !!!
+	 * ASIC switch PIN function to GPIO Input mode,
+	 * it takes 3 cycles(GPIO uses 32K clock) to be stable.
+	 * If in the 3 cycles enable INPUT level/edge check, it will report an error status.
+	 * so enable gpio input irq, should wait enough time.
+	 */
+	delay_us(125);	//125 == ((3+1)/32) * 1000 us
+
 	gpio_config_wakeup_function();
 	gpio_dump_regs(false, true);
 

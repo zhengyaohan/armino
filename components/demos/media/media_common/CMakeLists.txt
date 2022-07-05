@@ -1,4 +1,4 @@
-if (CONFIG_DUAL_CORE)
+if (CONFIG_DUAL_CORE AND CONFIG_MEDIA)
 set(incs .)
 
 set(srcs
@@ -6,4 +6,4 @@ set(srcs
 	)
 endif()
 
-armino_component_register(SRCS "${srcs}" INCLUDE_DIRS "${incs}" PRIV_REQUIRES audio_transfer video)
+armino_component_register(SRCS "${srcs}" INCLUDE_DIRS "${incs}" PRIV_REQUIRES video audio_transfer_apk audio_transfer_sd)

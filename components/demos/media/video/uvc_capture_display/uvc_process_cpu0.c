@@ -258,18 +258,20 @@ void uvc_process_cpu0(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		uint32_t width, height;
 		uint32_t frame_resolution;
 		uint32_t frame_rate;
-		uint32_t dis_clk_div;
+		//uint32_t dis_clk_div;
+		uint32_t lcd_if;
 		uvc_mailbox_msg_t msg;
 		width = os_strtoul(argv[2], NULL, 10);
 		height = os_strtoul(argv[3], NULL, 10);
 		frame_resolution = (width << 16) | height;
 		frame_rate = os_strtoul(argv[4], NULL, 10);
-		dis_clk_div = os_strtoul(argv[5], NULL, 10);
+		lcd_if = os_strtoul(argv[5], NULL, 10);
+
 		// step3: cpu0 inform cpu1 to init uvc, before this cpu1's mailbox channel have been built.
 		msg.mb_cmd = UVC_MB_DISPLAY_UVC_INIT;
 		msg.param1 = frame_resolution;
 		msg.param2 = frame_rate;
-		msg.param3 = dis_clk_div;
+		msg.param3 = lcd_if;
 		err = uvc_mailbox_send_msg(&msg);
 		if (err != BK_OK) {
 			os_printf("cpu0 inform cpu1 init uvc failed\n");

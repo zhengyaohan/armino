@@ -92,6 +92,7 @@ __platform_init:
 	.weak nmi_handler
 nmi_handler:
 	csrr a0, mcause
+	sw  x1, 0(a1)
 	call user_nmi_handler
 	li t0, TRAP_M_USER_NP
 	csrw mcause, t0

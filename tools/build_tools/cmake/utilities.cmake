@@ -195,6 +195,24 @@ function(target_linker_script target deptype scriptfiles)
     endforeach()
 endfunction()
 
+#TODO add support to generate ELF with/without bootloader
+#
+function(target_linker_script_judge)
+if(NOT $ENV{PROJECT})
+	if (EXISTS ${armino_path}/projects/$ENV{PROJECT}/${target}/${target}_bsp.ld)
+		target_linker_script(${COMPONENT_LIB} INTERFACE "${armino_path}/projects/$ENV{PROJECT}/${target}/${target}_bsp.ld")
+	else()
+		if (EXISTS ${armino_path}/projects/$ENV{PROJECT}/${target}_bsp.ld)
+			target_linker_script(${COMPONENT_LIB} INTERFACE "${armino_path}/projects/$ENV{PROJECT}/${target}_bsp.ld")
+		else()
+			target_linker_script(${COMPONENT_LIB} INTERFACE "${target}_bsp.ld")
+		endif()
+	endif()
+else()
+	target_linker_script(${COMPONENT_LIB} INTERFACE "${target}_bsp.ld")
+endif()
+endfunction()
+
 # Convert a CMake list to a JSON list and store it in a variable
 function(make_json_list list variable)
     string(REPLACE ";" "\", \"" result "[ \"${list}\" ]")
@@ -359,6 +377,3 @@ function(add_subdirectory_if_exists source_dir)
         LOGI("Subdirectory '${abs_dir}' does not exist, skipped.")
     endif()
 endfunction()
-
-
-

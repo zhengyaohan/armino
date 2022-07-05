@@ -736,6 +736,7 @@ etharp_input(struct pbuf *p, struct netif *netif)
 	 if (ip4_addr_cmp(&sipaddr, netif_ip4_addr(netif))) {
 	 bk_printf("ip conflict!!!\r\n");	 //check for conflict
 	 sta_ip_mode_set(1);
+	 sta_ip_start();
 	 }
 
       break;

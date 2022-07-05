@@ -33,7 +33,7 @@
 //#include "BK7256_RegList.h"
 
 #define EJPEG_DELAY_HTIMER_CHANNEL     5
-#define EJPEG_I2C_DEFAULT_BAUD_RATE    I2C_BAUD_RATE_400KHZ
+#define EJPEG_I2C_DEFAULT_BAUD_RATE    I2C_BAUD_RATE_100KHZ
 #define EJPEG_DMA_TRANSFER_LEN         0x2800
 #define TU_QITEM_COUNT      (60)
 
@@ -41,8 +41,8 @@ static uint8_t  dvp_dma_channel = 0;
 static uint8_t  frame_buffer_id = 0;
 static uint32_t frame_id = 0;
 
-static beken_thread_t  video_thread_hdl = NULL;
-static beken_queue_t video_int_msg_que = NULL;
+static beken_thread_t  video_thread_cpu1_hdl = NULL;
+static beken_queue_t vid_cpu1_msg_que = NULL;
 video_transfer_setup_t video_transfer_setup_bak = {0};
 frame_information_t info_cpu1 = {0};
 
@@ -51,11 +51,11 @@ static bk_err_t video_transfer_cpu1_send_msg(uint8_t msg_type, uint32_t data)
 	bk_err_t ret;
 	video_cpu_msg_t msg;
 
-	if (video_int_msg_que) {
+	if (vid_cpu1_msg_que) {
 		msg.type = msg_type;
 		msg.data = data;
 
-		ret = rtos_push_to_queue(&video_int_msg_que, &msg, BEKEN_NO_WAIT);
+		ret = rtos_push_to_queue(&vid_cpu1_msg_que, &msg, BEKEN_NO_WAIT);
 		if (kNoErr != ret) {
 			os_printf("video_transfer_cpu1_send_msg failed\r\n");
 			return kOverrunErr;
@@ -156,7 +156,7 @@ static bk_err_t video_transfer_dma_config(void)
 	dma_config.dst.start_addr = info.buffer_addr;
 	dma_config.dst.end_addr = info.buffer_addr + info.buffer_len;
 
-	os_printf("dst_start_addr:%08x, dst_end_addr:%08x\r\n", (uint32_t)info.buffer_addr, dma_config.dst.end_addr);
+	//os_printf("dst_start_addr:%08x, dst_end_addr:%08x\r\n", (uint32_t)info.buffer_addr, dma_config.dst.end_addr);
 
 	BK_LOG_ON_ERR(bk_dma_init(dvp_dma_channel, &dma_config));
 	BK_LOG_ON_ERR(bk_dma_set_transfer_len(dvp_dma_channel, EJPEG_DMA_TRANSFER_LEN));
@@ -344,7 +344,7 @@ static void video_cp1_mailbox_rx_isr(video_mb_t *vid_mb, mb_chnl_cmd_t *cmd_buf)
 
 	case VID_MB_CPU1_EXIT_CMD:
 	{
-		if (video_thread_hdl)
+		if (video_thread_cpu1_hdl)
 			video_transfer_cpu1_send_msg(VIDEO_CPU1_EXIT, 0);
 		break;
 	}
@@ -389,7 +389,7 @@ static void video_transfer_cpu1_main(beken_thread_arg_t data)
 
 	while (1) {
 		video_cpu_msg_t msg;
-		ret = rtos_pop_from_queue(&video_int_msg_que, &msg, BEKEN_WAIT_FOREVER);
+		ret = rtos_pop_from_queue(&vid_cpu1_msg_que, &msg, BEKEN_WAIT_FOREVER);
 		if (kNoErr == ret) {
 			switch (msg.type) {
 			case VIDEO_CPU1_EOF:
@@ -424,21 +424,21 @@ exit:
 
 	video_transfer_camera_cpu1_deinit();
 
-	rtos_deinit_queue(&video_int_msg_que);
-	video_int_msg_que = NULL;
+	rtos_deinit_queue(&vid_cpu1_msg_que);
+	vid_cpu1_msg_que = NULL;
 
-	video_thread_hdl = NULL;
+	video_thread_cpu1_hdl = NULL;
 	rtos_delete_thread(NULL);
 }
 
 bk_err_t bk_video_transfer_cpu1_init(video_transfer_setup_t *setup_cfg)
 {
 	bk_err_t ret = BK_OK;
-	if ((!video_thread_hdl) && (!video_int_msg_que)) {
+	if ((!video_thread_cpu1_hdl) && (!vid_cpu1_msg_que)) {
 		os_printf("cp1: start audio_transfer test \r\n");
 		os_memcpy(&video_transfer_setup_bak, setup_cfg, sizeof(video_transfer_setup_t));
 
-		ret = rtos_init_queue(&video_int_msg_que,
+		ret = rtos_init_queue(&vid_cpu1_msg_que,
 							  "video_transfer_queue_cpu1",
 							  sizeof(video_cpu_msg_t),
 							  TU_QITEM_COUNT);
@@ -448,7 +448,7 @@ bk_err_t bk_video_transfer_cpu1_init(video_transfer_setup_t *setup_cfg)
 		}
 
 		//creat video transfer task
-		ret = rtos_create_thread(&video_thread_hdl,
+		ret = rtos_create_thread(&video_thread_cpu1_hdl,
 							 BEKEN_DEFAULT_WORKER_PRIORITY,
 							 "video_transfer_cpu1",
 							 (beken_thread_function_t)video_transfer_cpu1_main,
@@ -456,11 +456,10 @@ bk_err_t bk_video_transfer_cpu1_init(video_transfer_setup_t *setup_cfg)
 							 (beken_thread_arg_t)NULL);
 		if (ret != kNoErr) {
 			os_printf("cp1: create video transfer task fail \r\n");
-			rtos_deinit_queue(&video_int_msg_que);
-			video_int_msg_que = NULL;
-			video_thread_hdl = NULL;
+			rtos_deinit_queue(&vid_cpu1_msg_que);
+			vid_cpu1_msg_que = NULL;
+			video_thread_cpu1_hdl = NULL;
 		}
-		os_printf("cp1: create video transfer task complete \r\n");
 
 		return kNoErr;
 	} else

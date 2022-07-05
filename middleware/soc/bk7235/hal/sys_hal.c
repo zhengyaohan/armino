@@ -23,6 +23,7 @@
 #include "platform.h"
 #include <arch_interrupt.h>
 #include "modules/pm.h"
+#include "bk_pm_control.h"
 
 static sys_hal_t s_sys_hal;
 uint32 sys_hal_get_int_group2_status(void);
@@ -213,7 +214,7 @@ uint64_t g_low_voltage_tick = 0;
 extern u64 riscv_get_mtimer(void);
 #endif
 #endif
-
+extern uint32_t s_pm_wakeup_from_lowvol_consume_time;
 __attribute__((section(".itcm_sec_code"))) void sys_hal_enter_low_voltage(void)
 {
 	uint32_t  modules_power_state = 0;
@@ -228,7 +229,7 @@ __attribute__((section(".itcm_sec_code"))) void sys_hal_enter_low_voltage(void)
 	uint32_t  int_state2 = 0;
 	uint32_t  h_vol = 0;
 	int       ret = 0;
-	uint32_t  lpo_src = 0;
+	uint32_t  analog_clk = 0;
 #if CONFIG_LOW_VOLTAGE_DEBUG
 	uint64_t start_tick = riscv_get_mtimer();
 #endif
@@ -290,10 +291,11 @@ __attribute__((section(".itcm_sec_code"))) void sys_hal_enter_low_voltage(void)
 	/*3.close analog clk */
 	clock_value = 0;
 	clock_value = sys_ll_get_ana_reg6_value();
+	analog_clk  = clock_value;
 	/*temp close analog clk solution, we will record the opened clk,then it will close them ,when wakeup will open them*/
 	clock_value |= (1 << SYS_ANA_REG6_EN_SLEEP_POS);//enable xtal26m sleep
 	//clock_value &= ~((1 << SYS_ANA_REG6_XTAL_LPMODE_CTRL_POS)|(1 << SYS_ANA_REG6_EN_DPLL_POS)|(1 << SYS_ANA_REG6_EN_AUDPLL_POS)|(1 << SYS_ANA_REG6_EN_PSRAM_LDO_POS)|(1 << SYS_ANA_REG6_EN_DCO_POS)|(1 << SYS_ANA_REG6_EN_XTALL_POS)|(1 << SYS_ANA_REG6_EN_USB_POS));
-	clock_value &= ~((1 << SYS_ANA_REG6_EN_DPLL_POS)|(1 << SYS_ANA_REG6_EN_USB_POS)|(1 << SYS_ANA_REG6_EN_AUDPLL_POS)|(1 << SYS_ANA_REG6_EN_PSRAM_LDO_POS));
+	clock_value &= ~((1 << SYS_ANA_REG6_EN_DPLL_POS)|(1 << SYS_ANA_REG6_EN_USB_POS)|(1 << SYS_ANA_REG6_EN_AUDPLL_POS)|(1 << SYS_ANA_REG6_EN_PSRAM_LDO_POS)|(1 << SYS_ANA_REG6_EN_DCO_POS));
 	sys_ll_set_ana_reg6_value(clock_value);
 
 
@@ -303,7 +305,7 @@ __attribute__((section(".itcm_sec_code"))) void sys_hal_enter_low_voltage(void)
 	{
 		return;
 	}
-	lpo_src = aon_pmu_ll_get_reg41_lpo_config();
+
 	/*5.set power flag*/
 	modules_power_state = 0;
 	modules_power_state = sys_ll_get_cpu_power_sleep_wakeup_value();
@@ -345,6 +347,8 @@ __attribute__((section(".itcm_sec_code"))) void sys_hal_enter_low_voltage(void)
 			break;
 		}
 	}
+	s_pm_wakeup_from_lowvol_consume_time = 0;
+	s_pm_wakeup_from_lowvol_consume_time = bk_aon_rtc_get_current_tick(AON_RTC_ID_1);
 	sys_ll_set_ana_reg2_spi_latchb(0x1);
 	sys_ll_set_ana_reg3_vhsel_ldodig(h_vol);
 	extern uint32_t pm_wake_int_flag1, pm_wake_int_flag2;
@@ -361,20 +365,7 @@ __attribute__((section(".itcm_sec_code"))) void sys_hal_enter_low_voltage(void)
 		pm_wake_gpio_flag1 = gpio_status.gpio_0_31_int_status;
 		pm_wake_gpio_flag2 = gpio_status.gpio_32_64_int_status;
 	}
-	extern uint32_t s_pm_xtal_dpll_stability_delay_time;
-	s_pm_xtal_dpll_stability_delay_time = 0;
-	s_pm_xtal_dpll_stability_delay_time += ((aon_pmu_ll_get_reg40_wake1_delay()+1)+(aon_pmu_ll_get_reg40_wake2_delay()+1)+(aon_pmu_ll_get_reg40_wake3_delay()+1))+PM_HARDEARE_DELAY_TIME_FROM_LOWVOL_WAKE;
-	/*add delay for xtal 26m, analog suggest 1.5ms,we add protect time to 2ms(1.5ms(hardware delay,0.5ms software delay))*/
-	if(lpo_src != PM_LPO_SRC_DIVD)
-	{
-		previous_tick = bk_aon_rtc_get_current_tick(AON_RTC_ID_1);
-		current_tick = previous_tick;
-		while(((uint32_t)(current_tick - previous_tick)) < (uint32_t)(LOW_POWER_XTAL_26M_STABILITY_DELAY_TIME*RTC_TICKS_PER_1MS))/*32*0.5*/
-		{
-			current_tick = bk_aon_rtc_get_current_tick(AON_RTC_ID_1);
-		}
-		s_pm_xtal_dpll_stability_delay_time += LOW_POWER_XTAL_26M_STABILITY_DELAY_TIME*RTC_TICKS_PER_1MS;
-	}
+	s_pm_wakeup_from_lowvol_consume_time -= ((aon_pmu_ll_get_reg40_wake1_delay()+1)+(aon_pmu_ll_get_reg40_wake2_delay()+1)+(aon_pmu_ll_get_reg40_wake3_delay()+1))+PM_HARDEARE_DELAY_TIME_FROM_LOWVOL_WAKE;
 	/*7.restore state before low voltage*/
 	modules_power_state = 0;
 	modules_power_state = sys_ll_get_cpu_power_sleep_wakeup_value();
@@ -384,9 +375,11 @@ __attribute__((section(".itcm_sec_code"))) void sys_hal_enter_low_voltage(void)
 	/*8.restore the analog clk*/
 	clock_value = 0;
 	clock_value = sys_ll_get_ana_reg6_value();
-	clock_value |= ((1 << SYS_ANA_REG6_EN_DPLL_POS)|(1 << SYS_ANA_REG6_EN_USB_POS)|(1 << SYS_ANA_REG6_EN_PSRAM_LDO_POS));//en_dpll, en_usb,en_PSRAM_LDO
+	//clock_value |= ((1 << SYS_ANA_REG6_EN_DPLL_POS)|(1 << SYS_ANA_REG6_EN_USB_POS)|(1 << SYS_ANA_REG6_EN_PSRAM_LDO_POS));//en_dpll, en_usb,en_PSRAM_LDO
+	clock_value |= analog_clk;
 	clock_value &= ~(1 << SYS_ANA_REG6_EN_SLEEP_POS);//disable xtal26m sleep
 	sys_ll_set_ana_reg6_value(clock_value);
+
 	//os_printf("low voltage wake up 123456\r\n");
 	/*add delay for xtal 26m, analog suggest 800us,we add protect time to 1ms*/
 
@@ -398,7 +391,7 @@ __attribute__((section(".itcm_sec_code"))) void sys_hal_enter_low_voltage(void)
 	{
 		current_tick = bk_aon_rtc_get_current_tick(AON_RTC_ID_1);
 	}
-	s_pm_xtal_dpll_stability_delay_time += LOW_POWER_DPLL_STABILITY_DELAY_TIME*RTC_TICKS_PER_1MS;
+
 	/*9.restore clk div*/
     clk_div_temp = clk_div_val0;
 	clk_div_temp &= SYS_CPU_CLK_DIV_MODE1_CLKDIV_CORE_MASK << SYS_CPU_CLK_DIV_MODE1_CLKDIV_CORE_POS;
@@ -414,12 +407,12 @@ __attribute__((section(".itcm_sec_code"))) void sys_hal_enter_low_voltage(void)
 	sys_hal_all_modules_clk_div_set(CLK_DIV_REG1, clk_div_val1);
 	sys_hal_all_modules_clk_div_set(CLK_DIV_REG2, clk_div_val2);
 
-    /*10. not disable wakeup source*/
-#if 0
-	pmu_state =  aon_pmu_hal_reg_get(PMU_REG0x41);
-	pmu_state &= ~ BIT_AON_PMU_WAKEUP_ENA;
-	aon_pmu_hal_reg_set(PMU_REG0x41,pmu_state);
-#endif
+	if(pm_wake_int_flag2&(WIFI_MAC_GEN_INT_BIT))
+	{
+		ps_switch(PS_UNALLOW, PS_EVENT_STA, PM_RF_BIT);
+		pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_PHY_WIFI,PM_POWER_MODULE_STATE_ON);
+	}
+
 	sys_ll_set_cpu0_int_0_31_en_value(int_state1);
 	sys_ll_set_cpu0_int_32_63_en_value(int_state2);
 	//set_csr(NDS_MIE, MIP_MTIP);
@@ -573,7 +566,7 @@ void sys_hal_module_RF_power_ctrl (module_name_t module,power_module_state_t pow
 	value = sys_ll_get_ana_reg6_value();
     if(power_state == POWER_MODULE_STATE_ON)//power on
     {
-		value |= ((1 << SYS_ANA_REG6_EN_SYSLDO_POS)|(1 << SYS_ANA_REG6_EN_DPLL_POS)|(1 << SYS_ANA_REG6_EN_TEMPDET_POS));//en_sysldo,en_dpll
+		value |= ((1 << SYS_ANA_REG6_EN_SYSLDO_POS)|(1 << SYS_ANA_REG6_EN_DPLL_POS)|(1 << SYS_ANA_REG6_EN_TEMPDET_POS)|(1 << SYS_ANA_REG6_EN_DCO_POS));//en_sysldo,en_dpll
 		//value &= ~(1 << SYS_ANA_REG6_XTAL_LPMODE_CTRL_POS);//when using the xtal as the 32k,it need close the xtal low power mode
 		//value |= (1 << 11);//en_audpll //temp close,we will open when be neeeded
 		//value |= (1 << 8);//en_dco     //now no module using,temp close,we will open when be neeeded

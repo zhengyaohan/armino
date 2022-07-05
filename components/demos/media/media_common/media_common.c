@@ -15,7 +15,7 @@
 #include <os/os.h>
 //#include <os/mem.h>
 //#include <os/str.h>
-#include "audio_types.h"
+//#include "audio_types.h"
 #include "audio_transfer_cp1.h"
 #include <driver/dma.h>
 #include "aud_hal.h"

@@ -73,6 +73,38 @@ static void dma2d_memcpy_rgb565_data(uint32_t src_addr, uint32_t dst_addr, uint3
 	while (bk_dma2d_is_transfer_busy()) {}
 }
 
+void bk_example_dma2d_rgb888_to_arg565pixel(uint32_t srcaddr, uint32_t dstaddr, uint32_t x_pixel, uint32_t y_pixel)
+{
+	uint32_t RedBlueSwapConfig = 0;
+
+	dma2d_config_t dma2d_config = {0};
+
+	/*##-1- Configure the DMA2D Mode, Output Color Mode and output offset #############*/
+	dma2d_config.init.mode         = DMA2D_M2M_PFC;                  /**< DMA2D Mode memory to memory  with PFC*/
+	dma2d_config.init.color_mode    = DMA2D_OUTPUT_RGB565;          /**< output format of DMA2D */
+	dma2d_config.init.output_offset = 0; 
+	dma2d_config.init.red_blue_swap   = DMA2D_RB_REGULAR;               /**< No R&B swap for the output image */
+	dma2d_config.init.alpha_inverted = DMA2D_REGULAR_ALPHA;            /**< No alpha inversion for the output image */
+
+	/**< Foreground layer Configuration */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].alpha_mode = DMA2D_NO_MODIF_ALPHA;    /**< Keep original Alpha from ARGB4444 input */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_alpha = 0xFF;                   /**< Fully opaque */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_color_mode = DMA2D_INPUT_RGB888; /**< Input color is RGB565 : 16 bpp */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_offset = 0x0;                   /**< No offset in input */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].red_blue_swap   = RedBlueSwapConfig;   /**< No R&B swap for the input image */
+	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].alpha_inverted = DMA2D_REGULAR_ALPHA; /**< No alpha inversion for the input image */
+
+	bk_dma2d_driver_init(&dma2d_config);
+	bk_dma2d_layer_config(&dma2d_config, DMA2D_FOREGROUND_LAYER);
+
+	bk_dma2d_start_transfer(&dma2d_config,
+                                  (uint32_t)srcaddr, /**< Source buffer in format RGB565 and size 320x240      */
+                                  (uint32_t)(dstaddr),/**< framebuf+2*(LCD_X_SIZE*sy+sx)*/
+                                  x_pixel,           /**< width in pixels  */
+                                  y_pixel);        /**< height in pixels */
+
+	while (bk_dma2d_is_transfer_busy()) {}
+}
 
 void dma2d_blend_rgb565_data(void *p_fg_addr, void *p_bg_addr, void *p_dst_addr,
 								uint32_t fg_offline, uint32_t bg_offline, uint32_t out_offset,

@@ -1,4 +1,4 @@
-if (CONFIG_VND_CAL)
+if (NOT CONFIG_OVERRIDE_FLASH_PARTITION)
 
 set(incs .
 	)

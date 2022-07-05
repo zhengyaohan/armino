@@ -8,8 +8,6 @@ extern "C" {
 /* @brief Overview about lcds demo
  *
  */
-#define       LCD_BLEND_IMAGE1     0x3A0000 //flash phy addr 0x3DA000
-#define       LCD_BLEND_IMAGE2     0x3A2F00 //flash phy addr 0x3DD200
 
 
 typedef enum{
@@ -89,6 +87,8 @@ void dma2d_crop_image(dma2d_crop_params_t *crop_params);
 void dma2d_blend_rgb565_data(void *p_fg_addr, void *p_bg_addr, void *p_dst_addr,
 								uint32_t fg_offline, uint32_t bg_offline, uint32_t out_offset,
 								uint16_t xsize, uint16_t ysize, int8_t alpha_value);
+
+void bk_example_dma2d_rgb888_to_arg565pixel(uint32_t srcaddr, uint32_t dstaddr, uint32_t x_pixel, uint32_t y_pixel);
 
 /**
   * @brief sd card read file to mem

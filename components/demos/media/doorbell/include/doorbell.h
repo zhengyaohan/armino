@@ -1,6 +1,13 @@
 #ifndef _DEMOS_DOORBELL_H__
 #define _DEMOS_DOORBELL_H__
 
+
+/** define video transfer cmd */
+typedef enum {
+	LCD_DISPLAY_BLEND_CLOSE = 2,  /**< define Video transfer lcd display */
+	LCD_DISPLAY_BLEND_OPEN = 3,  /**< define Video transfer lcd display */
+}video_transfer_cmd_t;
+
 typedef struct {
 	UINT8 id;
 	UINT8 is_eof;

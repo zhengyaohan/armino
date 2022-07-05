@@ -1,0 +1,5 @@
+menu "MEDIA"
+	config MEDIA
+		bool "Enable media service"
+		default y
+endmenu

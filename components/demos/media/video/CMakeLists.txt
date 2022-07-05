@@ -8,6 +8,7 @@ set(incs
 	video_transfer_frame_buff
 	image_save
 	"../lcd/common"
+	"../lcd/lcd_8080"
 	)
 set(srcs)
 

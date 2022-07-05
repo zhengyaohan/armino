@@ -79,6 +79,7 @@ arch_fence:
 	fence iorw, iorw
 	ret
 
+#if 0
 /*
  * void arch_atomic_clear(u32 * lock_addr);
  */
@@ -96,6 +97,8 @@ arch_atomic_set:
 	c.mv  a0, t0
 //	bnez t0, swap_again
 	ret
+
+#endif
 
 /*
  * u64 riscv_get_mtimer(void);

@@ -80,12 +80,7 @@ armino_build_get_property(config_dir CONFIG_DIR)
 
 #TODO add support to generate ELF with/without bootloader
 #
-if(CONFIG_ATE_TEST)
-	target_linker_script(${COMPONENT_LIB} INTERFACE "${target}_ate.ld")
-else()
-	target_linker_script(${COMPONENT_LIB} INTERFACE "${target}_bsp.ld")
-endif()
-
+target_linker_script_judge()
 
 set(LD_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 

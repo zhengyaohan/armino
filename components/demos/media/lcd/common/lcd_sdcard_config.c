@@ -93,7 +93,7 @@ void sdcard_write_from_mem(char *pcWriteBuffer, int xWriteBufferLen, int argc, c
 			os_printf("close %s fail!\r\n", filename);
 			return;
 		}
-		os_printf("write LCD data to file successful\r\n");
+		os_printf("sd card write data to file successful\r\n");
 #else
 		os_printf("Not support\r\n");
 #endif
@@ -139,7 +139,7 @@ void sdcard_read_to_mem(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 			os_printf("close %s fail!\r\n", filename);
 			return;
 		}
-		os_printf("sd card read from psram ok.\r\n");
+		os_printf("sd card read to psram ok.\r\n");
 #else
 		os_printf("Not support\r\n");
 #endif

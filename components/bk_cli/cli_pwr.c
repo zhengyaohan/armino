@@ -75,14 +75,14 @@ static UINT32 s_pm_vote2 = 0;
 static UINT32 s_pm_vote3 = 0;
 static void cli_pm_rtc_callback()
 {
-	if(s_cli_sleep_mode == LOW_POWER_DEEP_SLEEP)//when wakeup from deep sleep, all thing initial
+	if(s_cli_sleep_mode == PM_MODE_DEEP_SLEEP)//when wakeup from deep sleep, all thing initial
 	{
 		pm_sleep_mode_set(LOW_POWER_MODE_NONE);
 		//pm_power_ctrl(s_pm_vote1,POWER_MODULE_STATE_ON);
 		//pm_power_ctrl(s_pm_vote2,POWER_MODULE_STATE_ON);
 		//pm_power_ctrl(s_pm_vote3,POWER_MODULE_STATE_ON);
 	}
-	else if(s_cli_sleep_mode == LOW_POWER_MODE_LOW_VOLTAGE)
+	else if(s_cli_sleep_mode == PM_MODE_LOW_VOLTAGE)
 	{
 		pm_sleep_mode_set(LOW_POWER_MODE_NONE);
 		pm_module_vote_sleep_ctrl(s_pm_vote1,0x0,0x0);
@@ -121,9 +121,9 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 	pm_vote1       = os_strtoul(argv[3], NULL, 10);
 	pm_vote2       = os_strtoul(argv[4], NULL, 10);
 	pm_vote3       = os_strtoul(argv[5], NULL, 10);
-	pm_param1       = os_strtoul(argv[6], NULL, 10);
-	pm_param2       = os_strtoul(argv[7], NULL, 10);
-	pm_param3       = os_strtoul(argv[8], NULL, 10);
+	pm_param1      = os_strtoul(argv[6], NULL, 10);
+	pm_param2      = os_strtoul(argv[7], NULL, 10);
+	pm_param3      = os_strtoul(argv[8], NULL, 10);
 	
 	os_printf("cli_pm_cmd %d %d %d %d %d %d %d!!! \r\n",
 				pm_sleep_mode,
@@ -133,10 +133,28 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 				pm_vote3,
 				pm_param1,
 				pm_param2);
-	if((pm_sleep_mode > LOW_POWER_MODE_NONE)|| (pm_vote1 > POWER_MODULE_NAME_NONE) ||(pm_vote2 > POWER_MODULE_NAME_NONE) ||(pm_vote3 > POWER_MODULE_NAME_NONE)||(pm_wake_source > WAKEUP_SOURCE_INT_NONE))
+	if((pm_sleep_mode > PM_MODE_DEFAULT)||(pm_wake_source > PM_WAKEUP_SOURCE_INT_NONE))
 	{
 		os_printf("set low power  parameter value  invalid\r\n");
 		return;
+	}
+
+	if(pm_sleep_mode == PM_MODE_DEEP_SLEEP)
+	{
+		if((pm_vote1 > PM_POWER_MODULE_NAME_NONE) ||(pm_vote2 > PM_POWER_MODULE_NAME_NONE) ||(pm_vote3 > PM_POWER_MODULE_NAME_NONE))
+		{
+			os_printf("set pm vote deepsleep parameter value invalid\r\n");
+			return;
+		}
+	}
+
+	if(pm_sleep_mode == PM_MODE_LOW_VOLTAGE)
+	{
+		if((pm_vote1 > PM_SLEEP_MODULE_NAME_NONE) ||(pm_vote2 > PM_SLEEP_MODULE_NAME_NONE) ||(pm_vote3 > PM_SLEEP_MODULE_NAME_NONE))
+		{
+			os_printf("set pm vote low vol parameter value invalid\r\n");
+			return;
+		}
 	}
 
 	s_cli_sleep_mode  = pm_sleep_mode;
@@ -148,20 +166,20 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 	pm_sleep_mode_set(pm_sleep_mode);
 
 	/*set wakeup source*/
-	if(pm_wake_source == WAKEUP_SOURCE_INT_RTC)
+	if(pm_wake_source == PM_WAKEUP_SOURCE_INT_RTC)
 	{
 		rtc_wakeup_param.period = pm_param1;
 		rtc_wakeup_param.isr_callback = cli_pm_rtc_callback;
-		pm_wakeup_source_set(WAKEUP_SOURCE_INT_RTC, &rtc_wakeup_param);
+		pm_wakeup_source_set(PM_WAKEUP_SOURCE_INT_RTC, &rtc_wakeup_param);
 	}
-	else if(pm_wake_source == WAKEUP_SOURCE_INT_GPIO)
+	else if(pm_wake_source == PM_WAKEUP_SOURCE_INT_GPIO)
 	{
 		gpio_wakeup_param.gpio_id = pm_param1;
 		gpio_wakeup_param.gpio_valid = PARAM_DATA_VALID;
 		gpio_wakeup_param.gpio_trigger_interrupt_type = pm_param2;
-		pm_wakeup_source_set(WAKEUP_SOURCE_INT_GPIO, &gpio_wakeup_param);
+		pm_wakeup_source_set(PM_WAKEUP_SOURCE_INT_GPIO, &gpio_wakeup_param);
 	}
-	else if(pm_wake_source == WAKEUP_SOURCE_INT_SYSTEM_WAKE)
+	else if(pm_wake_source == PM_WAKEUP_SOURCE_INT_SYSTEM_WAKE)
 	{   
 		if(pm_param1 == WIFI_WAKEUP)
 		{
@@ -172,16 +190,16 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 			system_wakeup_param.wifi_bt_wakeup = BT_WAKEUP;
 		}
 
-		pm_wakeup_source_set(WAKEUP_SOURCE_INT_SYSTEM_WAKE, &system_wakeup_param);
+		pm_wakeup_source_set(PM_WAKEUP_SOURCE_INT_SYSTEM_WAKE, &system_wakeup_param);
 	}
-	else if(pm_wake_source == WAKEUP_SOURCE_INT_TOUCHED)
+	else if(pm_wake_source == PM_WAKEUP_SOURCE_INT_TOUCHED)
 	{
 		touch_wakeup_param.touch_channel = pm_param1;
-		pm_wakeup_source_set(WAKEUP_SOURCE_INT_TOUCHED, &touch_wakeup_param);
+		pm_wakeup_source_set(PM_WAKEUP_SOURCE_INT_TOUCHED, &touch_wakeup_param);
 	}
-	else if(pm_wake_source == WAKEUP_SOURCE_INT_USBPLUG)
+	else if(pm_wake_source == PM_WAKEUP_SOURCE_INT_USBPLUG)
 	{
-		pm_wakeup_source_set(WAKEUP_SOURCE_INT_USBPLUG, &usbplug_wakeup_param);
+		pm_wakeup_source_set(PM_WAKEUP_SOURCE_INT_USBPLUG, &usbplug_wakeup_param);
 	}
 	else
 	{
@@ -189,19 +207,19 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 	}
 
 	/*vote*/
-	if(pm_sleep_mode == LOW_POWER_DEEP_SLEEP)
+	if(pm_sleep_mode == PM_MODE_DEEP_SLEEP)
 	{
-		if((pm_vote1 == POWER_MODULE_NAME_BTSP)||(pm_vote1 == POWER_MODULE_NAME_WIFIP_MAC))
+		if((pm_vote1 == PM_POWER_MODULE_NAME_BTSP)||(pm_vote1 == PM_POWER_MODULE_NAME_WIFIP_MAC))
 		{
-			pm_module_vote_power_ctrl(pm_vote1,POWER_MODULE_STATE_OFF);
+			pm_module_vote_power_ctrl(pm_vote1,PM_POWER_MODULE_STATE_OFF);
 		}
 		
-		if((pm_vote2 == POWER_MODULE_NAME_BTSP)||(pm_vote2 == POWER_MODULE_NAME_WIFIP_MAC))
+		if((pm_vote2 == PM_POWER_MODULE_NAME_WIFIP_MAC)||(pm_vote2 == PM_POWER_MODULE_NAME_WIFIP_MAC))
 		{
-			pm_module_vote_power_ctrl(pm_vote2,POWER_MODULE_STATE_OFF);
+			pm_module_vote_power_ctrl(pm_vote2,PM_POWER_MODULE_STATE_OFF);
 		}
 
-		if(pm_vote3 == POWER_MODULE_NAME_CPU1)
+		if(pm_vote3 == PM_POWER_MODULE_NAME_CPU1)
 		{
 			#if (CONFIG_SLAVE_CORE_OFFSET && CONFIG_SLAVE_CORE_RESET_VALUE)
 				stop_slave_core();
@@ -209,9 +227,9 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 		}
 
 	}
-	else if(pm_sleep_mode == LOW_POWER_MODE_LOW_VOLTAGE)
+	else if(pm_sleep_mode == PM_MODE_LOW_VOLTAGE)
 	{
-		if(pm_vote1 == POWER_MODULE_NAME_BTSP)
+		if(pm_vote1 == PM_POWER_MODULE_NAME_BTSP)
 		{
 			pm_module_vote_sleep_ctrl(pm_vote1,0x1,pm_param3);
 		}
@@ -220,7 +238,7 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 			pm_module_vote_sleep_ctrl(pm_vote1,0x1,0x0);
 		}
 
-		if(pm_vote2 == POWER_MODULE_NAME_BTSP)
+		if(pm_vote2 == PM_POWER_MODULE_NAME_BTSP)
 		{
 			pm_module_vote_sleep_ctrl(pm_vote2,0x1,pm_param3);
 		}
@@ -229,7 +247,7 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 			pm_module_vote_sleep_ctrl(pm_vote2,0x1,0x0);
 		}
 
-		if(pm_vote3 == POWER_MODULE_NAME_BTSP)
+		if(pm_vote3 == PM_POWER_MODULE_NAME_BTSP)
 		{
 			pm_module_vote_sleep_ctrl(pm_vote3,0x1,pm_param3);
 		}
@@ -514,8 +532,8 @@ static void cli_dvfs_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, cha
 		clk_param |=  cksel_core << 4;
 		sys_drv_all_modules_clk_div_set(CLK_DIV_REG0,clk_param);
 	}
-
 	GLOBAL_INT_RESTORE();
+	os_printf("switch cpu frequency ok 0x%x 0x%x 0x%x\r\n",sys_drv_all_modules_clk_div_get(CLK_DIV_REG0),sys_drv_cpu_clk_div_get(0),sys_drv_cpu_clk_div_get(1));
 }
 #endif
 #if CONFIG_MCU_PS

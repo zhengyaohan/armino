@@ -198,9 +198,12 @@ static void wm_netif_status_static_callback(struct netif *n)
 		LWIP_LOGI("using static ip...\n");
 		wifi_netif_notify_sta_got_ip();
 #if CONFIG_LWIP_FAST_DHCP
-		struct wlan_fast_connect_info fci;
+		/* read stored IP from flash as the static IP */
+		struct wlan_fast_connect_info fci = {0};
 		wlan_read_fast_connect_info(&fci);
-		os_memcpy((char *)&n->ip_addr, (char *)&fci.net_info, sizeof(fci.net_info));
+		os_memcpy((char *)&n->ip_addr, (char *)&fci.ip_addr, sizeof(fci.ip_addr));
+		os_memcpy((char *)&n->netmask, (char *)&fci.netmask, sizeof(fci.netmask));
+		os_memcpy((char *)&n->gw, (char *)&fci.gw, sizeof(fci.gw));
 		LWIP_LOGI("ip_addr: "BK_IP4_FORMAT" \r\n", BK_IP4_STR(ip_addr_get_ip4_u32(&n->ip_addr)));
 #endif
 
@@ -259,10 +262,13 @@ static void wm_netif_status_callback(struct netif *n)
 				wifi_netif_notify_sta_got_ip();
 
 #if CONFIG_LWIP_FAST_DHCP
-				struct wlan_fast_connect_info fci;
+				/* store current IP to flash */
+				struct wlan_fast_connect_info fci = {0};
 				wlan_read_fast_connect_info(&fci);
-				os_memset(&fci.net_info, 0, sizeof(fci.net_info));
-				os_memcpy((char *)&fci.net_info, (char *)&n->ip_addr, sizeof(n->ip_addr));
+				os_memset(&fci.ip_addr, 0, sizeof(ip_addr_t)*3);
+				os_memcpy((char *)&fci.ip_addr, (char *)&n->ip_addr, sizeof(n->ip_addr));
+				os_memcpy((char *)&fci.netmask, (char *)&n->netmask, sizeof(n->netmask));
+				os_memcpy((char *)&fci.gw, (char *)&n->gw, sizeof(n->gw));
 				wlan_write_fast_connect_info(&fci);
 #endif
 

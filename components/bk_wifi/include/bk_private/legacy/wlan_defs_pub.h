@@ -271,7 +271,9 @@ struct wlan_fast_connect_info
 	uint8_t channel;  /**< Channel of AP */
 	uint8_t psk[65];  /**< PSK of AP */
 	uint8_t pwd[65];  /**< password of AP */
-	IPStatusTypedef net_info;
+	uint8_t ip_addr[4];
+	uint8_t netmask[4];
+	uint8_t gw[4];
 };
 
 typedef struct vif_addcfg_st {

@@ -116,12 +116,15 @@ void scan_file_system(DISK_NUMBER number)
     os_printf("----- scan_file_system %d over  -----\r\n\r\n", number);
 }
 
-void test_fatfs_read(DISK_NUMBER number, char *filename)
+void test_fatfs_read(DISK_NUMBER number, char *filename, uint64_t len)
 {
     char cFileName[FF_MAX_LFN];
     FIL file;
     FRESULT fr;
 	unsigned char *ucRdTemp = os_malloc(WR_RD_BUF_SIZE);
+	uint32_t i = 0, packet_len = 0;
+	uint64_t left_len = 0;
+
 	if(ucRdTemp == 0)
 	{
 		os_printf("%s:os_malloc fail \r\n", __func__);
@@ -133,22 +136,28 @@ void test_fatfs_read(DISK_NUMBER number, char *filename)
 		sprintf(cFileName, "%d:/%s", number, filename);
 	else
 		sprintf(cFileName, "%d:%s", number, TEST_TXT_FILE_NAME);
-
-    os_printf("f_open \"%s\"\r\n", cFileName);
+     os_printf("f_open \"%s\"\r\n", cFileName);
     fr = f_open(&file, cFileName, FA_OPEN_EXISTING | FA_READ);
     if (fr == FR_OK)
     {
         unsigned int uiTemp = 0;
         unsigned int uiRdTotalLength = 0;
-        //unsigned char ucRdTemp[WR_RD_BUF_SIZE];
-		
+
+		left_len = f_size(&file) < len? f_size(&file) : len;
+		os_printf("will read left_len = %d \r\n", (uint32_t)left_len);
         do
         {
-            os_printf(".");
-            fr = f_read(&file, ucRdTemp, WR_RD_BUF_SIZE, &uiTemp);
+			packet_len = left_len < WR_RD_BUF_SIZE? left_len : WR_RD_BUF_SIZE;
+            os_printf("f_read start:%d bytes \r\n", packet_len);
+            fr = f_read(&file, ucRdTemp, packet_len, &uiTemp);
             if (fr == FR_OK)
             {
-            	
+				for(i=0; i < packet_len; i++)
+				{
+					os_printf("%c", ucRdTemp[i]);
+				}
+				left_len -= uiTemp;
+				os_printf("f_read one cycle finish:left_len = %d\r\n", (uint32_t)left_len);
             }
             else
             {
@@ -156,15 +165,13 @@ void test_fatfs_read(DISK_NUMBER number, char *filename)
                 goto error1;
             }
             uiRdTotalLength += uiTemp;
-        }
-        while (uiTemp == WR_RD_BUF_SIZE);
-        os_printf("\r\n");
-		for(int i=0; i < uiRdTotalLength; i++)
-		{
-			os_printf("%c", ucRdTemp[i]);
-		}
-        os_printf("f_read: read total byte = %d\r\n", uiRdTotalLength);
 
+			if(left_len == 0)
+				break;
+        }
+        while (uiTemp == packet_len);
+
+        os_printf("f_read: read total byte = %d\r\n", uiRdTotalLength);
         fr = f_close(&file);
         if (fr != FR_OK)
         {

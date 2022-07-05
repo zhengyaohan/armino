@@ -40,6 +40,13 @@ typedef void (*lcd_isr_t)(void);
  * @{
  */
 
+/** define display module pixel */
+typedef enum {
+	LCD_8080_16BIT = 1,
+	LCD_RGB_YUV,
+	LCD_RGB_RGB565,
+	LCD_RGB_RGB888
+}lcd_interface_data_t;
 
 /** define display module pixel */
 typedef enum {

@@ -84,7 +84,9 @@ typedef struct item_fastconnect_st
 	uint8_t channel;
 	uint8_t psk[65];
 	uint8_t pwd[65];
-	IPStatusTypedef net_info;
+	uint8_t ip_addr[4];
+	uint8_t netmask[4];
+	uint8_t gw[4];
 }ITEM_FASTCONNECT_ST,*ITEM_FASTCONNECT_ST_PTR;
 #endif
 

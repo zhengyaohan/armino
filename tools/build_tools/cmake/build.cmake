@@ -93,6 +93,7 @@ function(__build_set_default_build_specifications)
     unset(compile_options)
     unset(c_compile_options)
     unset(cxx_compile_options)
+    unset(link_options)
 
     set(armino_target $ENV{ARMINO_SOC})
     if(NOT armino_target)
@@ -147,12 +148,17 @@ function(__build_set_default_build_specifications)
             list(APPEND compile_options ${OVERRIDE_COMPILE_OPTIONS})
         endif()
 
+        if (DEFINED OVERRIDE_LINK_OPTIONS)
+            list(APPEND link_options ${OVERRIDE_COMPILE_OPTIONS})
+        endif()
+
     endif()
 
     armino_build_set_property(COMPILE_DEFINITIONS "${compile_definitions}" APPEND)
     armino_build_set_property(COMPILE_OPTIONS "${compile_options}" APPEND)
     armino_build_set_property(C_COMPILE_OPTIONS "${c_compile_options}" APPEND)
     armino_build_set_property(CXX_COMPILE_OPTIONS "${cxx_compile_options}" APPEND)
+    armino_build_set_property(LINK_OPTIONS "${link_options}" APPEND)
 endfunction()
 
 function(__build_add_components components_path)

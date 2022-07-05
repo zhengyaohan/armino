@@ -177,25 +177,26 @@ void lcd_sdcard_read_to_mem_jpeg_dec(char *pcWriteBuffer, int xWriteBufferLen, i
 			os_printf("read file fail.\r\n");
 			return;
 		}
-		os_printf("\r\n");
 
 		fr = f_close(&file);
 		if (fr != FR_OK) {
 			os_printf("close %s fail!\r\n", filename);
 			return;
 		}
-		os_printf("sd card read from psram ok.\r\n");
+		os_printf("file read ok\r\n");
 #else
 		os_printf("Not support\r\n");
 #endif
 	// step 2: start jpeg_dec
+	
+	os_printf("start jpeg_dec.\r\n");
 	bk_jpeg_dec_sw_register_finish_callback(NULL);
 	err = bk_jpeg_dec_sw_start(total_size);
 	if (err != kNoErr) {
 		os_printf("jpeg_decoder failed\r\n");
 		return;
-}
-
+	}
+	os_printf("jpeg_dec ok.\r\n");
 }
 
 void lcd_rgb_sdcard_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -249,7 +250,11 @@ void lcd_rgb_sdcard_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, cha
 		uyvy_to_rgb565_convert(pSrcImg, pDstImg, src_w, src_h);
 	} else if (os_strcmp(argv[1], "yuyv_to_rgb565") == 0) {
 		yuyv_to_rgb565_convert(pSrcImg, pDstImg, src_w, src_h);
-	} else if (os_strcmp(argv[1], "rgb565_to_uyvy") == 0) {
+	} else if (os_strcmp(argv[1], "vuyy_to_rgb888") == 0) {
+		vuyy_to_rgb888(pDstImg, pSrcImg, src_w, src_h);
+	} else if (os_strcmp(argv[1], "rgb888_to_rgb565") == 0) {
+		bk_example_dma2d_rgb888_to_arg565pixel((uint32_t)pSrcImg, (uint32_t)pDstImg, src_w, src_h);
+	}else if (os_strcmp(argv[1], "rgb565_to_uyvy") == 0) {
 		rgb565_to_uyvy_convert((uint16_t *)pSrcImg, (uint16_t *)pDstImg, src_w, src_h);
 	} else if (os_strcmp(argv[1], "rgb565_to_yuyv") == 0) {
 		rgb565_to_yuyv_convert((uint16_t *)pSrcImg, (uint16_t *)pDstImg, src_w, src_h);

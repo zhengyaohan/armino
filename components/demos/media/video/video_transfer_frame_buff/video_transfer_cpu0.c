@@ -32,19 +32,18 @@
 #include "diskio.h"
 #endif
 
-//#include "BK7256_RegList.h"
 
 #define TU_QITEM_COUNT      (60)
 
 extern void delay(int num);
 
-static beken_thread_t  video_thread_hdl = NULL;
-static beken_queue_t vid_int_msg_que = NULL;
+static beken_thread_t  video_thread_cpu0_hdl = NULL;
+static beken_queue_t vid_cpu0_msg_que = NULL;
 video_setup_t video_transfer_setup = {0};
 static frame_information_t info_cpu0 = {0};
 static uint32_t video_rx_node_len = 0;
-video_transfer_setup_t video_cfg = {0};
 static uint8_t image_save_cpu0_enable = 0;
+video_transfer_setup_t video_cfg = {3, 20, (640 << 16) | 480};
 
 
 bk_err_t video_transfer_cpu0_send_msg(uint8_t msg_type, uint32_t data)
@@ -52,11 +51,11 @@ bk_err_t video_transfer_cpu0_send_msg(uint8_t msg_type, uint32_t data)
 	bk_err_t ret;
 	video_cpu_msg_t msg;
 
-	if (vid_int_msg_que) {
+	if (vid_cpu0_msg_que) {
 		msg.type = msg_type;
 		msg.data = data;
 
-		ret = rtos_push_to_queue(&vid_int_msg_que, &msg, BEKEN_NO_WAIT);
+		ret = rtos_push_to_queue(&vid_cpu0_msg_que, &msg, BEKEN_NO_WAIT);
 		if (kNoErr != ret) {
 			os_printf("video_transfer_cpu1_send_msg failed\r\n");
 			return kOverrunErr;
@@ -119,7 +118,7 @@ static void video_cp0_mailbox_rx_isr(video_mb_t *vid_mb, mb_chnl_cmd_t *cmd_buf)
 
 	case VID_MB_CPU0_EXIT_CMD:
 	{
-		if (video_thread_hdl) {
+		if (video_thread_cpu0_hdl) {
 			video_transfer_cpu0_send_msg(VIDEO_CPU0_EXIT, 0);
 		}
 		break;
@@ -171,9 +170,9 @@ static void video_config_desc(void)
 
 	video_rx_node_len = node_len;
 
-	video_cfg.dev_id = 3;
+	/*video_cfg.dev_id = 3;
 	video_cfg.frame_rate = 20;
-	video_cfg.resolution = (640 << 16) | 480;
+	video_cfg.resolution = (640 << 16) | 480;*/
 }
 
 static void video_sendto_udp(void)
@@ -349,7 +348,7 @@ static void video_transfer_cpu0_main(beken_thread_arg_t data)
 
 	while(1) {
 		video_cpu_msg_t msg;
-		ret = rtos_pop_from_queue(&vid_int_msg_que, &msg, BEKEN_WAIT_FOREVER);
+		ret = rtos_pop_from_queue(&vid_cpu0_msg_que, &msg, BEKEN_WAIT_FOREVER);
 		if (kNoErr == ret) {
 			switch (msg.type) {
 			case VIDEO_CPU0_REQUEST:
@@ -379,18 +378,12 @@ exit:
 	os_memset(&info_cpu0, 0, sizeof(frame_information_t));
 
 	// step 4: delate msg queue
-	ret = rtos_deinit_queue(&vid_int_msg_que);
-	if (ret != kNoErr) {
-		os_printf("cp0: delate message queue fail \r\n");
-	}
-
-	vid_int_msg_que = NULL;
-	os_printf("cp0: delate message queue complete \r\n");
+	rtos_deinit_queue(&vid_cpu0_msg_que);
+	vid_cpu0_msg_que = NULL;
 
 	// step 5: delate task
+	video_thread_cpu0_hdl = NULL;
 	rtos_delete_thread(NULL);
-	video_thread_hdl = NULL;
-	os_printf("cp0: delate video transfer task \r\n");
 }
 
 
@@ -398,13 +391,13 @@ bk_err_t bk_video_transfer_cpu0_init(video_setup_t *setup_cfg)
 {
 	int ret;
 
-	os_printf("video_transfer_cpu1_init %d,%d\r\n", setup_cfg->send_type, setup_cfg->open_type);
+	os_printf("video_transfer_cpu0_init %d,%d\r\n", setup_cfg->send_type, setup_cfg->open_type);
 
-	if ((!video_thread_hdl) && (!vid_int_msg_que)) {
+	if ((!video_thread_cpu0_hdl) && (!vid_cpu0_msg_que)) {
 		// bakup setup_cfg, because of that 'setup_cfg' may not static value.
 		os_memcpy(&video_transfer_setup, setup_cfg, sizeof(video_setup_t));
 
-		ret = rtos_init_queue(&vid_int_msg_que,
+		ret = rtos_init_queue(&vid_cpu0_msg_que,
 							  "video_transfer_queue_cpu0",
 							  sizeof(video_cpu_msg_t),
 							  TU_QITEM_COUNT);
@@ -413,16 +406,16 @@ bk_err_t bk_video_transfer_cpu0_init(video_setup_t *setup_cfg)
 			return kGeneralErr;
 		}
 
-		ret = rtos_create_thread(&video_thread_hdl,
+		ret = rtos_create_thread(&video_thread_cpu0_hdl,
 								 4,
 								 "video_transfer_cpu0",
 								 (beken_thread_function_t)video_transfer_cpu0_main,
 								 4 * 1024,
 								 (beken_thread_arg_t)&video_transfer_setup);
 		if (ret != kNoErr) {
-			rtos_deinit_queue(&vid_int_msg_que);
-			vid_int_msg_que = NULL;
-			video_thread_hdl = NULL;
+			rtos_deinit_queue(&vid_cpu0_msg_que);
+			vid_cpu0_msg_que = NULL;
+			video_thread_cpu0_hdl = NULL;
 			os_printf("Error: Failed to create video transfer cpu0: %d\r\n", ret);
 			return kGeneralErr;
 		}

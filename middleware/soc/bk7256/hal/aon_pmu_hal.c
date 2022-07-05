@@ -28,8 +28,8 @@ bk_err_t aon_pmu_hal_init(void)
     return BK_OK;
 }
 #if (CONFIG_SOC_BK7256XX)
-#define PM_LOW_VOL_PARAMETER_32K_FROM_26M      (0x29111FFF)
-#define PM_LOW_VOL_PARAMETER_DEFAULT           (0x2B111FFF)
+#define PM_LOW_VOL_PARAMETER_32K_FROM_26M      (0x29111111)
+#define PM_LOW_VOL_PARAMETER_DEFAULT           (0x2B111111)
 #define PM_DEEP_SLEEP_PARAMETER_DEFAULT        (0x4e111111)
 int aon_pmu_hal_set_sleep_parameters(uint32_t value)
 {

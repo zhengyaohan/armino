@@ -38,7 +38,10 @@
 #include <driver/dma2d.h>
 #include <lcd_dma2d_config.h>
 #include <driver/jpeg_dec_types.h>
+#include "modules/image_scale.h"
+#include "lcd_blend_config.h"
 #endif
+
 
 #define EJPEG_DELAY_HTIMER_CHANNEL     5
 #define EJPEG_I2C_DEFAULT_BAUD_RATE    I2C_BAUD_RATE_100KHZ
@@ -53,6 +56,8 @@ extern u64 riscv_get_mtimer(void);
 
 static uint8_t tvideo_lcd_enable = 0;
 static uint8_t tvideo_lcd_blend_enable = 0;
+static uint8_t tvideo_lcd_rotate_enable = 0;
+
 static uint8_t  lcd_status = READY;
 uint8_t * video_jpeg_buff = NULL;
 
@@ -62,36 +67,64 @@ static void jpeg_dec_eof_cb(void *param)
 
 	ejpeg_cfg.lcd_blend_frame_cnt ++;
 	lcd_status = DISPLAYING;
-	if (ejpeg_cfg.jpeg_dec_pixel_x == JPEGDEC_X_PIXEL_640) {
-		dma2d_crop_params_t  crop_params;
-		crop_params.src_addr = (uint32_t)ejpeg_cfg.jpeg_dec_dst_addr;
-		crop_params.dst_addr = (uint32_t)ejpeg_cfg.lcd_display_addr;
-		crop_params.x = (640 - 480)/2;
-		crop_params.y = (480 - 272)/2;
- 		crop_params.src_width = 640;
-		crop_params.src_height = 480;
-		crop_params.dst_width = 480;
-		crop_params.dst_height = 272;
-		dma2d_crop_image(&crop_params);
-	} else if(ejpeg_cfg.jpeg_dec_pixel_x == JPEGDEC_X_PIXEL_720) {
-		dma2d_crop_params_t  crop_params;
-		crop_params.src_addr = (uint32_t)ejpeg_cfg.jpeg_dec_dst_addr;
-		crop_params.dst_addr = (uint32_t)ejpeg_cfg.lcd_display_addr;
-		crop_params.x = (1280 - 480)/2;
-		crop_params.y = (720 - 272)/2;
- 		crop_params.src_width = 1280;
-		crop_params.src_height = 720;
-		crop_params.dst_width = 480;
-		crop_params.dst_height = 272;
-		dma2d_crop_image(&crop_params);
+	if (tvideo_lcd_rotate_enable) {
+		if (ejpeg_cfg.jpeg_dec_pixel_x == JPEGDEC_X_PIXEL_640) {
+			dma2d_crop_params_t  crop_params;
+			crop_params.src_addr = (uint32_t)ejpeg_cfg.jpeg_dec_dst_addr;
+			crop_params.dst_addr = (uint32_t)PARAM_LCD_ROTATE_BASE;
+			crop_params.x = (640 - 272)/2;
+			crop_params.y = (480 - 480)/2;
+			crop_params.src_width = 640;
+			crop_params.src_height = 480;
+			crop_params.dst_width = 272;
+			crop_params.dst_height = 480;
+			dma2d_crop_image(&crop_params);
+			image_16bit_rotate90_anticlockwise(ejpeg_cfg.lcd_display_addr, (uint8_t *)PARAM_LCD_ROTATE_BASE, 272, 480);
+		} else if(ejpeg_cfg.jpeg_dec_pixel_x == JPEGDEC_X_PIXEL_720) {
+			dma2d_crop_params_t  crop_params;
+			crop_params.src_addr = (uint32_t)ejpeg_cfg.jpeg_dec_dst_addr;
+			crop_params.dst_addr = (uint32_t)PARAM_LCD_ROTATE_BASE;
+			crop_params.x = (1280 - 272)/2;
+			crop_params.y = (720 - 480)/2;
+			crop_params.src_width = 1280;
+			crop_params.src_height = 720;
+			crop_params.dst_width = 272;
+			crop_params.dst_height = 480;
+			dma2d_crop_image(&crop_params);
+			image_16bit_rotate90_anticlockwise(ejpeg_cfg.lcd_display_addr, (uint8_t *)PARAM_LCD_ROTATE_BASE, 272, 480);
+		} else {}
+	} else {
+		if (ejpeg_cfg.jpeg_dec_pixel_x == JPEGDEC_X_PIXEL_640) {
+			dma2d_crop_params_t  crop_params;
+			crop_params.src_addr = (uint32_t)ejpeg_cfg.jpeg_dec_dst_addr;
+			crop_params.dst_addr = (uint32_t)ejpeg_cfg.lcd_display_addr;
+			crop_params.x = (640 - 480)/2;
+			crop_params.y = (480 - 272)/2;
+	 		crop_params.src_width = 640;
+			crop_params.src_height = 480;
+			crop_params.dst_width = 480;
+			crop_params.dst_height = 272;
+			dma2d_crop_image(&crop_params);
+		} else if(ejpeg_cfg.jpeg_dec_pixel_x == JPEGDEC_X_PIXEL_720) {
+			dma2d_crop_params_t  crop_params;
+			crop_params.src_addr = (uint32_t)ejpeg_cfg.jpeg_dec_dst_addr;
+			crop_params.dst_addr = (uint32_t)ejpeg_cfg.lcd_display_addr;
+			crop_params.x = (1280 - 480)/2;
+			crop_params.y = (720 - 272)/2;
+	 		crop_params.src_width = 1280;
+			crop_params.src_height = 720;
+			crop_params.dst_width = 480;
+			crop_params.dst_height = 272;
+			dma2d_crop_image(&crop_params);
+		} else{}
 	}
 
 	if (tvideo_lcd_blend_enable) {
 		u64 cur_time = riscv_get_mtimer();
 		if ((u64)(cur_time/26000000) % 2 == 0) {
-			yuv_blend((uint32_t)ejpeg_cfg.lcd_display_addr, (uint32_t)(LCD_BLEND_IMAGE1));
+			yuv_blend((uint32_t)ejpeg_cfg.lcd_display_addr, (uint32_t)(fg_blend_image1));
 		} else {
-			yuv_blend((uint32_t)ejpeg_cfg.lcd_display_addr, (uint32_t)(LCD_BLEND_IMAGE2));
+			yuv_blend((uint32_t)ejpeg_cfg.lcd_display_addr, (uint32_t)(fg_blend_image2));
 		}
 	}
 
@@ -512,6 +545,13 @@ void  bk_lcd_video_blending(uint8_t blend_enable)
 {
 #if (CONFIG_SOC_BK7256 || CONFIG_SOC_BK7237)
 	tvideo_lcd_blend_enable = blend_enable;
+#endif
+}
+
+void bk_lcd_video_rotate(uint8_t rotate_enable)
+{
+#if (CONFIG_SOC_BK7256 || CONFIG_SOC_BK7237)
+	tvideo_lcd_rotate_enable = rotate_enable;
 #endif
 }
 

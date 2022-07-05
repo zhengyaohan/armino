@@ -1,5 +1,0 @@
-menu "VENDOR CAL CONFIG"
-	config VND_CAL
-		bool "Enable vendor cal"
-		default n
-endmenu

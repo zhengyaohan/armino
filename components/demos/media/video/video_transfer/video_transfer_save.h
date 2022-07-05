@@ -36,6 +36,7 @@ void bk_lcd_video_enable(uint8_t enable);
 
 void bk_lcd_video_blending(uint8_t blend_enable);
 
+void  bk_lcd_video_rotate(uint8_t rotate_enable);
 
 #ifdef __cplusplus
 }
