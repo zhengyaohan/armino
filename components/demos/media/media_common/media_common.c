@@ -13,10 +13,9 @@
 // limitations under the License.
 
 #include <os/os.h>
-//#include <os/mem.h>
-//#include <os/str.h>
-//#include "audio_types.h"
+#if CONFIG_AUDIO_TRANSFER_APK
 #include "audio_transfer_cp1.h"
+#endif
 #include <driver/dma.h>
 #include "aud_hal.h"
 #include "sys_driver.h"
@@ -24,7 +23,6 @@
 #include "mailbox_channel.h"
 #include "video_mailbox.h"
 #include "video_transfer_cpu1.h"
-
 
 beken_thread_t com_mb_thread_handle = NULL;
 static beken_queue_t com_msg_que = NULL;
@@ -111,6 +109,7 @@ static void com_mailbox_tx_cmpl_isr(common_mailbox_msg_t *aud_mb, mb_chnl_ack_t 
 	//os_printf("enter cp1_mailbox_tx_cmpl_isr \r\n");
 }
 
+#if CONFIG_AUDIO_TRANSFER_APK
 bk_err_t common_audio_process(void)
 {
 	bk_err_t ret = BK_OK;
@@ -126,6 +125,7 @@ bk_err_t common_audio_process(void)
 
 	return BK_OK;
 }
+#endif
 
 bk_err_t common_video_process(void)
 {
@@ -162,6 +162,7 @@ static void common_mb_main(void)
 				case COM_AUDIO:
 					/* call audio transfer init api */
 					//audio_start_transfer_process();
+#if CONFIG_AUDIO_TRANSFER_APK
 					ret = common_audio_process();
 					if (ret != BK_OK) {
 						os_printf("[COM] init audio transfer fail \r\n");
@@ -169,6 +170,7 @@ static void common_mb_main(void)
 						/* send COM_MB_CMPL mailbox message to cpu0 */
 						//TODO
 					}
+#endif
 					break;
 
 				case COM_VIDEO:

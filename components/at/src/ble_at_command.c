@@ -157,6 +157,7 @@ static void ble_ethermind_performance_tx_timer_hdl(void *param);
 static void ble_ethermind_performance_rx_timer_hdl(void *param);
 int ble_enable_packet_loss_ratio_test_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
 int ble_mqtt_loop_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
+int ble_power_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
 
 #ifdef CONFIG_ALI_MQTT
 static void ble_send_data_2_mqtt(uint8 con_idx, uint16_t len, uint8 *data);
@@ -213,7 +214,8 @@ const at_command_t ble_at_cmd_table[] = {
     {32, "STOPPERIODICSYNC", 1, "set periodic sync stop", ble_stop_periodic_sync_handle},
     {33, "ATTWRITE", 1, "att write <DEVICE_HANDLE> <ATT_CON_ID> <ATT_ATTR_HANDLE> <value>", ble_att_write_handle},
     {34, "ENABLEPLRTEST", 0, "enable packet loss ratio test", ble_enable_packet_loss_ratio_test_handle},
-	{35, "MQTTLOOPBACK", 0, "enable mqtt loopback test", ble_mqtt_loop_handle},
+    {35, "MQTTLOOPBACK", 0, "enable mqtt loopback test", ble_mqtt_loop_handle},
+    {36, "POWER", 0, "power on/off", ble_power_handle},
 //#endif
 };
 
@@ -5028,5 +5030,36 @@ error:
 	return err;
 }
 #endif
+
+int ble_power_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+    int err = kNoErr;
+    char *msg = NULL;
+
+    if (argc < 1)
+    {
+        os_printf("input param error\n");
+        err = kParamErr;
+        goto error;
+    }
+
+    if (os_strcmp(argv[0], "1") == 0)
+    {
+        bk_ble_init();
+    }
+    else if (os_strcmp(argv[0], "0") == 0)
+    {
+        bk_ble_deinit();
+    }
+
+    msg = AT_CMD_RSP_SUCCEED;
+    os_memcpy(pcWriteBuffer, msg, os_strlen(msg));
+    return err;
+
+error:
+    msg = AT_CMD_RSP_ERROR;
+    os_memcpy(pcWriteBuffer, msg, os_strlen(msg));
+    return err;
+}
 
 #endif

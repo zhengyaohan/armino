@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 #define PSRAM_BASEADDR                    0x60000000
-#define JPEG_SHARE_MEM                    0x30060000
+
 
 typedef struct {
 	jpeg_hw_t *hw;

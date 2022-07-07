@@ -29,6 +29,13 @@
 #define JPEG_BITRATE_MAX_SIZE             JPEG_BITRATE_MAX_SIZE_640_480
 #define JPEG_BITRATE_MIN_SIZE             JPEG_BITRATE_MIN_SIZE_640_480
 
+#if (!CONFIG_DUAL_CORE || CONFIG_SLAVE_CORE)
+__attribute__((section(".video_spec_data"))) uint8_t video_sram[40*1024];
+#define JPEG_SHARE_MEM                    (&video_sram[0])
+#else
+#define JPEG_SHARE_MEM                    0x30060000
+#endif
+
 bk_err_t jpeg_hal_init(jpeg_hal_t *hal)
 {
 	hal->hw = (jpeg_hw_t *)JPEG_LL_REG_BASE(hal->id);
@@ -85,7 +92,7 @@ bk_err_t jpeg_hal_configure(jpeg_hal_t *hal, const jpeg_config_t *config)
 		jpeg_ll_set_default_bitrate_step(hal->hw);
 		jpeg_ll_enable_video_byte_reverse(hal->hw);
 		jpeg_ll_enable_enc_size(hal->hw);
-		jpeg_ll_set_em_base_addr(hal->hw, JPEG_SHARE_MEM);
+		jpeg_ll_set_em_base_addr(hal->hw, (uint32_t)JPEG_SHARE_MEM);
 		jpeg_ll_enable(hal->hw);
 	} else {
 		jpeg_ll_enable_end_yuv_int(hal->hw);

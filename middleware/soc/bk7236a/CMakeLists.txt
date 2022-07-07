@@ -35,6 +35,7 @@ list(APPEND srcs
 	"hal/spi_hal_debug.c"
 	"hal/spi_ll.c"
 	"hal/sys_hal.c"
+	"hal/aon_pmu_hal.c"
 	"hal/i2c_hal_debug.c"
 	"hal/i2c_ll.c"
 	"hal/jpeg_hal_debug.c"

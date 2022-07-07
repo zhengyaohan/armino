@@ -290,16 +290,22 @@ SECTIONS
 	_dtcm_bss_end = .;
 	DTCM_SIZE = . - DTCM_BEGIN;
 	. = 0x30000000;
-	SRAM_BEGIN = .;
+	SRAM1_BEGIN = .;
 	.bt_spec_data 	: AT(LOADADDR (.dtcm_sec_bss) + SIZEOF (.dtcm_sec_bss))
 		{ KEEP(*(.bt_spec_data )) }
 	_bt_data_lmastart =  LOADADDR (.bt_spec_data);
 	_bt_data_start = ADDR(.bt_spec_data);
 	_bt_data_end =  LOADADDR (.bt_spec_data) + SIZEOF (.bt_spec_data);
+	SRAM1_SIZE = . - SRAM1_BEGIN;
+	. = 0x30010000;
+	SRAM2_BEGIN = .;
+	.video_spec_data 	: AT(LOADADDR (.bt_spec_data) + SIZEOF (.bt_spec_data))
+		{ KEEP(*(.video_spec_data )) }
+	_vedio_start = ADDR(.video_spec_data);
 	. = ALIGN(8);
 	. = ALIGN(0x20);
 	. = ALIGN(ALIGNOF(.eh_frame));
-	.eh_frame 	: AT(ALIGN(LOADADDR (.bt_spec_data) + SIZEOF (.bt_spec_data), 32))
+	.eh_frame 	: AT(ALIGN(LOADADDR (.video_spec_data) + SIZEOF (.video_spec_data), 32))
 		{ KEEP(*(.eh_frame )) }
 	_data_lmastart =  LOADADDR (.eh_frame);
 	_data_start = ADDR(.eh_frame);
@@ -384,7 +390,7 @@ SECTIONS
 	_end = .;
 	PROVIDE (end = .);
 	PROVIDE (_stack = 0x20007FE0);
-	SRAM_SIZE = . - SRAM_BEGIN;
+	SRAM2_SIZE = . - SRAM2_BEGIN;
 	CPU0_LOAD2_SIZE = LOADADDR(.sdata_f) + SIZEOF(.sdata_f) - CPU0_LOAD2_BEGIN;
 	.stab	0 : { *(.stab) }
 	.stabstr	0 : { *(.stabstr) }
@@ -416,5 +422,6 @@ ASSERT((DEFINED (_RELAX_END_) ? FLASH1_SIZE : 0x0)<= 0x800, "FLASH1 OVERFLOW");
 ASSERT((DEFINED (_RELAX_END_) ? ITCM_SIZE : 0x0)<= 0x8000, "ITCM OVERFLOW");
 ASSERT((DEFINED (_RELAX_END_) ? CPU0_LOAD1_SIZE : 0x0)<= 0x8800, "CPU0_LOAD1 OVERFLOW");
 ASSERT((DEFINED (_RELAX_END_) ? DTCM_SIZE : 0x0)<= 0x7800, "DTCM OVERFLOW");
-ASSERT((DEFINED (_RELAX_END_) ? SRAM_SIZE : 0x0)<= 0x80000, "SRAM OVERFLOW");
+ASSERT((DEFINED (_RELAX_END_) ? SRAM1_SIZE : 0x0)<= 0x10000, "SRAM1 OVERFLOW");
+ASSERT((DEFINED (_RELAX_END_) ? SRAM2_SIZE : 0x0)<= 0x70000, "SRAM2 OVERFLOW");
 ASSERT((DEFINED (_RELAX_END_) ? CPU0_LOAD2_SIZE : 0x0)<= 0x217800, "CPU0_LOAD2 OVERFLOW");

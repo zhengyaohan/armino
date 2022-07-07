@@ -104,6 +104,9 @@ struct etharp_entry {
 };
 
 static struct etharp_entry arp_table[ARP_TABLE_SIZE];
+#if CONFIG_LWIP_FAST_DHCP
+static beken2_timer_t arp_conflict_tmr = {0};
+#endif
 
 #if !LWIP_NETIF_HWADDRHINT
 static netif_addr_idx_t etharp_cached_entry;
@@ -231,6 +234,41 @@ etharp_tmr(void)
     }
   }
 }
+
+#if CONFIG_WIFI6_CODE_STACK
+/**
+ * send arp reply when set interval.
+ */
+int cusarpsum = 0;
+void
+etharp_reply(void)
+{
+  int i;
+  int mark = 0;
+  struct netif *netif;
+  NETIF_FOREACH(netif) {
+    struct dhcp *dhcp = netif_dhcp_data(netif);
+    if (dhcp != NULL) {
+	  for (i = 0; i < ARP_TABLE_SIZE; ++i) {
+    	u8_t state = arp_table[i].state;
+   		if (state != ETHARP_STATE_EMPTY && ip4_addr_cmp(ip_2_ip4(&dhcp->server_ip_addr), &arp_table[i].ipaddr)) {
+		  etharp_raw(arp_table[i].netif,
+					 (struct eth_addr *)arp_table[i].netif->hwaddr, &arp_table[i].ethaddr,
+					 (struct eth_addr *)arp_table[i].netif->hwaddr, netif_ip4_addr(arp_table[i].netif),
+					 &arp_table[i].ethaddr, &arp_table[i].ipaddr,
+					 ARP_REPLY);
+		  mark = 1;
+	  	}
+	  }
+	  if(mark == 0) {
+		LWIP_DEBUGF(ETHARP_DEBUG, ("mark null, send request\n"));	
+		etharp_request(netif, ip_2_ip4(&dhcp->server_ip_addr));
+		cusarpsum = 1;
+   	  }
+    }
+  }
+}
+#endif
 
 /**
  * Search the ARP table for a matching or new entry.
@@ -725,6 +763,15 @@ etharp_input(struct pbuf *p, struct netif *netif)
     case PP_HTONS(ARP_REPLY):
       /* ARP reply. We already updated the ARP cache earlier. */
       LWIP_DEBUGF(ETHARP_DEBUG | LWIP_DBG_TRACE, ("etharp_input: incoming ARP reply\n"));
+
+#if CONFIG_WIFI6_CODE_STACK
+	  if(cusarpsum == 1) {
+		etharp_reply();
+		cusarpsum = 0;
+	    LWIP_DEBUGF(ETHARP_DEBUG | LWIP_DBG_TRACE, ("etharp_input: go on reply.\n"));
+  	  }
+#endif
+
 #if (LWIP_DHCP && DHCP_DOES_ARP_CHECK)
       /* DHCP wants to know about ARP replies from any host with an
        * IP address also offered to us by the DHCP server. We do not
@@ -734,9 +781,20 @@ etharp_input(struct pbuf *p, struct netif *netif)
 #endif /* (LWIP_DHCP && DHCP_DOES_ARP_CHECK) */
 
 	 if (ip4_addr_cmp(&sipaddr, netif_ip4_addr(netif))) {
-	 bk_printf("ip conflict!!!\r\n");	 //check for conflict
-	 sta_ip_mode_set(1);
-	 sta_ip_start();
+		 bk_printf("ip conflict!!!\r\n");	 //check for conflict
+#if CONFIG_LWIP_FAST_DHCP
+		 if (rtos_is_oneshot_timer_init(&arp_conflict_tmr) == 0) {
+			 int clk_time = 1000;
+			 rtos_init_oneshot_timer(&arp_conflict_tmr,
+						 clk_time,
+						 (timer_2handler_t)net_restart_dhcp,
+						 NULL,
+						 NULL);
+		 }
+		 if (rtos_is_oneshot_timer_running(&arp_conflict_tmr) == 0) {
+		     rtos_start_oneshot_timer(&arp_conflict_tmr);
+		 }
+#endif
 	 }
 
       break;

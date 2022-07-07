@@ -19,6 +19,10 @@ extern int net_get_if_macaddr(void *macaddr, void *intrfc_handle);
 extern int net_get_if_addr(struct wlan_ip_config *addr, void *intrfc_handle);
 extern void ip_address_set(int iface, int dhcp, char *ip, char *mask, char*gw, char*dns);
 extern void sta_ip_mode_set(int dhcp);
+extern void	net_begin_send_arp_reply(void);
+#if CONFIG_LWIP_FAST_DHCP
+extern void net_restart_dhcp(void);
+#endif
 
 #ifdef __cplusplus
 }

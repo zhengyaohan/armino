@@ -24,6 +24,7 @@ extern "C" {
 #endif
 
 #define WDT_LL_REG_BASE(_wdt_unit_id)    (SOC_AON_WDT_REG_BASE)
+static uint64_t wdt_exit_tick = 0;
 
 static inline void wdt_ll_reset_config_to_default(wdt_hw_t *hw)
 {
@@ -48,15 +49,22 @@ static inline void wdt_ll_set_2nd_key(wdt_hw_t *hw)
 
 static inline void wdt_ll_set_period(wdt_hw_t *hw, uint32_t period)
 {
+	extern u64 riscv_get_mtimer(void);
+
+	/*    NOTE: Wdt set two period need 3~4 clock(32K) interval.
+	      In case of accidental set period fail, add 125us delay below for protection. */
+	uint64_t tick_cnt = 125 * 26;	//125us
+	while((riscv_get_mtimer() - wdt_exit_tick) < tick_cnt)
+	{
+		;
+	}
+
 	uint32_t ctrl_val = (period & WDT_F_PERIOD_M) | (WDT_V_KEY_1ST << WDT_F_KEY_S);
 	REG_WRITE(WDT_R_CTRL, ctrl_val);
 
-	//TODO optimize delay API
-	extern void delay(int num);
-	delay(30);
-
 	ctrl_val = (period & WDT_F_PERIOD_M) | (WDT_V_KEY_2ND << WDT_F_KEY_S);
 	REG_WRITE(WDT_R_CTRL, ctrl_val);
+	wdt_exit_tick = riscv_get_mtimer();
 }
 
 #ifdef __cplusplus

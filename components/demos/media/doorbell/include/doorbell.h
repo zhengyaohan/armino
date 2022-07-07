@@ -8,6 +8,12 @@ typedef enum {
 	LCD_DISPLAY_BLEND_OPEN = 3,  /**< define Video transfer lcd display */
 }video_transfer_cmd_t;
 
+/** define audio transfer cmd */
+typedef enum {
+	AUDIO_TRANSFER_CLOSE = 0,
+	AUDIO_TRANSFER_OPEN = 1,
+}audio_transfer_cmd_t;
+
 typedef struct {
 	UINT8 id;
 	UINT8 is_eof;

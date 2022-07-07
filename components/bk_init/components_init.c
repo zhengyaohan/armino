@@ -48,6 +48,10 @@
 
 #include "mb_ipc_cmd.h"
 
+#if (CONFIG_PSRAM)
+#include <driver/psram.h>
+#endif
+
 #define TAG "init"
 
 //TODO move to better place
@@ -248,6 +252,9 @@ int components_init(void)
     random_init();
 #if (!CONFIG_SLAVE_CORE)
 	wdt_init();
+#if (CONFIG_PSRAM_AS_SYS_MEMORY)
+	bk_psram_init(0x00054043);
+#endif
 #endif
 	ipc_init();
 

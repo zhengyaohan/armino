@@ -133,7 +133,7 @@
 #elif (CONFIG_DUAL_CORE)
 #define configTOTAL_HEAP_SIZE                       ( ( size_t ) ( 160 * 1024 ) )
 #else
-#define configTOTAL_HEAP_SIZE                       ( ( size_t ) ( 220 * 1024 ) )
+#define configTOTAL_HEAP_SIZE                       ( ( size_t ) ( 160 * 1024 ) )
 #endif
 /* Queue & Semaphore & Mutex */
 #define configQUEUE_REGISTRY_SIZE                   0

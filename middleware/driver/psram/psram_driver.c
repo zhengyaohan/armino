@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <driver/dma.h>
 #include <driver/int.h>
 #include <os/mem.h>
 #include "clock_driver.h"
@@ -26,8 +25,24 @@ extern int delay(INT32 num);
 #define set_FLASH_Reg0x7_mode_sel(val)                          addFLASH_Reg0x7 = ((addFLASH_Reg0x7 & (~0x1F0)) | ((val) << 4))
 #define get_FLASH_Reg0x7_mode_sel                               ((addFLASH_Reg0x7 & 0x1F0) >> 4)
 
+#define BK_ERR_PSRAM_DRIVER_NOT_INIT       (BK_ERR_PSRAM_BASE - 1) /**< psram driver not init */
+#define BK_ERR_PSRAM_SERVER_NOT_INIT       (BK_ERR_PSRAM_BASE - 2) /**< psram server not init */
+
 
 static bool s_psram_driver_is_init = false;
+static bool s_psram_server_is_init = false;
+
+#define PSRAM_RETURN_ON_DRIVER_NOT_INIT() do {\
+        if (!s_psram_driver_is_init) {\
+            return BK_ERR_PSRAM_DRIVER_NOT_INIT;\
+        }\
+    } while(0)
+
+#define PSRAM_RETURN_ON_SERVER_NOT_INIT() do {\
+				if (!s_psram_server_is_init) {\
+					return BK_ERR_PSRAM_SERVER_NOT_INIT;\
+				}\
+			} while(0)
 
 static void psram_init_common(void)
 {
@@ -57,6 +72,7 @@ bk_err_t bk_psram_driver_init(void)
 {
 	if (s_psram_driver_is_init)
 		return BK_OK;
+
 	//sys_drv_psram_dpll_enable(1);//bit12=1
 	//sys_drv_psram_dco_enable(1);//bit8=1
 	sys_drv_psram_xtall_osc_enable(1);//bit7=1
@@ -77,12 +93,19 @@ bk_err_t bk_psram_driver_deinit(void)
 	//sys_drv_psram_xtall_osc_enable(0);//bit7=1
 	sys_drv_psram_volstage_sel(0);//bit5=0/1:1:1.8v
 	s_psram_driver_is_init = false;
+	s_psram_server_is_init = false;
 
 	return BK_OK;
 }
 
 bk_err_t bk_psram_init(uint32_t mode)
 {
+	PSRAM_RETURN_ON_DRIVER_NOT_INIT();
+
+	if (s_psram_server_is_init) {
+		return BK_OK;
+	}
+
 	uint32_t val = 0;
 
 	psram_init_common();
@@ -109,15 +132,23 @@ bk_err_t bk_psram_init(uint32_t mode)
 	val = (val & ~(0x7 << 13)) | (0x6 << 13);//write latency 110 166Mhz
 
 	psram_hal_cmd_write(0x00000004, val);
+	s_psram_server_is_init = true;
 	delay(1000);
 	return BK_OK;
 }
 
 bk_err_t bk_psram_deinit(void)
 {
+	PSRAM_RETURN_ON_DRIVER_NOT_INIT();
+
+	if (!s_psram_server_is_init) {
+		return BK_OK;
+	}
+
 	sys_drv_dev_clk_pwr_up(CLK_PWR_ID_PSRAM, CLK_PWR_CTRL_PWR_DOWN);//psram_clk_disable
 	delay(1000);
 	sys_drv_psram_ldo_enable(0); // 断电
+	s_psram_server_is_init = false;
 	return BK_OK;
 }
 

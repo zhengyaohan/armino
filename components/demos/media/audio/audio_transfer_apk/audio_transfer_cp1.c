@@ -33,6 +33,9 @@
 #define  AUD_DEBUG  0
 #define  AUDIO_AEC_DUMP_DEBUG  0
 
+#define MAILBOX_CHECK_CONTROL_CP1    0
+
+
 #if AUDIO_AEC_DUMP_DEBUG
 #define PSRAM_AUDIO_AEC_SIN_DUMP_DEBUG_BASE      PSRAM_AUD_DECD_RING_BUFF_BASE + 1500
 #define PSRAM_AUDIO_AEC_REF_DUMP_DEBUG_BASE      PSRAM_AUDIO_AEC_SIN_DUMP_DEBUG_BASE + 600
@@ -79,10 +82,11 @@ static uint32_t* read_buffer = NULL;    //save data read from CPU1
 static uint32_t read_buffer_size = 0;
 static uint32_t* write_buffer = NULL;    //save data write to CPU1
 static uint32_t write_buffer_size = 0;
+#if MAILBOX_CHECK_CONTROL_CP1
 static bool audio_cp1_mailbox_busy_status = false;
+#endif
 
 extern void delay(int num);
-
 
 static bk_err_t audio_send_msg(audio_cp1_msg_t msg)
 {
@@ -104,6 +108,7 @@ static bk_err_t audio_cp1_send_aud_mailbox_msg(audio_mailbox_msg_t *msg)
 {
 	bk_err_t ret = BK_OK;
 
+#if MAILBOX_CHECK_CONTROL_CP1
 	/* wait send audio_mailbox_msg complete */
 	while(audio_cp1_mailbox_busy_status)
 		;
@@ -113,6 +118,9 @@ static bk_err_t audio_cp1_send_aud_mailbox_msg(audio_mailbox_msg_t *msg)
 	ret = aud_mailbox_send_msg(msg);
 	if (ret != BK_OK)
 		audio_cp1_mailbox_busy_status = false;
+#else
+	ret = aud_mailbox_send_msg(msg);
+#endif
 
 	return ret;
 }
@@ -216,7 +224,9 @@ static void audio_cp1_mailbox_tx_cmpl_isr(aud_mb_t *aud_mb, mb_chnl_ack_t *cmd_b
 {
 	//os_printf("enter cp1_mailbox_tx_cmpl_isr \r\n");
 	/* clear audio mailbox busy status */
+#if MAILBOX_CHECK_CONTROL_CP1
 	audio_cp1_mailbox_busy_status = false;
+#endif
 }
 
 static bk_err_t audio_adc_config(audio_sample_rate_t samp_rate)
@@ -360,7 +370,7 @@ static void audio_aec_config(audio_sample_rate_t samp_rate)
 
 	/* 回声消除相关 */
 	aec_ctrl(aec, AEC_CTRL_CMD_SET_MIC_DELAY, 272);							  //设置参考信号延迟(采样点数，需要dump数据观察)
-	aec_ctrl(aec, AEC_CTRL_CMD_SET_EC_DEPTH, 60);							  //建议取值范围1~50; 后面几个参数建议先用aec_init内的默认值，具体需要根据实际情况调试; 总得来说回声越大需要调的越大
+	aec_ctrl(aec, AEC_CTRL_CMD_SET_EC_DEPTH, 0);							  //建议取值范围1~50; 后面几个参数建议先用aec_init内的默认值，具体需要根据实际情况调试; 总得来说回声越大需要调的越大
 	aec_ctrl(aec, AEC_CTRL_CMD_SET_TxRxThr, 60);							  //建议取值范围10~64
 	aec_ctrl(aec, AEC_CTRL_CMD_SET_TxRxFlr, 40);							  //建议取值范围1~10
 	aec_ctrl(aec, AEC_CTRL_CMD_SET_REF_SCALE, 0);							  //取值0,1,2；rx数据如果幅值太小的话适当放大
@@ -1196,10 +1206,9 @@ audio_transfer_exit:
 	os_printf("cp1: delate message queue complete \r\n");
 
 	/* delate task */
-	rtos_delete_thread(NULL);
 	audio_thread_hdl = NULL;
+	rtos_delete_thread(NULL);
 	os_printf("cp1: delate task \r\n");
-
 }
 
 audio_setup_t audio_transfer_setup_bak = {0};

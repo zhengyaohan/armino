@@ -2,6 +2,7 @@
 
 //legacy
 ble_err_t bk_ble_init(void);
+ble_err_t bk_ble_deinit(void);
 uint8_t bk_ble_find_actv_state_idx_handle(uint8_t state);
 uint8_t bk_ble_find_master_state_idx_handle(uint8_t state);
 

@@ -44,7 +44,7 @@ static int32_t *speaker_ring_buff = NULL;     //存放audio dac要播放的pcm�
 static int32_t *temp_speaker_addr = NULL;     //存放从speaker_ring_buff中取的pcm信号
 
 
-dma_id_t dac_dma_id = DMA_ID_MAX;
+static dma_id_t dac_dma_id = DMA_ID_MAX;
 static RingBufferContext speaker_rb;
 
 extern void delay(int num);

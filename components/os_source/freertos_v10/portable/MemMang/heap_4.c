@@ -194,7 +194,7 @@ application.  When the bit is free the block is still part of the free heap
 space. */
 static size_t xBlockAllocatedBit = 0;
 
-#if (CONFIG_SOC_BK7251)
+#if (CONFIG_PSRAM_AS_SYS_MEMORY)
 uint8_t *psram_ucHeap;
 /* Create a couple of list links to mark the start and end of the list. */
 static BlockLink_t psram_xStart, *psram_pxEnd = NULL;
@@ -204,8 +204,20 @@ fragmentation. */
 static size_t psram_xFreeBytesRemaining = 0U;
 static size_t psram_xMinimumEverFreeBytesRemaining = 0U;
 
+#if (CONFIG_SOC_BK7251)
 #define PSRAM_START_ADDRESS    (void*)(0x00900000)
 #define PSRAM_END_ADDRESS      (void*)(0x00900000 + 256 * 1024)
+#endif
+
+#if (CONFIG_SOC_BK7256)
+#if (CONFIG_SLAVE_CORE)
+#define PSRAM_START_ADDRESS    (void*)(0x607CA000)
+#define PSRAM_END_ADDRESS      (void*)(0x60800000)   //192KB
+#else
+#define PSRAM_START_ADDRESS    (void*)(0x60700000)
+#define PSRAM_END_ADDRESS      (void*)(0x607CA000)   //808KB
+#endif
+#endif
 
 /*-----------------------------------------------------------*/
 
@@ -381,6 +393,11 @@ void *pvReturn = NULL;
 					by the application and has no "next" block. */
 					pxBlock->xBlockSize |= xBlockAllocatedBit;
 					pxBlock->pxNextFreeBlock = NULL;
+
+#if CONFIG_MEM_DEBUG
+					list_add_tail(&pxBlock->node, &xUsed);
+#endif
+
 				}
 				else
 				{
@@ -425,18 +442,42 @@ void *psram_malloc( size_t xWantedSize )
 #endif
 {
 	void *pvReturn = NULL;
+#if CONFIG_MEM_DEBUG
+	uint8_t *mem_end;
+#endif
 
 	if (xWantedSize == 0)
 		xWantedSize = 4;
 
 	vTaskSuspendAll();
-	pvReturn = psram_malloc_without_lock(xWantedSize);
+	pvReturn = psram_malloc_without_lock(xWantedSize  + MEM_CHECK_TAG_LEN);
 	#if CONFIG_MALLOC_STATIS || CONFIG_MEM_DEBUG
+	if(pvReturn)
 	{
-	if(pvReturn && call_func_name) {
-	BlockLink_t *pxLink = (BlockLink_t *)((u8*)pvReturn - xHeapStructSize);
-	BK_LOGI(TAG, "m:%p,%d|%s,%d\r\n", pxLink, (pxLink->xBlockSize & ~xBlockAllocatedBit), call_func_name, line);
-	}
+		BlockLink_t *pxLink = (BlockLink_t *)((u8*)pvReturn - xHeapStructSize);
+		if(pvReturn && call_func_name) {
+#if CONFIG_MALLOC_STATIS
+			BK_LOGI(TAG, "m:%p,%d|%s,%d\r\n", pxLink, (pxLink->xBlockSize & ~xBlockAllocatedBit), call_func_name, line);
+#endif
+		}
+#if CONFIG_MEM_DEBUG
+		pxLink->allocTime = xTaskGetTickCount();
+#if CONFIG_MEM_DEBUG_FUNC_NAME
+		os_strlcpy(pxLink->funcName, call_func_name, sizeof(pxLink->funcName) - 1);
+#endif
+#if CONFIG_MEM_DEBUG_TASK_NAME
+		//malloc can only be called in Task context!
+		if (rtos_is_scheduler_started())
+			os_strlcpy(pxLink->taskName, pcTaskGetName(NULL), sizeof(pxLink->taskName) - 1);
+		else
+			os_strlcpy(pxLink->taskName, "NA", sizeof(pxLink->taskName) - 1);
+#endif
+		pxLink->line = line;
+		pxLink->wantedSize = xWantedSize;
+
+		mem_end = (uint8_t *)pxLink + (pxLink->xBlockSize & ~xBlockAllocatedBit) - MEM_CHECK_TAG_LEN;
+ 		os_memset(mem_end, MEM_OVERFLOW_TAG, MEM_CHECK_TAG_LEN);
+#endif
 	}
 	#endif
 	( void ) xTaskResumeAll();
@@ -444,6 +485,7 @@ void *psram_malloc( size_t xWantedSize )
 	#if CONFIG_MALLOC_STATIS || CONFIG_MEM_DEBUG
 	if(pvReturn && need_zero)
 		os_memset(pvReturn, 0, xWantedSize);
+	
 	#endif
 	return pvReturn;
 }
@@ -830,8 +872,8 @@ void vPortFree( void *pv )
 #endif
 				pxLink->line = 0;
 #endif
-#if (CONFIG_SOC_BK7251)
-				if (puc > psram_ucHeap)
+#if (CONFIG_PSRAM_AS_SYS_MEMORY)
+				if (puc >= psram_ucHeap)
                 {
                     /* Add this block to the list of psram free blocks. */
                     psram_xFreeBytesRemaining += pxLink->xBlockSize;
@@ -919,7 +961,7 @@ void xPortDumpMemStats(uint32_t start_tick, uint32_t ticks_since_malloc, const c
 
 size_t xPortGetFreeHeapSize( void )
 {
-#if (CONFIG_SOC_BK7251)
+#if (CONFIG_PSRAM_AS_SYS_MEMORY)
     return xFreeBytesRemaining + psram_xFreeBytesRemaining;
 #else
 	return xFreeBytesRemaining;
@@ -929,7 +971,7 @@ size_t xPortGetFreeHeapSize( void )
 
 size_t xPortGetMinimumEverFreeHeapSize( void )
 {
-#if (CONFIG_SOC_BK7251)
+#if (CONFIG_PSRAM_AS_SYS_MEMORY)
     return xMinimumEverFreeBytesRemaining + psram_xMinimumEverFreeBytesRemaining;
 #else
 	return xMinimumEverFreeBytesRemaining;
@@ -1054,11 +1096,12 @@ static void prvHeapInit( void )
 	xMinimumEverFreeBytesRemaining = pxFirstFreeBlock->xBlockSize;
 	xFreeBytesRemaining = pxFirstFreeBlock->xBlockSize;
 
-#if (CONFIG_SOC_BK7251)
+#if (CONFIG_PSRAM_AS_SYS_MEMORY)
     xTotalHeapSize = PSRAM_END_ADDRESS - PSRAM_START_ADDRESS;
     psram_ucHeap = PSRAM_START_ADDRESS;
 
     BK_LOGI(TAG, "prvHeapInit-psram start addr:0x%x, size:%d\r\n", psram_ucHeap, xTotalHeapSize);
+
 
     /* Ensure the heap starts on a correctly aligned boundary. */
     uxAddress = ( size_t ) psram_ucHeap;
@@ -1175,7 +1218,7 @@ void *pvPortRealloc( void *pv, size_t xWantedSize )
 	void *pvReturn = NULL;
 	BlockLink_t *pxIterator, *pxPreviousBlock, *tmp;
 
-#if (CONFIG_SOC_BK7251)
+#if (CONFIG_PSRAM_AS_SYS_MEMORY)
     if (puc > psram_ucHeap)
     {
         return psram_realloc(pv, xWantedSize);
@@ -1284,7 +1327,7 @@ void pvShowMemoryConfigInfo(void)
 	BK_LOGI(TAG, "%-8s 0x%-6x 0x%-6x %-8d\r\n", "data", DATA_START_ADDRESS, DATA_END_ADDRESS, (DATA_END_ADDRESS - DATA_START_ADDRESS));
 	BK_LOGI(TAG, "%-8s 0x%-6x 0x%-6x %-8d\r\n", "bss", BSS_START_ADDRESS, BSS_END_ADDRESS, (BSS_END_ADDRESS - BSS_START_ADDRESS));
 	BK_LOGI(TAG, "%-8s 0x%-6x 0x%-6x %-8d\r\n", "heap", HEAP_START_ADDRESS, HEAP_END_ADDRESS, (HEAP_END_ADDRESS - HEAP_START_ADDRESS));
-#if (CONFIG_SOC_BK7251)
+#if (CONFIG_PSRAM_AS_SYS_MEMORY)
 	BK_LOGI(TAG, "%-8s 0x%-6x 0x%-6x %-8d\r\n", "psram", PSRAM_START_ADDRESS, PSRAM_END_ADDRESS, (PSRAM_END_ADDRESS - PSRAM_END_ADDRESS));
 #endif
 #endif

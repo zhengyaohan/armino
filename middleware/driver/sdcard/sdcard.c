@@ -141,13 +141,16 @@ static bool sdcard_check_inserted(void)
 #endif
 	gpio_config.io_mode = GPIO_INPUT_ENABLE;
 	gpio_config.pull_mode = GPIO_PULL_UP_EN;
+	gpio_config.func_mode = GPIO_SECOND_FUNC_DISABLE;
 	bk_gpio_set_config(sd_data0, &gpio_config);
+	delay_us(125);	//confirm the gpio switch to input mode finish.
 	while (!bk_gpio_get_input(sd_data0))
 	{
 		i++;
-		if(i > 800000)	//240M CPU clock, 60M * 4wire flash:i++ is 125ns,total is about ~~10ms
+		if(i > 80000)	//240M CPU clock, 60M * 4wire flash:i++ is 125ns,total is about ~~10ms
 		{
 			os_printf("sdcard isn't insert\r\n");
+			os_printf("WARNIG:HW will change detect pin, do not forget to modify code\r\n");
 			is_inserted = false;
 			break;
 		}
@@ -162,6 +165,12 @@ static bool sdcard_check_inserted(void)
 	gpio_config.pull_mode = GPIO_PULL_UP_EN;
 	gpio_config.func_mode = GPIO_SECOND_FUNC_ENABLE;
 	bk_gpio_set_config(sd_data0, &gpio_config);
+#endif
+
+//WARNING:temp workaround for HW card insert detect PIN is error.
+//HW PIN6 can't detect voltage switch if card plug-in/out.
+#if CONFIG_SOC_BK7256XX
+	is_inserted = true;
 #endif
 
 	return is_inserted;

@@ -344,6 +344,10 @@ menu "Driver"
 			config PSRAM
 				bool "Enable PSRAM"
 				default n
+			config PSRAM_AS_SYS_MEMORY
+				depends on PSRAM
+				bool "Use partion of psram as system memory"
+				default n
 	endmenu
 	
 	menu "CALENDAR"

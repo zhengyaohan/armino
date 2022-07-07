@@ -237,6 +237,87 @@ typedef enum
 	PM_CPU_FRQ_320M      // 3:CPU:320M,BUS:160M
 }pm_cpu_freq_e;
 
+typedef int (*pm_cb)(uint64_t sleep_time, void *args);
+typedef struct {
+    pm_cb cb;
+    void *args;
+} pm_cb_conf_t;
+/**
+ * @brief get the state of phy calibration
+ *
+ * get the state of phy calibration
+ *
+ * @attention
+ * - This API is used to get the state of phy calibration
+ *
+ * @param
+ * -void
+ * @return
+ *  - the state of phy calibration(0x1:have calibration;0x0:not calibration)
+ */
+uint32_t pm_phy_cali_state_get();
+/**
+ * @brief get the consume time from lowvol wakeup
+ *
+ * the consume time from lowvol wakeup
+ *
+ * @attention
+ * - This API is used to get the consume time from lowvol wakeup
+ *
+ * @param
+ * -void
+ * @return
+ *  - the consume time of wakeup from lowvol
+ */
+uint32_t pm_wakeup_from_lowvol_consume_time_get();
+
+/**
+ * @brief register light sleep config
+ *
+ * register light sleep config(include callback function and parameter)
+ *
+ * @attention
+ * - This API is used to register light sleep config
+ *
+ * @param
+ * -enter_config:enter light sleep config
+ * -exit_config:exit light sleep config
+ * @return
+ *  - BK_OK: succeed
+ *  - others: other errors.
+ */
+bk_err_t pm_light_sleep_register_cb(pm_cb_conf_t *enter_config, pm_cb_conf_t *exit_config);
+/**
+ * @brief unregister light sleep callback
+ *
+ * unregister light sleep callback(enter light sleep callback and exit light sleep callback)
+ *
+ * @attention
+ * - This API is used to unregister light sleep callback
+ *
+ * @param
+ * -enter_cb:enter light sleep callback
+ * -exit_cb:exit light sleep callback
+ * @return
+ *  - BK_OK: succeed
+ *  - others: other errors.
+ */
+bk_err_t pm_light_sleep_unregister_cb(bool enter_cb, bool exit_cb);
+/**
+ * @brief get power domain of module state
+ *
+ * get the power domain state
+ *
+ * @attention
+ * - This API is used to get the power domain state
+ *
+ * @param
+ * -module:module name
+ * @return
+ *  -the state of power domain state
+ *
+ */
+int32 pm_module_power_state_get(pm_power_module_name_e module);
 /**
  * @brief vote cpu frequency
  *

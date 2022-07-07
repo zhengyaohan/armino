@@ -3,6 +3,7 @@
 #include <driver/dma.h>
 #include <driver/jpeg_enc.h>
 #include <driver/i2c.h>
+#include <driver/timer.h>
 #include <components/video_transfer.h>
 #include <components/dvp_camera.h>
 #include "video_transfer_log.h"
@@ -280,6 +281,11 @@ static int video_buff_read_image(void)
 }
 #endif
 
+static void pkt_calc_log_timer_isr(timer_id_t chan)
+{
+	bk_video_transfer_pkt_calc_enable(1);
+}
+
 void image_save_dvp(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 	bk_err_t err;
@@ -357,6 +363,9 @@ void image_save_dvp(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **a
 			}
 		}
 
+		f_close(&fp1);
+		return;
+
 error1:
 		fr = f_close(&fp1);
 		if (fr != FR_OK) {
@@ -390,7 +399,15 @@ error1:
 		bk_video_transfer_image_save_enable(enable);
 	} else if (os_strcmp(argv[1], "pkt_calc") == 0) {
 		uint8_t enable = os_strtoul(argv[2], NULL, 10);
-		bk_video_transfer_pkt_calc_enable(enable);
+		if (enable) {
+			int ret = 0;
+			ret = bk_timer_start(TIMER_ID0, 1000, pkt_calc_log_timer_isr);
+			if (ret != BK_OK) {
+				os_printf("Timer start failed\r\n");
+			}
+		} else {
+			bk_timer_stop(TIMER_ID0);
+		}
 	} else if (os_strcmp(argv[1], "pkt_reset") == 0) {
 		uint8_t enable = os_strtoul(argv[2], NULL, 10);
 		bk_video_transfer_pkt_reset_enable(enable);

@@ -773,4 +773,9 @@ int net_wlan_remove_netif(uint8_t *mac)
 	LWIP_LOGI("remove vif%d\n", vifid);
 	return ERR_OK;
 }
-
+#if CONFIG_WIFI6_CODE_STACK
+void net_begin_send_arp_reply(void)
+{
+	etharp_reply();
+}
+#endif

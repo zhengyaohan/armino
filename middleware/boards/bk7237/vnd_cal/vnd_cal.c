@@ -1,17 +1,17 @@
 #include "vnd_cal.h"
 
 
-#define DEFAULT_TXID_XTAL           (0x10)
-#define CMTAG_FROM_FLASH         1
-#define CMTAG_FROM_CALI          0
-#define PWR_GAIN_BASE_BLE           (0x40691000)
+#define DEFAULT_TXID_XTAL               (0x10)
+#define CMTAG_FROM_FLASH                1
+#define CMTAG_FROM_CALI                 0
+#define PWR_GAIN_BASE_BLE               (0x40695000)
 
-#define TXPWR_ELEM_INUSED                 (0)
-#define TXPWR_ELEM_UNUSED                 (1)
-#define WLAN_2_4_G_CHANNEL_NUM            (14)
-#define BLE_2_4_G_CHANNEL_NUM             (40)
+#define TXPWR_ELEM_INUSED               (0)
+#define TXPWR_ELEM_UNUSED               (1)
+#define WLAN_2_4_G_CHANNEL_NUM          (14)
+#define BLE_2_4_G_CHANNEL_NUM           (40)
 
-#define TMP_PWR_TAB_LEN                   39
+#define TMP_PWR_TAB_LEN                 39
 
 #define FLAG_MASK                       (0x1u)
 #define FLAG_POSI                       (7)

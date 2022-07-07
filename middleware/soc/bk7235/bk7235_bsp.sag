@@ -7,6 +7,7 @@ USER_SECTIONS	.swap_data
 USER_SECTIONS	.itcm
 USER_SECTIONS	.interrupt.text
 USER_SECTIONS	.interrupt.HalTrapVector.text.HalTrapVector
+USER_SECTIONS	.video_spec_data
 
 CPU0_LOAD1 0x00010000 0x8800
 {
@@ -90,12 +91,18 @@ CPU0_LOAD2 0x00018800  0x217800
 		ADDR _dtcm_bss_end
 	}
 
-	SRAM 0x30000000 0x80000
+	SRAM1 0x30000000 0x10000
 	{
 		LOADADDR NEXT _bt_data_lmastart
 		ADDR NEXT   _bt_data_start
 		* KEEP (.bt_spec_data)
 		LOADADDR _bt_data_end
+	}
+
+	SRAM2 0x30010000 0x70000
+	{
+		ADDR NEXT   _vedio_start
+		* KEEP (.video_spec_data)
 
 		LOADADDR NEXT _data_lmastart
 		ADDR NEXT _data_start

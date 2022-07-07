@@ -23,7 +23,6 @@
 #include "video_transfer_save.h"
 
 
-
 #define DBD_TAG       "doorbell"
 
 
@@ -39,7 +38,7 @@
 #endif
 
 #define AUDIO_TRANSFER_ENABLE           1
-
+#define AUDIO_TRANSFER_CPU0_MODE             0       //0: default cpu1 mode, 1: cpu0 mode
 
 #define APP_DEMO_UDP_RCV_BUF_LEN        1472
 #define APP_DEMO_UDP_SOCKET_TIMEOUT     100  // ms
@@ -56,27 +55,37 @@ volatile int demo_doorbell_udp_run = 0;
 beken_thread_t demo_doorbell_udp_hdl = NULL;
 struct sockaddr_in *demo_doorbell_remote = NULL;
 int demo_doorbell_udp_voice_romote_connected = 0;
-//static uint32_t apk_rx_error_count = 0;
 
 struct sockaddr_in *demo_doorbell_voice_udp_remote = NULL;
 
 int demo_doorbell_udp_voice_fd = -1;
 
-#if AUDIO_TRANSFER_ENABLE
 /* audio used */
+#if AUDIO_TRANSFER_ENABLE
 static bool audio_transfer_work_status = false;
 static bool audio_transfer_start_status = false;
+static bool audio_apk_status = false;    //false: apk open audio  true: apk close audio
+#if AUDIO_TRANSFER_CPU0_MODE
+static uint32_t write_aud_data_err_count = 0;
+
+#else
 static uint8_t *temp_read_buffer = NULL;
 static uint8_t *temp_write_buffer = NULL;
 static uint8_t *audio_rx_ring_buffer = NULL;    //save data received from apk
 static RingBufferContext audio_rx_rb;
 bool temp_write_buffer_status = false;
-#endif
+static uint16_t audio_rx_seq = 0;    //save current audio data sequence number received from apk
+static bool audio_apk_rx_status = false;    //save audio rx status
+static uint32_t audio_rx_lost_count = 0;    //save lost audio data count recevied from apk
+static uint32_t aud_rx_mode = 0;    //1: audio rx data not include sequence and time stamp  0: aduio rx data
+#endif  //AUDIO_TRANSFER_CPU0_MODE
+
+#endif  //AUDIO_TRANSFER_ENABLE
 
 
 bool video_transfer_use_cpu1 = false;
 
-bool g_audio_disable = false;
+extern void delay(int num);
 
 int demo_doorbell_udp_send_packet(uint8_t *data, uint32_t len)
 {
@@ -120,6 +129,62 @@ int demo_doorbell_udp_voice_send_packet(UINT8 *data, UINT32 len)
 
 
 #if AUDIO_TRANSFER_ENABLE
+
+#if AUDIO_TRANSFER_CPU0_MODE
+void cp0_audio_transfer_init_callback(void)
+{
+	/* set status */
+	audio_transfer_work_status = true;
+	DBD("init and start audio transfer complete \r\n");
+}
+
+static void cp0_audio_transfer_init(void)
+{
+	bk_err_t ret = BK_OK;
+
+/*
+	audio_rx_ring_buffer = (uint8_t *)os_malloc(WRITE_SIZE*2);
+	if (audio_rx_ring_buffer == NULL) {
+		DBD("malloc audio_rx_ring_buffer fail \r\n");
+		return;
+	}
+	DBD("malloc audio_rx_ring_buffer:%p complete \r\n", audio_rx_ring_buffer);
+
+	ring_buffer_init(&audio_rx_rb, audio_rx_ring_buffer, WRITE_SIZE*2, DMA_ID_MAX, RB_DMA_TYPE_NULL);
+	DBD("init audio rx ring buffer complete \r\n");
+*/
+	/* register callbacks */
+	bk_audio_register_rw_cb(demo_doorbell_udp_voice_send_packet, cp0_audio_transfer_init_callback);
+	DBD("register callbacks complete \r\n");
+
+	/* init audio cpu0 transfer task */
+	audio_setup_t config;
+	config.samp_rate = AUDIO_SAMP_RATE_8K;
+	/* init audio transfer task */
+	ret = bk_audio_transfer_init(&config);
+	if (ret != BK_OK) {
+		os_printf("init audio transfer task fail \r\n");
+	}
+
+	DBD("init audio transfer driver complete \r\n");
+}
+
+static void cp0_audio_transfer_deinit(void)
+{
+	bk_err_t ret = BK_OK;
+
+	ret = bk_audio_transfer_deinit();
+	if (ret != BK_OK) {
+		DBD("cp0: audio transfer deinit fail \r\n");
+	}
+
+	/* clear audio transfer status */
+	audio_transfer_work_status = false;
+	audio_transfer_start_status = false;
+
+	DBD("cp0: stop audio_transfer test successful \r\n");
+}
+#else
 static void audio_cp0_read_done_callback(uint8_t *buffer, uint32_t length)
 {
 	uint32 size = 0;
@@ -256,15 +321,11 @@ static void cp0_audio_transfer_init(void)
 	DBD("register callbacks complete \r\n");
 
 	/* init audio cpu0 transfer task */
-	
-	if(!g_audio_disable)
-	{
-		ret = bk_audio_cp0_transfer_init(NULL);
-		if (ret != BK_OK) {
-			return;
-		}
-		DBD("init audio transfer driver complete \r\n");
+	ret = bk_audio_cp0_transfer_init(NULL);
+	if (ret != BK_OK) {
+		return;
 	}
+	DBD("init audio transfer driver complete \r\n");
 }
 
 static void cp0_audio_transfer_deinit(void)
@@ -282,8 +343,14 @@ static void cp0_audio_transfer_deinit(void)
 	ring_buffer_clear(&audio_rx_rb);
 	os_free(audio_rx_ring_buffer);
 
+	/* clear audio transfer status */
+	audio_transfer_work_status = false;
+	audio_transfer_start_status = false;
+
 	DBD("cp0: stop audio_transfer test successful \r\n");
 }
+#endif
+
 #endif
 
 void demo_doorbell_add_pkt_header(video_packet_t *param)
@@ -300,23 +367,60 @@ void demo_doorbell_add_pkt_header(video_packet_t *param)
 #endif
 }
 
+#if AUDIO_TRANSFER_ENABLE
+static void audio_transfer_cmd_handle(UINT32 cmd, UINT32 param)
+{
+	switch(cmd) {
+		case AUDIO_TRANSFER_CLOSE:
+			audio_apk_status = false;
+			if (param == 1)
+				aud_rx_mode = 1;
+			cp0_audio_transfer_deinit();
+			break;
+
+		case AUDIO_TRANSFER_OPEN:
+			audio_apk_status = true;
+#if AUDIO_TRANSFER_CPU0_MODE
+
+#else
+			if (param == 1)
+				aud_rx_mode = 1;
+			DBD("audio transfer init in apk mode \r\n");
+			cp0_audio_transfer_init();
+#endif
+
+		default:
+			break;
+	}
+}
+#endif
+
 static void demo_doorbell_udp_handle_cmd_data(UINT8 *data, UINT16 len)
 {
+	UINT32 param = 0;
 	UINT32 cmd = (UINT32)data[0] << 24 | (UINT32)data[1] << 16 | (UINT32)data[2] << 8 | data[3];
+	if (len >= 8) {
+		param = (UINT32)data[4] << 24 | (UINT32)data[5] << 16 | (UINT32)data[6] << 8 | data[7];
+	}
 
-	DBD("doorbell cmd: %08X, len: %d\n", cmd, len);
+	DBD("doorbell cmd: %08X, param: %d, len: %d\n", cmd, param, len);
 	switch(cmd) {
 	case LCD_DISPLAY_BLEND_OPEN:
 		bk_lcd_video_blending(1);
 		break;
-	
+
 	case LCD_DISPLAY_BLEND_CLOSE:
 		bk_lcd_video_blending(0);;
 		break;
-	
+
 	default:
 		break;
 	}
+
+#if AUDIO_TRANSFER_ENABLE
+	audio_transfer_cmd_handle(cmd, param);
+#endif
+
 }
 
 static void demo_doorbell_udp_app_connected(void)
@@ -413,15 +517,18 @@ static void demo_doorbell_udp_voice_receiver(UINT8 *data, UINT32 len, struct soc
 {
 	//DBD("demo_doorbell_udp_voice_receiver, data len=%d \r\n", len);
 #if AUDIO_TRANSFER_ENABLE
-	uint32_t size = 0;
+
+#if AUDIO_TRANSFER_CPU0_MODE
+	bk_err_t ret = BK_OK;
 
 	//receive data from apk, send mailbox msg to start audio transfer
-	if (!audio_transfer_work_status) {
+	if (!audio_transfer_work_status && audio_apk_status) {
 		if (!audio_transfer_start_status) {
-			/* send mailbox msg to start audio transfer */
 			audio_transfer_start_status = true;
-			bk_audio_start_transfer();
-			DBD("send mailbox msg to start audio transfer \r\n", len);
+			/* init audio transfer */
+			DBD("audio transfer init in cpu0 mode \r\n");
+			cp0_audio_transfer_init();
+			DBD("init and start audio transfer \r\n");
 		}
 		return;
 	}
@@ -431,15 +538,77 @@ static void demo_doorbell_udp_voice_receiver(UINT8 *data, UINT32 len, struct soc
 
 	//DBD("len: %d \r\n", len);
 
-	//GLOBAL_INT_DECLARATION();
-	size = ring_buffer_get_free_size(&audio_rx_rb);
-	if (size < len) {
-		DBD("the data length received from apk is greater than free ring buffer \r\n");
+	ret = bk_audio_write_data(data, len);
+	if (ret != BK_OK) {
+		write_aud_data_err_count++;
+		if (write_aud_data_err_count == 50) {
+			DBD("write audio data fial 50 times \r\n", len);
+			write_aud_data_err_count = 0;
+		}
+	}
+#else
+	uint32_t size = 0;
+	uint16_t temp_aud_rx_seq = 0;
+	long long temp_aud_time_stamp = 0;
+
+	//receive data from apk, send mailbox msg to start audio transfer
+	if (!audio_transfer_work_status && audio_apk_status) {
+		if (!audio_transfer_start_status) {
+			audio_transfer_start_status = true;
+			/* wait some time to ensure that audio transfer init complete in cpu1 */
+			delay(50000);
+			/* send mailbox msg to start audio transfer */
+			bk_audio_start_transfer();
+			DBD("send mailbox msg to start audio transfer \r\n", len);
+		}
 		return;
 	}
 
-	size = ring_buffer_write(&audio_rx_rb, data, len);
-	if (size != len) {
+	if (aud_rx_mode) {
+		temp_aud_rx_seq = (UINT16)data[0] << 8 | (UINT16)data[1];
+		temp_aud_time_stamp = (long long)data[2] << 56
+								| (long long)data[3] << 48
+								| (long long)data[4] << 40
+								| (long long)data[5] << 32
+								| (long long)data[6] << 24
+								| (long long)data[7] << 16
+								| (long long)data[8] << 8
+								| data[9];
+		//DBD("receive data: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\r\n", data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9]);
+		//DBD("temp_aud_rx_seq:%d, audio_rx_seq:%d \r\n", temp_aud_rx_seq, audio_rx_seq);
+		if (!audio_apk_rx_status) {
+			DBD("audio_rx_seq: %d \r\n", audio_rx_seq);
+			audio_apk_rx_status = true;
+		} else {
+			if (temp_aud_rx_seq != (audio_rx_seq + 1)) {
+				audio_rx_lost_count++;
+				DBD("lost seq:%d temp_aud_time_stamp:0x%x%x \r\n", temp_aud_rx_seq, (UINT32)(temp_aud_time_stamp>>32), (UINT32)(temp_aud_time_stamp & 0xFFFFFFFF));
+				if (audio_rx_lost_count == 20) {
+					DBD("lost apk audio data: 20 frames \r\n");
+					audio_rx_lost_count = 0;
+				}
+			}
+		}
+		audio_rx_seq = temp_aud_rx_seq;
+	}
+
+	if (len > 0)
+		demo_doorbell_udp_voice_romote_connected = 1;
+
+	//DBD("len: %d \r\n", len);
+
+	//GLOBAL_INT_DECLARATION();
+	size = ring_buffer_get_free_size(&audio_rx_rb);
+	if (size < WRITE_SIZE) {
+		DBD("free size of audio_rx_rb is enough, size:%d \r\n", size);
+		return;
+	}
+
+	if (aud_rx_mode)
+		size = ring_buffer_write(&audio_rx_rb, &(data[10]), WRITE_SIZE);
+	else
+		size = ring_buffer_write(&audio_rx_rb, data, WRITE_SIZE);
+	if (size != WRITE_SIZE) {
 		DBD("write ring buffer data fail, size=%d \r\n", size);
 		return;
 	}
@@ -448,14 +617,14 @@ static void demo_doorbell_udp_voice_receiver(UINT8 *data, UINT32 len, struct soc
 	if ((size >= WRITE_SIZE) && (!temp_write_buffer_status)) {
 		size = ring_buffer_read(&audio_rx_rb, temp_write_buffer, WRITE_SIZE);
 		temp_write_buffer_status = true;
-		//DBD("len: %d \r\n", len);
 		if (size != WRITE_SIZE) {
 			DBD("read ring buffer data to temp_write_buffer fail, size=%d \r\n", size);
 			return;
 		}
-
 	}
-#endif
+#endif //AUDIO_TRANSFER_CPU0_MODE
+
+#endif  //AUDIO_TRANSFER_ENABLE
 }
 #endif // DEMO_DOORBELL_EN_VOICE_TRANSFER
 
@@ -549,11 +718,6 @@ static void demo_doorbell_udp_main(beken_thread_arg_t data)
 	timeout.tv_sec = APP_DEMO_UDP_SOCKET_TIMEOUT / 1000;
 	timeout.tv_usec = (APP_DEMO_UDP_SOCKET_TIMEOUT % 1000) * 1000;
 
-#if AUDIO_TRANSFER_ENABLE
-	/* init audio transfer driver */
-	cp0_audio_transfer_init();
-#endif
-
 	GLOBAL_INT_DISABLE();
 	demo_doorbell_udp_romote_connected = 0;
 	demo_doorbell_udp_run = 1;
@@ -636,6 +800,7 @@ app_udp_exit:
 
 #if AUDIO_TRANSFER_ENABLE
 	/* deinit audio transfer driver */
+
 	cp0_audio_transfer_deinit();
 #endif
 
@@ -723,7 +888,6 @@ void cli_doorbell_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, c
 {
 	os_printf("cli_doorbell_test_cmd\r\n");
 	uint8_t enable = os_strtoul(argv[1], NULL, 10);
-	uint8_t dma_cpu1_int_dis_enable = os_strtoul(argv[2], NULL, 10);
 
 	if (enable)
 	{
@@ -732,14 +896,6 @@ void cli_doorbell_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, c
 	else
 	{
 		video_transfer_use_cpu1 = false;
-	}
-	if (dma_cpu1_int_dis_enable)
-	{
-		g_audio_disable = true;
-	}
-	else
-	{
-		g_audio_disable = false;
 	}
 	demo_doorbell_udp_init();
 }

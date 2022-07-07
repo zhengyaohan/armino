@@ -25,7 +25,7 @@
 #include "media_common.h"
 
 
-#define MAILBOX_CHECK_CONTROL   1
+#define MAILBOX_CHECK_CONTROL    0
 
 
 #define TU_QITEM_COUNT      (60)
@@ -440,8 +440,8 @@ audio_transfer_exit:
 	os_printf("cp0: delate message queue complete \r\n");
 
 	/* delate task */
-	rtos_delete_thread(NULL);
 	audio_thread_hdl = NULL;
+	rtos_delete_thread(NULL);
 	os_printf("cp0: delate audio transfer task \r\n");
 }
 
@@ -493,19 +493,7 @@ bk_err_t bk_audio_cp0_transfer_deinit(void)
 		return BK_FAIL;
 	}
 
-	/* wait audio_cp0_transfer_main delate */
-	//while (audio_thread_hdl != NULL);
-
 	os_printf("cp0: task delate complete \r\n");
-	//bk_audio_register_rw_cb(NULL, NULL, NULL, NULL, NULL);
-
-	/* delate msg queue */
-/*	ret = rtos_deinit_queue(aud_int_msg_que);
-	if (ret != kNoErr) {
-		os_printf("cp0: delate message queue fail \r\n");
-		return BK_FAIL;
-	}
-*/
 	return BK_OK;
 }
 

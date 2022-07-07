@@ -44,7 +44,7 @@ static int32_t *mic_ring_buff = NULL;     //存放audio adc采集到的mic信号
 static int32_t *temp_mic_addr = NULL;     //存放从mic_ring_buff中取的mic信号
 
 
-dma_id_t adc_dma_id = DMA_ID_MAX;
+static dma_id_t adc_dma_id = DMA_ID_MAX;
 static RingBufferContext mic_rb;
 
 extern void delay(int num);
