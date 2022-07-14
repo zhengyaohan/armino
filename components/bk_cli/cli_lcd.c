@@ -21,6 +21,7 @@ extern void lcd_rgb_sdcard_test(char *pcWriteBuffer, int xWriteBufferLen, int ar
 extern void lcd_sdcard_read_to_mem_jpeg_dec(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
 
 extern void lcd_device_init_handler(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
+extern void cli_cp0_lcd_rgb_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
 
 #define LCD_CNT (sizeof(s_lcd_commands) / sizeof(struct cli_command))
 static const struct cli_command s_lcd_commands[] = {
@@ -42,6 +43,9 @@ static const struct cli_command s_lcd_commands[] = {
 	{"sdcard_read_to_mem", "filename,|fileaddr", sdcard_read_to_mem},
 
 	{"lcd_dev", "init gc9503v|st7710s demo", lcd_device_init_handler},
+	{"lcd_rgb", " {display} |{close}|{capture name}", cli_cp0_lcd_rgb_cmd},
+
+	
 };
 
 int cli_lcd_init(void)

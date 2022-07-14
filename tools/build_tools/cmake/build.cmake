@@ -246,7 +246,7 @@ endfunction()
 function(__build_check_config)
     if (NOT BUILD_PROPERTIES_LIB)
         set(config_check_tool ${armino_path}/components/bk_libs/config_checking.py)
-        set(lib_sdkconfig ${armino_path}/components/bk_libs/${ARMINO_SOC}/config/sdkconfig)
+        set(lib_sdkconfig ${armino_path}/components/bk_libs/${ARMINO_SOC}_$ENV{PROJECT}/config/sdkconfig)
         set(armino_sdkconfig ${CMAKE_BINARY_DIR}/sdkconfig)
         execute_process(
             COMMAND ${config_check_tool} --lib_sdkconfig ${lib_sdkconfig} --armino_sdkconfig ${armino_sdkconfig}
@@ -619,7 +619,7 @@ function(armino_build_executable bin)
     armino_build_get_property(armino_target ARMINO_SOC)
 
     add_custom_target(size-statistic ALL DEPENDS gen_project_binary
-        COMMAND ${armino_size_statistic} --size "${armino_toolchain_size}" --dirs "${armino_path}/components/bk_libs/${armino_target}" --outfile "${build_dir}/size_map.txt"
+        COMMAND ${armino_size_statistic} --size "${armino_toolchain_size}" --dirs "${armino_path}/components/bk_libs/${armino_target}_$ENV{PROJECT}" --outfile "${build_dir}/size_map.txt"
     )
 
 
@@ -709,6 +709,7 @@ endfunction()
 
 function(armino_build_parse_toolchain_dir)
     set(default_toolchain_dir "/opt/gcc-arm-none-eabi-5_4-2016q3/bin")
+    armino_build_get_property(armino_path ARMINO_PATH)
     armino_build_get_property(sdkconfig_defaults SDKCONFIG_DEFAULTS)
     armino_build_get_property(sdkconfig_default_soc SDKCONFIG_DEFAULT_SOC)
     set(user_configed_toolchain_dir "")
@@ -733,6 +734,10 @@ function(armino_build_parse_toolchain_dir)
         string(REPLACE "CONFIG_TOOLCHAIN_PATH=" "" toolchain_dir_temp ${user_configed_toolchain_dir})
         string(REPLACE "\"" "" toolchain_dir ${toolchain_dir_temp})
         LOGI("use configured toolchain path: ${toolchain_dir}")
+    endif()
+
+    if(NOT IS_ABSOLUTE ${toolchain_dir})
+        set(toolchain_dir ${armino_path}/${toolchain_dir})
     endif()
 
     if(NOT EXISTS ${toolchain_dir})

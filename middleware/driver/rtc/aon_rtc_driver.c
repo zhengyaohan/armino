@@ -644,8 +644,9 @@ static void aon_rtc_hw_init(aon_rtc_id_t id)
 	aon_rtc_hal_enable_upper_int(&s_aon_rtc[id].hal);
 
 	bk_int_isr_register(cur_int_cfg->int_src, cur_int_cfg->isr, NULL);
+#if (CONFIG_SYSTEM_CTRL)
 	aon_rtc_interrupt_enable(id);
-
+#endif
 	aon_rtc_hal_start_counter(&s_aon_rtc[id].hal);
 }
 
@@ -656,9 +657,12 @@ bk_err_t bk_aon_rtc_driver_init(void)
 
 	//TOTO: Enter critical protect
 	for (int id = AON_RTC_ID_1; id < AON_RTC_ID_MAX; id++) {
-		aon_rtc_sw_init(id);
-		aon_rtc_hw_init(id);
-		s_aon_rtc[id].inited = true;
+		if(!s_aon_rtc[id].inited)
+		{
+			aon_rtc_sw_init(id);
+			aon_rtc_hw_init(id);
+			s_aon_rtc[id].inited = true;
+		}
 	}
 
 	//TOTO: exit critical protect
@@ -674,15 +678,19 @@ bk_err_t bk_aon_rtc_driver_deinit(void)
 	AON_RTC_LOGD("%s[+]\r\n", __func__);
 
 	for (int id = AON_RTC_ID_1; id < AON_RTC_ID_MAX; id++) {
-		bk_int_isr_unregister(int_cfg_table[id].int_src);
-
-		aon_rtc_interrupt_disable(id);
-		s_aon_rtc[id].inited = false;
-
-		if(s_aon_rtc_nodes_p[id] != NULL)
+		if(s_aon_rtc[id].inited)
 		{
-			os_free(s_aon_rtc_nodes_p[id]);
-			s_aon_rtc_nodes_p[id] = NULL;
+			bk_int_isr_unregister(int_cfg_table[id].int_src);
+#if (CONFIG_SYSTEM_CTRL)
+			aon_rtc_interrupt_disable(id);
+#endif
+			if(s_aon_rtc_nodes_p[id] != NULL)
+			{
+				os_free(s_aon_rtc_nodes_p[id]);
+				s_aon_rtc_nodes_p[id] = NULL;
+			}
+
+			s_aon_rtc[id].inited = false;
 		}
 	}
 

@@ -308,6 +308,8 @@ void image_save_dvp(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **a
 			os_printf("camera init failed\r\n");
 			return;
 		}
+#else
+		os_printf("Not Support, PSRAM NOT support!\n");
 #endif
 	} else if(os_strcmp(argv[1], "deinit") == 0) {
 #if (CONFIG_PSRAM)
@@ -323,6 +325,8 @@ void image_save_dvp(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **a
 			os_printf("vpsram deinit failed\r\n");
 			return;
 		}
+#else
+		os_printf("Not Support, PSRAM NOT support!\n");
 #endif
 	} else if (os_strcmp(argv[1], "capture") == 0) {
 #if (CONFIG_SDCARD_HOST)
@@ -413,7 +417,7 @@ error1:
 		bk_video_transfer_pkt_reset_enable(enable);
 	}
 	
-#if CONFIG_VIDEO_LCD
+#if (CONFIG_VIDEO_DVP_LCD && (!CONFIG_BK7256XX_MP) )
 	else if (os_strcmp(argv[1], "lcd_video") == 0) {
 		uint8_t enable = os_strtoul(argv[2], NULL, 10);
 		bk_lcd_video_enable(enable);
@@ -423,7 +427,7 @@ error1:
 		bk_lcd_video_rotate(rotate_enable);
 	} 
 #endif
-#if CONFIG_DUAL_CORE
+#if (CONFIG_DUAL_CORE && CONFIG_PSRAM)
 	else if (os_strcmp(argv[1], "video_transfer") == 0) {
 		uint32_t dev = 0;
 		uint32_t frame_rate = 0;

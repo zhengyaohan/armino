@@ -2,6 +2,7 @@ set(incs include include/bk_private)
 
 list(APPEND incs
 	../../properties/modules/aec/
+	.
 	)
 
 if (CONFIG_CLI)
@@ -283,7 +284,7 @@ if (CONFIG_APP_DEMO_VIDEO_TRANSFER)
 endif()
 endif()
 
-if (CONFIG_DOORBELL AND CONFIG_DUAL_CORE)
+if (CONFIG_DOORBELL)
 	list(APPEND srcs cli_doorbell.c)
 endif()
 
@@ -291,5 +292,5 @@ armino_component_register(SRCS "${srcs}"
 	INCLUDE_DIRS "${incs}"
 	REQUIRES utf8 temp_detect app driver user_driver bk_system iperf fatfs user_driver http
 	#PRIV_REQUIRES airkiss bk_common bk_netif bk_ble bk_ps
-	PRIV_REQUIRES bk_common bk_netif bk_ble bk_ps fatfs bk_init at bk_wifi compal media_common
+	PRIV_REQUIRES bk_common bk_netif bk_ble bk_ps fatfs bk_init at bk_wifi compal media_common media
 	)

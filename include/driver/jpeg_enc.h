@@ -283,6 +283,36 @@ bk_err_t bk_jpeg_enc_dvp_gpio_enable(void);
  */
 bk_err_t bk_jpeg_enc_get_fifo_addr(uint32_t *fifo_addr);
 
+/**
+ * @brief     enable jpeg enc int
+ *
+ * This API will enable jpeg different int type
+ *
+ * param type: different bit replace different int
+ *
+ * @attention 1. only work when jpeg encode driver have been called
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_jpeg_enc_enable_int(uint32_t type);
+
+/**
+ * @brief     disable jpeg enc int
+ *
+ * This API will disable jpeg different int type
+ *
+ * param type: different bit replace different int
+ *
+ * @attention 1. only work when jpeg encode driver have been called
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_jpeg_enc_disable_int(uint32_t type);
+
 
 /**
  * @}

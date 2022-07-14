@@ -178,6 +178,7 @@ static void ble_at_notice_cb(ble_notice_t notice, void *param)
 			        break;
 		    }
 		}
+		break;
     }
     case BLE_5_REPORT_ADV: {
         ble_recv_adv_t *r_ind = (ble_recv_adv_t *)param;

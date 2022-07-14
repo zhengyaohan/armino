@@ -394,6 +394,13 @@ if( "${target}" STREQUAL "bk7231n"
 		)
 endif()
 
+if (CONFIG_CAMERA)
+    list(APPEND srcs
+        "camera/dvp_camera.c"
+        "camera/dvp_gc0328c.c"
+        "camera/dvp_hm1055.c"
+    )
+endif()
 
 armino_component_register(SRCS "${srcs}"
 	INCLUDE_DIRS "${incs}"

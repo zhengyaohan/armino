@@ -21,6 +21,7 @@
 #include "dvp_camera_config.h"
 
 #define I2C_WIRTE_TIMEOUT_MS           2000
+#define I2C_WRITE_FAILE_TIMES          5
 static uint32_t s_camera_dev_id = 0;
 static uint32_t s_camera_dev = GC0328C_DEV;
 static uint32_t sener_cfg = 0;
@@ -2252,17 +2253,17 @@ const uint8_t gc0308c_init_talbe[][2] = {
 };
 
 // HM_1055_DEV
-/*MCLK = 60MHz 5fps default*/
+/*MCLK = 30MHz 20fps default*/
 const uint16_t hm_1055_init_talbe[][2] = {
 	{0x0022,0x00},
 	{0x0020,0x00},
 	{0x0025,0x00},//PLL ON
-	{0x0026,0x2F},//PCLK=48MHz,
+	{0x0026,0x97},//PCLK=48MHz,
 	{0x0027,0x30},
 	{0x0028,0xC0},
 	{0x002A,0x44},
-	{0x002B,0x00},
-	{0x002C,0x80},//PLL2[7]=1
+	{0x002B,0x01},
+	{0x002C,0x00},//PLL2[7]=0
 	{0x0004,0x10},
 	{0x0006,0x00},// 0x00
 	{0x000F,0x18},//Fixed raw length and Fixed frame rate//0x18
@@ -2468,8 +2469,8 @@ const uint16_t hm_1055_init_talbe[][2] = {
 	{0x0302,0x00},
 	{0x0303,0x00},
 	{0x0304,0x00},
-	{0x02e0,0x04}, 
-	{0x02F0,0x4E}, 
+	{0x02e0,0x04},
+	{0x02F0,0x4E},
 	{0x02F1,0x04},
 	{0x02F2,0xB1},
 	{0x02F3,0x00},
@@ -2762,9 +2763,9 @@ const uint16_t hm_1055_720P_30fps_talbe[][2] = {
 	{0x0005,0x00},	 //Turn off rolling shutter
 
 	{0x0025,0x00},//PLL ON
-	{0x0026,0x37},//PCLK 72Mhz
+	{0x0026,0x97},//PCLK 72Mhz
 	{0x002B,0x00},
-	{0x002C,0x80},//CKCFG2[7]=1
+	{0x002C,0x00},//CKCFG2[7]=1
 
 	{0x0012,0x0B},
 	{0x0013,0x00},
@@ -2786,10 +2787,10 @@ const uint16_t hm_1055_720P_30fps_talbe[][2] = {
 const uint16_t hm_1055_720P_25fps_talbe[][2] = {
 	{0x0005,0x00},	 //Turn off rolling shutter
 
-	{0x0025,0x80},//PLL off 
-	{0x0026,0x37},//MCLK=PCLK= 60Mhz
+	{0x0025,0x00},//PLL ON 
+	{0x0026,0x93},//MCLK=PCLK= 60Mhz
 	{0x002B,0x00},
-	{0x002C,0x80},//CKCFG2[7]=1
+	{0x002C,0x00},//CKCFG2[7]=0
 
 	{0x0012,0x0D},
 	{0x0013,0x02},
@@ -2812,9 +2813,9 @@ const uint16_t hm_1055_720P_20fps_talbe[][2] = {
 	{0x0005,0x00},//Turn off rolling shutter
 
 	{0x0025,0x00},//PLL ON
-	{0x0026,0x2F},//PCLK 48Mhz
-	{0x002B,0x00},
-	{0x002C,0x80},//PLL2[7]=1
+	{0x0026,0x97},//PCLK 48Mhz
+	{0x002B,0x01},
+	{0x002C,0x00},//PLL2[7]=0
 
 	{0x0012,0x01},
 	{0x0013,0x02},
@@ -2836,10 +2837,10 @@ const uint16_t hm_1055_720P_20fps_talbe[][2] = {
 const uint16_t hm_1055_720P_15fps_talbe[][2] = {
 	{0x0005,0x00},//Turn off rolling shutter
 
-	{0x0025,0x01},//PLL ON
-	{0x0026,0x37},//MCLK 36MHz,
-	{0x002B,0x00},
-	{0x002C,0x80},//PLL2[7]=1
+	{0x0025,0x00},//PLL ON
+	{0x0026,0x97},//MCLK 36MHz,
+	{0x002B,0x02},//1/6 * 1/2
+	{0x002C,0x00},//PLL2[7]=0
 
 	{0x0012,0x0b},
 	{0x0013,0x00},
@@ -2861,10 +2862,10 @@ const uint16_t hm_1055_720P_15fps_talbe[][2] = {
 const uint16_t hm_1055_720P_10fps_talbe[][2] = {
 	{0x0005,0x00},//Turn off rolling shutter
 
-	{0x0025,0x02},//PLL ON, clock_div=(2+1)
-	{0x0026,0x37},//PCLK 24Mhz
-	{0x002B,0x00},
-	{0x002C,0x80},//PLL2[7]=1
+	{0x0025,0x00},//PLL ON, clock_div=(1+1)
+	{0x0026,0x97},//PCLK 24Mhz
+	{0x002B,0x03},
+	{0x002C,0x00},//PLL2[7]=0
 
 	{0x0012,0x03},
 	{0x0013,0x06},
@@ -2886,10 +2887,10 @@ const uint16_t hm_1055_720P_10fps_talbe[][2] = {
 const uint16_t hm_1055_720P_5fps_talbe[][2] = {
 	{0x0005,0x00},//Turn off rolling shutter
 
-	{0x0025,0x02},//PLL ON, clock_div=(2+1)
-	{0x0026,0x37},//PCLK 12Mhz
-	{0x002B,0x02},//CKCFG3[1]=1
-	{0x002C,0x80},//PLL2[7]=1
+	{0x0025,0x01},//PLL ON, clock_div=(3+1)
+	{0x0026,0x97},//PCLK 12Mhz
+	{0x002B,0x03},//CKCFG3[1:0]=11(1/12)
+	{0x002C,0x00},//PLL2[7]=0
 
 	{0x0012,0x03},
 	{0x0013,0x06},
@@ -2908,7 +2909,7 @@ const uint16_t hm_1055_720P_5fps_talbe[][2] = {
 	{0x0005,0x01},//Turn on rolling shutter
 };
 
-static void camera_intf_sccb_write_byte(uint8_t addr, uint8_t data)
+static bk_err_t camera_intf_sccb_write_byte(uint8_t addr, uint8_t data)
 {
 	i2c_mem_param_t mem_param = {0};
 	mem_param.dev_addr = s_camera_dev_id;
@@ -2917,10 +2918,10 @@ static void camera_intf_sccb_write_byte(uint8_t addr, uint8_t data)
 	mem_param.data = &data;
 	mem_param.data_size = 1;
 	mem_param.timeout_ms = I2C_WIRTE_TIMEOUT_MS;
-	BK_LOG_ON_ERR(bk_i2c_memory_write(CONFIG_CAMERA_I2C_ID, &mem_param));
+	return bk_i2c_memory_write(CONFIG_CAMERA_I2C_ID, &mem_param);
 }
 
-static void camera_intf_sccb_write_word(uint16_t addr, uint8_t data)
+static bk_err_t camera_intf_sccb_write_word(uint16_t addr, uint8_t data)
 {
 	i2c_mem_param_t mem_param = {0};
 	mem_param.dev_addr = s_camera_dev_id;
@@ -2929,7 +2930,7 @@ static void camera_intf_sccb_write_word(uint16_t addr, uint8_t data)
 	mem_param.data = &data;
 	mem_param.data_size = 1;
 	mem_param.timeout_ms = I2C_WIRTE_TIMEOUT_MS;
-	BK_LOG_ON_ERR(bk_i2c_memory_write(CONFIG_CAMERA_I2C_ID, &mem_param));
+	return bk_i2c_memory_write(CONFIG_CAMERA_I2C_ID, &mem_param);
 }
 
 __attribute__((unused)) static void camera_intf_sccb_read_byte(uint8_t addr, uint8_t *data)
@@ -2958,23 +2959,69 @@ __attribute__((unused)) static void camera_intf_sccb_read_word(uint16_t addr, ui
 
 static void camera_inf_write_cfg_byte(const uint8_t (*cfg_table)[2], uint32_t size)
 {
+	bk_err_t ret = kNoErr;
 	uint8_t addr = 0;
 	uint8_t data = 0;
+	uint8_t i2c_error_cnt = 0;
 	for (uint32_t i = 0; i < size; i++) {
 		addr = cfg_table[i][0];
 		data = cfg_table[i][1];
-		camera_intf_sccb_write_byte(addr, data);
+		ret = camera_intf_sccb_write_byte(addr, data);
+		if (ret != kNoErr) {
+			i2c_error_cnt++;
+		}
+
+		if (i2c_error_cnt >= I2C_WRITE_FAILE_TIMES) {
+			CAMERA_LOGE("I2C write failed!\r\n");
+			break;
+		}
 	}
 }
 
+#if (CONFIG_SYSTEM_CTRL)
+static void camera_inf_write_init_table(const uint8_t (*cfg_table)[2], uint32_t size)
+{
+	bk_err_t ret = kNoErr;
+	uint8_t addr = 0;
+	uint8_t data = 0;
+	uint8_t i2c_error_cnt = 0;
+	for (uint32_t i = 0; i < size; i++) {
+		if (i == (size - 1)) {
+			bk_jpeg_enc_dvp_gpio_enable();
+		}
+		addr = cfg_table[i][0];
+		data = cfg_table[i][1];
+		ret = camera_intf_sccb_write_byte(addr, data);
+		if (ret != kNoErr) {
+			i2c_error_cnt++;
+		}
+
+		if (i2c_error_cnt >= I2C_WRITE_FAILE_TIMES) {
+			CAMERA_LOGE("I2C write failed!\r\n");
+			break;
+		}
+	}
+}
+#endif
+
 static void camera_inf_write_cfg_word(const uint16_t (*cfg_table)[2], uint32_t size)
 {
+	bk_err_t ret = kNoErr;
 	uint16_t addr = 0;
 	uint8_t data = 0;
+	uint8_t i2c_error_cnt = 0;
 	for (uint32_t i = 0; i < size; i++) {
 		addr = cfg_table[i][0];
 		data = cfg_table[i][1];
-		camera_intf_sccb_write_word(addr, data);
+		ret = camera_intf_sccb_write_word(addr, data);
+		if (ret != kNoErr) {
+			i2c_error_cnt++;
+		}
+
+		if (i2c_error_cnt >= I2C_WRITE_FAILE_TIMES) {
+			CAMERA_LOGE("I2C write failed!\r\n");
+			break;
+		}
 	}
 }
 
@@ -3101,14 +3148,13 @@ void bk_camera_sensor_config(void)
 		s_camera_dev_id = GC0328C_DEV_ID;
 		size = sizeof(gc0328c_init_talbe) / 2;
 
-#if 1//(!CONFIG_SYSTEM_CTRL)
+#if (!CONFIG_SYSTEM_CTRL)
 		camera_inf_write_cfg_byte(gc0328c_init_talbe, size);
 #else
 		camera_inf_write_init_table(gc0328c_init_talbe, size);
 #endif
 		camera_inf_cfg_gc0328c_ppi(CMPARAM_GET_PPI(sener_cfg));
 		camera_inf_cfg_gc0328c_fps(CMPARAM_GET_FPS(sener_cfg));
-		bk_jpeg_enc_dvp_gpio_enable();
 		CAMERA_LOGI("GC0328C init finish\r\n");
 		break;
 	case BF_2013_DEV:

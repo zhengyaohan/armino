@@ -61,6 +61,17 @@ typedef enum {
 }jpeg_isr_type_t;
 
 /**
+ * @brief jpeg int type
+ */
+typedef enum {
+	JPEG_END_YUV_INT = (1 << 0),
+	JPEG_HEAD_OUTPUT_INT = (1 << 1),
+	JPEG_START_FRAME_INT = (1 << 2),
+	JPEG_END_FRAME_INT = (1 << 3),
+	JPEG_VSYNC_NEGEDGE_INT = (1 << 6),
+} jpeg_int_type_t;
+
+/**
  * @brief jpeg isr callback relay jpeg driver
  *
  * @param id: only 0 useful, set 0 default

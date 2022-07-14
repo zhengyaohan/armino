@@ -23,11 +23,29 @@ extern "C" {
 
 typedef enum
 {
-	EVENT_DVP_OPEN = (DVP_EVENT << MEDIA_EVT_BIT),
+	DVP_STATE_DISABLED,
+	DVP_STATE_ENABLED,
+} dvp_state_t;
+
+
+typedef struct
+{
+	dvp_state_t state;
+	uint32_t param;
+} dvp_info_t;
+
+typedef enum
+{
+	EVENT_DVP_OPEN_IND = (DVP_EVENT << MEDIA_EVT_BIT),
+	EVENT_DVP_CLOSE_IND,
+	EVENT_DVP_LCD_REG_CAM_INIT_REQ
 } dvp_event_t;
 
 void dvp_camera_event_handle(uint32_t event, uint32_t param);
+void set_dvp_camera_state(dvp_state_t state);
+dvp_state_t get_dvp_camera_state(void);
 
+void dvp_camera_init(void);
 
 #ifdef __cplusplus
 }

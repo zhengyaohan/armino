@@ -70,7 +70,7 @@ static adc_statis_t* s_adc_statis = NULL;
 
 saradc_calibrate_val saradc_val = {
 #if (CONFIG_SOC_BK7256XX)
-    0xD55, 0xAAB /* 1Volt, 2Volt*/
+    0xD40, 0x1A72 /* 1Volt, 2Volt*/
 #else
     0x55, 0x354
 #endif

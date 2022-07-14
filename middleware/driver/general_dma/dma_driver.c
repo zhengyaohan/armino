@@ -266,7 +266,7 @@ bk_err_t bk_dma_free(u16 user_id, dma_id_t chnl_id)
 #endif
 }
 
-u32 bk_dma_user(dma_id_t chnl_id)
+uint32_t bk_dma_user(dma_id_t chnl_id)
 {
     if (!s_dma_driver_is_init)
 	{
@@ -298,6 +298,7 @@ bk_err_t bk_dma_deinit(dma_id_t id)
 {
     DMA_RETURN_ON_INVALID_ID(id);
     dma_id_deinit_common(id);
+    bk_dma_register_isr(id, NULL, NULL);
     return BK_OK;
 }
 

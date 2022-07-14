@@ -14,6 +14,7 @@
 #include <components/dvp_camera.h>
 #include "video_transfer_log.h"
 #include "video_transfer_save.h"
+#include <driver/timer.h>
 
 #if CONFIG_GENERAL_DMA
 #include "bk_general_dma.h"
@@ -30,6 +31,9 @@
 #define TVIDEO_WPRT                 null_prf
 #define TVIDEO_FATAL                null_prf
 #endif
+
+#define TVIDEO_TIMER_CHANNEL        TIMER_ID1
+#define TVIDEO_TIMER_VALUE          1000// 1 second
 
 video_config_t tvideo_st;
 video_pool_t tvideo_pool;
@@ -137,6 +141,32 @@ static bk_err_t tvideo_pool_init(void *data)
 #endif
 
 	return ret;
+}
+
+static void tvideo_timer_check_callback(timer_id_t timer_id)
+{
+	bk_video_send_msg(VIDEO_CPU0_EOF_CHECK);
+}
+
+static void tvideo_jpeg_eof_check_handler(void)
+{
+	if (g_frame_total_num < 10) {
+		// jpeg eof error, reboot jpeg
+		// step 1: stop timer
+		bk_timer_stop(TVIDEO_TIMER_CHANNEL);
+
+		// step 2: deinit
+		bk_camera_deinit();
+
+		// step 3: init
+		bk_camera_init(&tvideo_st);
+		g_frame_total_num = 0;
+
+		// step 4: restart timer
+		bk_timer_start(TVIDEO_TIMER_CHANNEL, TVIDEO_TIMER_VALUE, tvideo_timer_check_callback);
+	} else {
+		g_frame_total_num = 0;
+	}
 }
 
 static void tvideo_rx_handler(void *curptr, uint32_t newlen, uint32_t is_eof, uint32_t frame_len)
@@ -406,6 +436,10 @@ static void video_transfer_main(beken_thread_arg_t data)
 	if (tvideo_pool.start_cb != NULL)
 		tvideo_pool.start_cb();
 
+#if (CONFIG_SYSTEM_CTRL)
+	bk_timer_start(TVIDEO_TIMER_CHANNEL, TVIDEO_TIMER_VALUE, tvideo_timer_check_callback);
+#endif
+
 	while (1) {
 		video_msg_t msg;
 		err = rtos_pop_from_queue(&tvideo_msg_que, &msg, BEKEN_WAIT_FOREVER);
@@ -413,6 +447,10 @@ static void video_transfer_main(beken_thread_arg_t data)
 			switch (msg.data) {
 			case VIDEO_CPU0_SEND:
 				tvideo_poll_handler();
+				break;
+
+			case VIDEO_CPU0_EOF_CHECK:
+				tvideo_jpeg_eof_check_handler();
 				break;
 
 			case VIDEO_CPU0_EXIT:
@@ -430,6 +468,11 @@ static void video_transfer_main(beken_thread_arg_t data)
 
 tvideo_exit:
 	TVIDEO_PRT("video_transfer_main exit\r\n");
+
+#if (CONFIG_SYSTEM_CTRL)
+	bk_timer_stop(TVIDEO_TIMER_CHANNEL);
+#endif
+	g_frame_total_num = 0;
 
 	if (tvideo_pool.pool) {
 		os_free(tvideo_pool.pool);

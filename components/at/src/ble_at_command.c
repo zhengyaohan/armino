@@ -475,6 +475,7 @@ void ble_at_notice_cb(ble_notice_t notice, void *param)
 			        break;
 		    }
 		}
+		break;
     }
     case BLE_5_REPORT_ADV:
     {
@@ -3021,6 +3022,7 @@ static int ble_register_service_handle(char *pcWriteBuffer, int xWriteBufferLen,
     uint16 my_service_uuid = 0;
     uint16 my_char_uuid = 0x1234;
     struct bk_ble_db_cfg ble_db_cfg;
+    uint8 cur_test_prf_task_id = 0;
 
     if(bk_ble_get_controller_stack_type() != BK_BLE_CONTROLLER_STACK_TYPE_BTDM_5_2)
     {
@@ -3035,6 +3037,7 @@ static int ble_register_service_handle(char *pcWriteBuffer, int xWriteBufferLen,
         goto error;
     }
 
+    cur_test_prf_task_id = g_test_prf_task_id;
     g_test_prf_task_id = os_strtoul(argv[0], NULL, 16) & 0xFF;
     my_service_uuid = os_strtoul(argv[1], NULL, 16) & 0xFFFF;
     if(argc >= 3)
@@ -3300,7 +3303,7 @@ static int ble_register_service_handle(char *pcWriteBuffer, int xWriteBufferLen,
 
 error:
     msg = AT_CMD_RSP_ERROR;
-    g_test_prf_task_id = 0;
+    g_test_prf_task_id = cur_test_prf_task_id;
     os_memcpy(pcWriteBuffer, msg, os_strlen(msg));
     if (ble_at_cmd_sema != NULL)
         rtos_deinit_semaphore(&ble_at_cmd_sema);
@@ -4947,9 +4950,10 @@ int ble_mqtt_loop_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, cha
 
 		uint8_t sta_mac[6];
 		bk_wifi_sta_get_mac((uint8_t *)sta_mac);
+		sta_mac[5] += 1;
 
-		snprintf(loop_topic_sr, 25, "/ble/lpsr/%02x%02x%02x", sta_mac[3], sta_mac[4], sta_mac[5] + 1);
-		snprintf(loop_topic_ci, 25, "/ble/lpci/%02x%02x%02x", sta_mac[3], sta_mac[4], sta_mac[5] + 1);
+		snprintf(loop_topic_sr, 25, "/ble/lpsr/%02x%02x%02x", sta_mac[3], sta_mac[4], sta_mac[5]);
+		snprintf(loop_topic_ci, 25, "/ble/lpci/%02x%02x%02x", sta_mac[3], sta_mac[4], sta_mac[5]);
 
 		loop_interval = os_strtoul(argv[1], NULL, 10) & 0xFFFF;
 		loop_count = os_strtoul(argv[2], NULL, 10) & 0xFFFF;
@@ -5003,9 +5007,10 @@ int ble_mqtt_loop_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, cha
 
 		uint8_t sta_mac[6];
 		bk_wifi_sta_get_mac((uint8_t *)sta_mac);
+                sta_mac[5] += 1;
 
-		snprintf(loop_topic_sr, 25, "/ble/lpsr/%02x%02x%02x", sta_mac[3], sta_mac[4], sta_mac[5] + 1);
-		snprintf(loop_topic_ci, 25, "/ble/lpci/%02x%02x%02x", sta_mac[3], sta_mac[4], sta_mac[5] + 1);
+		snprintf(loop_topic_sr, 25, "/ble/lpsr/%02x%02x%02x", sta_mac[3], sta_mac[4], sta_mac[5]);
+		snprintf(loop_topic_ci, 25, "/ble/lpci/%02x%02x%02x", sta_mac[3], sta_mac[4], sta_mac[5]);
 
 		loop_sr_index = 0;
 		loop_ci_index = 0;

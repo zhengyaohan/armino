@@ -43,7 +43,6 @@ typedef enum {
 static beken_thread_t  audio_thread_hdl = NULL;
 static beken_queue_t aud_int_msg_que = NULL;
 
-
 AECContext* aec = NULL;
 
 uint32_t val = 0;
@@ -228,6 +227,8 @@ static void audio_aec_config(audio_sample_rate_t samp_rate)
 	/* init aec context */
 	aec_context_size = aec_size();
 	aec = (AECContext*)os_malloc(aec_context_size);
+
+	os_printf("aec_context_size: 0x%x, aec buffer:%p \r\n", aec_context_size, aec);
 
 	/* config sample rate, default is 8K */
 	if (samp_rate == AUDIO_SAMP_RATE_16K)
@@ -437,6 +438,8 @@ static bk_err_t audio_encoder_process(void)
 	int16_t pcm_data[AUD_AEC_8K_FRAME_SAMP_SIZE/2] = {0};
 	unsigned char law_data[AUD_AEC_8K_FRAME_SAMP_SIZE/2] = {0};
 
+
+
 	/* get data from aec_ring_buff */
 	size = ring_buffer_read(&aec_rb, (uint8_t *)pcm_data, frame_sample*2);
 	if (size != frame_sample*2) {
@@ -477,8 +480,8 @@ bk_err_t bk_audio_write_data(uint8_t *data_buf, uint32_t length)
 			return BK_FAIL;
 		}
 	} else {
-		os_printf("decoder_rb is not enough, free:%d, write:%d\r\n", size, length);
-		return BK_FAIL;
+		//os_printf("decoder_rb is not enough, free:%d, write:%d\r\n", size, length);
+		//return BK_FAIL;
 	}
 
 	/* send msg to task to decoder data */
@@ -652,7 +655,7 @@ static void audio_transfer_main(beken_thread_arg_t param_data)
 		os_printf("malloc aec ring buffer fail \r\n");
 		goto audio_transfer_exit;
 	}
-	os_printf("step2: init AEC and malloc two ring buffers complete \r\n");
+	os_printf("step2: init AEC and malloc mic_ring_buff:%p, ref_ring_buff:%p, aec_ring_buff:%p complete \r\n", mic_ring_buff, ref_ring_buff, aec_ring_buff);
 
 	/*  -------------------step3: init and config DMA to carry mic and ref data ----------------------------- */
 	/* init dma driver */

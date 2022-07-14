@@ -175,6 +175,10 @@ static int tempd_adc_get_raw_data(void)
 	if (BK_OK != err)
 		goto _release_adc;
 
+	err = bk_adc_enable_bypass_clalibration();
+	if (BK_OK != err)
+		goto _release_adc;
+
 	err = bk_adc_start();
 	if (BK_OK != err)
 		goto _release_adc;

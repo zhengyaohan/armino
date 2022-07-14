@@ -104,7 +104,7 @@ static void dma_finish_isr(dma_id_t id)
 }
 
 
-void dma_jpeg_config(uint32_t dma_ch)
+static void dma_jpeg_config(uint32_t dma_ch)
 {
 	dma_config_t dma_config = {0};
 	dma_config.mode = DMA_WORK_MODE_SINGLE;
@@ -435,4 +435,6 @@ void lcd_rgb_close(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **ar
 		os_printf("cmd: lcd_rgb_close=yuv_display|jpeg_display\r\n");
 	}
 }
+
+
 

@@ -17,6 +17,11 @@
 
 #include "media_core.h"
 #include "dvp_act.h"
+#include "aud_act.h"
+#include "comm_act.h"
+#include "lcd_act.h"
+#include "trs_act.h"
+#include "mailbox_channel.h"
 
 
 #define MJ_TAG "media0"
@@ -29,15 +34,59 @@
 static beken_thread_t media_major_th_hd = NULL;
 static beken_queue_t media_major_msg_queue = NULL;
 
+#ifdef CONFIG_DUAL_CORE
+bk_err_t media_mailbox_send_msg(uint32_t cmd, uint32_t param1, uint32_t param2)
+{
+	mb_chnl_cmd_t mb_cmd;
 
+	mb_cmd.hdr.cmd = 1;
+	mb_cmd.param1 = cmd;
+	mb_cmd.param2 = param1;
+	mb_cmd.param3 = param2;
+	return mb_chnl_write(MB_CHNL_MEDIA, &mb_cmd);
+}
 
-__attribute__((unused)) static bk_err_t media_major_send_msg(media_msg_t msg)
+static void media_major_mailbox_rx_isr(void *param, mb_chnl_cmd_t *cmd_buf)
+{
+	LOGI("%s\n", __func__);
+
+	switch (cmd_buf->param1 >> MEDIA_EVT_BIT)
+	{
+#ifdef CONFIG_CAMERA
+		case DVP_EVENT:
+		{
+			media_msg_t msg;
+
+			msg.event = cmd_buf->param1;
+			media_send_msg(&msg);
+		}
+		break;
+#endif
+		default:
+			break;
+	}
+}
+
+static void media_major_mailbox_tx_isr(void *param)
+{
+	LOGI("%s\n", __func__);
+
+}
+
+static void media_major_mailbox_tx_cmpl_isr(void *param, mb_chnl_ack_t *ack_buf)
+{
+	LOGI("%s\n", __func__);
+
+}
+#endif
+
+bk_err_t media_send_msg(media_msg_t *msg)
 {
 	bk_err_t ret;
 
 	if (media_major_msg_queue)
 	{
-		ret = rtos_push_to_queue(&media_major_msg_queue, &msg, BEKEN_NO_WAIT);
+		ret = rtos_push_to_queue(&media_major_msg_queue, msg, BEKEN_NO_WAIT);
 
 		if (kNoErr != ret)
 		{
@@ -57,6 +106,18 @@ static void media_major_message_handle(void)
 	bk_err_t ret = BK_OK;
 	media_msg_t msg;
 
+#ifdef CONFIG_CAMERA
+	dvp_camera_init();
+#endif
+
+#ifdef CONFIG_WIFI_TRANSFER
+	trs_video_transfer_init();
+#endif
+
+#ifdef CONFIG_LCD
+	lcd_init();
+#endif
+
 	while (1)
 	{
 
@@ -66,8 +127,40 @@ static void media_major_message_handle(void)
 		{
 			switch (msg.event >> MEDIA_EVT_BIT)
 			{
+				case COM_EVENT:
+					comm_event_handle(msg.event, msg.param);
+					break;
+
+#ifdef CONFIG_CAMERA
 				case DVP_EVENT:
 					dvp_camera_event_handle(msg.event, msg.param);
+					break;
+#endif
+
+#ifdef CONFIG_AUDIO
+				case AUD_EVENT:
+					audio_event_handle(msg.event, msg.param);
+					break;
+#endif
+
+#ifdef CONFIG_LCD
+				case LCD_EVENT:
+					lcd_event_handle(msg.event, msg.param);
+					break;
+#endif
+
+#ifdef CONFIG_WIFI_TRANSFER
+				case TRS_EVENT:
+					wifi_transfer_event_handle(msg.event, msg.param);
+					break;
+#endif
+
+				case QUEUE_EVENT:
+
+					break;
+
+				case EXIT_EVENT:
+					goto exit;
 					break;
 
 				default:
@@ -76,8 +169,7 @@ static void media_major_message_handle(void)
 		}
 	}
 
-#if 0
-com_thread_exit:
+exit:
 
 	/* delate msg queue */
 	ret = rtos_deinit_queue(&media_major_msg_queue);
@@ -97,7 +189,6 @@ com_thread_exit:
 	media_major_th_hd = NULL;
 
 	LOGE("delate task complete\n");
-#endif
 }
 
 
@@ -143,6 +234,13 @@ bk_err_t media_major_init(void)
 		goto error;
 	}
 
+#ifdef CONFIG_DUAL_CORE
+	mb_chnl_open(MB_CHNL_MEDIA, NULL);
+	mb_chnl_ctrl(MB_CHNL_MEDIA, MB_CHNL_SET_RX_ISR, media_major_mailbox_rx_isr);
+	mb_chnl_ctrl(MB_CHNL_MEDIA, MB_CHNL_SET_TX_ISR, media_major_mailbox_tx_isr);
+	mb_chnl_ctrl(MB_CHNL_MEDIA, MB_CHNL_SET_TX_CMPL_ISR, media_major_mailbox_tx_cmpl_isr);
+#endif
+
 	LOGI("media major thread startup complete\n");
 
 	return kNoErr;
@@ -155,4 +253,9 @@ error:
 	}
 
 	return ret;
+}
+
+media_cpu_t get_cpu_id(void)
+{
+	return MAJOR_CPU;
 }

@@ -74,17 +74,14 @@ Armino SDK代码下载
 BK7256工具链下载路径如下：
 
 	工具链下载：
-	http://dl.bekencorp.com:8192/tools/toolchain/risc-v_20220418.tar.gz
-
-	校验文件：
-	http://dl.bekencorp.com:8192/tools/toolchain/risc-v_20220418.tar.gz.md5sum
+	http://dl.bekencorp.com:8192/tools/toolchain/toolchain_v5.1.1.tgz
 
 
 
 工具包下载后，通过如下操作命令解压至 /opt/risc-v目录下：
 
     $ sudo mkdir -p /opt/
-    $ tar -jxvf risc-v.tar.bz2 -C /opt/
+    $ tar -zxvf toolchain_v5.1.1.tgz -C /
 
 
 .. note::
@@ -124,21 +121,9 @@ BK7256工具链下载路径如下：
     cd ~/armino
     make bk7256
 
-BK7256为双CPU核系统，默认配置为双核，目前需要分别编译cpu1系统和cpu0系统(这一步后续会优化，修改为一起编译)
+- BK7256为双CPU核系统，默认配置为双核，编译BK7256平台CPU0系统，会自动编译CPU1和CPU0，并将CPU0，CPU1系统一起打包
 
-- 编译BK7256平台CPU1系统::
 
-    cd ~/armino
-    make bk7256_cp1
-
-- 将编译生成的CPU1系统的bin文件手动拷贝到打包目录(这一步后续会优化，修改为自动)::
-
-    cp build/app.bin tools/env_tools/beken_packager/bk7256_cpu1.bin
-
-- 编译BK7256平台CPU0系统，会将CPU0，CPU1系统一起打包::
-
-    cd ~/armino
-    make bk7256
 
 - BK7256平台默认工程使用的是FreeRTOS V10.4系统::
 

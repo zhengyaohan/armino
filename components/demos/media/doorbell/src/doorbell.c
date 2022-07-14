@@ -22,6 +22,7 @@
 #include "video_transfer_cpu0.h"
 #include "video_transfer_save.h"
 
+#include "trs_api.h"
 
 #define DBD_TAG       "doorbell"
 
@@ -38,7 +39,10 @@
 #endif
 
 #define AUDIO_TRANSFER_ENABLE           1
-#define AUDIO_TRANSFER_CPU0_MODE             0       //0: default cpu1 mode, 1: cpu0 mode
+
+#if CONFIG_AUDIO_TRANSFER_CPU0
+#define AUDIO_TRANSFER_CPU0_MODE             1       //0: default cpu1 mode, 1: cpu0 mode
+#endif
 
 #define APP_DEMO_UDP_RCV_BUF_LEN        1472
 #define APP_DEMO_UDP_SOCKET_TIMEOUT     100  // ms
@@ -82,8 +86,16 @@ static uint32_t aud_rx_mode = 0;    //1: audio rx data not include sequence and 
 
 #endif  //AUDIO_TRANSFER_ENABLE
 
+typedef enum
+{
+	CPU0 = 0,
+	CPU1,
+	CPU1_PLUS,
+	DOORBELL_PLUS,
+} doorbell_mode_t;
 
-bool video_transfer_use_cpu1 = false;
+
+static doorbell_mode_t video_transfer_mode = CPU0;
 
 extern void delay(int num);
 
@@ -133,8 +145,12 @@ int demo_doorbell_udp_voice_send_packet(UINT8 *data, UINT32 len)
 #if AUDIO_TRANSFER_CPU0_MODE
 void cp0_audio_transfer_init_callback(void)
 {
+	GLOBAL_INT_DECLARATION();
+
 	/* set status */
+	GLOBAL_INT_DISABLE();
 	audio_transfer_work_status = true;
+	GLOBAL_INT_RESTORE();
 	DBD("init and start audio transfer complete \r\n");
 }
 
@@ -142,17 +158,6 @@ static void cp0_audio_transfer_init(void)
 {
 	bk_err_t ret = BK_OK;
 
-/*
-	audio_rx_ring_buffer = (uint8_t *)os_malloc(WRITE_SIZE*2);
-	if (audio_rx_ring_buffer == NULL) {
-		DBD("malloc audio_rx_ring_buffer fail \r\n");
-		return;
-	}
-	DBD("malloc audio_rx_ring_buffer:%p complete \r\n", audio_rx_ring_buffer);
-
-	ring_buffer_init(&audio_rx_rb, audio_rx_ring_buffer, WRITE_SIZE*2, DMA_ID_MAX, RB_DMA_TYPE_NULL);
-	DBD("init audio rx ring buffer complete \r\n");
-*/
 	/* register callbacks */
 	bk_audio_register_rw_cb(demo_doorbell_udp_voice_send_packet, cp0_audio_transfer_init_callback);
 	DBD("register callbacks complete \r\n");
@@ -373,8 +378,12 @@ static void audio_transfer_cmd_handle(UINT32 cmd, UINT32 param)
 	switch(cmd) {
 		case AUDIO_TRANSFER_CLOSE:
 			audio_apk_status = false;
+#if AUDIO_TRANSFER_CPU0_MODE
+
+#else
 			if (param == 1)
 				aud_rx_mode = 1;
+#endif
 			cp0_audio_transfer_deinit();
 			break;
 
@@ -485,19 +494,47 @@ static void demo_doorbell_udp_receiver(UINT8 *data, UINT32 len, struct sockaddr_
 			setup.pkt_header_size = sizeof(media_hdr_t);
 			setup.add_pkt_header = demo_doorbell_add_pkt_header;
 
-			if (video_transfer_use_cpu1)
-				bk_video_transfer_cpu0_init(&setup);
-			else
+			if (video_transfer_mode == CPU0)
+			{
 				bk_video_transfer_init(&setup);
+			}
+			else if (video_transfer_mode == CPU1)
+			{
+#if CONFIG_DUAL_CORE
+				bk_video_transfer_cpu0_init(&setup);
+#endif
+			}
+			else if (video_transfer_mode == DOORBELL_PLUS)
+			{
+				video_transfer_open(&setup);
+			}
+			else if (video_transfer_mode == CPU1_PLUS)
+			{
+
+			}
 #endif
 		} else if (data[1] == DOORBELL_CMD_STOP_IMG) {
 			DBD("udp close\r\n");
 
 #if (CONFIG_SPIDMA || CONFIG_CAMERA)
-			if (video_transfer_use_cpu1)
-				bk_video_transfer_cpu0_deinit();
-			else
+			if (video_transfer_mode == CPU0)
+			{
 				bk_video_transfer_deinit();
+			}
+			else if (video_transfer_mode == CPU1)
+			{
+#if CONFIG_DUAL_CORE
+				bk_video_transfer_cpu0_deinit();
+#endif
+			}
+			else if (video_transfer_mode == DOORBELL_PLUS)
+			{
+				video_transfer_close();
+			}
+			else if (video_transfer_mode == CPU1_PLUS)
+			{
+
+			}
 #endif
 
 			GLOBAL_INT_DISABLE();
@@ -886,17 +923,35 @@ void demo_doorbell_udp_deinit(void)
 
 void cli_doorbell_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
-	os_printf("cli_doorbell_test_cmd\r\n");
-	uint8_t enable = os_strtoul(argv[1], NULL, 10);
+	if (argc > 0)
+	{
+		uint8_t mode = os_strtoul(argv[1], NULL, 10);
 
-	if (enable)
-	{
-		video_transfer_use_cpu1 = true;
+		if (mode == CPU0)
+		{
+			video_transfer_mode = CPU0;
+		}
+		else if (mode == CPU1)
+		{
+			video_transfer_mode = CPU1;
+		}
+		else if (mode == CPU1_PLUS)
+		{
+			video_transfer_mode = CPU1_PLUS;
+		}
+		else if (mode == DOORBELL_PLUS)
+		{
+			video_transfer_mode = DOORBELL_PLUS;
+		}
+		else
+		{
+			video_transfer_mode = CPU0;
+		}
 	}
-	else
-	{
-		video_transfer_use_cpu1 = false;
-	}
+
+	os_printf("cli_doorbell_test_cmd, mode: %d\n", video_transfer_mode);
+
+
 	demo_doorbell_udp_init();
 }
 

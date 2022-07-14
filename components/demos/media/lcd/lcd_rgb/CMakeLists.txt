@@ -8,6 +8,7 @@ set(srcs
 	"../common/lcd_sdcard_config.c"
 	"../common/lcd_spi_config.c"
 	"../lcd_dev_init/lcd_device_init.c"
+	lcd_rgb_capture.c
 	)
 endif()
 

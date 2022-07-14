@@ -41,7 +41,7 @@
 #include "modules/image_scale.h"
 #include "lcd_blend_config.h"
 #endif
-
+//#include "BK7256_RegList.h"
 
 #define EJPEG_DELAY_HTIMER_CHANNEL     5
 #define EJPEG_I2C_DEFAULT_BAUD_RATE    I2C_BAUD_RATE_100KHZ
@@ -345,23 +345,6 @@ static void camera_intf_config_ejpeg(void *data)
 #endif
 }
 
-
-#if 0//(CONFIG_SYSTEM_CTRL)
-static void camera_inf_write_init_table(const uint8_t (*cfg_table)[2], uint32_t size)
-{
-	uint8_t addr = 0;
-	uint8_t data = 0;
-	for (uint32_t i = 0; i < size; i++) {
-		/*if (i == (size - 1)) {
-			bk_jpeg_enc_dvp_gpio_enable();
-		}*/
-		addr = cfg_table[i][0];
-		data = cfg_table[i][1];
-		camera_intf_sccb_write(addr, data);
-	}
-}
-#endif
-
 bk_err_t bk_camera_init(void *data)
 {
 	int err = kNoErr;
@@ -382,7 +365,7 @@ bk_err_t bk_camera_init(void *data)
 	jpeg_config.y_pixel = ejpeg_cfg.y_pixel;
 	if (ppi >= VGA_1280_720) {
 		jpeg_config.sys_clk_div = 3; // sys jpeg div (3+1)
-		jpeg_config.mclk_div = 2;// jpeg 2 div
+		jpeg_config.mclk_div = 0;// jpeg 4 div
 	} else {
 		jpeg_config.sys_clk_div = 4; // sys jpeg div (4+1)
 		jpeg_config.mclk_div = 0; // jpeg 4 div

@@ -79,16 +79,14 @@ bk_err_t jpeg_hal_configure(jpeg_hal_t *hal, const jpeg_config_t *config)
 {
 	jpeg_ll_disable(hal->hw);
 	jpeg_ll_init_quant_table(hal->hw);
-	jpeg_ll_enable_start_frame_int(hal->hw);
-	jpeg_ll_enable_end_frame_int(hal->hw);
-	jpeg_ll_enable_head_output_int(hal->hw);
-	jpeg_ll_enable_vsync_negedge_int(hal->hw);
 	jpeg_hal_set_target_bitrate(hal, config->x_pixel);
 	jpeg_ll_set_mclk_div(hal->hw, config->mclk_div);
 	jpeg_ll_set_x_pixel(hal->hw, config->x_pixel);
 	jpeg_ll_set_y_pixel(hal->hw, config->y_pixel);
 #if (CONFIG_SYSTEM_CTRL)
 	if (config->yuv_mode == 0) {
+		jpeg_ll_enable_end_frame_int(hal->hw);
+		jpeg_ll_enable_bitrate_ctrl(hal->hw, 1);
 		jpeg_ll_set_default_bitrate_step(hal->hw);
 		jpeg_ll_enable_video_byte_reverse(hal->hw);
 		jpeg_ll_enable_enc_size(hal->hw);
@@ -109,6 +107,28 @@ bk_err_t jpeg_hal_configure(jpeg_hal_t *hal, const jpeg_config_t *config)
 	jpeg_ll_enable(hal->hw);
 #endif
 
+	return BK_OK;
+}
+
+bk_err_t jpeg_hal_set_yuv_config(jpeg_hal_t *hal)
+{
+	jpeg_ll_enable_end_frame_int(hal->hw);
+	//jpeg_ll_enable_bitrate_ctrl(hal->hw, 1);
+	//jpeg_ll_set_bitrate_mode(hal->hw, 0);
+	//jpeg_ll_set_default_bitrate_step(hal->hw);
+	jpeg_ll_disable_yuv_byte_reverse(hal->hw);
+	jpeg_ll_enable_video_byte_reverse(hal->hw);
+	jpeg_ll_enable_enc_size(hal->hw);
+	jpeg_ll_set_em_base_addr(hal->hw, (uint32_t)JPEG_SHARE_MEM);
+	jpeg_ll_enable(hal->hw);
+
+	return BK_OK;
+}
+
+bk_err_t jpeg_hal_enable_clk(jpeg_hal_t *hal, uint32_t value)
+{
+	jpeg_ll_set_mclk_div(hal->hw, value);
+	jpeg_ll_set_yuv_mode(hal->hw, 1);
 	return BK_OK;
 }
 

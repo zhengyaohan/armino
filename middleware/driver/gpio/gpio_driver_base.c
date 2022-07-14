@@ -29,6 +29,7 @@
 #endif
 gpio_driver_t s_gpio = {0};
 static gpio_isr_t s_gpio_isr[SOC_GPIO_NUM] = {NULL};
+static bool s_gpio_is_init = false;
 
 #define GPIO_RETURN_ON_INVALID_ID(id) do {\
 		if ((id) >= SOC_GPIO_NUM) {\
@@ -81,12 +82,28 @@ static void gpio_isr(void);
 
 bk_err_t bk_gpio_driver_init(void)
 {
+	//avoid re-init caused some info lost
+	if(s_gpio_is_init)
+	{
+		GPIO_LOGI("%s:has inited \r\n", __func__);
+		return BK_OK;
+	}
+
 	os_memset(&s_gpio, 0, sizeof(s_gpio));
 
 	gpio_hal_disable_jtag_mode(&s_gpio.hal);
 
-	bk_int_isr_register(INT_SRC_GPIO, gpio_isr, NULL);
+	gpio_hal_init(&s_gpio.hal);
 
+#ifdef CONFIG_GPIO_DYNAMIC_WAKEUP_SUPPORT
+	gpio_dynamic_wakeup_source_init();
+#endif
+
+	amp_res_init(AMP_RES_ID_GPIO);
+
+	//Move ISR to last to avoid other resouce doesn't finish but isr has came.
+	//F.E:GPIO wakeup deepsleep.
+	bk_int_isr_register(INT_SRC_GPIO, gpio_isr, NULL);
 	//interrupt to CPU enable
 #if (CONFIG_SYSTEM_CTRL)
 	sys_drv_int_group2_enable(GPIO_INTERRUPT_CTRL_BIT);
@@ -94,24 +111,26 @@ bk_err_t bk_gpio_driver_init(void)
 	icu_enable_gpio_interrupt();
 #endif
 
-	gpio_hal_init(&s_gpio.hal);
-
-#ifdef CONFIG_GPIO_DYNAMIC_WAKEUP_SUPPORT
-	gpio_dynamic_wakeup_source_init();
-#endif
-	amp_res_init(AMP_RES_ID_GPIO);
-
+	s_gpio_is_init = true;
 	return BK_OK;
 }
 
 bk_err_t bk_gpio_driver_deinit(void)
 {
+	if(!s_gpio_is_init)
+	{
+		GPIO_LOGI("%s:isn't init \r\n", __func__);
+		return BK_OK;
+	}
+
 	//interrupt to CPU disable
 #if (CONFIG_SYSTEM_CTRL)
 	sys_drv_int_group2_disable(GPIO_INTERRUPT_CTRL_BIT);
 #else
 	icu_disable_gpio_interrupt();
 #endif
+
+	s_gpio_is_init = false;
 
 	return BK_OK;
 }

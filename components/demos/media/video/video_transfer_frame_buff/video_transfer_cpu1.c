@@ -21,7 +21,7 @@
 #include <driver/jpeg_enc.h>
 #include <driver/jpeg_enc_types.h>
 #include <components/dvp_camera.h>
-//#include "dvp_camera_config.h"
+#include <driver/timer.h>
 
 #if CONFIG_GENERAL_DMA
 #include "bk_general_dma.h"
@@ -29,16 +29,19 @@
 
 #include "video_transfer_cpu1.h"
 #include "video_transfer_camera_process.h"
+#include "video_frame_buff.h"
 
 //#include "BK7256_RegList.h"
 
-#define EJPEG_DELAY_HTIMER_CHANNEL     5
+#define EJPEG_CHECK_HTIMER_CHANNEL     TIMER_ID5
+#define EJPEG_CHECK_HTIMER_VAL         1000// 1 second
 #define EJPEG_I2C_DEFAULT_BAUD_RATE    I2C_BAUD_RATE_100KHZ
 #define EJPEG_DMA_TRANSFER_LEN         0x2800
 #define TU_QITEM_COUNT      (60)
 
 static uint8_t  dvp_dma_channel = 0;
 static uint8_t  frame_buffer_id = 0;
+static uint8_t  eof_time_second = 0;
 static uint32_t frame_id = 0;
 
 static beken_thread_t  video_thread_cpu1_hdl = NULL;
@@ -68,7 +71,9 @@ static bk_err_t video_transfer_cpu1_send_msg(uint8_t msg_type, uint32_t data)
 
 static void video_transfer_jpeg_eof_callback(jpeg_unit_t id, void *param)
 {
+	//addAON_GPIO_Reg0x8 = 2;
 	frame_information_t info = {0};
+	eof_time_second++;
 	uint32_t left_len = bk_dma_get_remain_len(dvp_dma_channel);
 	uint32_t rec_len = EJPEG_DMA_TRANSFER_LEN - left_len;
 	uint32_t frame_len = bk_jpeg_enc_get_frame_size();
@@ -94,7 +99,7 @@ static void video_transfer_jpeg_eof_callback(jpeg_unit_t id, void *param)
 	// get idle frame buff addr and buf_len
 	bk_err_t ret = video_transfer_get_idle_buff(frame_buffer_id, &info);
 	if (ret != BK_OK) {
-		os_printf("frame_buff not in idle\r\n");
+		//os_printf("frame_buff not in idle\r\n");
 		ret = video_transfer_get_ready_buff(&info);
 		if (ret != BK_OK) {
 			os_printf("frame_buff not in ready\r\n");
@@ -167,7 +172,11 @@ static bk_err_t video_transfer_dma_config(void)
 	return ret;
 }
 
-/* NOTE: data not transfer*/
+static void jpeg_eof_checkout_callback(timer_id_t timer_id)
+{
+	video_transfer_cpu1_send_msg(VIDEO_CPU1_EOF_CHECK, 0);
+}
+
 static bk_err_t video_transfer_camera_cpu1_init(void)
 {
 	bk_err_t ret = BK_OK;
@@ -233,14 +242,18 @@ static bk_err_t video_transfer_camera_cpu1_init(void)
 		return ret;
 	}
 
-	//video_transfer_camera_register_set();
 	bk_camera_sensor_config();
+
+	// step 5: init a timer for 1 second to checkout jpeg eof
+	bk_timer_start(EJPEG_CHECK_HTIMER_CHANNEL, EJPEG_CHECK_HTIMER_VAL, jpeg_eof_checkout_callback);
+
 	return BK_OK;
 }
 
 static bk_err_t video_transfer_camera_cpu1_deinit(void)
 {
 	bk_err_t ret = BK_OK;
+	bk_timer_stop(EJPEG_CHECK_HTIMER_CHANNEL);
 
 	// setp 1: deinit jpeg
 	ret = bk_jpeg_enc_dvp_deinit();
@@ -279,8 +292,7 @@ static bk_err_t video_transfer_camera_cpu1_deinit(void)
 	// step 5: deinit frame buff
 	video_transfer_buff_deinit();
 
-	// setp 6: disable mailbox
-	video_mailbox_deinit();
+	eof_time_second = 0;
 	frame_id = 0;
 	frame_buffer_id = 0;
 	os_memset(&info_cpu1, 0, sizeof(frame_information_t));
@@ -321,6 +333,23 @@ static bk_err_t video_transfer_send_buff_frame(void)
 	mb_msg.param3 = info_cpu1.frame_len;
 //	addAON_GPIO_Reg0x8 = 0;
 	return video_mailbox_send_msg(&mb_msg);
+}
+
+static void video_transfer_jpeg_eof_check()
+{
+	if (eof_time_second < 10) {
+		//addAON_GPIO_Reg0x9 = 2;
+		// jpeg eof error, reboot jpeg
+
+		// step 1: deinit
+		video_transfer_camera_cpu1_deinit();
+
+		// step 2: init
+		video_transfer_camera_cpu1_init();
+		//addAON_GPIO_Reg0x9 = 0;
+	} else {
+		eof_time_second = 0;
+	}
 }
 
 static void video_cp1_mailbox_rx_isr(video_mb_t *vid_mb, mb_chnl_cmd_t *cmd_buf)
@@ -396,6 +425,10 @@ static void video_transfer_cpu1_main(beken_thread_arg_t data)
 				video_transfer_inform_ready();
 				break;
 
+			case VIDEO_CPU1_EOF_CHECK:
+				video_transfer_jpeg_eof_check();
+				break;
+
 			case VIDEO_CPU1_SEND:
 				video_transfer_send_buff_frame();
 				break;
@@ -423,6 +456,8 @@ exit:
 	video_mailbox_send_msg(&mb_msg);
 
 	video_transfer_camera_cpu1_deinit();
+
+	video_mailbox_deinit();
 
 	rtos_deinit_queue(&vid_cpu1_msg_que);
 	vid_cpu1_msg_que = NULL;

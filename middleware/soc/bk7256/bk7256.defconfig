@@ -72,6 +72,7 @@ CONFIG_AUDIO_RISCV_IP_V1_0=y
 #
 # end of Audio
 
+CONFIG_MEDIA=y
 #
 # Video
 #

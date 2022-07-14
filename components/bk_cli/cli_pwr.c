@@ -9,6 +9,8 @@
 #include "sys_driver.h"
 #include "bk_pm_internal_api.h"
 #include <driver/mailbox_channel.h>
+#include <driver/gpio.h>
+
 #if CONFIG_MCU_PS
 static void cli_ps_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
@@ -107,7 +109,9 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 	UINT32 pm_param1 = 0,pm_param2 = 0,pm_param3 = 0;
 	rtc_wakeup_param_t      rtc_wakeup_param         = {0};
 	system_wakeup_param_t   system_wakeup_param      = {0};
+	#if (!CONFIG_GPIO_WAKEUP_SUPPORT) && (!CONFIG_SLAVE_CORE)
 	gpio_wakeup_param_t     gpio_wakeup_param        = {0};
+	#endif
 	touch_wakeup_param_t    touch_wakeup_param       = {0};
 	usbplug_wakeup_param_t  usbplug_wakeup_param     = {0};
 
@@ -174,10 +178,19 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 	}
 	else if(pm_wake_source == PM_WAKEUP_SOURCE_INT_GPIO)
 	{
+	#if CONFIG_GPIO_WAKEUP_SUPPORT
+		bk_gpio_register_wakeup_source(pm_param1,pm_param2);
+		pm_wakeup_source_set(PM_WAKEUP_SOURCE_INT_GPIO, NULL);
+	#else
+		#if !CONFIG_SLAVE_CORE
 		gpio_wakeup_param.gpio_id = pm_param1;
 		gpio_wakeup_param.gpio_valid = PARAM_DATA_VALID;
 		gpio_wakeup_param.gpio_trigger_interrupt_type = pm_param2;
+
 		pm_wakeup_source_set(PM_WAKEUP_SOURCE_INT_GPIO, &gpio_wakeup_param);
+		#endif
+	#endif
+
 	}
 	else if(pm_wake_source == PM_WAKEUP_SOURCE_INT_SYSTEM_WAKE)
 	{   

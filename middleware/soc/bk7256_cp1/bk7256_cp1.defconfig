@@ -66,6 +66,7 @@ CONFIG_AT_CMD=y
 CONFIG_PSRAM=y
 # end of PSRAM
 
+CONFIG_MEDIA=y
 #
 # Audio
 #

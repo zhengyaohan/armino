@@ -14,6 +14,7 @@
 
 #include <driver/dma.h>
 #include <driver/int.h>
+#include <driver/gpio.h>
 #include <os/mem.h>
 #include <driver/jpeg_enc.h>
 #include "clock_driver.h"
@@ -65,6 +66,10 @@ static void jpeg_init_gpio(void)
 	for (uint32_t i = 0; i < 2; i++) {
 		gpio_dev_unmap(jpeg_gpio_map_table[i].gpio_id);
 		gpio_dev_map(jpeg_gpio_map_table[i].gpio_id, jpeg_gpio_map_table[i].dev);
+		/*if (i == 0) {
+			// enhance mclk capability
+			bk_gpio_set_capacity(jpeg_gpio_map_table[i].gpio_id, 3);
+		}*/
 	}
 #else
 	for(uint32_t i = 0; i < JPEG_GPIO_PIN_NUMBER; i++) {
@@ -223,6 +228,19 @@ bk_err_t bk_jpeg_enc_dvp_init(const jpeg_config_t *config)
 	return BK_OK;
 }
 
+bk_err_t bk_clk_enable(void)
+{
+	sys_drv_set_jpeg_clk_sel(1);
+	sys_drv_set_clk_div_mode1_clkdiv_jpeg(4);
+	sys_drv_set_jpeg_disckg(1);
+
+	jpeg_hal_enable_clk(&s_jpeg.hal, 0);
+	pm_clock_ctrl(PM_CLK_ID_JPEG, CLK_PWR_CTRL_PWR_UP);
+
+	return BK_OK;
+}
+
+
 bk_err_t bk_jpeg_enc_dvp_deinit(void)
 {
 	jpeg_cli_deinit_common();
@@ -293,6 +311,58 @@ bk_err_t bk_jpeg_enc_get_fifo_addr(uint32_t *fifo_addr)
 {
 	JPEG_RETURN_ON_NOT_INIT();
 	*fifo_addr = JPEG_R_RX_FIFO;
+	return BK_OK;
+}
+
+bk_err_t bk_jpeg_enc_enable_int(uint32_t type)
+{
+	JPEG_RETURN_ON_NOT_INIT();
+	if (type & JPEG_END_YUV_INT) {
+		jpeg_hal_enable_end_yuv_int(&s_jpeg.hal);
+	}
+
+	if (type & JPEG_HEAD_OUTPUT_INT) {
+		jpeg_hal_enable_head_output_int(&s_jpeg.hal);
+	}
+
+	if (type & JPEG_START_FRAME_INT) {
+		jpeg_hal_enable_start_frame_int(&s_jpeg.hal);
+	}
+
+	if (type & JPEG_END_FRAME_INT) {
+		jpeg_hal_enable_end_frame_int(&s_jpeg.hal);
+	}
+
+	if (type & JPEG_VSYNC_NEGEDGE_INT) {
+		jpeg_hal_enable_vsync_negedge_int(&s_jpeg.hal);
+	}
+
+	return BK_OK;
+}
+
+bk_err_t bk_jpeg_enc_disable_int(uint32_t type)
+{
+	JPEG_RETURN_ON_NOT_INIT();
+	if (type & JPEG_END_YUV_INT) {
+		jpeg_hal_disable_end_yuv_int(&s_jpeg.hal);
+	}
+
+	if (type & JPEG_HEAD_OUTPUT_INT) {
+		jpeg_hal_disable_head_output_int(&s_jpeg.hal);
+	}
+
+	if (type & JPEG_START_FRAME_INT) {
+		jpeg_hal_disable_start_frame_int(&s_jpeg.hal);
+	}
+
+	if (type & JPEG_END_FRAME_INT) {
+		jpeg_hal_disable_end_frame_int(&s_jpeg.hal);
+	}
+
+	if (type & JPEG_VSYNC_NEGEDGE_INT) {
+		jpeg_hal_disable_vsync_negedge_int(&s_jpeg.hal);
+	}
+
 	return BK_OK;
 }
 

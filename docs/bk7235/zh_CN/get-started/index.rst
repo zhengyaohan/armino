@@ -73,17 +73,14 @@ Armino SDK代码下载
 BK7256工具链下载路径如下：
 
 	工具链下载：
-	http://dl.bekencorp.com:8192/tools/toolchain/risc-v_20220418.tar.gz
-
-	校验文件：
-	http://dl.bekencorp.com:8192/tools/toolchain/risc-v_20220418.tar.gz.md5sum
+	http://dl.bekencorp.com:8192/tools/toolchain/toolchain_v5.1.1.tgz
 
 
 
 工具包下载后，通过如下操作命令解压至 /opt/risc-v目录下：
 
     $ sudo mkdir -p /opt/
-    $ tar -jxvf risc-v.tar.bz2 -C /opt/
+    $ tar -zxvf toolchain_v5.1.1.tgz -C /
 
 
 .. note::

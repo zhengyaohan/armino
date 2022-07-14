@@ -63,6 +63,7 @@ endif()
 if (CONFIG_DUAL_CORE AND CONFIG_PSRAM)
 	list(APPEND srcs
 		"video_common/video_mailbox.c"
+		"video_common/video_frame_buff.c"
 		)
 
 if (NOT CONFIG_SLAVE_CORE)
@@ -75,7 +76,6 @@ if (CONFIG_SLAVE_CORE AND CONFIG_CAMERA)
 	list(APPEND srcs
 		"video_transfer_frame_buff/video_transfer_cpu1.c"
 		"video_transfer_frame_buff/video_transfer_camera_process.c"
-		"video_transfer_frame_buff/video_transfer_frame_buff.c"
 		)
 endif()
 

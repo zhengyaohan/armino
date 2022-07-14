@@ -32,6 +32,11 @@
 #include "media_common.h"
 #endif
 
+#ifdef CONFIG_MEDIA
+#include "media_cli.h"
+#endif
+
+
 #define TAG "cli"
 
 static struct cli_st *pCli = NULL;
@@ -1457,9 +1462,13 @@ int bk_cli_init(void)
 #endif
 
 #if (CONFIG_DOORBELL == 1)
-#if (CONFIG_DUAL_CORE)
+//#if (CONFIG_DUAL_CORE)
 	cli_doorbell_init();
+//#endif
 #endif
+
+#if (CONFIG_MEDIA == 1)
+	media_cli_init();
 #endif
 
 
