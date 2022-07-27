@@ -584,8 +584,9 @@ JRESULT jd_prepare (
 }
 
 
-void JpegdecInit(JDEC* jdec,uint32_t * dec_src_addr)
+JRESULT JpegdecInit(JDEC* jdec,uint32_t * dec_src_addr)
 {
+	int ret;
 	uint32_t xs;
 	uint32_t bits_num = 0, i;
 	volatile unsigned long * huf_pointer;
@@ -603,7 +604,9 @@ void JpegdecInit(JDEC* jdec,uint32_t * dec_src_addr)
 	jpg_dec_st.rd_ptr = 0;//init rd pointer
 	jpg_dec_st.jpg_file_size = 1024;
 
-	jd_prepare(jdec, jpeg_dec_input_func, jpg_dec_st.workbuf, WORK_AREA_SIZE, NULL);
+	ret = jd_prepare(jdec, jpeg_dec_input_func, jpg_dec_st.workbuf, WORK_AREA_SIZE, NULL);
+	if(ret != JDR_OK)
+		return ret;
 	//os_printf("12-----JPEGDEC_INTEN = %x \r\n", JPEGDEC_INTEN);
 	//os_printf("12---BASE_FFDA = %x \r\n", BASE_FFDA);
 
@@ -756,6 +759,7 @@ void JpegdecInit(JDEC* jdec,uint32_t * dec_src_addr)
 //		return -1;
 //	}
 //	*Y_buf = jpg_dec_st.outputbuf;  
+	return JDR_OK;
 }
 
 

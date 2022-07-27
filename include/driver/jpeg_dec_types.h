@@ -29,6 +29,20 @@ typedef void (*jpeg_dec_isr_t)(void *param);  /**< jpegdec complete callback fun
 typedef void (*jpeg_dec_isr_t)(void);               /**< jpegdec int isr register func type */
 #endif
 
+/* Error code */
+typedef enum {
+	JDR_OK = 0,	/* 0: Succeeded */
+	JDR_INTR,	/* 1: Interrupted by output function */
+	JDR_INP,	/* 2: Device error or wrong termination of input stream */
+	JDR_MEM1,	/* 3: Insufficient memory pool for the image */
+	JDR_MEM2,	/* 4: Insufficient stream input buffer */
+	JDR_PAR,	/* 5: Parameter error */
+	JDR_FMT1,	/* 6: Data format error (may be damaged data) */
+	JDR_FMT2,	/* 7: Right format but not supported */
+	JDR_FMT3	/* 8: Not supported JPEG standard */
+} JRESULT;
+
+
 typedef enum {
 	JPEGDEC_X_PIXEL_320 = 0, /**<define image  pixel x */
 	JPEGDEC_X_PIXEL_480,     /**<define image  pixel x */

@@ -386,15 +386,12 @@ SECTIONS
 	PROVIDE (_stack = 0x20007FE0);
 	SRAM_DATA_SIZE = . - SRAM_DATA_BEGIN;
 	. = 0x30060000;
-	SRAM1_BEGIN = .;
+	SRAM_VIDEO_BEGIN = .;
 	.video_spec_data 	: AT(LOADADDR (.sdata_f) + SIZEOF (.sdata_f))
 		{ KEEP(*(.video_spec_data )) }
 	_vedio_start = ADDR(.video_spec_data);
-	.media_data 	: AT(LOADADDR (.video_spec_data) + SIZEOF (.video_spec_data))
-		{ KEEP(*(.media_data )) }
-	_media_data_start = ADDR(.media_data);
-	SRAM1_SIZE = . - SRAM1_BEGIN;
-	CPU0_LOAD2_SIZE = LOADADDR(.media_data) + SIZEOF(.media_data) - CPU0_LOAD2_BEGIN;
+	SRAM_VIDEO_SIZE = . - SRAM_VIDEO_BEGIN;
+	CPU0_LOAD2_SIZE = LOADADDR(.video_spec_data) + SIZEOF(.video_spec_data) - CPU0_LOAD2_BEGIN;
 	.stab	0 : { *(.stab) }
 	.stabstr	0 : { *(.stabstr) }
 	.stab.excl	0 : { *(.stab.excl) }
@@ -426,5 +423,5 @@ ASSERT((DEFINED (_RELAX_END_) ? ITCM_SIZE : 0x0)<= 0x8000, "ITCM OVERFLOW");
 ASSERT((DEFINED (_RELAX_END_) ? CPU0_LOAD1_SIZE : 0x0)<= 0x8800, "CPU0_LOAD1 OVERFLOW");
 ASSERT((DEFINED (_RELAX_END_) ? DTCM_SIZE : 0x0)<= 0x7800, "DTCM OVERFLOW");
 ASSERT((DEFINED (_RELAX_END_) ? SRAM_DATA_SIZE : 0x0)<= 0x60000, "SRAM_DATA OVERFLOW");
-ASSERT((DEFINED (_RELAX_END_) ? SRAM1_SIZE : 0x0)<= 0x20000, "SRAM1 OVERFLOW");
+ASSERT((DEFINED (_RELAX_END_) ? SRAM_VIDEO_SIZE : 0x0)<= 0x20000, "SRAM_VIDEO OVERFLOW");
 ASSERT((DEFINED (_RELAX_END_) ? CPU0_LOAD2_SIZE : 0x0)<= 0x1A7800, "CPU0_LOAD2 OVERFLOW");

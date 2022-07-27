@@ -16,9 +16,9 @@
 #include <components/log.h>
 
 #include "media_core.h"
-#include "trs_act.h"
+#include "media_evt.h"
 #include "lcd_act.h"
-#include "dvp_act.h"
+#include "frame_buffer.h"
 
 #include <driver/int.h>
 #include <os/mem.h>
@@ -70,7 +70,7 @@ typedef struct
 
 static void dma_rgb_finish_isr(dma_id_t id)
 {
-	//LOGD("%s\n", __func__);
+	LOGD("%s\n", __func__);
 
 	lcd_info.count ++;
 
@@ -78,12 +78,18 @@ static void dma_rgb_finish_isr(dma_id_t id)
 	{
 		lcd_info.count = 0;
 		bk_dma_set_src_start_addr(lcd_info.dma_channel, (uint32_t)lcd_info.display_address);
-		media_msg_t msg;
 
-		msg.event = EVENT_TRS_FRAME_FREE_IND;
-		msg.param = (uint32_t)lcd_info.frame;
-		media_send_msg(&msg);
-		lcd_info.frame = NULL;
+		//LOGI("RGB complete\n");
+
+		if (lcd_info.frame && true == frame_buffer_get_state())
+		{
+			media_msg_t msg;
+			
+			msg.event = EVENT_COM_FRAME_LCD_FREE_IND;
+			msg.param = (uint32_t)lcd_info.frame;
+			media_send_msg(&msg);
+			lcd_info.frame = NULL;
+		}
 	}
 	else
 	{
@@ -120,23 +126,23 @@ static void dma2d_crop_image(dma2d_crop_params_t *crop_params)
 
 static void jpeg_dec_eof_cb(void *param)
 {
-	//LOGD("%s\n", __func__);
-#if 1
+	//LOGI("decoder complete\n");
+
+	//bk_gpio_pull_up(GPIO_5);
+
 	media_msg_t msg;
 
 	msg.event = EVENT_LCD_RESIZE_IND;
 	media_send_msg(&msg);
-#else
-	bk_lcd_rgb_display_en(1);
-	bk_dma_start(lcd_info.dma_channel);
-#endif
+
+	//bk_gpio_pull_down(GPIO_5);
 }
 
 
 static void dma_video_lcd_config(uint32_t dma_ch, uint32_t dma_src_mem_addr)
 {
 	dma_config_t dma_config = {0};
-	
+
 	dma_config.mode = DMA_WORK_MODE_SINGLE;
 	dma_config.chan_prio = 0;
 	dma_config.src.dev = DMA_DEV_DTCM;
@@ -226,63 +232,146 @@ int lcd_driver_init(void)
 	return ret;
 }
 
-
-void lcd_open_handle(void)
+void lcd_frame_complete_callback(frame_buffer_t *buffer)
 {
+	media_msg_t msg;
+
+	msg.event = EVENT_LCD_FRAME_COMPLETE_IND;
+	msg.param = (uint32_t)buffer;
+
+	media_send_msg(&msg);
+}
+
+void lcd_open_handle(param_pak_t *param)
+{
+	int ret = BK_OK;
+	//media_msg_t msg;
+
 	LOGI("%s\n", __func__);
 
-	dvp_camera_device_t *device = bk_dvp_camera_get_device();
+	if (LCD_STATE_ENABLED == get_lcd_state())
+	{
+		LOGW("%s already open\n", __func__);
+		goto out;
+	}
 
-	if (device == NULL || device->id == ID_UNKNOW)
+
+	ret = lcd_driver_init();
+
+	frame_buffer_frame_register(MODULE_LCD, lcd_frame_complete_callback);
+
+	set_lcd_state(LCD_STATE_ENABLED);	
+
+out:
+
+	MEDIA_EVT_RETURN(param, ret);
+}
+
+void lcd_close_handle(param_pak_t *param)
+{
+	int ret = BK_OK;
+
+	LOGI("%s\n", __func__);
+
+	if (LCD_STATE_DISABLED == get_lcd_state())
+	{
+		LOGW("%s already open\n", __func__);
+		goto out;
+	}
+
+	bk_dma_deinit(lcd_info.dma_channel);
+
+	if (bk_dma_free(DMA_DEV_LCD_DATA, lcd_info.dma_channel) != BK_OK)
+	{
+		LOGE("free lcd dma: %d error\r\n", lcd_info.dma_channel);
+	}
+
+	bk_jpeg_dec_driver_deinit();
+	bk_lcd_rgb_deinit();
+	bk_dma2d_driver_deinit();
+
+	if (lcd_info.frame)
 	{
 		media_msg_t msg;
-
-		LOGI("%s register camera init\n", __func__);
-
-		msg.event = EVENT_DVP_LCD_REG_CAM_INIT_REQ;
-
+		
+		msg.event = EVENT_COM_FRAME_LCD_FREE_IND;
+		msg.param = (uint32_t)lcd_info.frame;
 		media_send_msg(&msg);
+		lcd_info.frame = NULL;
 	}
-	else
-	{
-		lcd_driver_init();
-	}
+
+	frame_buffer_frame_deregister(MODULE_LCD);
+
+	set_lcd_state(LCD_STATE_DISABLED);	
+
+out:
+
+	MEDIA_EVT_RETURN(param, ret);
 }
 
-void lcd_dvp_reg_cam_init_res_handle(void)
-{
-	LOGI("%s\n", __func__);
 
-	lcd_driver_init();
-}
 
 void lcd_frame_complete_handle(frame_buffer_t *buffer)
 {
+	int ret = 0;
+
 	LOGD("%s\n", __func__);
 
-#if 1
+	//bk_gpio_pull_up(GPIO_6);
 
-	if (lcd_info.frame == NULL)
+	if (lcd_info.frame == NULL
+		&& true == frame_buffer_get_state())
 	{
-		LOGD("%s decoder start\n", __func__);
+		//LOGI("%s decoder: %02X%02X\n", __func__, buffer->frame[0], buffer->frame[1]);
 
-		bk_jpeg_dec_init((uint32_t *)buffer->frame, (uint32_t *)lcd_info.decoder_address);
+		if (buffer->frame[0] != 0xFF || buffer->frame[1] != 0xD8)
+		{
+			media_msg_t msg;
 
-		lcd_info.frame = buffer;
+			msg.event = EVENT_COM_FRAME_LCD_FREE_IND;
+			msg.param = (uint32_t)buffer;
+			media_send_msg(&msg);
+		}
+		else
+		{
+			//LOGI("encoder\n");
+
+			//bk_gpio_pull_up(GPIO_7);
+			ret = bk_jpeg_dec_init((uint32_t *)buffer->frame, (uint32_t *)lcd_info.decoder_address);
+
+			if (ret < 0)
+			{
+
+				LOGI("%s decoder error: %p\n", __func__, buffer->frame);
+				media_msg_t msg;
+
+				msg.event = EVENT_COM_FRAME_LCD_FREE_IND;
+				msg.param = (uint32_t)buffer;
+				media_send_msg(&msg);
+			}
+			else
+			{
+				lcd_info.frame = buffer;
+			}
+
+			//bk_gpio_pull_down(GPIO_7);
+		}
+
+
 	}
-#else
 
-	media_msg_t msg;
+	//bk_gpio_pull_down(GPIO_6);
 
-	msg.event = EVENT_TRS_FRAME_FREE_IND;
-	msg.param = (uint32_t)buffer;
-	media_send_msg(&msg);
-#endif
 }
 
 
 void lcd_resize_handle(void)
 {
+	if (false == frame_buffer_get_state())
+	{
+		return;
+	}
+
 	if (lcd_info.dec_pixel_x == JPEGDEC_X_PIXEL_640)
 	{
 		dma2d_crop_params_t  crop_params;
@@ -319,11 +408,7 @@ void lcd_event_handle(uint32_t event, uint32_t param)
 	switch (event)
 	{
 		case EVENT_LCD_OPEN_IND:
-			lcd_open_handle();
-			break;
-
-		case EVENT_LCD_DVP_REG_CAM_INIT_RES:
-			lcd_dvp_reg_cam_init_res_handle();
+			lcd_open_handle((param_pak_t*)param);
 			break;
 
 		case EVENT_LCD_FRAME_COMPLETE_IND:
@@ -333,17 +418,16 @@ void lcd_event_handle(uint32_t event, uint32_t param)
 		case EVENT_LCD_RESIZE_IND:
 			lcd_resize_handle();
 			break;
+		case EVENT_LCD_CLOSE_IND:
+			lcd_close_handle((param_pak_t*)param);
+			break;
 	}
 }
 
-void lcd_frame_complete_notify(frame_buffer_t *buffer)
+
+frame_buffer_t *get_lcd_frame(void)
 {
-	media_msg_t msg;
-
-	msg.event = EVENT_LCD_FRAME_COMPLETE_IND;
-	msg.param = (uint32_t)buffer;
-
-	media_send_msg(&msg);
+	return lcd_info.frame;
 }
 
 lcd_state_t get_lcd_state(void)
@@ -360,5 +444,5 @@ void lcd_init(void)
 {
 	os_memset(&lcd_info, 0, sizeof(lcd_info_t));
 
-	lcd_info.state = LCD_STATE_DIEABLED;
+	lcd_info.state = LCD_STATE_DISABLED;
 }

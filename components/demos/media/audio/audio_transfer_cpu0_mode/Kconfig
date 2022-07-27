@@ -1,5 +1,0 @@
-menu "DEMOS_CONFIG"
-	config AUDIO_TRANSFER_CPU0
-		bool "Enable Audio transfer cpu0 mode test"
-		default n
-endmenu

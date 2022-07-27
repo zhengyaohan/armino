@@ -21,10 +21,7 @@ extern "C" {
 #endif
 
 
-typedef enum
-{
-	EVENT_COM_DEFAULT_IND = (COM_EVENT << MEDIA_EVT_BIT),
-} com_event_t;
+
 
 void comm_event_handle(uint32_t event, uint32_t param);
 

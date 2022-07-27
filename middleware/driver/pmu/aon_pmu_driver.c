@@ -111,3 +111,7 @@ void aon_pmu_drv_wdt_rst_dev_enable(void)
 }
 #endif
 
+uint32_t aon_pmu_drv_bias_cal_get()
+{
+	return aon_pmu_hal_bias_cal_get();
+}

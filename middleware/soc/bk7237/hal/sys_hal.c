@@ -410,7 +410,7 @@ __attribute__((section(".itcm_sec_code"))) void sys_hal_enter_low_voltage(void)
 	if(pm_wake_int_flag2&(WIFI_MAC_GEN_INT_BIT))
 	{
 		ps_switch(PS_UNALLOW, PS_EVENT_STA, PM_RF_BIT);
-		pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_PHY_WIFI,PM_POWER_MODULE_STATE_ON);
+		bk_pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_PHY_WIFI,PM_POWER_MODULE_STATE_ON);
 	}
 
 	sys_ll_set_cpu0_int_0_31_en_value(int_state1);
@@ -7832,6 +7832,12 @@ void sys_hal_set_ana_cb_cal_trig(uint32_t value)
 {
     sys_ll_set_ana_reg4_cb_cal_trig(value);
 }
+
+void sys_hal_set_ana_cb_cal_manu_val(uint32_t value)
+{
+    sys_ll_set_ana_reg4_cb_manu_val(value);
+}
+
 void sys_hal_set_ana_vlsel_ldodig(uint32_t value)
 {
     sys_ll_set_ana_reg3_vlsel_ldodig(value);

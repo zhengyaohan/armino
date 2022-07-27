@@ -38,7 +38,7 @@
 static int is_subscribed = 0;
 static char mac_str[DEVICE_MAC_MAXLEN] = {0};
 
-int cnt = 0;
+static int cnt = 0;
 void *gpclient;
 char *msg_buf = NULL, *msg_readbuf = NULL, *user_topic = NULL, *user_topic_resp = NULL;
 
@@ -169,7 +169,9 @@ static void mqtt_cmd_msg_handle(void *pcontext, void *pclient, iotx_mqtt_event_m
 
     resp_len = strlen(buffer);
 
-    mac_len = os_snprintf(buffer + resp_len, MSG_BUF_LEN - resp_len, "[%s]", mac_str);
+    cnt++;
+
+    mac_len = os_snprintf(buffer + resp_len, MSG_BUF_LEN - resp_len, "[%s_%ld]", mac_str, cnt);
 
     mqtt_publish_resp_data(pclient, buffer, resp_len + mac_len);
 

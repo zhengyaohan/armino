@@ -5,29 +5,28 @@ if (NOT CONFIG_SLAVE_CORE)
 	set(srcs
 		core/media_major.c
 		cli/media_cli.c
-		cli/media_cli_dvp.c
 		comm/comm_act.c
+		comm/frame_buffer.c
+		app/media_app.c
 	)
 
 if (CONFIG_CAMERA)
 	list(APPEND srcs
-		dvp/dvp_act.c
-		dvp/dvp_api.c
+		camera/camera_act.c
+		camera/dvp.c
 	)
 endif()
 
 if (CONFIG_WIFI_TRANSFER)
 	list(APPEND srcs
-		transfer/trs_act.c
-		transfer/trs_api.c
-		transfer/trs_task.c
+		transfer/transfer_act.c
+		storage/storage_act.c
 	)
 endif()
 
 if (CONFIG_LCD)
 	list(APPEND srcs
 		lcd/lcd_act.c
-		lcd/lcd_api.c
 	)
 endif()
 
@@ -44,23 +43,22 @@ else()
 	set(srcs
 		core/media_minor.c
 		cli/media_cli.c
-		cli/media_cli_dvp.c
 		comm/comm_act.c
+		comm/frame_buffer.c
 	)
 
 
 if (CONFIG_CAMERA)
 	list(APPEND srcs
-		dvp/dvp_act.c
-		dvp/dvp_api.c
+		camera/camera_act.c
+		camera/dvp.c	
 	)
 endif()
 
 if (CONFIG_WIFI_TRANSFER)
 	list(APPEND srcs
-		transfer/trs_act.c
-		transfer/trs_api.c
-		transfer/trs_task.c
+		transfer/transfer_act.c
+		storage/storage_act.c
 	)
 endif()
 
@@ -76,7 +74,6 @@ endif()
 if (CONFIG_LCD)
 	list(APPEND srcs
 		lcd/lcd_act.c
-		lcd/lcd_api.c
 	)
 endif()
 

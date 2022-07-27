@@ -7,8 +7,6 @@ USER_SECTIONS	.video_spec_data
 USER_SECTIONS	.itcm
 USER_SECTIONS	.interrupt.text
 USER_SECTIONS	.interrupt.HalTrapVector.text.HalTrapVector
-USER_SECTIONS   .media_data
-
 
 CPU0_LOAD1 0x00010000 0x8800
 {
@@ -105,13 +103,10 @@ CPU0_LOAD2 0x00018800  0x1A7800
 		STACK = 0x20007FE0
 	}
 
-	SRAM1 0x30060000 0x20000
+	SRAM_VIDEO 0x30060000 0x20000
 	{
 		ADDR NEXT   _vedio_start
 		* KEEP (.video_spec_data)
-
-		ADDR NEXT   _media_data_start
-		* KEEP (.media_data)
 	}
 
 }

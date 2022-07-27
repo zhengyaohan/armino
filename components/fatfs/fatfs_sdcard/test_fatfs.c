@@ -12,6 +12,8 @@
 #define TEST_DUMP_FILE_NAME      "/dump1.txt"
 #define TEST_TXT_FILE_NAME1     "/中文名字可以有多长？想多长就多长，不信你咬我，信我请我吃饭.txt"
 
+void bk_mem_dump_ex(const char *title, unsigned char *data, uint32_t data_len);
+
 #if CONFIG_SDCARD_HOST
 FATFS *pfs = NULL;
 
@@ -72,7 +74,7 @@ void test_mount(DISK_NUMBER number)
     {
         os_free(pfs);
     }
-	
+
     pfs = os_malloc(sizeof(FATFS));
 	if(NULL == pfs)
 	{
@@ -90,7 +92,7 @@ void test_mount(DISK_NUMBER number)
     {
         os_printf("f_mount OK!\r\n");
     }
-	
+
 failed_mount:
     os_printf("----- test_mount %d over  -----\r\n\r\n", number);
 }
@@ -122,7 +124,7 @@ void test_fatfs_read(DISK_NUMBER number, char *filename, uint64_t len)
     FIL file;
     FRESULT fr;
 	unsigned char *ucRdTemp = os_malloc(WR_RD_BUF_SIZE);
-	uint32_t i = 0, packet_len = 0;
+	uint32_t packet_len = 0;
 	uint64_t left_len = 0;
 
 	if(ucRdTemp == 0)
@@ -152,10 +154,7 @@ void test_fatfs_read(DISK_NUMBER number, char *filename, uint64_t len)
             fr = f_read(&file, ucRdTemp, packet_len, &uiTemp);
             if (fr == FR_OK)
             {
-				for(i=0; i < packet_len; i++)
-				{
-					os_printf("%c", ucRdTemp[i]);
-				}
+				bk_mem_dump_ex("f_read one cycle", ucRdTemp, packet_len);
 				left_len -= uiTemp;
 				os_printf("f_read one cycle finish:left_len = %d\r\n", (uint32_t)left_len);
             }

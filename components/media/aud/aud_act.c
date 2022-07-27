@@ -16,6 +16,7 @@
 #include <components/log.h>
 
 #include "media_core.h"
+#include "media_evt.h"
 #include "aud_act.h"
 #include "adc_ccb.h"
 #include "dac_ccb.h"

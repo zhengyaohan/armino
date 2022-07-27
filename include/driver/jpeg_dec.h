@@ -46,7 +46,7 @@ bk_err_t bk_jpeg_dec_driver_deinit(void);
  *     - BK_OK: succeed
  *     - others: other errors.
  */
-bk_err_t bk_jpeg_dec_init(uint32_t * dec_src_addr,  uint32_t *dec_dest_addr);
+JRESULT bk_jpeg_dec_init(uint32_t * dec_src_addr,  uint32_t *dec_dest_addr);
 
 /**
  * @brief    This API start dec

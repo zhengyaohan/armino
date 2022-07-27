@@ -255,7 +255,7 @@ typedef struct {
  * @return
  *  - the state of phy calibration(0x1:have calibration;0x0:not calibration)
  */
-uint32_t pm_phy_cali_state_get();
+uint32_t bk_pm_phy_cali_state_get();
 /**
  * @brief get the consume time from lowvol wakeup
  *
@@ -269,7 +269,7 @@ uint32_t pm_phy_cali_state_get();
  * @return
  *  - the consume time of wakeup from lowvol
  */
-uint32_t pm_wakeup_from_lowvol_consume_time_get();
+uint32_t bk_pm_wakeup_from_lowvol_consume_time_get();
 
 /**
  * @brief register light sleep config
@@ -286,7 +286,7 @@ uint32_t pm_wakeup_from_lowvol_consume_time_get();
  *  - BK_OK: succeed
  *  - others: other errors.
  */
-bk_err_t pm_light_sleep_register_cb(pm_cb_conf_t *enter_config, pm_cb_conf_t *exit_config);
+bk_err_t bk_pm_light_sleep_register_cb(pm_cb_conf_t *enter_config, pm_cb_conf_t *exit_config);
 /**
  * @brief unregister light sleep callback
  *
@@ -302,7 +302,7 @@ bk_err_t pm_light_sleep_register_cb(pm_cb_conf_t *enter_config, pm_cb_conf_t *ex
  *  - BK_OK: succeed
  *  - others: other errors.
  */
-bk_err_t pm_light_sleep_unregister_cb(bool enter_cb, bool exit_cb);
+bk_err_t bk_pm_light_sleep_unregister_cb(bool enter_cb, bool exit_cb);
 /**
  * @brief get power domain of module state
  *
@@ -317,7 +317,7 @@ bk_err_t pm_light_sleep_unregister_cb(bool enter_cb, bool exit_cb);
  *  -the state of power domain state
  *
  */
-int32 pm_module_power_state_get(pm_power_module_name_e module);
+int32 bk_pm_module_power_state_get(pm_power_module_name_e module);
 /**
  * @brief vote cpu frequency
  *
@@ -332,7 +332,7 @@ int32 pm_module_power_state_get(pm_power_module_name_e module);
  *  - BK_OK: succeed
  *  - others: other errors.
  */
-bk_err_t pm_module_vote_cpu_freq(pm_dev_id_e module,pm_cpu_freq_e cpu_freq);
+bk_err_t bk_pm_module_vote_cpu_freq(pm_dev_id_e module,pm_cpu_freq_e cpu_freq);
 /**
  * @brief clock ctrl
  *
@@ -347,7 +347,7 @@ bk_err_t pm_module_vote_cpu_freq(pm_dev_id_e module,pm_cpu_freq_e cpu_freq);
  *  - BK_OK: succeed
  *  - others: other errors.
  */
-bk_err_t pm_clock_ctrl(pm_dev_clk_e module,pm_dev_clk_pwr_e clock_state);
+bk_err_t bk_pm_clock_ctrl(pm_dev_clk_e module,pm_dev_clk_pwr_e clock_state);
 /**
  * @brief lp voltage set
  *
@@ -363,7 +363,7 @@ bk_err_t pm_clock_ctrl(pm_dev_clk_e module,pm_dev_clk_pwr_e clock_state);
  * - others: other errors.
  *
  */
-bk_err_t pm_lp_vol_set( uint32_t lp_vol);
+bk_err_t bk_pm_lp_vol_set( uint32_t lp_vol);
 
 /**
  * @brief lp voltage get
@@ -379,7 +379,7 @@ bk_err_t pm_lp_vol_set( uint32_t lp_vol);
  * - the lp voltage value
  *
  */
-uint32_t pm_lp_vol_get();
+uint32_t bk_pm_lp_vol_get();
 /**
  * @brief lpo source set
  *
@@ -394,7 +394,7 @@ uint32_t pm_lp_vol_get();
  * - BK_OK: succeed
  * - others: other errors.
  */
-bk_err_t pm_lpo_src_set(pm_lpo_src_e lpo_src);
+bk_err_t bk_pm_lpo_src_set(pm_lpo_src_e lpo_src);
 
 /**
  * @brief lpo source get
@@ -410,7 +410,7 @@ bk_err_t pm_lpo_src_set(pm_lpo_src_e lpo_src);
  * -lpo_src:0x0:32K from 26m;0x1:32K from 26m;0x2:32K from ROSC;0x3:32K from ROSC
  *
  */
-pm_lpo_src_e pm_lpo_src_get();
+pm_lpo_src_e bk_pm_lpo_src_get();
 /**
  * @brief mcu pm ctrl
  *
@@ -425,7 +425,7 @@ pm_lpo_src_e pm_lpo_src_get();
  *  - BK_OK: succeed
  *  - others: other errors.
  */
-bk_err_t pm_mcu_pm_ctrl(uint32_t power_state);
+bk_err_t bk_pm_mcu_pm_ctrl(uint32_t power_state);
 
 /**
  * @brief get the mcu power feature state
@@ -441,7 +441,7 @@ bk_err_t pm_mcu_pm_ctrl(uint32_t power_state);
  *-mcu power manage state(0x0:enable the mcu power manage;0x1:disable the mcu power manage)
  *
  */
-uint32_t pm_mcu_pm_state_get();
+uint32_t bk_pm_mcu_pm_state_get();
 
 /**
  * @brief set sleep mode
@@ -457,7 +457,7 @@ uint32_t pm_mcu_pm_state_get();
  * - BK_OK: succeed
  * - others: other errors.
  */
-bk_err_t pm_sleep_mode_set(pm_sleep_mode_e sleep_mode);
+bk_err_t bk_pm_sleep_mode_set(pm_sleep_mode_e sleep_mode);
 
 /**
  * @brief set wakeup source
@@ -474,7 +474,7 @@ bk_err_t pm_sleep_mode_set(pm_sleep_mode_e sleep_mode);
  * - BK_OK: succeed
  * - others: other errors.
  */
-bk_err_t pm_wakeup_source_set(pm_wakeup_source_e wakeup_source, void* source_param);
+bk_err_t bk_pm_wakeup_source_set(pm_wakeup_source_e wakeup_source, void* source_param);
 
 /**
  * @brief module vote sleep ctrl
@@ -493,7 +493,7 @@ bk_err_t pm_wakeup_source_set(pm_wakeup_source_e wakeup_source, void* source_par
  * - BK_OK: succeed
  * - others: other errors.
  */
-bk_err_t pm_module_vote_sleep_ctrl(pm_sleep_module_name_e module,uint32_t sleep_state,uint32_t sleep_time);
+bk_err_t bk_pm_module_vote_sleep_ctrl(pm_sleep_module_name_e module,uint32_t sleep_state,uint32_t sleep_time);
 
 /**
  * @brief pm module vote power ctrl
@@ -510,7 +510,7 @@ bk_err_t pm_module_vote_sleep_ctrl(pm_sleep_module_name_e module,uint32_t sleep_
  * - BK_OK: succeed
  * - others: other errors.
  */
-bk_err_t pm_module_vote_power_ctrl(pm_power_module_name_e module,pm_power_module_state_e power_state);
+bk_err_t bk_pm_module_vote_power_ctrl(pm_power_module_name_e module,pm_power_module_state_e power_state);
 
 /**
  * @brief pm suppress ticks and sleep
@@ -526,7 +526,7 @@ bk_err_t pm_module_vote_power_ctrl(pm_power_module_name_e module,pm_power_module
  * - BK_OK: succeed
  * - others: other errors.
  */
-bk_err_t pm_suppress_ticks_and_sleep(uint32_t sleep_ticks);
+bk_err_t bk_pm_suppress_ticks_and_sleep(uint32_t sleep_ticks);
 /**
  * @brief enter sleep
  *
@@ -541,7 +541,7 @@ bk_err_t pm_suppress_ticks_and_sleep(uint32_t sleep_ticks);
  * - void
  *
  */
-void  pm_enter_sleep();
+void  bk_pm_enter_sleep();
 
 #ifdef __cplusplus
 }

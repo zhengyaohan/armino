@@ -19,6 +19,7 @@
 #include "aud_api.h"
 
 #include "media_cli_comm.h"
+#include "media_app.h"
 
 #define TAG "mcli"
 
@@ -32,12 +33,20 @@ void media_cli_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 
 	if (argc > 0)
 	{
-#ifdef CONFIG_CAMERA
 		if (os_strcmp(argv[1], "dvp") == 0)
 		{
-			media_cli_dvp_open();
-		}
+#if (defined(CONFIG_CAMERA) && !defined(CONFIG_SLAVE_CORE))
+			if (os_strcmp(argv[2], "open") == 0)
+			{
+				media_app_camera_open(APP_CAMERA_DVP);
+			}
+
+			if (os_strcmp(argv[2], "close") == 0)
+			{
+				media_app_camera_close(APP_CAMERA_DVP);
+			}
 #endif
+		}
 
 #ifdef CONFIG_AUDIO
 		if (os_strcmp(argv[1], "adc") == 0)
@@ -51,6 +60,36 @@ void media_cli_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 		}
 #endif
 
+		if (os_strcmp(argv[1], "capture") == 0)
+		{
+			LOGI("capture\n");
+#if defined(CONFIG_CAMERA) && !defined(CONFIG_SLAVE_CORE)
+
+			if (argc >= 3)
+			{
+				media_app_capture(argv[2]);
+			}
+			else
+			{
+				media_app_capture("unknow.jpg");
+			}
+#endif
+		}
+
+		if (os_strcmp(argv[1], "lcd") == 0)
+		{
+#if defined(CONFIG_LCD) && !defined(CONFIG_SLAVE_CORE)
+			if (os_strcmp(argv[2], "open") == 0)
+			{
+				media_app_lcd_open();
+			}
+
+			if (os_strcmp(argv[2], "close") == 0)
+			{
+				media_app_lcd_close();
+			}
+#endif
+		}
 	}
 
 

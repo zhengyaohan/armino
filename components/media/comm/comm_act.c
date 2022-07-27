@@ -16,6 +16,8 @@
 #include <components/log.h>
 
 #include "media_core.h"
+#include "media_evt.h"
+#include "frame_buffer.h"
 
 #include <driver/int.h>
 #include <os/mem.h>
@@ -35,7 +37,18 @@
 
 void comm_event_handle(uint32_t event, uint32_t param)
 {
-
+	switch (event)
+	{
+		case EVENT_COM_FRAME_WIFI_FREE_IND:
+			frame_buffer_free_request((frame_buffer_t *)param, MODULE_WIFI);
+			break;
+		case EVENT_COM_FRAME_LCD_FREE_IND:
+			frame_buffer_free_request((frame_buffer_t *)param, MODULE_LCD);
+			break;
+		case EVENT_COM_FRAME_CAPTURE_FREE_IND:
+			frame_buffer_free_request((frame_buffer_t *)param, MODULE_CAPTURE);
+			break;
+	}
 }
 
 

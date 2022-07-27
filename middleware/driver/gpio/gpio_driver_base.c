@@ -21,6 +21,9 @@
 #include <driver/gpio_types.h>
 #include <driver/int.h>
 #include "amp_lock_api.h"
+#if CONFIG_AON_PMU
+#include "aon_pmu_driver.h"
+#endif
 #if (CONFIG_SYSTEM_CTRL)
 #include "sys_driver.h"
 #endif
@@ -60,6 +63,8 @@ static uint16_t s_gpio_bak_regs[GPIO_NUM_MAX];
 uint32_t s_gpio_bak_int_type_regs[3];
 uint32_t s_gpio_bak_int_enable_regs[2];
 uint64_t s_gpio_is_setted_wake_status;
+static gpio_id_t s_gpio_wakeup_gpio_id = GPIO_NUM;
+
 static void gpio_wakeup_default_isr(gpio_id_t gpio_id);
 
 #if CONFIG_GPIO_DYNAMIC_WAKEUP_SUPPORT
@@ -75,6 +80,8 @@ typedef struct
 }gpio_dynamic_wakeup_t;
 static gpio_dynamic_wakeup_t s_gpio_dynamic_wakeup_source_map[CONFIG_GPIO_DYNAMIC_WAKEUP_SOURCE_MAX_CNT];
 static void	gpio_dynamic_wakeup_source_init(void);
+static void bk_gpio_set_wakeup_gpio_id(gpio_id_t gpio_id);
+static bool bk_gpio_get_aon_pmu_deepsleep_flag();
 #endif
 #endif
 
@@ -300,6 +307,9 @@ static void gpio_isr(void)
 			if(s_gpio_is_setted_wake_status & ((uint64_t)0x1 << gpio_id))
 			{
 				gpio_wakeup_default_isr(gpio_id);
+
+				if(bk_gpio_get_aon_pmu_deepsleep_flag())
+					bk_gpio_set_wakeup_gpio_id(gpio_id);
 			}
 #endif
 			if (s_gpio_isr[gpio_id]) {
@@ -397,7 +407,7 @@ void gpio_get_interrupt_status(uint32_t *h_status, uint32_t *l_status)
 
 static void gpio_wakeup_default_isr(gpio_id_t gpio_id)
 {
-	GPIO_LOGI("gpio int: index:%d \r\n", gpio_id);
+	GPIO_LOGD("gpio int: index:%d \r\n", gpio_id);
 }
 
 static void gpio_config_wakeup_function(void)
@@ -436,6 +446,28 @@ static void gpio_clear_wakeup_function(void)
 }
 
 #ifdef CONFIG_GPIO_DYNAMIC_WAKEUP_SUPPORT
+
+gpio_id_t bk_gpio_get_wakeup_gpio_id()
+{
+	GPIO_LOGD("GET wakeup gpio_id: %d \r\n", s_gpio_wakeup_gpio_id);
+	return s_gpio_wakeup_gpio_id;
+}
+
+static void bk_gpio_set_wakeup_gpio_id(gpio_id_t gpio_id)
+{
+	if (s_gpio_wakeup_gpio_id == GPIO_NUM)
+		s_gpio_wakeup_gpio_id = gpio_id;
+	GPIO_LOGD("SET wakeup gpio_id: %d \r\n", s_gpio_wakeup_gpio_id);
+}
+
+static bool bk_gpio_get_aon_pmu_deepsleep_flag()
+{
+#if CONFIG_AON_PMU
+	return (aon_pmu_drv_reg_get(PMU_REG2) & BIT(BIT_SLEEP_FLAG_DEEP_SLEEP));
+#endif
+	return false;
+}
+
 static void gpio_dynamic_wakeup_source_init(void)
 {
 	uint32_t i = 0;
@@ -481,6 +513,7 @@ bk_err_t bk_gpio_register_wakeup_source(gpio_id_t gpio_id,
 			//s_gpio_dynamic_wakeup_source_map[i].isr = isr;
 
 			GPIO_LOGD("gpio=%d,int_type=%d register wake src\r\n", gpio_id, int_type);
+			gpio_config_wakeup_function();
 
 			return BK_OK;
 		}

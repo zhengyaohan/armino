@@ -44,19 +44,6 @@ extern "C" {
 extern "C" {
 #endif
 
-/* Error code */
-typedef enum {
-	JDR_OK = 0,	/* 0: Succeeded */
-	JDR_INTR,	/* 1: Interrupted by output function */
-	JDR_INP,	/* 2: Device error or wrong termination of input stream */
-	JDR_MEM1,	/* 3: Insufficient memory pool for the image */
-	JDR_MEM2,	/* 4: Insufficient stream input buffer */
-	JDR_PAR,	/* 5: Parameter error */
-	JDR_FMT1,	/* 6: Data format error (may be damaged data) */
-	JDR_FMT2,	/* 7: Right format but not supported */
-	JDR_FMT3	/* 8: Not supported JPEG standard */
-} JRESULT;
-
 
 
 /* Rectangular structure */
@@ -109,7 +96,7 @@ void jpegenc_en(void);
 
 void jpegenc_off(void);
 
-void JpegdecInit(JDEC* jdec,  uint32_t * dec_src_addr);
+JRESULT JpegdecInit(JDEC* jdec,  uint32_t * dec_src_addr);
 
 int jpg_decoder_init(void);
 

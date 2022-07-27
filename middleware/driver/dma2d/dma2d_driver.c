@@ -66,7 +66,7 @@ bk_err_t bk_dma2d_driver_init(dma2d_config_t *dma2d)
 //		os_printf("dma2d sys clk config error \r\n");
 //		return BK_FAIL;
 //	}
-	pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_DMA2D, PM_POWER_MODULE_STATE_ON);
+	bk_pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_DMA2D, PM_POWER_MODULE_STATE_ON);
 #if (USE_HAL_DMA2D_REGISTER_CALLBACKS == 1)
 	os_memset(&s_dma2d_isr, 0, sizeof(s_dma2d_isr));
 	bk_int_isr_register(INT_SRC_DMA2D, dma2d_isr, NULL);
@@ -86,7 +86,7 @@ bk_err_t bk_dma2d_driver_deinit(void)
 {
 	bk_int_isr_unregister(INT_SRC_DMA2D);
 	dma2d_hal_deinit();
-	pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_DMA2D, PM_POWER_MODULE_STATE_OFF);
+	bk_pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_DMA2D, PM_POWER_MODULE_STATE_OFF);
 	return BK_OK;
 }
 

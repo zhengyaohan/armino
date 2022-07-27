@@ -54,7 +54,7 @@ static void jpeg_power_config_set(const jpeg_config_t *config)
 	sys_drv_set_clk_div_mode1_clkdiv_jpeg(config->sys_clk_div);
 	sys_drv_set_jpeg_disckg(1);
 	//sys_drv_dev_clk_pwr_up(CLK_PWR_ID_JPEG, CLK_PWR_CTRL_PWR_UP);
-	pm_clock_ctrl(PM_CLK_ID_JPEG, CLK_PWR_CTRL_PWR_UP);
+	bk_pm_clock_ctrl(PM_CLK_ID_JPEG, CLK_PWR_CTRL_PWR_UP);
 }
 #endif
 
@@ -138,7 +138,7 @@ static void jpeg_deinit_common(void)
 	jpeg_hal_stop_common(&s_jpeg.hal);
 	jpeg_hal_reset_config_to_default(&s_jpeg.hal);
 #if (CONFIG_SYSTEM_CTRL)
-	pm_clock_ctrl(PM_CLK_ID_JPEG, CLK_PWR_CTRL_PWR_DOWN);
+	bk_pm_clock_ctrl(PM_CLK_ID_JPEG, CLK_PWR_CTRL_PWR_DOWN);
 	sys_hal_set_jpeg_disckg(0);
 	//sys_drv_dev_clk_pwr_up(CLK_PWR_ID_JPEG, CLK_PWR_CTRL_PWR_DOWN);
 	sys_drv_int_disable(JPEGENC_INTERRUPT_CTRL_BIT);
@@ -156,7 +156,7 @@ static void jpeg_cli_deinit_common(void)
 	jpeg_hal_stop_common(&s_jpeg.hal);
 	jpeg_hal_reset_config_to_default(&s_jpeg.hal);
 #if (CONFIG_SYSTEM_CTRL)
-	pm_clock_ctrl(PM_CLK_ID_JPEG, CLK_PWR_CTRL_PWR_DOWN);
+	bk_pm_clock_ctrl(PM_CLK_ID_JPEG, CLK_PWR_CTRL_PWR_DOWN);
 	sys_hal_set_jpeg_disckg(0);
 	//sys_drv_dev_clk_pwr_up(CLK_PWR_ID_JPEG, CLK_PWR_CTRL_PWR_DOWN);
 	sys_drv_int_disable(JPEGENC_INTERRUPT_CTRL_BIT);
@@ -171,7 +171,7 @@ bk_err_t bk_jpeg_enc_driver_init(void)
 	}
 #if CONFIG_SYSTEM_CTRL
 	//power on
-	pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_JPEG_EN, PM_POWER_MODULE_STATE_ON);
+	bk_pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_JPEG_EN, PM_POWER_MODULE_STATE_ON);
 #endif
 
 	os_memset(&s_jpeg, 0, sizeof(s_jpeg));
@@ -190,7 +190,7 @@ bk_err_t bk_jpeg_enc_driver_deinit(void)
 	bk_int_isr_unregister(INT_SRC_JPEG);
 #if CONFIG_SYSTEM_CTRL
 	// power off
-	pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_JPEG_EN, PM_POWER_MODULE_STATE_OFF);
+	bk_pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_JPEG_EN, PM_POWER_MODULE_STATE_OFF);
 #endif
 
 	s_jpeg_driver_is_init = false;
@@ -235,7 +235,7 @@ bk_err_t bk_clk_enable(void)
 	sys_drv_set_jpeg_disckg(1);
 
 	jpeg_hal_enable_clk(&s_jpeg.hal, 0);
-	pm_clock_ctrl(PM_CLK_ID_JPEG, CLK_PWR_CTRL_PWR_UP);
+	bk_pm_clock_ctrl(PM_CLK_ID_JPEG, CLK_PWR_CTRL_PWR_UP);
 
 	return BK_OK;
 }

@@ -200,6 +200,8 @@ static void cli_gpio_set_wake_source_cmd(char *pcWriteBuffer, int xWriteBufferLe
 		bk_gpio_register_wakeup_source(id, mode);
 	else if(os_strcmp(argv[1], "unregister") == 0)
 		bk_gpio_unregister_wakeup_source(id);
+	else if(os_strcmp(argv[1], "get_id") == 0)
+		CLI_LOGI("GET wakeup gpio id: %d\r\n", bk_gpio_get_wakeup_gpio_id());
 	else
 		return cli_gpio_help();
 }

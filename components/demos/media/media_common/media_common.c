@@ -13,8 +13,9 @@
 // limitations under the License.
 
 #include <os/os.h>
-#if CONFIG_AUDIO_TRANSFER_APK
-#include "audio_transfer_cp1.h"
+#if CONFIG_AUD_TRAS_MODE_CPU1
+#include "audio_transfer_api.h"
+#include "audio_transfer_types.h"
 #endif
 #include <driver/dma.h>
 #include "aud_hal.h"
@@ -49,15 +50,15 @@ static bk_err_t com_send_msg(com_msg_t msg)
 	return kNoResourcesErr;
 }
 
-static bk_err_t aud_mailbox_send_msg(common_mailbox_msg_t *msg)
+bk_err_t media_send_com_mb_msg(common_maibox_cmd_t cmd, uint32_t param1, uint32_t param2, uint32_t param3)
 {
 	mb_chnl_cmd_t mb_cmd;
 
 	//send mailbox msg to cpu0
-	mb_cmd.hdr.cmd = msg->mb_cmd;
-	mb_cmd.param1 = msg->param1;
-	mb_cmd.param2 = msg->param2;
-	mb_cmd.param3 = msg->param3;
+	mb_cmd.hdr.cmd = cmd;
+	mb_cmd.param1 = param1;
+	mb_cmd.param2 = param2;
+	mb_cmd.param3 = param3;
 	return mb_chnl_write(MB_CHNL_COM, &mb_cmd);
 }
 
@@ -69,10 +70,11 @@ static void com_mailbox_rx_isr(common_mailbox_msg_t *com_mb, mb_chnl_cmd_t *cmd_
 
 	/* check mailbox msg and send msg to task */
 	switch(cmd_buf->hdr.cmd) {
-		case COM_MB_START_AUDIO_CMD:
+		case CMD_COM_MB_AUD_TRAS_INIT:
 			/* init audio transfer task */
 			//os_printf("AUD_MB_READ_ADC_DATA_REQ_CMD: read_buffer=0x%p, read_buffer_size=%d \r\n", read_buffer, read_buffer_size);
 			msg.op = COM_AUDIO;
+			msg.param = cmd_buf->param1;
 			ret = com_send_msg(msg);
 			break;
 
@@ -86,9 +88,6 @@ static void com_mailbox_rx_isr(common_mailbox_msg_t *com_mb, mb_chnl_cmd_t *cmd_
 			ret = com_send_msg(msg);
 			break;
 		}
-
-		case COM_MB_NULL:
-		case COM_MB_CMPL:
 
 		default:
 			break;
@@ -109,17 +108,15 @@ static void com_mailbox_tx_cmpl_isr(common_mailbox_msg_t *aud_mb, mb_chnl_ack_t 
 	//os_printf("enter cp1_mailbox_tx_cmpl_isr \r\n");
 }
 
-#if CONFIG_AUDIO_TRANSFER_APK
-bk_err_t common_audio_process(void)
+#if CONFIG_AUD_TRAS_MODE_CPU1
+bk_err_t common_audio_process(uint32_t param)
 {
 	bk_err_t ret = BK_OK;
 
-	audio_setup_t config;
-	config.samp_rate = AUDIO_SAMP_RATE_8K;
 	/* init audio transfer task */
-	ret = bk_audio_cp1_transfer_init(&config);
+	ret = bk_aud_tras_drv_init((aud_tras_drv_setup_t *)param);
 	if (ret != BK_OK) {
-		os_printf("cp1: start audio_transfer fail \r\n");
+		os_printf("init audio transfer fail \r\n");
 		return ret;
 	}
 
@@ -142,7 +139,7 @@ bk_err_t common_video_process(void)
 static void common_mb_main(void)
 {
 	bk_err_t ret = BK_OK;
-	common_mailbox_msg_t mb_msg;
+	//common_mailbox_msg_t mb_msg;
 
 	/* init common mailbox channel */
 	//mb_chnl_init();
@@ -162,8 +159,8 @@ static void common_mb_main(void)
 				case COM_AUDIO:
 					/* call audio transfer init api */
 					//audio_start_transfer_process();
-#if CONFIG_AUDIO_TRANSFER_APK
-					ret = common_audio_process();
+#if CONFIG_AUD_TRAS_MODE_CPU1
+					ret = common_audio_process(msg.param);
 					if (ret != BK_OK) {
 						os_printf("[COM] init audio transfer fail \r\n");
 					} else {
@@ -171,6 +168,7 @@ static void common_mb_main(void)
 						//TODO
 					}
 #endif
+
 					break;
 
 				case COM_VIDEO:
@@ -186,11 +184,7 @@ static void common_mb_main(void)
 
 				case COM_SEND:
 					//TODO
-					mb_msg.mb_cmd = COM_MB_ACK;
-					mb_msg.param1 = 0;
-					mb_msg.param2 = 0;
-					mb_msg.param3 = 0;
-					aud_mailbox_send_msg(&mb_msg);
+					media_send_com_mb_msg(COM_MB_ACK, 0, 0, 0);
 					break;
 
 				case COM_EXIT:

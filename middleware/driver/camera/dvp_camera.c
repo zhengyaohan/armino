@@ -46,6 +46,24 @@
 #define LOGD(...) BK_LOGD(TAG, ##__VA_ARGS__)
 
 #define FRAME_BUFFER_DMA_TH (1024 * 10)
+#define JPEG_CRC_SIZE (5)
+
+
+#define FRAME_BUFFER_CACHE (1024 * 10)
+
+
+typedef struct
+{
+	uint8 index;
+	uint8 eof;
+	uint8 psram_dma;
+	uint8 psram_dma_busy;
+	uint16 psram_dma_left;
+	uint8 *buffer;
+	frame_buffer_t *frame;
+} dvp_camera_drv_t;
+
+dvp_camera_drv_t *dvp_camera_drv = NULL;
 
 
 const dvp_sensor_config_t *dvp_sensor_configs[] =
@@ -58,7 +76,7 @@ const dvp_sensor_config_t *dvp_sensor_configs[] =
 static const dvp_sensor_config_t *current_sensor = NULL;
 static const dvp_camera_config_t *dvp_camera_config = NULL;
 
-static uint8_t  dvp_camera_dma_channel = 0;
+static uint8_t dvp_camera_dma_channel = 0;
 
 static uint8_t dvp_diag_debug = 1;
 
@@ -70,6 +88,9 @@ uint32_t sequence = 0;
 frame_buffer_t *curr_frame_buffer = NULL;
 
 dvp_camera_device_t *dvp_camera_device = NULL;
+
+extern bk_err_t bk_clk_enable(void);
+bk_err_t dvp_memcpy_by_chnl(void *out, const void *in, uint32_t len, dma_id_t cpy_chnls);
 
 const dvp_sensor_config_t *get_sensor_config_interface_by_id(sensor_id_t id)
 {
@@ -86,75 +107,155 @@ const dvp_sensor_config_t *get_sensor_config_interface_by_id(sensor_id_t id)
 	return NULL;
 }
 
-//uint8_t state_flag = 0;
+static void dvp_memcpy_finish_callback(dma_id_t id)
+{
+	if (dvp_diag_debug)
+	{
+		bk_gpio_pull_up(GPIO_2);
+	}
+	
+	dvp_camera_drv->psram_dma_busy = false;
+	dvp_camera_drv->index = !dvp_camera_drv->index;
+
+	if (dvp_camera_drv->eof == true)
+	{
+		frame_buffer_t *frame = dvp_camera_drv->frame;
+
+		if (dvp_camera_drv->psram_dma_left != 0)
+		{
+			dvp_memcpy_by_chnl(frame->frame + frame->length,
+				dvp_camera_drv->index ? (dvp_camera_drv->buffer + FRAME_BUFFER_CACHE) : dvp_camera_drv->buffer,
+				dvp_camera_drv->psram_dma_left, dvp_camera_drv->psram_dma);
+			frame->length += dvp_camera_drv->psram_dma_left;
+			frame->sequence = ++sequence;
+			dvp_camera_drv->psram_dma_left = 0;
+		}
+		else
+		{		
+			dvp_camera_config->frame_complete(frame);
+			dvp_camera_drv->index = 0;
+			dvp_camera_drv->frame = NULL;
+			dvp_camera_drv->eof = false;
+
+			curr_frame_buffer = dvp_camera_config->frame_alloc();
+			
+			if (curr_frame_buffer == NULL
+				|| curr_frame_buffer->frame == NULL)
+			{
+				LOGE("alloc frame error\n");
+				return;
+			}
+			
+			curr_frame_buffer->length = 0;
+
+			bk_dma_start(dvp_camera_dma_channel);
+		}
+	}
+
+
+	if (dvp_diag_debug)
+	{
+		bk_gpio_pull_down(GPIO_2);
+	}
+}
+
+bk_err_t dvp_memcpy_by_chnl(void *out, const void *in, uint32_t len, dma_id_t cpy_chnls)
+{
+    dma_config_t dma_config;
+
+    os_memset(&dma_config, 0, sizeof(dma_config_t));
+
+    dma_config.mode = DMA_WORK_MODE_SINGLE;
+    dma_config.chan_prio = 1;
+
+    dma_config.src.dev = DMA_DEV_DTCM;
+    dma_config.src.width = DMA_DATA_WIDTH_32BITS;
+    dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
+    dma_config.src.start_addr = (uint32_t)in;
+    dma_config.src.end_addr = (uint32_t)(in + len);
+
+    dma_config.dst.dev = DMA_DEV_DTCM;
+    dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
+    dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE;
+    dma_config.dst.start_addr = (uint32_t)out;
+    dma_config.dst.end_addr = (uint32_t)(out + len);
+
+	dvp_camera_drv->psram_dma_busy = true;
+
+	BK_LOG_ON_ERR(bk_dma_init(cpy_chnls, &dma_config));
+	BK_LOG_ON_ERR(bk_dma_set_transfer_len(cpy_chnls, len));
+
+	BK_LOG_ON_ERR(bk_dma_register_isr(cpy_chnls, NULL, dvp_memcpy_finish_callback));
+	BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(cpy_chnls));
+	BK_LOG_ON_ERR(bk_dma_start(cpy_chnls));
+	//BK_WHILE (bk_dma_get_enable_status(cpy_chnl));
+
+
+    return BK_OK;
+
+}
 
 
 static void dvp_camera_eof_handler(jpeg_unit_t id, void *param)
 {
+	uint32_t real_length = bk_jpeg_enc_get_frame_size();
+	uint32_t left_length = FRAME_BUFFER_CACHE - bk_dma_get_remain_len(dvp_camera_dma_channel) - JPEG_CRC_SIZE;
+
 	if (dvp_diag_debug)
 	{
 		bk_gpio_pull_up(GPIO_8);
 	}
 
-	//if (state_flag)
-	//{
-	//  return;
-	//}
-
-	if (curr_frame_buffer != NULL
-	    && curr_frame_buffer->frame != NULL)
+	if (curr_frame_buffer == NULL
+	    || curr_frame_buffer->frame == NULL)
 	{
-		curr_frame_buffer->length += FRAME_BUFFER_DMA_TH - bk_dma_get_remain_len(dvp_camera_dma_channel) - 5;
+		LOGE("curr_frame_buffer NULL error\n");
+		goto error;
+	}
+
+	if (curr_frame_buffer->length + left_length != real_length)
+	{
+		//os_printf("%u:%u\n", curr_frame_buffer->length + left_length, real_length);
+		curr_frame_buffer->length = 0;
+	}
+
+	if (dvp_camera_drv->psram_dma_busy == true)
+	{
+		dvp_camera_drv->frame = curr_frame_buffer;
+		dvp_camera_drv->psram_dma_left = left_length;
+		dvp_camera_drv->eof = true;
+	}
+	else
+	{
+		dvp_camera_drv->frame = curr_frame_buffer;
+		dvp_camera_drv->psram_dma_left = 0;
+		dvp_camera_drv->eof = true;
+
+		dvp_memcpy_by_chnl(curr_frame_buffer->frame + curr_frame_buffer->length,
+			dvp_camera_drv->index ? (dvp_camera_drv->buffer + FRAME_BUFFER_CACHE) : dvp_camera_drv->buffer,
+			left_length, dvp_camera_drv->psram_dma);
+		curr_frame_buffer->length += left_length;
 		curr_frame_buffer->sequence = ++sequence;
 	}
 
-	dvp_camera_config->frame_complete(curr_frame_buffer);
+	bk_dma_stop(dvp_camera_dma_channel);
 
-	//if (!state_flag)
-	//{
-	//  bk_dma_stop(dvp_camera_dma_channel);
-	//  bk_jpeg_enc_set_enable(0);
-	//  state_flag = 1;
-	//}
-
-
-	curr_frame_buffer = dvp_camera_config->frame_alloc();
-
-	if (curr_frame_buffer != NULL
-	    && curr_frame_buffer->frame != NULL)
-	{
-		bk_dma_stop(dvp_camera_dma_channel);
-
-		curr_frame_buffer->length = 0;
-		BK_LOG_ON_ERR(bk_dma_set_dest_addr(dvp_camera_dma_channel, (uint32_t)curr_frame_buffer->frame, (uint32_t)(curr_frame_buffer->frame + curr_frame_buffer->size)));
-		bk_dma_start(dvp_camera_dma_channel);
-	}
+#if 0
+	dvp_camera_drv->index = 0;
+	bk_dma_start(dvp_camera_dma_channel);
+#endif
 
 	if (dvp_diag_debug)
 	{
 		bk_gpio_pull_down(GPIO_8);
 	}
-}
 
-#if 0
-static void yuv_eof_handle(jpeg_unit_t id, void *param)
-{
-	if (dvp_diag_debug)
-	{
-		bk_gpio_pull_up(GPIO_4);
-	}
+	return;
 
+error:
+	bk_dma_stop(dvp_camera_dma_channel);
 	bk_jpeg_enc_set_enable(0);
-	bk_jpeg_enc_set_yuv_config();
-	BK_LOG_ON_ERR(bk_dma_start(dvp_camera_dma_channel));
-
-
-	if (dvp_diag_debug)
-	{
-		bk_gpio_pull_down(GPIO_4);
-	}
 }
-#endif
 
 static void dvp_camera_dma_finish_callback(dma_id_t id)
 {
@@ -163,13 +264,17 @@ static void dvp_camera_dma_finish_callback(dma_id_t id)
 		bk_gpio_pull_up(GPIO_9);
 	}
 
-	if (curr_frame_buffer != NULL
-	    && curr_frame_buffer->frame != NULL)
+	if (curr_frame_buffer == NULL
+	    || curr_frame_buffer->frame == NULL)
 	{
-		curr_frame_buffer->length += FRAME_BUFFER_DMA_TH;
+		LOGE("%s curr_frame_buffer NULL\n");
+		return;
 	}
 
-	//TODO
+	dvp_memcpy_by_chnl(curr_frame_buffer->frame + curr_frame_buffer->length,
+		dvp_camera_drv->index ? (dvp_camera_drv->buffer + FRAME_BUFFER_CACHE) : dvp_camera_drv->buffer,
+		FRAME_BUFFER_CACHE, dvp_camera_drv->psram_dma);
+	curr_frame_buffer->length += FRAME_BUFFER_CACHE;
 
 	if (dvp_diag_debug)
 	{
@@ -192,7 +297,6 @@ static bk_err_t dvp_camera_dma_config(void)
 		return ret;
 	}
 
-
 	curr_frame_buffer->length = 0;
 
 	dvp_camera_dma_channel = bk_dma_alloc(DMA_DEV_JPEG);
@@ -213,13 +317,13 @@ static bk_err_t dvp_camera_dma_config(void)
 	dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
 	dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE;
 	dma_config.dst.addr_loop_en = DMA_ADDR_LOOP_ENABLE;
-	dma_config.dst.start_addr = (uint32_t)curr_frame_buffer->frame;
-	dma_config.dst.end_addr = (uint32_t)(curr_frame_buffer->frame + curr_frame_buffer->size);
+	dma_config.dst.start_addr = (uint32_t)dvp_camera_drv->buffer;
+	dma_config.dst.end_addr = (uint32_t)(dvp_camera_drv->buffer + FRAME_BUFFER_CACHE * 2);
 
 	//os_printf("dst_start_addr:%08x, dst_end_addr:%08x\r\n", (uint32_t)info.buffer_addr, dma_config.dst.end_addr);
 
 	BK_LOG_ON_ERR(bk_dma_init(dvp_camera_dma_channel, &dma_config));
-	BK_LOG_ON_ERR(bk_dma_set_transfer_len(dvp_camera_dma_channel, FRAME_BUFFER_DMA_TH));
+	BK_LOG_ON_ERR(bk_dma_set_transfer_len(dvp_camera_dma_channel, FRAME_BUFFER_CACHE));
 	BK_LOG_ON_ERR(bk_dma_register_isr(dvp_camera_dma_channel, NULL, dvp_camera_dma_finish_callback));
 	BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(dvp_camera_dma_channel));
 	BK_LOG_ON_ERR(bk_dma_start(dvp_camera_dma_channel));
@@ -292,14 +396,14 @@ bk_err_t bk_dvp_camera_gpio_init(const dvp_camera_config_t *config, uint8_t mode
 	}
 	if (dvp_diag_debug)
 	{
-		gpio_dev_unmap(GPIO_2);
-		bk_gpio_pull_down(GPIO_2);
-		gpio_dev_unmap(GPIO_3);
-		bk_gpio_pull_down(GPIO_3);
-		gpio_dev_unmap(GPIO_4);
+		//gpio_dev_unmap(GPIO_2);
+		//bk_gpio_pull_down(GPIO_2);
+		//gpio_dev_unmap(GPIO_3);
+		//bk_gpio_pull_down(GPIO_3);
+		//gpio_dev_unmap(GPIO_4);
 		//bk_gpio_pull_down(GPIO_4);
-		gpio_dev_unmap(GPIO_5);
-		bk_gpio_pull_down(GPIO_5);
+		//gpio_dev_unmap(GPIO_5);
+		//bk_gpio_pull_down(GPIO_5);
 		gpio_dev_unmap(GPIO_6);
 		bk_gpio_pull_down(GPIO_6);
 		gpio_dev_unmap(GPIO_7);
@@ -322,6 +426,29 @@ bk_err_t bk_dvp_camera_driver_init(const dvp_camera_config_t *config)
 	BK_ASSERT(dvp_camera_config->frame_alloc != NULL);
 	BK_ASSERT(dvp_camera_config->frame_complete != NULL);
 
+	if (dvp_camera_drv == NULL)
+	{
+		dvp_camera_drv = (dvp_camera_drv_t *)os_malloc(sizeof(dvp_camera_drv_t));
+
+		if (dvp_camera_drv == NULL)
+		{
+			LOGE("dvp_camera_drv malloc failed\n");
+			goto error;
+		}
+		
+		os_memset(dvp_camera_drv, 0, sizeof(dvp_camera_drv_t));
+
+		dvp_camera_drv->buffer = (uint8*)os_malloc(FRAME_BUFFER_CACHE * 2);
+
+		if (dvp_camera_drv->buffer == NULL)
+		{
+			LOGE("dvp_camera_drv malloc failed\n");
+			goto error;
+		}
+
+	}
+
+
 #if (CONFIG_PSRAM)
 	bk_psram_init(0x00054043);
 #endif
@@ -333,14 +460,13 @@ bk_err_t bk_dvp_camera_driver_init(const dvp_camera_config_t *config)
 
 	bk_dvp_camera_gpio_init(dvp_camera_config, 1);
 
-	extern bk_err_t bk_clk_enable(void);
 
-	// step 2: jpeg enc driver init
 	ret = bk_jpeg_enc_driver_init();
+
 	if (ret != BK_OK)
 	{
-		os_printf("jpeg encode driver init failed\r\n");
-		return ret;
+		LOGE("jpeg encode driver init failed\n");
+		goto error;
 	}
 
 	bk_clk_enable();
@@ -355,16 +481,26 @@ bk_err_t bk_dvp_camera_driver_init(const dvp_camera_config_t *config)
 	if (current_sensor == NULL)
 	{
 		LOGE("%s no dvp camera found\n", __func__);
-		return kGenericErrorBase;
+		ret = kGenericErrorBase;
+		goto error;
 	}
 
-	// step 3: dma_init
 	ret = dvp_camera_dma_config();
+
 	if (ret != BK_OK)
 	{
-		LOGE("dma init failed\r\n");
-		return ret;
+		LOGE("dma init failed\n");
+		goto error;
 	}
+
+	dvp_camera_drv->psram_dma = bk_dma_alloc(DMA_DEV_JPEG);
+	if ((dvp_camera_drv->psram_dma < DMA_ID_0) || (dvp_camera_drv->psram_dma >= DMA_ID_MAX))
+	{
+		LOGE("malloc dvp_camera_drv->psram_dma fail \r\n");
+		ret = BK_FAIL;
+		goto error;
+	}
+
 
 	switch (current_sensor->def_ppi)
 	{
@@ -389,7 +525,17 @@ bk_err_t bk_dvp_camera_driver_init(const dvp_camera_config_t *config)
 		break;
 
 		case PPI_800X600:
+		{
+			jpeg_config.x_pixel = X_PIXEL_800;
+			jpeg_config.y_pixel = Y_PIXEL_600;
+		}
+		break;
 		case PPI_1280X720:
+		{
+			jpeg_config.x_pixel = X_PIXEL_1280;
+			jpeg_config.y_pixel = Y_PIXEL_720;
+		}
+		break;
 		default:
 			break;
 
@@ -399,7 +545,7 @@ bk_err_t bk_dvp_camera_driver_init(const dvp_camera_config_t *config)
 	if (jpeg_config.y_pixel == Y_PIXEL_720)
 	{
 		jpeg_config.sys_clk_div = 3;
-		jpeg_config.mclk_div = 2;
+		jpeg_config.mclk_div = 0;
 	}
 	else
 	{
@@ -411,7 +557,7 @@ bk_err_t bk_dvp_camera_driver_init(const dvp_camera_config_t *config)
 	if (ret != BK_OK)
 	{
 		LOGE("jpeg init error\n");
-		return ret;
+		goto error;
 	}
 
 	bk_jpeg_enc_register_isr(END_OF_FRAME, dvp_camera_eof_handler, NULL);
@@ -432,6 +578,26 @@ bk_err_t bk_dvp_camera_driver_init(const dvp_camera_config_t *config)
 	LOGI("dvp camera init complete\n");
 
 	return ret;
+
+error:
+
+	if (dvp_camera_drv != NULL)
+	{
+		if (dvp_camera_drv->buffer != NULL)
+		{
+			os_free(dvp_camera_drv->buffer);
+			dvp_camera_drv->buffer = NULL;
+		}
+
+		os_free(dvp_camera_drv);
+		dvp_camera_drv = NULL;
+	}
+
+
+
+	LOGI("dvp camera init failed\n");
+
+	return ret;
 }
 
 
@@ -446,10 +612,18 @@ bk_err_t bk_dvp_camera_driver_deinit(void)
 	bk_jpeg_enc_deinit();
 
 	bk_dma_stop(dvp_camera_dma_channel);
-
 	bk_dma_deinit(dvp_camera_dma_channel);
-
 	bk_dma_free(DMA_DEV_JPEG, dvp_camera_dma_channel);
+
+	if (dvp_camera_drv)
+	{
+		bk_dma_stop(dvp_camera_drv->psram_dma);
+		bk_dma_deinit(dvp_camera_drv->psram_dma);
+		bk_dma_free(DMA_DEV_JPEG, dvp_camera_drv->psram_dma);
+		os_free(dvp_camera_drv->buffer);
+		os_free(dvp_camera_drv);
+		dvp_camera_drv = NULL;
+	}
 
 	bk_i2c_deinit(dvp_camera_config->host->id);
 

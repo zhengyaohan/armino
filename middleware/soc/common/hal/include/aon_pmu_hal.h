@@ -48,6 +48,7 @@ uint32_t aon_pmu_hal_reg_get(pmu_reg_e reg);
 void aon_pmu_hal_wdt_rst_dev_enable(void);
 void aon_pmu_hal_lpo_src_set(uint32_t lpo_src);
 uint32_t aon_pmu_hal_lpo_src_get();
+uint32_t aon_pmu_hal_bias_cal_get();
 
 #ifdef __cplusplus 
 }                  

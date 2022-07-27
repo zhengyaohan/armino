@@ -56,7 +56,7 @@ static void jpeg_decoder_isr_common(void);
 
 bk_err_t bk_jpeg_dec_driver_init(void)
 {
-	pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_JPEG_DE, PM_POWER_MODULE_STATE_ON);
+	bk_pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_JPEG_DE, PM_POWER_MODULE_STATE_ON);
 	if(sys_drv_jpeg_dec_set(1, 1) != 0) {
 		os_printf("jpeg dec sys clk config error \r\n");
 		return BK_FAIL;
@@ -78,12 +78,14 @@ bk_err_t bk_jpeg_dec_driver_deinit(void)
 	}
 	bk_int_isr_unregister(INT_SRC_JPEG_DEC);
 	jpg_decoder_deinit();
-	pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_JPEG_DE, PM_POWER_MODULE_STATE_OFF);	
+	bk_pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_JPEG_DE, PM_POWER_MODULE_STATE_OFF);	
 	return BK_OK;
 }
 
-bk_err_t bk_jpeg_dec_init(uint32_t * dec_src_addr, uint32_t *dec_dest_addr)
+JRESULT bk_jpeg_dec_init(uint32_t * dec_src_addr, uint32_t *dec_dest_addr)
 {
+	int ret = 0;
+
 	switch (s_jpeg_decoder_isr.param) {
 		case JPEGDEC_X_PIXEL_720: // PIXEL_1280_720
 			jpegdec_pixel_x = 1280;
@@ -104,11 +106,17 @@ bk_err_t bk_jpeg_dec_init(uint32_t * dec_src_addr, uint32_t *dec_dest_addr)
 		default:
 			break;
 	}
-
-	JpegdecInit(&jdec, dec_src_addr);
-	jd_decomp(&jdec, s_jpeg_decoder_isr.param, dec_src_addr, dec_dest_addr);
-
-	return BK_OK;
+	ret = JpegdecInit(&jdec, dec_src_addr);
+	if(ret != JDR_OK)
+	{
+		return ret;
+	}
+	ret = jd_decomp(&jdec, s_jpeg_decoder_isr.param, dec_src_addr, dec_dest_addr);
+	if(ret != JDR_OK)
+	{
+		return ret;
+	}
+	return JDR_OK;
 }
 
 bk_err_t bk_jpeg_dec_start(void)
@@ -140,44 +148,42 @@ bk_err_t bk_jpeg_dec_complete_cb(jpeg_dec_isr_t isr, jpeg_dec_xpixel_t pixel_x)
 
 static void jpeg_decoder_isr(void)
 {
-	//bk_gpio_set_output_high(GPIO_4);
 	uint8_t  bm4;
-	uint32_t pixel_x = jpegdec_pixel_x;
-	uint32_t block_num = jpegdec_block_num;
+//	uint32_t pixel_x = jpegdec_pixel_x;
+//	uint32_t block_num = jpegdec_block_num;
 
 	mcu_y_num = mcu_y_num + 1;
-	if(mcu_y_num == pixel_x/4) {
+	if(mcu_y_num == jpegdec_pixel_x/4) {
 		mcu_y_num = 0;
 		REG_JPEG_MCUY = REG_JPEG_MCUY + 8;
 	}
 	mcu_idex++;
-	bm4 = mcu_idex % 4;
-	REG_JPEG_MCUX = (mcu_y_num >> 2) * 16;
+	bm4 = mcu_idex & 0x3;
+	REG_JPEG_MCUX = (mcu_y_num >> 2) << 4;
 
 	if((bm4 == 2) || (bm4 == 3))
 		REG_JPEG_DCUV = 0x1;
 	else
 		REG_JPEG_DCUV = 0x0;
 	
-	if((pixel_x == 480) && (mcu_idex == 2500)) {
+	if((jpegdec_pixel_x == 480) && (mcu_idex == 2500)) {
 		jpeg_decoder_isr_common();
 	}
 
-	if(mcu_idex == (block_num)) {
+	if(mcu_idex == (jpegdec_block_num)) {
 		mcu_idex = 0;
 		REG_JPEG_DCUV = 0x0;
 		REG_JPEG_MCUX= 0;
 		REG_JPEG_MCUY = 0;
 		dec_busy2_clr;
 		REG_JPEG_ACC_REG0 = 0;
-		if ((pixel_x == 1280) || (pixel_x == 640)) {
+		if ((jpegdec_pixel_x == 1280) || (jpegdec_pixel_x == 640)) {
 			jpeg_decoder_isr_common();
 		}
 	} else {
 		dec_busy2_clr;
 		REG_DEC_START;
 	}
-	//bk_gpio_set_output_low(GPIO_4);
 }
 
 static void jpeg_decoder_isr_common(void)

@@ -63,7 +63,20 @@ void MQTTPacket_header_parse(uint32_t buf,uint16_t packet_len);
 #define RX_PER_PACKET_INFO_OUTPUT (1<<3)    
 #define RX_PAYLOAD_PARSE (1<<4)
 #define RX_MQTT_PACKET_HEADER_PARSE (1<<5)
-    
+
+#define PACKET_TYPE_BASE (8)
+
+#define PACKET_TYPE_MGT (1<<PACKET_TYPE_BASE)
+#define PACKET_TYPE_CTRL (1<<(PACKET_TYPE_BASE+1))
+#define PACKET_TYPE_DATA (1<<(PACKET_TYPE_BASE+2))
+
+#define PACKET_AC_BASE (12)
+
+#define PACKET_AC_BK (1<<PACKET_AC_BASE)
+#define PACKET_AC_BE (1<<(PACKET_AC_BASE+1))
+#define PACKET_AC_VI (1<<(PACKET_AC_BASE+2))
+#define PACKET_AC_VO (1<<(PACKET_AC_BASE+3))  
+
 extern uint32_t g_per_packet_info_output_bitmap;
 
 #ifdef __cplusplus

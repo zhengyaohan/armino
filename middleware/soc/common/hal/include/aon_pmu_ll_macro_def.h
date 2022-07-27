@@ -1038,8 +1038,14 @@ static inline uint32_t aon_pmu_ll_get_reg7d_pll26m_unlock(void)
 #define AON_PMU_REG7E_CAPCAL_POS (0) 
 #define AON_PMU_REG7E_CAPCAL_MASK (0x1FF) 
 
-#define AON_PMU_REG7E_H_POS (9) 
-#define AON_PMU_REG7E_H_MASK (0x7FFFFF) 
+#define AON_PMU_REG7E_BIAS_CAL_POS (9)
+#define AON_PMU_REG7E_BIAS_CAL_MASK (0x1F)
+
+#define AON_PMU_REG7E_DPLL_UNLOCK_POS (14)
+#define AON_PMU_REG7E_DPLL_UNLOCK_MASK (0x1)
+
+#define AON_PMU_REG7E_H_POS (15)
+#define AON_PMU_REG7E_H_MASK (0x1FFFF)
 
 static inline uint32_t aon_pmu_ll_get_reg7e_value(void)
 {
@@ -1069,7 +1075,16 @@ static inline void aon_pmu_ll_set_reg7e_capcal(uint32_t value)
     REG_WRITE(AON_PMU_REG7E_ADDR,reg_value);
 }
 
-/* REG_0x7e:reg7e->H:0x7e[31:9], ,None,R*/
+/* REG_0x7e:reg7e->capcal:0x7e[13:9], ,None,R/W*/
+static inline uint32_t aon_pmu_ll_get_reg7e_bias_cal(void)
+{
+    uint32_t reg_value;
+    reg_value = REG_READ(AON_PMU_REG7E_ADDR);
+    reg_value = ((reg_value >> AON_PMU_REG7E_BIAS_CAL_POS) & AON_PMU_REG7E_BIAS_CAL_MASK);
+    return reg_value;
+}
+
+/* REG_0x7e:reg7e->H:0x7e[31:15], ,None,R*/
 static inline uint32_t aon_pmu_ll_get_reg7e_h(void)
 {
     uint32_t reg_value;

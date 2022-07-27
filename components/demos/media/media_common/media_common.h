@@ -20,15 +20,14 @@
 extern "C" {
 #endif
 
-//#define MB_CHNL_COM    3
 
 typedef enum {
-	COM_MB_NULL = 0,
-	COM_MB_START_AUDIO_CMD,
+	CMD_COM_MB_NULL = 0,
+	CMD_COM_MB_AUD_TRAS_INIT,
+	CMD_COM_MB_AUD_TRAS_INIT_CMPL,
 	COM_MB_START_VIDEO_CMD,
 	COM_MB_ACK,
-	COM_MB_CMPL,
-	COM_MB_MAX_CMD,
+	CMD_COM_MB_MAX_CMD,
 } common_maibox_cmd_t;
 
 typedef struct {
@@ -49,9 +48,11 @@ typedef enum {
 
 typedef struct {
 	com_opcode_t op;
+	uint32_t param;
 } com_msg_t;
 
 bk_err_t common_mb_init(void);
+bk_err_t media_send_com_mb_msg(common_maibox_cmd_t cmd, uint32_t param1, uint32_t param2, uint32_t param3);
 
 #ifdef __cplusplus
 }

@@ -16,12 +16,16 @@
 #include <components/log.h>
 
 #include "media_core.h"
-#include "dvp_act.h"
+#include "media_evt.h"
+#include "camera_act.h"
 #include "aud_act.h"
 #include "comm_act.h"
 #include "lcd_act.h"
-#include "trs_act.h"
+#include "transfer_act.h"
+#include "storage_act.h"
 #include "mailbox_channel.h"
+#include "frame_buffer.h"
+#include "media_app.h"
 
 
 #define MJ_TAG "media0"
@@ -105,6 +109,8 @@ static void media_major_message_handle(void)
 {
 	bk_err_t ret = BK_OK;
 	media_msg_t msg;
+	
+	frame_buffer_init();
 
 #ifdef CONFIG_CAMERA
 	dvp_camera_init();
@@ -116,6 +122,10 @@ static void media_major_message_handle(void)
 
 #ifdef CONFIG_LCD
 	lcd_init();
+#endif
+
+#ifdef CONFIG_CAMERA
+	storage_init();
 #endif
 
 	while (1)
@@ -152,6 +162,12 @@ static void media_major_message_handle(void)
 #ifdef CONFIG_WIFI_TRANSFER
 				case TRS_EVENT:
 					wifi_transfer_event_handle(msg.event, msg.param);
+					break;
+#endif
+
+#ifdef CONFIG_CAMERA
+				case STORAGE_EVENT:
+					storage_event_handle(msg.event, msg.param);
 					break;
 #endif
 
@@ -233,6 +249,8 @@ bk_err_t media_major_init(void)
 		LOGE("create media major thread fail\n");
 		goto error;
 	}
+	
+	media_app_init();
 
 #ifdef CONFIG_DUAL_CORE
 	mb_chnl_open(MB_CHNL_MEDIA, NULL);

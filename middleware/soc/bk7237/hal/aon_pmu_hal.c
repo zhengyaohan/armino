@@ -180,6 +180,11 @@ uint32_t aon_pmu_hal_lpo_src_get()
 {
 	return aon_pmu_ll_get_reg41_lpo_config();
 }
+
+uint32_t aon_pmu_hal_bias_cal_get()
+{
+	return aon_pmu_ll_get_reg7e_bias_cal();
+}
 #else
 void aon_pmu_hal_set_sleep_parameters(uint32_t value)
 {

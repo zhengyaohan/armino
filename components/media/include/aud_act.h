@@ -21,12 +21,6 @@ extern "C" {
 #endif
 
 
-typedef enum
-{
-	EVENT_AUD_ADC_OPEN = (AUD_EVENT << MEDIA_EVT_BIT),
-	EVENT_AUD_DAC_OPEN,
-} aud_event_t;
-
 void audio_event_handle(uint32_t event, uint32_t param);
 
 

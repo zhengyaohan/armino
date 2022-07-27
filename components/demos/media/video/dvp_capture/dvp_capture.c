@@ -416,8 +416,8 @@ error1:
 		uint8_t enable = os_strtoul(argv[2], NULL, 10);
 		bk_video_transfer_pkt_reset_enable(enable);
 	}
-	
-#if (CONFIG_VIDEO_DVP_LCD && (!CONFIG_BK7256XX_MP) )
+#if CONFIG_VIDEO_LCD
+
 	else if (os_strcmp(argv[1], "lcd_video") == 0) {
 		uint8_t enable = os_strtoul(argv[2], NULL, 10);
 		bk_lcd_video_enable(enable);

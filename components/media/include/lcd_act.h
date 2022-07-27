@@ -23,7 +23,7 @@ extern "C" {
 
 typedef enum
 {
-	LCD_STATE_DIEABLED,
+	LCD_STATE_DISABLED,
 	LCD_STATE_ENABLED,
 } lcd_state_t;
 
@@ -41,13 +41,7 @@ typedef struct
 	frame_buffer_t *frame;
 } lcd_info_t;
 
-typedef enum
-{
-	EVENT_LCD_OPEN_IND = (LCD_EVENT << MEDIA_EVT_BIT),
-	EVENT_LCD_DVP_REG_CAM_INIT_RES,
-	EVENT_LCD_FRAME_COMPLETE_IND,
-	EVENT_LCD_RESIZE_IND,
-} lcd_event_t;
+
 
 void lcd_event_handle(uint32_t event, uint32_t param);
 lcd_state_t get_lcd_state(void);

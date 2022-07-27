@@ -425,6 +425,7 @@ void sys_drv_set_ana_pwd_gadc_buf(uint32_t value);
 void sys_drv_set_ana_vref_sel(uint32_t value);
 void sys_drv_set_ana_cb_cal_manu(uint32_t value);
 void sys_drv_set_ana_cb_cal_trig(uint32_t value);
+void sys_drv_set_ana_cb_cal_manu_val(uint32_t value);
 void sys_drv_set_ana_vlsel_ldodig(uint32_t value);
 void sys_drv_set_ana_vhsel_ldodig(uint32_t value);
 void sys_drv_set_ana_vctrl_sysldo(uint32_t value);

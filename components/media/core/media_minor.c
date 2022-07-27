@@ -16,7 +16,8 @@
 #include <components/log.h>
 
 #include "media_core.h"
-#include "dvp_act.h"
+#include "media_evt.h"
+#include "camera_act.h"
 #include "aud_act.h"
 #include "comm_act.h"
 #include "lcd_act.h"

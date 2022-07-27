@@ -212,7 +212,7 @@ int video_set_yuv_psram_handler(char *pcWriteBuffer, int xWriteBufferLen, int ar
 
 	if (ppi == VGA_1280_720) {
 		jpeg_config.sys_clk_div = 3;
-		jpeg_config.mclk_div = 2;
+		jpeg_config.mclk_div = 0;
 	}else {
 		jpeg_config.sys_clk_div = 4;
 		jpeg_config.mclk_div = 0;

@@ -567,7 +567,7 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
 	int crlf_pos;
 	iotx_time_t timer;
 	char *b_data = NULL;
-
+    int ret = 0;
 	iotx_time_init(&timer);
 	utils_time_countdown_ms(&timer, timeout_ms);
 
@@ -578,7 +578,7 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
 
 	if (client_data->response_content_len == -1 && client_data->is_chunked == false) {
 		while (true) {
-			int ret, max_len;
+			int max_len;
 			if (count + len < client_data->response_buf_len - 1) {
 				os_memcpy(client_data->response_buf + count, data, len);
 				count += len;
@@ -631,7 +631,7 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
 				if (!foundCrlf) {
 					/* Try to read more */
 					if (len < HTTPCLIENT_CHUNK_SIZE) {
-						int new_trf_len, ret;
+						int new_trf_len;
 						ret = httpclient_recv(client,
 											  data + len,
 											  0,
@@ -686,7 +686,8 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
 			} else {
 				client_data->response_buf[client_data->response_buf_len - 1] = '\0';
 				client_data->retrieve_len -= (client_data->response_buf_len - 1 - count);
-				return HTTP_RETRIEVE_MORE_DATA;
+				ret = HTTP_RETRIEVE_MORE_DATA;
+                break;
 			}
 
 			if (len > readLen) {
@@ -699,23 +700,26 @@ int httpclient_retrieve_content(httpclient_t *client, char *data, int len, uint3
 				readLen -= len;
 
 			if (readLen) {
-				int ret;
 				int max_len = HTTPCLIENT_MIN(TCP_LEN_MAX, client_data->response_buf_len - 1 - count);
 				max_len = HTTPCLIENT_MIN(max_len, readLen);
 
 				ret = httpclient_recv(client, b_data, 1, max_len, &len, iotx_time_left(&timer));
 				if (ret == ERROR_HTTP_CONN)
-					return ret;
+                    break;
 			}
 		} while (readLen);
 
 		bk_http_ptr->do_data = 0;
 		os_free(b_data);
 		b_data = NULL;
-
+        if(ret != 0)
+        {
+            return ret;
+        }
+        
 		if (client_data->is_chunked) {
 			if (len < 2) {
-				int new_trf_len, ret;
+				int new_trf_len;
 				/* Read missing chars to find end of chunk */
 				ret = httpclient_recv(client, data + len, 2 - len, HTTPCLIENT_CHUNK_SIZE - len - 1, &new_trf_len,
 									  iotx_time_left(&timer));

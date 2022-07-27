@@ -50,6 +50,7 @@
 static uint32_t s_camera_sensor = 0x01E00014;//(480 << 16) | 20;
 
 static jpegenc_desc_t ejpeg_cfg;
+static uint32_t frame_total_len = 0;
 
 #if CONFIG_VIDEO_LCD
 extern u64 riscv_get_mtimer(void);
@@ -165,7 +166,13 @@ static void camera_intf_delay_timer_hdl(timer_id_t timer_id)
 	uint32_t left_len = bk_dma_get_remain_len(ejpeg_cfg.dma_channel);
 	uint32_t rec_len = ejpeg_cfg.node_len - left_len;
 	uint32_t frame_len = bk_jpeg_enc_get_frame_size();
+	frame_total_len += rec_len - 5;
 
+	if (frame_len != frame_total_len) {
+		CAMERA_LOGE("jpeg frame len crc error:%d-%d\r\n", frame_len, frame_total_len);
+	}
+
+	frame_total_len = 0;
 #if CONFIG_VIDEO_LCD
 	if (tvideo_lcd_enable) {
 		if (lcd_status == MEMCPYING) {
@@ -212,6 +219,7 @@ static void camera_intf_ejpeg_rx_handler(dma_id_t dma_id)
 {
 	uint16_t already_len = ejpeg_cfg.rx_read_len;
 	uint16_t copy_len = ejpeg_cfg.node_len;
+	frame_total_len += copy_len;
 	GLOBAL_INT_DECLARATION();
 
 #if CONFIG_VIDEO_LCD
@@ -435,7 +443,7 @@ bk_err_t bk_camera_deinit(void)
 	bk_jpeg_enc_driver_deinit();
 #endif
 
-
+	frame_total_len = 0;
 	os_memset(&ejpeg_cfg, 0, sizeof(jpegenc_desc_t));
 
 	CAMERA_LOGI("camera deinit finish\r\n");
@@ -521,6 +529,8 @@ void bk_lcd_video_enable(uint8_t enable)
 {
 #if (CONFIG_SOC_BK7256 || CONFIG_SOC_BK7237)
 	tvideo_lcd_enable = enable;
+	bk_printf("open LCD tvideo_lcd_enable\r\n");
+
 #endif
 }
 

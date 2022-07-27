@@ -34,35 +34,72 @@ static void ip_cmd_show_ip(int ifx)
 
 void cli_ip_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
-	netif_ip4_config_t config = {0};
-	int ifx = NETIF_IF_COUNT;
+        netif_ip4_config_t config = {0};
+        int ifx = NETIF_IF_COUNT;
 
-	if (argc > 1) {
-		if (os_strcmp("sta", argv[1]) == 0) {
-			ifx = NETIF_IF_STA;
-		} else if (os_strcmp("ap", argv[1]) == 0) {
-			ifx = NETIF_IF_AP;
-		} else {
-			CLI_LOGE("invalid netif name\n");
-			return;
-		}
-	}
+        if (argc > 1) {
+                if (os_strcmp("sta", argv[1]) == 0) {
+                        ifx = NETIF_IF_STA;
+                } else if (os_strcmp("ap", argv[1]) == 0) {
+                        ifx = NETIF_IF_AP;
+                } else {
+                        CLI_LOGE("invalid netif name\n");
+                        return;
+                }
+        }
 
-	if (argc == 1) {
-		ip_cmd_show_ip(NETIF_IF_COUNT);
-	} else if (argc == 2) {
-		ip_cmd_show_ip(ifx);
-	} else if (argc == 6) {
-		os_strncpy(config.ip, argv[2], NETIF_IP4_STR_LEN);
-		os_strncpy(config.mask, argv[3], NETIF_IP4_STR_LEN);
-		os_strncpy(config.gateway, argv[4], NETIF_IP4_STR_LEN);
-		os_strncpy(config.dns, argv[5], NETIF_IP4_STR_LEN);
-		BK_LOG_ON_ERR(bk_netif_set_ip4_config(ifx, &config));
-		CLI_DUMP_IP("set static ip, ", ifx, &config);
-	} else {
-	        CLI_LOGE("usage: ip [sta|ap][{ip}{mask}{gate}{dns}]\n");
-	}
+        if (argc == 1) {
+                ip_cmd_show_ip(NETIF_IF_COUNT);
+        } else if (argc == 2) {
+                ip_cmd_show_ip(ifx);
+        } else if (argc == 6) {
+                os_strncpy(config.ip, argv[2], NETIF_IP4_STR_LEN);
+                os_strncpy(config.mask, argv[3], NETIF_IP4_STR_LEN);
+                os_strncpy(config.gateway, argv[4], NETIF_IP4_STR_LEN);
+                os_strncpy(config.dns, argv[5], NETIF_IP4_STR_LEN);
+                BK_LOG_ON_ERR(bk_netif_set_ip4_config(ifx, &config));
+                CLI_DUMP_IP("set static ip, ", ifx, &config);
+        } else {
+                CLI_LOGE("usage: ip [sta|ap][{ip}{mask}{gate}{dns}]\n");
+        }
 }
+
+#if CONFIG_IPV6
+static void ip6_cmd_show_ip(int ifx)
+{
+       if (ifx == NETIF_IF_STA || ifx == NETIF_IF_AP) {
+               bk_netif_get_ip6_addr_info(ifx);
+       } else {
+               CLI_LOGI("[sta]\n");
+               bk_netif_get_ip6_addr_info(NETIF_IF_STA);
+               CLI_LOGI("[ap]\n");
+               bk_netif_get_ip6_addr_info(NETIF_IF_AP);
+       }
+}
+
+void cli_ip6_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+
+{
+       int ifx = NETIF_IF_COUNT;
+
+       if (argc > 1) {
+               if (os_strcmp("sta", argv[1]) == 0) {
+                       ifx = NETIF_IF_STA;
+               } else if (os_strcmp("ap", argv[1]) == 0) {
+                       ifx = NETIF_IF_AP;
+               } else {
+                       CLI_LOGE("invalid netif name\n");
+                       return;
+               }
+       }
+
+       if (argc == 1) {
+               ip6_cmd_show_ip(NETIF_IF_COUNT);
+       } else if (argc == 2) {
+               ip6_cmd_show_ip(ifx);
+       }
+}
+#endif
 
 void cli_dhcpc_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
@@ -154,6 +191,7 @@ static const struct cli_command s_netif_commands[] = {
 	{"ping", "ping <ip>", cli_ping_cmd},
 #ifdef CONFIG_IPV6
 	{"ping6",       "ping6 xxx",             cli_ping_cmd},
+	{"ip6", "ip6 [sta|ap][{ip}{state}]", cli_ip6_cmd},
 #endif
 #ifdef TCP_CLIENT_DEMO
 	{"tcp_cont", "tcp_cont [ip] [port]", tcp_make_connect_server_command},

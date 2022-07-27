@@ -43,6 +43,7 @@ typedef struct
 {
 	frame_state_t state;
 	uint8_t id;
+	uint8_t lock;
 	uint8_t *frame;
 	uint32_t length;
 	uint32_t size;

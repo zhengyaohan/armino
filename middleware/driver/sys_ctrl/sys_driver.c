@@ -192,6 +192,13 @@ void sys_drv_set_ana_cb_cal_trig(uint32_t value)
     sys_hal_set_ana_cb_cal_trig(value);
     rtos_enable_int(int_level);
 }
+void sys_drv_set_ana_cb_cal_manu_val(uint32_t value)
+{
+    uint32_t int_level = rtos_disable_int();
+
+    sys_hal_set_ana_cb_cal_manu_val(value);
+    rtos_enable_int(int_level);
+}
 
 void sys_drv_set_ana_vlsel_ldodig(uint32_t value)
 {

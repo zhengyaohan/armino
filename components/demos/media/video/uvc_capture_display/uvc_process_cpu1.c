@@ -376,7 +376,7 @@ static bk_err_t uvc_cpu1_deinit(void)
 		bk_lcd_rgb_display_en(0);
 
 		// step 4: lcd power off
-		pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_LCD, PM_POWER_MODULE_STATE_OFF);
+		bk_pm_module_vote_power_ctrl(PM_POWER_SUB_MODULE_NAME_VIDP_LCD, PM_POWER_MODULE_STATE_OFF);
 	}
 	return BK_OK;
 }
