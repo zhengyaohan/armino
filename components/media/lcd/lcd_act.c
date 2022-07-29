@@ -43,7 +43,10 @@
 #include <driver/jpeg_dec_types.h>
 #include "modules/image_scale.h"
 //#include "lcd_blend_config.h"
+#include <driver/uvc_camera_types.h>
+#include <driver/uvc_camera.h>
 
+#include <driver/pwm.h>
 
 #define TAG "lcd"
 
@@ -52,120 +55,125 @@
 #define LOGE(...) BK_LOGE(TAG, ##__VA_ARGS__)
 #define LOGD(...) BK_LOGD(TAG, ##__VA_ARGS__)
 
+uint32_t media_decoder_isr_count = 0;
+uint32_t media_rgb_isr_count = 0;
+
+
 lcd_info_t lcd_info = {0};
-
+static uint8_t lcd_frame_id = 0;
 #define LCD_DMA_TRANSFER_SIZE (65280)
+#define PARTICAL_XS   101
+#define PARTICAL_XE   580
+#define PARTICAL_YS   101
+#define PARTICAL_YE   372
 
-typedef struct
+void lcd_frame_pingpong_insert(frame_buffer_t *buffer)
 {
-	uint32_t src_addr; /*<  src image addr*/
-	uint32_t dst_addr; /*<  dst image addr*/
-	uint32_t x;         /*< src image crop x point coo*/
-	uint32_t y;         /*< src image crop y point coo*/
-	uint32_t src_width; /*< src image width*/
-	uint32_t src_height; /*< src image height*/
-	uint32_t dst_width;  /*< dst image width*/
-	uint32_t dst_height;  /*< dst image height*/
-} dma2d_crop_params_t;
+	LOGD("YUV frame: %u\n", buffer->sequence);
 
-static void dma_rgb_finish_isr(dma_id_t id)
-{
-	LOGD("%s\n", __func__);
-
-	lcd_info.count ++;
-
-	if (lcd_info.count == 4)
+	if (lcd_info.ping_frame == NULL
+	    && lcd_info.pong_frame == NULL)
 	{
-		lcd_info.count = 0;
-		bk_dma_set_src_start_addr(lcd_info.dma_channel, (uint32_t)lcd_info.display_address);
-
-		//LOGI("RGB complete\n");
-
-		if (lcd_info.frame && true == frame_buffer_get_state())
-		{
-			media_msg_t msg;
-			
-			msg.event = EVENT_COM_FRAME_LCD_FREE_IND;
-			msg.param = (uint32_t)lcd_info.frame;
-			media_send_msg(&msg);
-			lcd_info.frame = NULL;
-		}
+		lcd_info.ping_frame = buffer;
+		lcd_info.display_frame = buffer;
+		bk_lcd_set_display_base_addr((uint32_t)lcd_info.ping_frame->frame);
+		bk_lcd_rgb_display_en(1);
 	}
 	else
 	{
-		bk_dma_set_src_start_addr(lcd_info.dma_channel, ((uint32_t)lcd_info.display_address + (uint32_t)(LCD_DMA_TRANSFER_SIZE * lcd_info.count)));
-		bk_dma_start(lcd_info.dma_channel);
+		if (lcd_info.ping_frame != lcd_info.display_frame)
+		{
+			if (lcd_info.ping_frame != NULL)
+			{
+				frame_buffer_free_request(lcd_info.ping_frame, MODULE_DISPLAY);
+			}
+			lcd_info.ping_frame = buffer;
+		}
+
+		if (lcd_info.pong_frame != lcd_info.display_frame)
+		{
+			if (lcd_info.pong_frame != NULL)
+			{
+				frame_buffer_free_request(lcd_info.pong_frame, MODULE_DISPLAY);
+			}
+			lcd_info.pong_frame = buffer;
+		}
+
 	}
 }
 
-static void dma2d_crop_image(dma2d_crop_params_t *crop_params)
+
+static void lcd_rgb_isr(void)
 {
-	uint32_t src_offset = crop_params->src_width - crop_params->dst_width;
-	uint16_t *src_crop_start_addr = (uint16_t *)crop_params->src_addr + (crop_params->y * crop_params->src_width) + crop_params->x;
+	media_rgb_isr_count++;
 
-	dma2d_config_t dma2d_config = {0};
-	dma2d_config.init.mode        = DMA2D_M2M;             /**< Mode Memory To Memory */
-	dma2d_config.init.color_mode    = DMA2D_OUTPUT_RGB565; /**< Output color mode is ARGB4444 : 16 bpp */
-	dma2d_config.init.output_offset = 0;                  /**< No offset on output */
-	dma2d_config.init.red_blue_swap  = DMA2D_RB_REGULAR;     /**< No R&B swap for the output image */
-	dma2d_config.init.alpha_inverted = DMA2D_REGULAR_ALPHA; /**< No alpha inversion for the output image */
+	if (lcd_info.ping_frame == lcd_info.display_frame
+	    && lcd_info.pong_frame != NULL)
+	{
+		frame_buffer_free_request(lcd_info.display_frame, MODULE_DISPLAY);
+		lcd_info.ping_frame = NULL;
+		lcd_info.display_frame = lcd_info.pong_frame;
+		bk_lcd_set_display_base_addr((uint32_t)lcd_info.pong_frame->frame);
+	}
 
-	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].alpha_mode = DMA2D_NO_MODIF_ALPHA;     /**< Keep original Alpha from ARGB4444 input */
-	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_alpha = 0xFF;                    /**< Fully opaque */
-	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_color_mode = DMA2D_INPUT_RGB565;
-	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].input_offset = src_offset;                    /**< No offset in input */
-	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].red_blue_swap   = DMA2D_RB_REGULAR;     /**< No R&B swap for the input image */
-	dma2d_config.layer_cfg[DMA2D_FOREGROUND_LAYER].alpha_inverted = DMA2D_REGULAR_ALPHA;   /**< No alpha inversion for the input image */
+	if (lcd_info.pong_frame == lcd_info.display_frame
+	    && lcd_info.ping_frame != NULL)
+	{
+		frame_buffer_free_request(lcd_info.display_frame, MODULE_DISPLAY);
+		lcd_info.display_frame = lcd_info.ping_frame;
+		lcd_info.pong_frame = NULL;
+		bk_lcd_set_display_base_addr((uint32_t)lcd_info.ping_frame->frame);
+	}
 
-	bk_dma2d_driver_init(&dma2d_config);
-	bk_dma2d_layer_config(&dma2d_config, DMA2D_FOREGROUND_LAYER);
-
-	bk_dma2d_start_transfer(&dma2d_config, (uint32_t)src_crop_start_addr, (uint32_t)crop_params->dst_addr, crop_params->dst_width, crop_params->dst_height);
-	while (bk_dma2d_is_transfer_busy()) {}
+	bk_lcd_rgb_display_en(1);
 }
 
-static void jpeg_dec_eof_cb(void *param)
+static void jpeg_dec_eof_cb(void)
 {
-	//LOGI("decoder complete\n");
+	//  bk_gpio_set_output_high(GPIO_3)
+	media_decoder_isr_count++;
 
-	//bk_gpio_pull_up(GPIO_5);
+	lcd_frame_pingpong_insert(lcd_info.decoder_frame);
 
-	media_msg_t msg;
+	if (lcd_info.jpeg_frame && true == frame_buffer_get_state())
+	{
+		media_msg_t msg;
 
-	msg.event = EVENT_LCD_RESIZE_IND;
-	media_send_msg(&msg);
+		LOGD("free decoder frame: %u\n", lcd_info.jpeg_frame->sequence);
+		msg.event = EVENT_COM_FRAME_DECODER_FREE_IND;
+		msg.param = (uint32_t)lcd_info.jpeg_frame;
+		media_send_msg(&msg);
+		lcd_info.jpeg_frame = NULL;
+	}
 
-	//bk_gpio_pull_down(GPIO_5);
+	//  bk_gpio_set_output_low(GPIO_3);
 }
 
 
-static void dma_video_lcd_config(uint32_t dma_ch, uint32_t dma_src_mem_addr)
+
+int lcd_set_partical(uint16_t src_x, uint16_t src_y, uint16_t dst_x, uint16_t dst_y)
 {
-	dma_config_t dma_config = {0};
+	uint16_t start_x, end_x, start_y, end_y;
 
-	dma_config.mode = DMA_WORK_MODE_SINGLE;
-	dma_config.chan_prio = 0;
-	dma_config.src.dev = DMA_DEV_DTCM;
-	dma_config.src.width = DMA_DATA_WIDTH_32BITS;
-	dma_config.src.start_addr = (uint32) dma_src_mem_addr;
-	dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
-	dma_config.dst.dev = DMA_DEV_LCD_DATA;
-	dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
-	dma_config.dst.start_addr = (uint32) REG_DISP_RGB_FIFO;
+	start_x = (src_x - dst_x) / 2 + 1;
+	end_x = start_x + dst_x - 1;
 
-	bk_dma_init(dma_ch, &dma_config);
-	bk_dma_register_isr(dma_ch, NULL, dma_rgb_finish_isr);
-	BK_LOG_ON_ERR(bk_dma_set_transfer_len(dma_ch, LCD_DMA_TRANSFER_SIZE));
-	bk_dma_enable_finish_interrupt(dma_ch);
+	start_y = (src_y - dst_y) / 2 + 1;
+	end_y = start_y + dst_y - 1;
+
+	LOGI("%s, offset %d, %d, %d, %d\n", __func__, start_x, end_x, start_y, end_y);
+
+	bk_lcd_set_partical_display(start_x, end_x, start_y, end_y);
+	return 0;
 }
 
-int lcd_driver_init(void)
+int lcd_driver_init(uint32_t lcd_ppi)
 {
 	int ret = kGeneralErr;
-	dvp_camera_device_t *device = NULL;
-	uint16_t dec_pixel_x = 0;
+	dvp_camera_device_t *dvp_device = NULL;
+	bool yuv_mode = false;
 
-	LOGI("%s\n", __func__);
+	LOGI("%s, ppi: %dX%d\n", __func__, lcd_ppi >> 16, lcd_ppi & 0xFFFF);
 
 	if (lcd_info.state == LCD_STATE_ENABLED)
 	{
@@ -173,73 +181,121 @@ int lcd_driver_init(void)
 		return ret;
 	}
 
-	device = bk_dvp_camera_get_device();
+	dvp_device = bk_dvp_camera_get_device();
 
-	if (device == NULL || device->id == ID_UNKNOW)
+	if (dvp_device == NULL || dvp_device->id == ID_UNKNOW)
 	{
-		LOGE("camera was not init\n");
+		LOGE("dvp camera was not init\n");
+#if (CONFIG_USB_UVC)
+		uvc_camera_device_t *uvc_device = NULL;
+
+		uvc_device = bk_uvc_camera_get_device();
+
+		if (uvc_device == NULL)
+		{
+			LOGE("uvc camera was not init\n");
+			return kGeneralErr;
+		}
+
+		lcd_info.src_pixel_x = uvc_device->width;
+		lcd_info.src_pixel_y = uvc_device->height;
+#else
 		return kGeneralErr;
+#endif
+	}
+	else
+	{
+		lcd_info.src_pixel_x = ppi_to_pixel_x(dvp_device->ppi);
+		lcd_info.src_pixel_y = ppi_to_pixel_y(dvp_device->ppi);
+
+		if (dvp_device->mode == DVP_MODE_YUV)
+		{
+			yuv_mode = true;
+		}
 	}
 
-	dec_pixel_x = ppi_to_pixel_x(device->ppi) / 8;
+	lcd_info.dec_pixel_x = lcd_info.src_pixel_x;
 
-	if (dec_pixel_x == 0x50)
-	{
-		lcd_info.dec_pixel_x = JPEGDEC_X_PIXEL_640;
-	}
-	else if (dec_pixel_x == 0x3c)
-	{
-		lcd_info.dec_pixel_x = JPEGDEC_X_PIXEL_480;
-	}
-	else if (dec_pixel_x == 0xA0)
-	{
-		lcd_info.dec_pixel_x = JPEGDEC_X_PIXEL_720;
-	}
-
-	lcd_info.decoder_address = psram_map->jpeg_dec;
-	lcd_info.display_address = psram_map->display;
 	lcd_info.count = 0;
 
-	bk_lcd_driver_init(LCD_96M);
-	bk_lcd_rgb_init(15, X_PIXEL_RGB, Y_PIXEL_RGB, VUYY_DATA);
-	//bk_lcd_rgb_init(13, 640, 480, VUYY_DATA);
-	bk_lcd_rgb_display_en(1);
-
-	lcd_info.dma_channel = bk_dma_alloc(DMA_DEV_LCD_DATA);
-
-	if ((lcd_info.dma_channel < DMA_ID_0) || (lcd_info.dma_channel >= DMA_ID_MAX))
-	{
-		LOGI("malloc lcd dma fail\n");
-		return ret;
-	}
-
-	LOGI("malloc lcd display dma = ch%d\n", lcd_info.dma_channel);
-
-	dma_video_lcd_config(lcd_info.dma_channel, (uint32_t)lcd_info.display_address);
-
 	ret = bk_jpeg_dec_driver_init();
+
+	media_decoder_isr_count = 0;
+	media_rgb_isr_count = 0;
 
 	if (ret != BK_OK)
 	{
 		return ret;
 	}
 
+	lcd_info.lcd_pixel_x = ppi_to_pixel_x(lcd_ppi);
+	lcd_info.lcd_pixel_y = ppi_to_pixel_y(lcd_ppi);
+
+	//  bk_gpio_enable_output(GPIO_2);
+	//  bk_gpio_enable_output(GPIO_3);
+	//  bk_gpio_enable_output(GPIO_6);
+
+#if CONFIG_PWM
+
+	pwm_init_config_t config = {0};
+	BK_LOG_ON_ERR(bk_pwm_driver_init());
+
+	config.period_cycle = 10;
+	config.duty_cycle = 9;
+	BK_LOG_ON_ERR(bk_pwm_init(PWM_ID_1, &config));
+	BK_LOG_ON_ERR(bk_pwm_start(PWM_ID_1));
+#endif
+
+	BK_LOG_ON_ERR(bk_jpeg_enc_driver_init());
+	bk_lcd_driver_init(LCD_8M);
+
+	bk_lcd_isr_register(RGB_OUTPUT_EOF, lcd_rgb_isr);
+
+	lcd_info.ping_frame = NULL;
+	lcd_info.pong_frame = NULL;
+	lcd_info.jpeg_frame = NULL;
+	lcd_info.decoder_frame = NULL;
+
+	if (yuv_mode)
+	{
+		LOGI("set lcd for yuv display\n");
+		bk_lcd_rgb_init(LCD_TYPE_480_272, lcd_info.src_pixel_x, lcd_info.src_pixel_y, ORGINAL_YUYV_DATA);
+	}
+	else
+	{
+		LOGI("set lcd for jpg decode display\n");
+		bk_lcd_rgb_init(POSEDGE_OUTPUT, lcd_info.src_pixel_x, lcd_info.src_pixel_y, VUYY_DATA);
+	}
+
+	lcd_set_partical(lcd_info.src_pixel_x, lcd_info.src_pixel_y,
+	                 lcd_info.lcd_pixel_x, lcd_info.lcd_pixel_y);
+
+	bk_jpeg_dec_isr_register(DEC_END_OF_FRAME, jpeg_dec_eof_cb);
+	
 	lcd_info.state = LCD_STATE_ENABLED;
 	LOGI("%s successful\n", __func__);
-
-	bk_jpeg_dec_complete_cb(jpeg_dec_eof_cb, lcd_info.dec_pixel_x);
-
 	return ret;
 }
 
-void lcd_frame_complete_callback(frame_buffer_t *buffer)
+uint8_t lcd_frame_complete_callback(frame_buffer_t *buffer)
 {
-	media_msg_t msg;
+	bool lock = false;
 
-	msg.event = EVENT_LCD_FRAME_COMPLETE_IND;
-	msg.param = (uint32_t)buffer;
+	if (buffer->type == FRAME_JPEG)
+	{
+		media_msg_t msg;
 
-	media_send_msg(&msg);
+		msg.event = EVENT_LCD_FRAME_COMPLETE_IND;
+		msg.param = (uint32_t)buffer;
+
+		media_send_msg(&msg);
+	}
+	else if (buffer->type == FRAME_DISPLAY)
+	{
+		lcd_frame_pingpong_insert(buffer);
+	}
+
+	return lock;
 }
 
 void lcd_open_handle(param_pak_t *param)
@@ -256,11 +312,12 @@ void lcd_open_handle(param_pak_t *param)
 	}
 
 
-	ret = lcd_driver_init();
+	ret = lcd_driver_init(param->param);
 
-	frame_buffer_frame_register(MODULE_LCD, lcd_frame_complete_callback);
+	frame_buffer_frame_register(MODULE_DECODER, lcd_frame_complete_callback);
+	frame_buffer_frame_register(MODULE_DISPLAY, lcd_frame_complete_callback);
 
-	set_lcd_state(LCD_STATE_ENABLED);	
+	set_lcd_state(LCD_STATE_ENABLED);
 
 out:
 
@@ -293,142 +350,137 @@ void lcd_close_handle(param_pak_t *param)
 	if (lcd_info.frame)
 	{
 		media_msg_t msg;
-		
-		msg.event = EVENT_COM_FRAME_LCD_FREE_IND;
+
+		msg.event = EVENT_COM_FRAME_DECODER_FREE_IND;
 		msg.param = (uint32_t)lcd_info.frame;
 		media_send_msg(&msg);
 		lcd_info.frame = NULL;
 	}
 
-	frame_buffer_frame_deregister(MODULE_LCD);
+	frame_buffer_frame_deregister(MODULE_DECODER);
 
-	set_lcd_state(LCD_STATE_DISABLED);	
+	set_lcd_state(LCD_STATE_DISABLED);
 
 out:
 
 	MEDIA_EVT_RETURN(param, ret);
 }
 
+bk_err_t lcd_frame_decoder(frame_buffer_t *buffer)
+{
+	int ret = BK_FAIL;
+	frame_buffer_t *frame = NULL;
+
+
+	if (buffer->frame[0] != 0xFF || buffer->frame[1] != 0xD8)
+	{
+		ret = BK_FAIL;
+		LOGE("%s frame header error\n");
+		goto error;
+	}
+
+	if (lcd_info.jpeg_frame == NULL)
+	{
+		lcd_info.jpeg_frame = buffer;
+		frame = frame_buffer_alloc(FRAME_DISPLAY);
+		frame->lock++;
+
+		if (frame == NULL)
+		{
+			LOGE("%s malloc decoder frame NULL\n");
+			//TODO;
+			goto error;
+		}
+
+		LOGD("decoder frame: %u\n", lcd_info.jpeg_frame->sequence);
+		bk_jpeg_dec_hw_init(lcd_info.src_pixel_x, lcd_info.jpeg_frame->frame, frame->frame);
+		ret = bk_jpeg_dec_hw_start();
+	}
+	else
+	{
+		LOGD("decoder frame not NULL\n");
+	}
+
+	if (ret != BK_OK)
+	{
+		LOGE("%s frame decoder error\n", __func__);
+		goto error;
+	}
+
+	lcd_info.decoder_frame = frame;
+
+	return ret;
+
+error:
+
+	lcd_info.display_address = 0;
+	lcd_frame_id = 0;
+	lcd_info.jpeg_frame = NULL;
+
+	if (frame != NULL)
+	{
+		frame_buffer_free_request(frame, MODULE_DISPLAY);
+	}
+	return ret;
+}
+
 
 
 void lcd_frame_complete_handle(frame_buffer_t *buffer)
 {
-	int ret = 0;
+	int ret = BK_FAIL;
 
-	LOGD("%s\n", __func__);
-
-	//bk_gpio_pull_up(GPIO_6);
-
-	if (lcd_info.frame == NULL
-		&& true == frame_buffer_get_state())
+	if (lcd_info.debug == true)
 	{
-		//LOGI("%s decoder: %02X%02X\n", __func__, buffer->frame[0], buffer->frame[1]);
-
-		if (buffer->frame[0] != 0xFF || buffer->frame[1] != 0xD8)
-		{
-			media_msg_t msg;
-
-			msg.event = EVENT_COM_FRAME_LCD_FREE_IND;
-			msg.param = (uint32_t)buffer;
-			media_send_msg(&msg);
-		}
-		else
-		{
-			//LOGI("encoder\n");
-
-			//bk_gpio_pull_up(GPIO_7);
-			ret = bk_jpeg_dec_init((uint32_t *)buffer->frame, (uint32_t *)lcd_info.decoder_address);
-
-			if (ret < 0)
-			{
-
-				LOGI("%s decoder error: %p\n", __func__, buffer->frame);
-				media_msg_t msg;
-
-				msg.event = EVENT_COM_FRAME_LCD_FREE_IND;
-				msg.param = (uint32_t)buffer;
-				media_send_msg(&msg);
-			}
-			else
-			{
-				lcd_info.frame = buffer;
-			}
-
-			//bk_gpio_pull_down(GPIO_7);
-		}
-
-
+		bk_gpio_set_output_high(GPIO_2);
 	}
 
-	//bk_gpio_pull_down(GPIO_6);
+	if (buffer->type == FRAME_JPEG)
+	{
+		ret = lcd_frame_decoder(buffer);
+	}
+	else if (buffer->type == FRAME_DISPLAY)
+	{
+		//TODO
+		LOGE("%s frame error\n");
+	}
 
+
+	if (ret != BK_OK)
+	{
+		media_msg_t msg;
+
+		msg.event = EVENT_COM_FRAME_DECODER_FREE_IND;
+		msg.param = (uint32_t)buffer;
+		media_send_msg(&msg);
+	}
+
+
+	if (lcd_info.debug == true)
+	{
+		bk_gpio_set_output_low(GPIO_2);
+	}
 }
 
-
-void lcd_resize_handle(void)
-{
-	if (false == frame_buffer_get_state())
-	{
-		return;
-	}
-
-	if (lcd_info.dec_pixel_x == JPEGDEC_X_PIXEL_640)
-	{
-		dma2d_crop_params_t  crop_params;
-		crop_params.src_addr = (uint32_t)lcd_info.decoder_address;
-		crop_params.dst_addr = (uint32_t)lcd_info.display_address;
-		crop_params.x = (640 - 480) / 2;
-		crop_params.y = (480 - 272) / 2;
-		crop_params.src_width = 640;
-		crop_params.src_height = 480;
-		crop_params.dst_width = 480;
-		crop_params.dst_height = 272;
-		dma2d_crop_image(&crop_params);
-	}
-	else if (lcd_info.dec_pixel_x == JPEGDEC_X_PIXEL_720)
-	{
-		dma2d_crop_params_t  crop_params;
-		crop_params.src_addr = (uint32_t)lcd_info.decoder_address;
-		crop_params.dst_addr = (uint32_t)lcd_info.display_address;
-		crop_params.x = (1280 - 480) / 2;
-		crop_params.y = (720 - 272) / 2;
-		crop_params.src_width = 1280;
-		crop_params.src_height = 720;
-		crop_params.dst_width = 480;
-		crop_params.dst_height = 272;
-		dma2d_crop_image(&crop_params);
-	}
-
-	bk_lcd_rgb_display_en(1);
-	bk_dma_start(lcd_info.dma_channel);
-}
 
 void lcd_event_handle(uint32_t event, uint32_t param)
 {
 	switch (event)
 	{
 		case EVENT_LCD_OPEN_IND:
-			lcd_open_handle((param_pak_t*)param);
+			lcd_open_handle((param_pak_t *)param);
 			break;
 
 		case EVENT_LCD_FRAME_COMPLETE_IND:
 			lcd_frame_complete_handle((frame_buffer_t *)param);
 			break;
 
-		case EVENT_LCD_RESIZE_IND:
-			lcd_resize_handle();
-			break;
 		case EVENT_LCD_CLOSE_IND:
-			lcd_close_handle((param_pak_t*)param);
+			lcd_close_handle((param_pak_t *)param);
 			break;
 	}
 }
 
-
-frame_buffer_t *get_lcd_frame(void)
-{
-	return lcd_info.frame;
-}
 
 lcd_state_t get_lcd_state(void)
 {
@@ -445,4 +497,7 @@ void lcd_init(void)
 	os_memset(&lcd_info, 0, sizeof(lcd_info_t));
 
 	lcd_info.state = LCD_STATE_DISABLED;
+	lcd_info.debug = false;
 }
+
+

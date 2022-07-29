@@ -25,6 +25,7 @@ if(CONFIG_COMMON_IO)
 				common_io/iot_flash.c
 				common_io/iot_timer.c
 				common_io/iot_reset.c
+				common_io/iot_power.c
 	)
 
 if(CONFIG_AON_RTC)
@@ -60,6 +61,7 @@ endif()
 				common_io/test/test_iot_watchdog.c
 				common_io/test/test_iot_reset.c
 				common_io/test/test_iot_efuse.c
+				common_io/test/test_iot_power.c
 				common_io/test/all_tests.c
 	)
 

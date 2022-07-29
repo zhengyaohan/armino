@@ -241,7 +241,7 @@ static int video_buff_set_close(void)
 }
 #endif
 
-#if (CONFIG_SDCARD_HOST)
+#if defined(CONFIG_SDCARD_HOST) && defined(CONFIG_PSRAM)
 static int video_buff_read_image(void)
 {
 	uint32_t frame_len = 0;
@@ -297,8 +297,7 @@ void image_save_dvp(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **a
 
 	if (os_strcmp(argv[1], "init") == 0) {
 #if (CONFIG_PSRAM)
-		uint32_t mode = 0x00054043;
-		err = bk_psram_init(mode);
+		err = bk_psram_init();
 		if (err != kNoErr) {
 			os_printf("psram init failed\r\n");
 			return;
@@ -309,7 +308,7 @@ void image_save_dvp(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **a
 			return;
 		}
 #else
-		os_printf("Not Support, PSRAM NOT support!\n");
+		os_printf("Not Support, PSRAM NOT support!\r\n");
 #endif
 	} else if(os_strcmp(argv[1], "deinit") == 0) {
 #if (CONFIG_PSRAM)
@@ -329,7 +328,7 @@ void image_save_dvp(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **a
 		os_printf("Not Support, PSRAM NOT support!\n");
 #endif
 	} else if (os_strcmp(argv[1], "capture") == 0) {
-#if (CONFIG_SDCARD_HOST)
+#if (CONFIG_SDCARD_HOST) && (CONFIG_PSRAM)
 		FIL fp1;
 		char *file_path = "dvp.jpg";
 		uint8_t file_id = 0;
@@ -377,7 +376,7 @@ error1:
 		}
 		video_buff_set_close();
 #else
-		os_printf("Not Support, SDcard not support!\n");
+		os_printf("Not Support, SDcard not support!\r\n");
 #endif
 	} else if (os_strcmp(argv[1], "set_cfg") == 0) {
 		uint32_t dev = 0;
@@ -416,17 +415,7 @@ error1:
 		uint8_t enable = os_strtoul(argv[2], NULL, 10);
 		bk_video_transfer_pkt_reset_enable(enable);
 	}
-#if CONFIG_VIDEO_LCD
 
-	else if (os_strcmp(argv[1], "lcd_video") == 0) {
-		uint8_t enable = os_strtoul(argv[2], NULL, 10);
-		bk_lcd_video_enable(enable);
-		uint8_t blend_enable = os_strtoul(argv[3], NULL, 10);
-		bk_lcd_video_blending(blend_enable);
- 		uint8_t rotate_enable = os_strtoul(argv[4], NULL, 10);
-		bk_lcd_video_rotate(rotate_enable);
-	} 
-#endif
 #if (CONFIG_DUAL_CORE && CONFIG_PSRAM)
 	else if (os_strcmp(argv[1], "video_transfer") == 0) {
 		uint32_t dev = 0;

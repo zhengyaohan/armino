@@ -30,15 +30,25 @@ typedef enum
 
 typedef struct
 {
+	uint8_t debug : 1;
 	lcd_state_t state;
 	uint32_t param;
 	uint16_t dec_pixel_x;
+	uint16_t src_pixel_x;
+	uint16_t src_pixel_y;
+	uint16_t lcd_pixel_x;
+	uint16_t lcd_pixel_y;
 	uint8_t *display_address;
 	uint8_t *decoder_address;
 	uint8_t *rotate_address;
 	uint8_t count;
 	uint8_t dma_channel;
 	frame_buffer_t *frame;
+	frame_buffer_t *jpeg_frame;
+	frame_buffer_t *decoder_frame;
+	frame_buffer_t *ping_frame;
+	frame_buffer_t *pong_frame;
+	frame_buffer_t *display_frame;
 } lcd_info_t;
 
 

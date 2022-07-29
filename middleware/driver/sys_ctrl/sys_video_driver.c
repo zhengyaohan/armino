@@ -164,5 +164,20 @@ uint32_t sys_drv_video_power_en(uint32_t value)
 	return ret;
 }
 
+uint32_t sys_drv_set_auxs(uint32_t cksel, uint32_t ckdiv)
+{
+	uint32_t int_level = rtos_disable_int();
+	uint32_t ret = SYS_DRV_FAILURE;
+
+	sys_hal_set_auxs_clk_sel(cksel);
+	sys_hal_set_auxs_clk_div(ckdiv);
+
+	if(!ret)
+		ret = sys_amp_res_release();
+
+	rtos_enable_int(int_level);
+	return ret;
+}
+
 /**  Jpeg End **/
 

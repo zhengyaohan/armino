@@ -6,20 +6,13 @@
 #include "bk_misc.h"
 #include "bk_drv_model.h"
 #include "bk_uart.h"
+#if CONFIG_FLASH_ORIGIN_API
 #include "bk_flash.h"
-#include "bk_ps.h"
+#endif
 #include <driver/int.h>
 #include "bk_icu.h"
 #include "bk_gpio.h"
-#include "bk_manual_ps.h"
-#include "bk_mcu_ps.h"
-#include "bk_ps.h"
-#include "bk_mac_ps.h"
-#include "bk_private/reset_reason.h"
-#include "bk_rf_ps.h"
-#include "bk_wifi_rw.h"
-#include "bk_ps_debug.h"
-#include "bk_phy.h"
+#include "reset_reason.h"
 #include <os/os.h>
 
 #if (!CONFIG_SOC_BK7256XX)
@@ -27,8 +20,10 @@
 #if CONFIG_BLE
 #include <modules/ble.h>
 #endif
-#if ((CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7256XX) || (CONFIG_SOC_BK7236))
-#define GPIO_WAKEUP_INT_BAK_ADDR bk_wifi_get_la_base_address()
+#if ((CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7256XX))
+#define GPIO_WAKEUP_INT_BAK_ADDR (0x00808000)
+#elif ((CONFIG_SOC_BK7236A) || (CONFIG_SOC_BK7236))
+#define GPIO_WAKEUP_INT_BAK_ADDR (0x10E00000)
 #elif (CONFIG_SOC_BK7256XX && CONFIG_SLAVE_CORE)
 #define GPIO_WAKEUP_INT_BAK_ADDR (0x00808000)
 #else
@@ -93,12 +88,31 @@ static const DD_OPERATIONS sctrl_op = {
 	sctrl_ctrl
 };
 #endif
+static sctrl_cal_bias_cb_t s_cal_bias_callback = NULL;
+static sctrl_wifi_phy_wakeup_rf_reinit_cb_t s_wifi_phy_wakeup_rf_reinit_cb = NULL;
+static sctrl_wifi_phy_wakeup_wifi_reinit_cb_t s_wifi_phy_wakeup_wifi_reinit_cb = NULL;
 
 #if (CONFIG_SOC_BK7231N) || (CONFIG_SOC_BK7256XX)
 void sctrl_fix_dpll_div(void);
 #endif
 
 /**********************************************************************/
+
+void sctrl_register_cal_bias_callback(sctrl_cal_bias_cb_t cb)
+{
+	s_cal_bias_callback = cb;
+}
+
+void sctrl_register_wifi_phy_wakeup_rf_reinit_callback(sctrl_wifi_phy_wakeup_rf_reinit_cb_t cb)
+{
+	s_wifi_phy_wakeup_rf_reinit_cb = cb;
+}
+
+void sctrl_register_wifi_phy_wakeup_wifi_reinit_callback(sctrl_wifi_phy_wakeup_wifi_reinit_cb_t cb)
+{
+	s_wifi_phy_wakeup_wifi_reinit_cb = cb;
+}
+
 void sctrl_dpll_delay10us(void)
 {
 	volatile UINT32 i = 0;
@@ -168,11 +182,15 @@ void sctrl_dpll_isr(void)
 	if ((DEVICE_ID_BK7231N_P & DEVICE_ID_MASK) != (sctrl_ctrl(CMD_GET_DEVICE_ID, NULL) & DEVICE_ID_MASK))
 	{
 		os_printf("BIAS Cali\r\n");
-		bk7011_cal_bias();
+		if (s_cal_bias_callback) {
+			s_cal_bias_callback();
+		}
 	}
 #elif (CONFIG_SOC_BK7236A)
 	os_printf("BIAS Cali\r\n");
-	bk7011_cal_bias();
+	if (s_cal_bias_callback) {
+		s_cal_bias_callback();
+	}
 #endif
 	sddev_control(DD_DEV_TYPE_GPIO, CMD_GPIO_CLR_DPLL_UNLOOK_INT_BIT, NULL);
 	sctrl_cali_dpll(0);
@@ -679,7 +697,7 @@ void sctrl_ps_dump()
 	//os_printf("0x%8x:0x%8x\r\n", ICU_PERI_CLK_PWD, REG_READ(ICU_PERI_CLK_PWD));
 	os_printf("0x%8x:0x%8x\r\n", SCTRL_SLEEP, REG_READ(SCTRL_SLEEP));
 	//os_printf("0x%8x:0x%8x\r\n", ICU_R_ARM_WAKEUP_EN, REG_READ(ICU_R_ARM_WAKEUP_EN));
-	bk_wifi_dump_ps_regs();
+//	bk_wifi_dump_ps_regs();
 	os_printf("saves dump\r\n");
 
 	for (i = 0; i < (3 * (sizeof(SCTRL_PS_SAVE_VALUES) / 4)); i++)
@@ -1076,8 +1094,12 @@ void sctrl_mdm_reset(void)
 		for (i = 0; i < 100; i++);
 	}
 
-	bk_wifi_phy_wakeup_rf_reinit();
-	bk_wifi_phy_wakeup_wifi_reinit();
+	if (s_wifi_phy_wakeup_rf_reinit_cb) {
+		s_wifi_phy_wakeup_rf_reinit_cb();
+	}
+	if (s_wifi_phy_wakeup_wifi_reinit_cb) {
+		s_wifi_phy_wakeup_wifi_reinit_cb();
+	}
 
 	// Restore the interrupts
 	GLOBAL_INT_RESTORE();

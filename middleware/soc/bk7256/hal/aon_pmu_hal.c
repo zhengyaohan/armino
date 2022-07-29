@@ -28,8 +28,10 @@ bk_err_t aon_pmu_hal_init(void)
     return BK_OK;
 }
 #if (CONFIG_SOC_BK7256XX)
-#define PM_LOW_VOL_PARAMETER_32K_FROM_26M      (0x29111111)
+
 #define PM_LOW_VOL_PARAMETER_DEFAULT           (0x2B111111)
+#define PM_LOW_VOL_PARAMETER_32K_FROM_26M      (0x29111111)
+
 #define PM_DEEP_SLEEP_PARAMETER_DEFAULT        (0x4e111111)
 int aon_pmu_hal_set_sleep_parameters(uint32_t value)
 {
@@ -143,10 +145,7 @@ uint32_t aon_pmu_hal_get_touch_int_status(void)
 
 void aon_pmu_hal_clear_touch_int(uint32_t value)
 {
-	uint32_t clear_touch_int = 0;
-	clear_touch_int = aon_pmu_ll_get_reg43_clr_int_touched();
-	clear_touch_int |= value;
-	aon_pmu_ll_set_reg43_clr_int_touched(clear_touch_int);
+	aon_pmu_ll_set_reg43_clr_int_touched(value);
 }
 void aon_pmu_hal_reg_set(pmu_reg_e reg, uint32_t value)
 {

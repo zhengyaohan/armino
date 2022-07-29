@@ -46,7 +46,6 @@ typedef struct
 typedef struct
 {
 	const dvp_host_config_t *host;
-	const jpegenc_desc_t *jpegenc_desc;
 	void (*frame_complete)(frame_buffer_t* buffer);
 	frame_buffer_t* (*frame_alloc)(void);
 } dvp_camera_config_t;
@@ -56,15 +55,16 @@ typedef struct
 typedef struct
 {
 	char *name;
-	sensor_ppi_t def_ppi;
+	media_ppi_t def_ppi;
 	sensor_fps_t def_fps;
 	uint16 id;
+	uint8 clk;
 	uint16 address;
 	uint16 fps_cap;
 	uint16 ppi_cap;
 	bool (*detect)(const dvp_camera_config_t *config);
 	int (*init)(const dvp_camera_config_t *config);
-	int (*set_ppi)(const dvp_camera_config_t *config, sensor_ppi_t ppi);
+	int (*set_ppi)(const dvp_camera_config_t *config, media_ppi_t ppi);
 	int (*set_fps)(const dvp_camera_config_t *config, sensor_fps_t fps);
 } dvp_sensor_config_t;
 
@@ -72,16 +72,17 @@ typedef struct
 
 typedef struct
 {
-	sensor_ppi_t ppi;
+	media_ppi_t ppi;
 	sensor_fps_t fps;
 	char *name;
 	uint16 id;
 	uint16 fps_cap;
 	uint16 ppi_cap;
+	dvp_mode_t mode;
 } dvp_camera_device_t;
 
 
-bk_err_t bk_dvp_camera_driver_init(const dvp_camera_config_t *config);
+bk_err_t bk_dvp_camera_driver_init(const dvp_camera_config_t *config, dvp_mode_t mode);
 bk_err_t bk_dvp_camera_driver_deinit(void);
 dvp_camera_device_t *bk_dvp_camera_get_device(void);
 

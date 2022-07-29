@@ -701,7 +701,7 @@ bk_err_t bk_uart_recover_rx_isr(uart_id_t id)
 #if (!CONFIG_SHELL_ASYNCLOG)
 	bk_uart_enable_sw_fifo(id);
 #else
-	if (id != CONFIG_UART_PRINT_PORT) {
+	if (id != bk_get_printf_port()) {
 		bk_uart_enable_sw_fifo(id);
 	}
 #endif

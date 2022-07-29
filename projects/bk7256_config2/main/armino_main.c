@@ -1,7 +1,7 @@
 #include "bk_private/legacy_init.h"
 #include <components/system.h>
 #include <os/os.h>
-#include "shell_task.h"
+#include <components/shell_task.h>
 
 extern void user_app_main(void);
 extern void rtos_set_user_app_entry(beken_thread_function_t entry);

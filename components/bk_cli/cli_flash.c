@@ -51,9 +51,9 @@ static void cli_flash_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, ch
 			CLI_LOGI("dump read flash data:\r\n");
 			for (uint32_t i = 0; i < 16; i++) {
 				for (uint32_t j = 0; j < 16; j++) {
-					CLI_LOGI("%02x ", buf[i * 16 + j]);
+					os_printf("%02x ", buf[i * 16 + j]);
 				}
-				CLI_LOGI("\r\n");
+				os_printf("\r\n");
 			}
 		}
 	} else if (os_strcmp(argv[1], "write") == 0) {

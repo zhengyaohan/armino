@@ -18,6 +18,7 @@
 #include "bk_uart.h"
 #include <os/mem.h>
 #include <components/video_transfer.h>
+#include "video_demo_pub.h"
 
 #define APP_DEMO_UDP_DEBUG              1
 #if APP_DEMO_UDP_DEBUG
@@ -33,6 +34,8 @@
 
 #define APP_DEMO_UDP_RCV_BUF_LEN        1472
 #define APP_DEMO_UDP_SOCKET_TIMEOUT     100  // ms
+
+extern void app_demo_softap_send_msg(u32 new_msg, u32 new_data);
 
 uint32_t g_pkt_send_fail = 0;
 uint32_t g_pkt_send = 0;
@@ -76,12 +79,12 @@ static void app_demo_udp_handle_cmd_data(UINT8 *data, UINT16 len)
 
 static void app_demo_udp_app_connected(void)
 {
-	//app_demo_softap_send_msg(DAP_APP_CONECTED, 0);
+	app_demo_softap_send_msg(DAP_APP_CONECTED, 0);
 }
 
 static void app_demo_udp_app_disconnected(void)
 {
-	//app_demo_softap_send_msg(DAP_APP_DISCONECTED, 0);
+	app_demo_softap_send_msg(DAP_APP_DISCONECTED, 0);
 }
 
 #if CFG_SUPPORT_HTTP_OTA
@@ -146,6 +149,7 @@ static void app_demo_udp_receiver(UINT8 *data, UINT32 len, struct sockaddr_in *a
 			GLOBAL_INT_DISABLE();
 			app_demo_udp_romote_connected = 0;
 			GLOBAL_INT_RESTORE();
+			app_demo_udp_app_disconnected();
 		}
 #if CFG_SUPPORT_HTTP_OTA
 		else if (data[1] == CMD_START_OTA)

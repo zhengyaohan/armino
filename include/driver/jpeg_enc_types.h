@@ -35,11 +35,13 @@ extern "C" {
 #define Y_PIXEL_480     (60)  /**< image resolution for hight: Y * 8 = 480  */
 #define X_PIXEL_640     (80)  /**< image resolution for hight: X * 8 = 640  */
 #define Y_PIXEL_240     (30)  /**< image resolution for hight: Y * 8 = 240  */
-#define X_PIXEL_320     (40)  /**< image resolution for hight: Y * 8 = 320  */
+#define X_PIXEL_320     (40)  /**< image resolution for hight: X * 8 = 320  */
 #define Y_PIXEL_600     (75)  /**< image resolution for hight: Y * 8 = 600  */
-#define X_PIXEL_800     (100) /**< image resolution for hight: Y * 8 = 800  */
+#define X_PIXEL_800     (100) /**< image resolution for hight: X * 8 = 800  */
 #define Y_PIXEL_720     (90)  /**< image resolution for hight: Y * 8 = 720  */
-#define X_PIXEL_1280    (160) /**< image resolution for hight: Y * 8 = 1280 */
+#define X_PIXEL_1280    (160) /**< image resolution for hight: X * 8 = 1280 */
+#define X_PIXEL_1600    (200) /**< image resolution for hight: X * 8 = 1600 */
+#define Y_PIXEL_1200    (150) /**< image resolution for hight: Y * 8 = 1200 */
 
 /**
  * @brief jpeg_yuv_format_t when jpeg encode at yuv mode, the output yuv format type
@@ -116,7 +118,7 @@ typedef struct {
 	uint8_t dma_channel;           /**< dma channel used for transfer jpeg encoder data */
 #endif
 
-#if CONFIG_VIDEO_LCD
+#if CONFIG_VIDEO_DVP_LCD
 	uint8_t dma_lcd_channel;      /**< dma channel used for lcd display */
 	uint8_t *jpeg_dec_src_addr;   /**< jepg data, and jpeg dec arc addr */
 	uint8_t *jpeg_dec_dst_addr;    /**< jepg dec data dst addr */
@@ -133,7 +135,8 @@ typedef enum {
 	MEMCPYING, 	       	 /**<  jepg data mem cpying */
 	JPEGDE_START, 	     /**<  jepg dec start */
 	JPEGDECING,	      	 /**<  jepg decing */
-	DISPLAYING 	       	 /**<  jepg dec complete, lcd display */
+	DISPLAYING, 	       	 /**<  jepg dec complete, lcd display */
+	JPEGDED,
 }lcd_satus_t;
 
 

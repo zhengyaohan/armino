@@ -27,7 +27,11 @@
  */
 #include <common/bk_include.h>
 #include <os/os.h>
+#if CONFIG_FLASH_ORIGIN_API
 #include "BkDriverFlash.h"
+#else
+#include <driver/flash_partition.h>
+#endif
 #include <common/bk_kernel_err.h>
 #include <os/mem.h>
 /* Logic partition on flash devices */

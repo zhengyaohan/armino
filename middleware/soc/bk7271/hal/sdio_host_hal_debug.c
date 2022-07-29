@@ -13,15 +13,15 @@
 // limitations under the License.
 
 #include "hal_config.h"
-#include "sdio_host_hw.h"
+#include "sdio_hw.h"
 #include "sdio_host_hal.h"
-#include "sdio_host_ll.h"
+#include "sdio_ll.h"
 
 #if CFG_HAL_DEBUG_SDIO_HOST
 
 void sdio_host_struct_dump(void)
 {
-	sdio_host_hw_t *hw = (sdio_host_hw_t *)SDIO_HOST_LL_REG_BASE(0);
+	sdio_hw_t *hw = (sdio_hw_t *)SDIO_LL_REG_BASE(0);
 	SOC_LOGI("base=%x\r\n", (uint32_t)hw);
 
 	/* REG_0x0 */

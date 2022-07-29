@@ -9,7 +9,9 @@ static void run_all_tests(void)
     //RUN_TEST_GROUP(TEST_IOT_SPI);
     
     // RUN_TEST_GROUP(TEST_IOT_I2C);
-    RUN_TEST_GROUP(TEST_IOT_RESET);
+    RUN_TEST_GROUP(TEST_IOT_POWER);
+   
+    //RUN_TEST_GROUP(TEST_IOT_RESET);
 #if(CONFIG_PWM)
     //RUN_TEST_GROUP(TEST_IOT_PWM);
 #endif    
@@ -33,6 +35,7 @@ static void run_all_tests(void)
 #if(CONFIG_AON_RTC)
     RUN_TEST_GROUP(TEST_IOT_RTC);
 #endif
+
 }
 
 int common_io_test_main(int argc, const char * argv[])

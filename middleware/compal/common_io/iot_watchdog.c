@@ -40,7 +40,7 @@ IotWatchdogHandle_t iot_watchdog_open( int32_t lWatchdogInstance )
         return NULL;;
     }
 
-    if(false == bk_get_wdt_driver_init_flag()){
+    if(false == bk_wdt_is_driver_inited()){
         bk_wdt_driver_init();
     }
 
@@ -54,13 +54,13 @@ int32_t iot_watchdog_start( IotWatchdogHandle_t const pxWatchdogHandle )
     if(pxWatchdogHandle == NULL) {
         return IOT_WATCHDOG_INVALID_VALUE;
     }
-    
+
     if(0 == s_wdt_bite_time){
         return IOT_WATCHDOG_TIME_NOT_SET;
     }
 
-    //if the bite time less than the bark time 
-    if((s_wdt_bite_time <= bk_get_feed_watchdog_time()) || (bk_wdt_start(s_wdt_bite_time) != BK_OK)) {
+    //if the bite time less than the bark time
+    if((s_wdt_bite_time <= bk_wdt_get_feed_time()) || (bk_wdt_start(s_wdt_bite_time) != BK_OK)) {
         return IOT_WATCHDOG_INVALID_VALUE;
     }
 
@@ -76,7 +76,7 @@ int32_t iot_watchdog_stop( IotWatchdogHandle_t const pxWatchdogHandle )
     }
 
     s_wdt_bite_time = 0;
-    wdt_ctx.status = eWatchdogTimerStopped;     
+    wdt_ctx.status = eWatchdogTimerStopped;
 
     return IOT_WATCHDOG_SUCCESS;
 }
@@ -131,7 +131,7 @@ int32_t iot_watchdog_ioctl( IotWatchdogHandle_t const pxWatchdogHandle,
     switch(xRequest){
         case eSetWatchdogBiteTime:
 
-             if ((*(uint32_t *) pvBuffer) <= bk_get_feed_watchdog_time()){
+             if ((*(uint32_t *) pvBuffer) <= bk_wdt_get_feed_time()){
                  return IOT_WATCHDOG_INVALID_VALUE;
              }
 
@@ -150,12 +150,12 @@ int32_t iot_watchdog_ioctl( IotWatchdogHandle_t const pxWatchdogHandle,
              }
 
             feed_wdt = (*(uint32_t *) pvBuffer);
-            bk_set_feed_watchdog_time(feed_wdt);
+            bk_wdt_set_feed_time(feed_wdt);
 
             break;
         case eGetWatchdogBarkTime:
 
-            feed_wdt = bk_get_feed_watchdog_time();
+            feed_wdt = bk_wdt_get_feed_time();
             os_memcpy(pvBuffer,&feed_wdt,sizeof(feed_wdt));
 
             break;
@@ -181,7 +181,7 @@ int32_t iot_watchdog_close( IotWatchdogHandle_t const pxWatchdogHandle )
         return IOT_WATCHDOG_INVALID_VALUE;
     }
 
-    if((false == bk_get_wdt_driver_init_flag()) && (true == s_wdt_driver_init_flag)){
+    if((false == bk_wdt_is_driver_inited()) && (true == s_wdt_driver_init_flag)){
         s_wdt_driver_init_flag = false;
         s_wdt_bite_time = 0;
     }

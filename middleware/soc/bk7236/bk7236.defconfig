@@ -202,6 +202,8 @@ CONFIG_BLE_CONN_NUM=1
 #
 
 CONFIG_MPC=y
+CONFIG_AON_RTC=y
+CONFIG_PRRO=y
 
 #
 # Watchdog
@@ -248,6 +250,7 @@ CONFIG_MAC_PHY_BYPASS=y
 # SDIO
 #
 # CONFIG_SDIO is not set
+CONFIG_SDIO_HOST=y
 # end of SDIO
 
 #

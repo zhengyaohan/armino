@@ -21,14 +21,40 @@
 extern "C" {
 #endif
 
+#define PIXEL_240 	(240)
+#define PIXEL_272 	(272)
+#define PIXEL_320 	(320)
+#define PIXEL_480 	(480)
+#define PIXEL_600 	(600)
+#define PIXEL_640 	(640)
+#define PIXEL_720 	(720)
+#define PIXEL_800 	(800)
+#define PIXEL_1024 (1024)
+#define PIXEL_1200 (1200)
+#define PIXEL_1280 (1280)
+#define PIXEL_1600 (1600)
+
+
 typedef enum
 {
-	PPI_320X240     = (1 << 0), /**< 320 * 240 */
-	PPI_480X272     = (1 << 1), /**< 480 * 272 */
-	PPI_640X480     = (1 << 2), /**< 640 * 480 */
-	PPI_800X600     = (1 << 3), /**< 800 * 600 */
-	PPI_1280X720    = (1 << 4), /**< 1280 * 720 */
-} sensor_ppi_t;
+	PPI_320X240     = (PIXEL_320 << 16) | PIXEL_240,
+	PPI_480X272     = (PIXEL_480 << 16) | PIXEL_272,
+	PPI_640X480     = (PIXEL_640 << 16) | PIXEL_480,
+	PPI_800X600     = (PIXEL_800 << 16) | PIXEL_640,
+	PPI_1024X600    = (PIXEL_1024 << 16) | PIXEL_600,
+	PPI_1280X720    = (PIXEL_1280 << 16) | PIXEL_720,
+	PPI_1600X1200   = (PIXEL_1600 << 16) | PIXEL_1200,
+} media_ppi_t;
+
+typedef enum
+{
+	PPI_SUPPORT_320X240     = (1 << 0), /**< 320 * 240 */
+	PPI_SUPPORT_480X272     = (1 << 1), /**< 480 * 272 */
+	PPI_SUPPORT_640X480     = (1 << 2), /**< 640 * 480 */
+	PPI_SUPPORT_800X600     = (1 << 3), /**< 800 * 600 */
+	PPI_SUPPORT_1280X720    = (1 << 4), /**< 1280 * 720 */
+	PPI_SUPPORT_1600X1200    = (1 << 5), /**< 1600 * 1200 */
+} media_ppi_support_t;
 
 
 typedef enum
@@ -38,10 +64,16 @@ typedef enum
 	STATE_FRAMED,
 } frame_state_t;
 
+typedef enum
+{
+	FRAME_DISPLAY,
+	FRAME_JPEG,
+} frame_type_t;
 
 typedef struct
 {
 	frame_state_t state;
+	frame_type_t type;
 	uint8_t id;
 	uint8_t lock;
 	uint8_t *frame;
@@ -51,32 +83,14 @@ typedef struct
 } frame_buffer_t;
 
 
-static inline uint16_t ppi_to_pixel_x(sensor_ppi_t ppi)
+static inline uint16_t ppi_to_pixel_x(media_ppi_t ppi)
 {
-	switch (ppi)
-	{
-		case PPI_320X240: return 320;
-		case PPI_480X272: return 480;
-		case PPI_640X480: return 640;
-		case PPI_800X600: return 800;
-		case PPI_1280X720: return 1280;
-	}
-
-	return 0;
+	return ppi >> 16;
 }
 
-static inline uint16_t ppi_to_pixel_y(sensor_ppi_t ppi)
+static inline uint16_t ppi_to_pixel_y(media_ppi_t ppi)
 {
-	switch (ppi)
-	{
-		case PPI_320X240: return 240;
-		case PPI_480X272: return 272;
-		case PPI_640X480: return 480;
-		case PPI_800X600: return 600;
-		case PPI_1280X720: return 720;
-	}
-
-	return 0;
+	return ppi & 0xFFFF;
 }
 
 

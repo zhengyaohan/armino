@@ -288,6 +288,8 @@ void sys_hal_enable_mac_txrx_timer_int(void);
 void sys_hal_enable_modem_int(void);
 void sys_hal_enable_modem_rc_int(void);
 //Yantao Add End
+
+void sys_hal_set_ana_vtempsel(uint32_t value);
 /**  WIFI End **/
 
 /**  Audio Start  **/
@@ -299,6 +301,10 @@ void sys_hal_aud_vdd1v5_en(uint32_t value);
 void sys_hal_aud_mic1_en(uint32_t value);
 void sys_hal_aud_mic2_en(uint32_t value);
 void sys_hal_aud_audpll_en(uint32_t value);
+#if CONFIG_BK7256XX_MP
+void sys_hal_set_ana_vtempsel(uint32_t value);
+#endif
+void sys_hal_aud_aud_en(uint32_t value);
 void sys_hal_aud_dacdrv_en(uint32_t value);
 void sys_hal_aud_bias_en(uint32_t value);
 void sys_hal_aud_dacr_en(uint32_t value);
@@ -360,16 +366,20 @@ void sys_hal_set_clk_div_mode1_clkdiv_jpeg(uint32_t value);
 void sys_hal_set_jpeg_disckg(uint32_t value);
 void sys_hal_set_cpu_clk_div_mode1_clkdiv_bus(uint32_t value);
 void sys_hal_video_power_en(uint32_t value);
+void sys_hal_set_auxs_clk_sel(uint32_t value);
+void sys_hal_set_auxs_clk_div(uint32_t value);
+
 /** jpeg end **/
 
 /**  psram Start **/
-void sys_hal_psram_volstage_sel(uint32_t value);
-void sys_hal_psram_xtall_osc_enable(uint32_t value);
-void sys_hal_psram_doc_enable(uint32_t value);
-void sys_hal_psram_dpll_enable(uint32_t value);
-void sys_hal_psram_ldo_enable(uint32_t value);
+void sys_hal_psram_volstage_sel(uint32_t enable);
+void sys_hal_psram_xtall_osc_enable(uint32_t enable);
+void sys_hal_psram_doc_enable(uint32_t enable);
+void sys_hal_psram_dpll_enable(uint32_t enable);
+void sys_hal_psram_ldo_enable(uint32_t enable);
 void sys_hal_psram_clk_sel(uint32_t value);
 void sys_hal_psram_set_clkdiv(uint32_t value);
+void sys_hal_psram_power_enable(void);
 
 /**  psram End **/
 

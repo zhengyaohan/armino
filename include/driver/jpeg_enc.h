@@ -147,19 +147,6 @@ bk_err_t bk_jpeg_enc_dvp_init(const jpeg_config_t *config);
 bk_err_t bk_jpeg_enc_dvp_deinit(void);
 
 /**
- * @brief     set jpegenc yuv mode
- *
- * This API will set jpegenc work mode
- *
- * @param mode: 0/1:jpegenc mode/yuv mode
- *
- * @return
- *    - BK_OK: succeed
- *    - others: other errors.
- */
-bk_err_t bk_jpeg_enc_set_yuv_mode(uint32_t mode);
-
-/**
  * @brief     set jpegenc enable
  *
  * This API will set jpegenc work enable/disable.
@@ -199,38 +186,6 @@ bk_err_t bk_jpeg_enc_yuv_fmt_sel(uint32_t value);
  *    - others: other errors.
  */
 uint32_t bk_jpeg_enc_get_frame_size(void);
-
-/**
- * @brief     register frame start isr
- *
- * This API will register start isr_func, need user defined. The sof will trigger and will excute register function by this api
- * when every frame start. whatever jpegenc module work in jpegenc or yuv mode
- *
- * @param isr: isr_func
- * @param param: other value(default set NULL)
- *
- * @return
- *    - BK_OK: succeed
- *    - others: other errors.
- */
-bk_err_t bk_jpeg_enc_register_frame_start_isr(jpeg_isr_t isr, void *param);
-
-/**
- * @brief     register frame end isr
- *
- * This API will register start isr_func, need user defined. The eof will trigger and will excute register function by this api
- * when every frame end. It only effect work in jpegenc mode.
- *
- * @param isr: isr_func
- * @param param: other value(default set NULL)
- *
-.* @attention 1. This API only effect when work jpegenc mode
- *
- * @return
- *    - BK_OK: succeed
- *    - others: other errors.
- */
-bk_err_t bk_jpeg_enc_register_frame_end_isr(jpeg_isr_t isr, void *param);
 
 /**
  * @brief     register frame end isr
@@ -313,10 +268,76 @@ bk_err_t bk_jpeg_enc_enable_int(uint32_t type);
  */
 bk_err_t bk_jpeg_enc_disable_int(uint32_t type);
 
+/**
+ * @brief     set mclk output
+ *
+ * This API will use for camera config
+ *
+ * param cksel: 0-3:0:DCO/1:APLL/2:320M/3:480M,use 2 or 3
+ * param ckdiv: 0-15, div = 1/(ckdiv+1)
+ *
+ * @attenation: this api only used for bk7256xx_mp chip, and when use this api, this api 'bk_jpeg_enc_mclk_enable' will not useful
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_jpeg_enc_set_auxs(uint32_t cksel, uint32_t ckdiv);
 
+/**
+ * @brief     set jpeg module mclk enable
+ *
+ * This API will set jpeg mclk output for sensor
+ *
+ * attenation: this api must call after bk_jpeg_enc_driver_init, and output 24MHz.
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_jpeg_enc_mclk_enable(void);
+
+/**
+ * @brief     partial display init
+ *
+ * This API will use for partial display configure of jpeg encode
+ *
+ * param offset_config: x_pixel left/right offset and y_pixel left/right offset configure
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_jpeg_enc_partial_display_init(const jpeg_partial_offset_config_t *offset_config);
+
+/**
+ * @brief     partial display deinit
+ *
+ * This API will use for partial display deinit
+ *
+ * param offset_config: x_pixel left/right offset and y_pixel left/right offset configure
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_jpeg_enc_partial_display_deinit(const jpeg_partial_offset_config_t *offset_config);
 /**
  * @}
  */
+
+/**
+ * @brief     jpeg em base set
+ *
+ * This API will use for jpeg em base address, 64KB memory align.
+ *
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_jpeg_set_em_base_addr(uint8_t *address);
+
 
 #ifdef __cplusplus
 }

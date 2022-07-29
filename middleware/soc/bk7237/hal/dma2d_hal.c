@@ -42,6 +42,8 @@ bk_err_t dma2d_hal_init(dma2d_config_t *dma2d)
 	dma2d_ll_set_dma2d_control_reg_mode(s_dma2d_hal.hw, dma2d->init.mode);
 
 	dma2d_ll_set_dma2d_control_reg_line_offset_mode(s_dma2d_hal.hw, dma2d->init.line_offset_mode);
+	dma2d_ll_set_dma2d_control_reg_out_byte_revese(s_dma2d_hal.hw, dma2d->init.data_reverse);
+	dma2d_ll_set_dma2d_control_reg_master_tran_length(s_dma2d_hal.hw, dma2d->init.trans_ability);
 
 	//0:argb888; 1:rgb888; 010:rgb565; 011:argb1555; 100:argb444
 	dma2d_ll_set_out_pfc_contrl_out_color_mode(s_dma2d_hal.hw, dma2d->init.color_mode);

@@ -104,9 +104,17 @@ static void media_minor_message_handle(void)
 					break;
 #endif
 
+#ifdef CONFIG_LCD
 				case LCD_EVENT:
 					lcd_event_handle(msg.event, msg.param);
 					break;
+#endif
+
+#if CONFIG_USB_UVC
+				case UVC_EVENT:
+					uvc_camera_event_handle(msg.event, msg.param);
+					break;
+#endif
 
 				case EXIT_EVENT:
 					goto exit;

@@ -28,6 +28,9 @@
 #include "test_fatfs.h"
 #endif
 
+#if (CONFIG_BK7256XX_MP)
+#else
+
 static dma_transfer_t s_dma_transfer_param = {0};
 static dma_id_t lcd_dma_id = DMA_ID_MAX;
 #define LCD_FRAMEADDR        0x60000000 /**<define frame base addr */
@@ -63,8 +66,10 @@ static void dma_sd_finish_isr(dma_id_t id)
 //	bk_gpio_set_output_low(GPIO_3);
 }
 
-static void dma_lcd_config(uint8_t is_8080_if, uint32_t dma_ch, uint32_t dma_src_mem_addr,uint32_t dma_dst_width)
+static void dma_lcd_config(uint32_t dma_ch, uint32_t dma_src_mem_addr,uint32_t dma_dst_width)
 {
+	uint32_t rgb_fifo = bk_lcd_get_rgb_data_fifo_addr();
+
 	dma_config_t dma_config = {0};
 	
 	dma_config.mode = DMA_WORK_MODE_SINGLE;
@@ -75,10 +80,7 @@ static void dma_lcd_config(uint8_t is_8080_if, uint32_t dma_ch, uint32_t dma_src
 	dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
 	dma_config.dst.dev = DMA_DEV_LCD_DATA;
 	dma_config.dst.width = dma_dst_width;
-	if(is_8080_if) //8080 fifo
-		dma_config.dst.start_addr = (uint32) REG_DISP_DAT_FIFO;
-	else //rgb fifo
-		dma_config.dst.start_addr = (uint32) REG_DISP_RGB_FIFO;
+	dma_config.dst.start_addr = rgb_fifo;
 
 	BK_LOG_ON_ERR(bk_dma_init(dma_ch, &dma_config));
 	BK_LOG_ON_ERR(bk_dma_set_transfer_len(dma_ch, s_dma_transfer_param.dma_transfer_len));
@@ -101,7 +103,7 @@ void lcd_rgb_init(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **arg
 	os_printf("yuv_mode  = %d \r\n", yuv_mode);
 	
 	os_printf("psram init. \r\n");
-	bk_psram_init(0x00054043);
+	bk_psram_init();
 //	bk_gpio_enable_output(GPIO_2); //output
 //	bk_gpio_enable_output(GPIO_3); //output
 
@@ -119,9 +121,9 @@ void lcd_rgb_init(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **arg
 	bk_lcd_rgb_init(rgb_clk_div,  X_PIXEL_RGB, Y_PIXEL_RGB, yuv_mode);
 	bk_lcd_isr_register(RGB_OUTPUT_EOF, lcd_sd_rgb_isr);
 	if (yuv_mode == 0) {
-		dma_lcd_config(0, lcd_dma_id, (uint32_t)LCD_FRAMEADDR, 1);
+		dma_lcd_config(lcd_dma_id, (uint32_t)LCD_FRAMEADDR, 1);
 	} else {
-		dma_lcd_config(0, lcd_dma_id, (uint32_t)LCD_FRAMEADDR, 2);
+		dma_lcd_config(lcd_dma_id, (uint32_t)LCD_FRAMEADDR, 2);
 	}
 
 	BK_LOG_ON_ERR(bk_dma_register_isr(lcd_dma_id, NULL, dma_sd_finish_isr));
@@ -273,5 +275,5 @@ void lcd_rgb_sdcard_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, cha
 		return;
 	}
 }
-
+#endif
 

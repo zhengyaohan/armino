@@ -30,18 +30,8 @@
 #include "bk_general_dma.h"
 #endif
 
-#if CONFIG_VIDEO_LCD
-#include <driver/lcd.h>
-#include <driver/dma.h>
-#include <driver/gpio.h>
-#include <driver/jpeg_dec.h>
-#include <driver/dma2d.h>
-#include <lcd_dma2d_config.h>
-#include <driver/jpeg_dec_types.h>
-#include "modules/image_scale.h"
-#include "lcd_blend_config.h"
-#endif
-//#include "BK7256_RegList.h"
+
+
 
 #define EJPEG_DELAY_HTIMER_CHANNEL     5
 #define EJPEG_I2C_DEFAULT_BAUD_RATE    I2C_BAUD_RATE_100KHZ
@@ -52,111 +42,6 @@ static uint32_t s_camera_sensor = 0x01E00014;//(480 << 16) | 20;
 static jpegenc_desc_t ejpeg_cfg;
 static uint32_t frame_total_len = 0;
 
-#if CONFIG_VIDEO_LCD
-extern u64 riscv_get_mtimer(void);
-
-static uint8_t tvideo_lcd_enable = 0;
-static uint8_t tvideo_lcd_blend_enable = 0;
-static uint8_t tvideo_lcd_rotate_enable = 0;
-
-static uint8_t  lcd_status = READY;
-uint8_t * video_jpeg_buff = NULL;
-
-static void jpeg_dec_eof_cb(void *param)
-{
-	//bk_gpio_set_output_high(GPIO_2);
-
-	ejpeg_cfg.lcd_blend_frame_cnt ++;
-	lcd_status = DISPLAYING;
-	if (tvideo_lcd_rotate_enable) {
-		if (ejpeg_cfg.jpeg_dec_pixel_x == JPEGDEC_X_PIXEL_640) {
-			dma2d_crop_params_t  crop_params;
-			crop_params.src_addr = (uint32_t)ejpeg_cfg.jpeg_dec_dst_addr;
-			crop_params.dst_addr = (uint32_t)PARAM_LCD_ROTATE_BASE;
-			crop_params.x = (640 - 272)/2;
-			crop_params.y = (480 - 480)/2;
-			crop_params.src_width = 640;
-			crop_params.src_height = 480;
-			crop_params.dst_width = 272;
-			crop_params.dst_height = 480;
-			dma2d_crop_image(&crop_params);
-			image_16bit_rotate90_anticlockwise(ejpeg_cfg.lcd_display_addr, (uint8_t *)PARAM_LCD_ROTATE_BASE, 272, 480);
-		} else if(ejpeg_cfg.jpeg_dec_pixel_x == JPEGDEC_X_PIXEL_720) {
-			dma2d_crop_params_t  crop_params;
-			crop_params.src_addr = (uint32_t)ejpeg_cfg.jpeg_dec_dst_addr;
-			crop_params.dst_addr = (uint32_t)PARAM_LCD_ROTATE_BASE;
-			crop_params.x = (1280 - 272)/2;
-			crop_params.y = (720 - 480)/2;
-			crop_params.src_width = 1280;
-			crop_params.src_height = 720;
-			crop_params.dst_width = 272;
-			crop_params.dst_height = 480;
-			dma2d_crop_image(&crop_params);
-			image_16bit_rotate90_anticlockwise(ejpeg_cfg.lcd_display_addr, (uint8_t *)PARAM_LCD_ROTATE_BASE, 272, 480);
-		} else {}
-	} else {
-		if (ejpeg_cfg.jpeg_dec_pixel_x == JPEGDEC_X_PIXEL_640) {
-			dma2d_crop_params_t  crop_params;
-			crop_params.src_addr = (uint32_t)ejpeg_cfg.jpeg_dec_dst_addr;
-			crop_params.dst_addr = (uint32_t)ejpeg_cfg.lcd_display_addr;
-			crop_params.x = (640 - 480)/2;
-			crop_params.y = (480 - 272)/2;
-	 		crop_params.src_width = 640;
-			crop_params.src_height = 480;
-			crop_params.dst_width = 480;
-			crop_params.dst_height = 272;
-			dma2d_crop_image(&crop_params);
-		} else if(ejpeg_cfg.jpeg_dec_pixel_x == JPEGDEC_X_PIXEL_720) {
-			dma2d_crop_params_t  crop_params;
-			crop_params.src_addr = (uint32_t)ejpeg_cfg.jpeg_dec_dst_addr;
-			crop_params.dst_addr = (uint32_t)ejpeg_cfg.lcd_display_addr;
-			crop_params.x = (1280 - 480)/2;
-			crop_params.y = (720 - 272)/2;
-	 		crop_params.src_width = 1280;
-			crop_params.src_height = 720;
-			crop_params.dst_width = 480;
-			crop_params.dst_height = 272;
-			dma2d_crop_image(&crop_params);
-		} else{}
-	}
-
-	if (tvideo_lcd_blend_enable) {
-		u64 cur_time = riscv_get_mtimer();
-		if ((u64)(cur_time/26000000) % 2 == 0) {
-			yuv_blend((uint32_t)ejpeg_cfg.lcd_display_addr, (uint32_t)(fg_blend_image1));
-		} else {
-			yuv_blend((uint32_t)ejpeg_cfg.lcd_display_addr, (uint32_t)(fg_blend_image2));
-		}
-	}
-
-	bk_lcd_rgb_display_en(1);
-	bk_dma_start(ejpeg_cfg.dma_lcd_channel);
-
-	//bk_gpio_set_output_low(GPIO_2);
-}
-
-static void dma_rgb_finish_isr(dma_id_t id)
-{
-	ejpeg_cfg.dma_lcd_int_cnt ++;
-	if (ejpeg_cfg.dma_lcd_int_cnt == 4)
-	{
-		ejpeg_cfg.dma_lcd_int_cnt = 0;
-		bk_dma_set_src_start_addr(ejpeg_cfg.dma_lcd_channel, (uint32_t)ejpeg_cfg.lcd_display_addr);
-		lcd_status = READY;
-	}
-	else {
-		bk_dma_set_src_start_addr(ejpeg_cfg.dma_lcd_channel, ((uint32_t)ejpeg_cfg.lcd_display_addr + (uint32_t)(65280 * ejpeg_cfg.dma_lcd_int_cnt)));
-		bk_dma_start(ejpeg_cfg.dma_lcd_channel);
-	}
-}
-
-static void jpeg_dec_callback(void *src, void *dst)
-{
-	lcd_status = JPEGDECING;
-
-	bk_jpeg_dec_init((uint32_t *)src, (uint32_t *)dst);
-}
-#endif
 
 static void camera_intf_delay_timer_hdl(timer_id_t timer_id)
 {
@@ -173,18 +58,6 @@ static void camera_intf_delay_timer_hdl(timer_id_t timer_id)
 	}
 
 	frame_total_len = 0;
-#if CONFIG_VIDEO_LCD
-	if (tvideo_lcd_enable) {
-		if (lcd_status == MEMCPYING) {
-			dma_memcpy(video_jpeg_buff, ejpeg_cfg.rxbuf + already_len, rec_len);
-			video_jpeg_buff = (uint8_t *)ejpeg_cfg.jpeg_dec_src_addr;
-			lcd_status = JPEGDE_START;
-		}
-		if ((ejpeg_cfg.jpeg_dec_callback != NULL) && (rec_len > 0) && (lcd_status == JPEGDE_START)) {
-				ejpeg_cfg.jpeg_dec_callback((uint32_t *)ejpeg_cfg.jpeg_dec_src_addr, (uint32_t *)ejpeg_cfg.jpeg_dec_dst_addr);
-		}
-	}
-#endif
 
 	if ((ejpeg_cfg.node_full_handler != NULL) && (rec_len > 0))
 		ejpeg_cfg.node_full_handler(ejpeg_cfg.rxbuf + already_len, rec_len, 1, frame_len);
@@ -221,18 +94,6 @@ static void camera_intf_ejpeg_rx_handler(dma_id_t dma_id)
 	uint16_t copy_len = ejpeg_cfg.node_len;
 	frame_total_len += copy_len;
 	GLOBAL_INT_DECLARATION();
-
-#if CONFIG_VIDEO_LCD
-	if(tvideo_lcd_enable) {
-		if ((*(ejpeg_cfg.rxbuf + already_len) == 0xff) && (*(ejpeg_cfg.rxbuf + already_len + 1) == 0xd8) && (lcd_status == READY)) {
-			lcd_status = MEMCPYING;
-		}
-		if (lcd_status == MEMCPYING) {
-			dma_memcpy(video_jpeg_buff, ejpeg_cfg.rxbuf + already_len, copy_len);
-			video_jpeg_buff += ejpeg_cfg.node_len;
-		}
-	}
-#endif
 
 	if (ejpeg_cfg.node_full_handler != NULL)
 		ejpeg_cfg.node_full_handler(ejpeg_cfg.rxbuf + already_len, copy_len, 0, 0);
@@ -272,6 +133,10 @@ static void camera_intf_init_ejpeg_pixel(uint32_t ppi_type)
 		ejpeg_cfg.x_pixel = X_PIXEL_1280;
 		ejpeg_cfg.y_pixel = Y_PIXEL_720;
 		break;
+	case VGA_1600_1200:
+		ejpeg_cfg.x_pixel = X_PIXEL_1600;
+		ejpeg_cfg.y_pixel = Y_PIXEL_1200;
+		break;
 	default:
 		CAMERA_LOGW("cm PPI unknown, use QVGA\r\n");
 		ejpeg_cfg.x_pixel = X_PIXEL_640;
@@ -302,6 +167,9 @@ static void camera_intf_set_sener_cfg(uint32_t cfg)
 			break;
 		case 720:
 			CMPARAM_SET_PPI(ejpeg_cfg.sener_cfg, VGA_1280_720);
+			break;
+		case 1200:
+			CMPARAM_SET_PPI(ejpeg_cfg.sener_cfg, VGA_1600_1200);
 			break;
 		default:
 			CAMERA_LOGE("not support this ppi\r\n");
@@ -371,7 +239,10 @@ bk_err_t bk_camera_init(void *data)
 	jpeg_config.node_len = ejpeg_cfg.node_len;
 	jpeg_config.x_pixel = ejpeg_cfg.x_pixel;
 	jpeg_config.y_pixel = ejpeg_cfg.y_pixel;
-	if (ppi >= VGA_1280_720) {
+	if (ppi >= VGA_1600_1200) {
+		jpeg_config.sys_clk_div = 4; // sys jpeg div (4+1)
+		jpeg_config.mclk_div = 1;// jpeg 6 div
+	} else if ((ppi < VGA_1600_1200) && (ppi >= VGA_1280_720)) {
 		jpeg_config.sys_clk_div = 3; // sys jpeg div (3+1)
 		jpeg_config.mclk_div = 0;// jpeg 4 div
 	} else {
@@ -402,15 +273,6 @@ bk_err_t bk_camera_init(void *data)
 	bk_i2c_init(CONFIG_CAMERA_I2C_ID, &i2c_config);
 #endif
 
-
-#if CONFIG_VIDEO_LCD
-	if(tvideo_lcd_enable) {
-		bk_printf("open LCD Display\r\n");
-		bk_dma2d_driver_deinit();
-		bk_video_lcd_init(ejpeg_cfg.x_pixel);
-	}
-#endif
-
 	bk_camera_sensor_config();
 	return err;
 }
@@ -423,19 +285,6 @@ bk_err_t bk_camera_deinit(void)
 	os_printf("bk_dma_deinit\r\n");
 	bk_dma_deinit(ejpeg_cfg.dma_channel);
 	bk_dma_free(DMA_DEV_JPEG, ejpeg_cfg.dma_channel);
-#if CONFIG_VIDEO_LCD
-	if(tvideo_lcd_enable) {	
-
-		os_printf("dma_lcd_channel free\r\n");
-		bk_dma_deinit(ejpeg_cfg.dma_lcd_channel);
-		if (bk_dma_free(DMA_DEV_LCD_DATA, ejpeg_cfg.dma_lcd_channel ) != BK_OK) {
-			os_printf("free lcd dma: %d error\r\n", ejpeg_cfg.dma_lcd_channel );
-		}
-		bk_jpeg_dec_driver_deinit();
-		bk_lcd_rgb_deinit();
-		bk_dma2d_driver_deinit();
-	}
-#endif
 
 	bk_i2c_deinit(CONFIG_CAMERA_I2C_ID);
 
@@ -449,106 +298,6 @@ bk_err_t bk_camera_deinit(void)
 	CAMERA_LOGI("camera deinit finish\r\n");
 	return kNoErr;
 }
-
-#if CONFIG_VIDEO_LCD
-static void dma_video_lcd_config(uint32_t dma_ch, uint32_t dma_src_mem_addr)
-{
-	dma_config_t dma_config = {0};
-	
-	dma_config.mode = DMA_WORK_MODE_SINGLE;
-	dma_config.chan_prio = 0;
-	dma_config.src.dev = DMA_DEV_DTCM;
-	dma_config.src.width = DMA_DATA_WIDTH_32BITS;
-	dma_config.src.start_addr = (uint32) dma_src_mem_addr;
-	dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
-	dma_config.dst.dev = DMA_DEV_LCD_DATA;
-	dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
-	dma_config.dst.start_addr = (uint32) REG_DISP_RGB_FIFO;
-
-	bk_dma_init(dma_ch, &dma_config);
-	bk_dma_register_isr(dma_ch, NULL, dma_rgb_finish_isr);
-	BK_LOG_ON_ERR(bk_dma_set_transfer_len(dma_ch, 65280));
-	bk_dma_enable_finish_interrupt(dma_ch);
-}
-
-
-bk_err_t bk_video_lcd_init(uint16_t x_pixel)
-{
-	int err = kNoErr;
-	lcd_status = READY;
-	if(x_pixel == 0x50) {
-		ejpeg_cfg.jpeg_dec_pixel_x = JPEGDEC_X_PIXEL_640;
-	} else if (x_pixel == 0x3c) {
-		ejpeg_cfg.jpeg_dec_pixel_x = JPEGDEC_X_PIXEL_480;
-	} else if (x_pixel == 0xA0) {
-		ejpeg_cfg.jpeg_dec_pixel_x = JPEGDEC_X_PIXEL_720;
-	}
-
-	os_printf("ejpeg_cfg.jpeg_dec_pixel_x = %x \r\n", ejpeg_cfg.jpeg_dec_pixel_x);
-	bk_gpio_enable_output(GPIO_2);	//output
-	bk_gpio_enable_output(GPIO_3);	//output
-	bk_gpio_enable_output(GPIO_4);	//output
-	os_printf("psram init. \r\n");
-	bk_psram_init(0x00054043);
-
-
-	ejpeg_cfg.jpeg_dec_src_addr = (uint8_t *)PARAM_JPEG_SRC_ADDR_BASE;
-	os_printf("jpeg_dec_src_addr = %x \r\n", ejpeg_cfg.jpeg_dec_src_addr);
-	video_jpeg_buff = ejpeg_cfg.jpeg_dec_src_addr;
-
-	ejpeg_cfg.jpeg_dec_dst_addr = (uint8_t *)PARAM_JPEG_DEC_DST_ADDR_BASE;
-	os_printf("jpeg_dec_dst_addr= %x \r\n", ejpeg_cfg.jpeg_dec_dst_addr);
-
-	ejpeg_cfg.lcd_display_addr = (uint8_t *)PARAM_LCD_DISPLAY_ADDR_BASE;
-	os_printf("lcd_display_addr = %x \r\n", ejpeg_cfg.lcd_display_addr);
-
-	bk_lcd_driver_init(LCD_96M);
-	bk_lcd_rgb_init(13,	X_PIXEL_RGB, Y_PIXEL_RGB, VUYY_DATA);
-	bk_lcd_rgb_display_en(1);
-
-	ejpeg_cfg.dma_lcd_channel = bk_dma_alloc(DMA_DEV_LCD_DATA);
-	if ((ejpeg_cfg.dma_lcd_channel < DMA_ID_0) || (ejpeg_cfg.dma_lcd_channel >= DMA_ID_MAX)) {
-		os_printf("malloc lcd dma fail \r\n");
-		return -1;
-	}
-	os_printf("malloc lcd display dma = ch%d \r\n", ejpeg_cfg.dma_lcd_channel);
-
-	dma_video_lcd_config(ejpeg_cfg.dma_lcd_channel, (uint32_t)ejpeg_cfg.lcd_display_addr);
-	err=bk_jpeg_dec_driver_init();
-	if (err != BK_OK)
-		return 0;
-	os_printf("jpegdec driver init successful.\r\n");
-	ejpeg_cfg.jpeg_dec_callback = jpeg_dec_callback;
-
-	bk_jpeg_dec_complete_cb(jpeg_dec_eof_cb, ejpeg_cfg.jpeg_dec_pixel_x);
-
-	return err;
-}
-
-void bk_lcd_video_enable(uint8_t enable)
-{
-#if (CONFIG_SOC_BK7256 || CONFIG_SOC_BK7237)
-	tvideo_lcd_enable = enable;
-	bk_printf("open LCD tvideo_lcd_enable\r\n");
-
-#endif
-}
-
-void  bk_lcd_video_blending(uint8_t blend_enable)
-{
-#if (CONFIG_SOC_BK7256 || CONFIG_SOC_BK7237)
-	tvideo_lcd_blend_enable = blend_enable;
-#endif
-}
-
-void bk_lcd_video_rotate(uint8_t rotate_enable)
-{
-#if (CONFIG_SOC_BK7256 || CONFIG_SOC_BK7237)
-	tvideo_lcd_rotate_enable = rotate_enable;
-#endif
-}
-
-#endif
 
 bk_err_t bk_camera_set_param(uint32_t dev, uint32_t cfg)
 {

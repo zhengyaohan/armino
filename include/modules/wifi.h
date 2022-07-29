@@ -421,6 +421,19 @@ bk_err_t bk_wifi_ap_get_config(wifi_ap_config_t *ap_config);
 bk_err_t bk_wifi_ap_get_sta_list(wlan_ap_stas_t *stas);
 
 /**
+ * @brief     Calculate softap's Pmk when softap is starts.
+ *
+ * @param     ssid  softap's ssid
+ * @param     pwd   softap's pwd
+ * @param     pmk   softap's pmk
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors
+ */
+bk_err_t bk_wifi_calculate_pmk(const char *ssid, const char *pwd, char *pmk);
+
+/**
  * @brief     Add softap's Vendor Specific IE when softap is running.
  *
  * @attention If you want to add vsie when softap starts, just initialize wifi_ap_config_t

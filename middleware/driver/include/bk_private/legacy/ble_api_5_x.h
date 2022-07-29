@@ -801,6 +801,19 @@ typedef struct
 
 typedef struct
 {
+    uint8_t    peer_address_type;
+    bd_addr_t  peer_address;
+    uint16_t conn_interval_min;
+    uint16_t conn_interval_max;
+    uint16_t conn_latency;
+    uint16_t supervision_timeout;
+    uint16_t minimum_ce_length;
+    uint16_t maximum_ce_length;
+} ble_update_conn_param_t;
+
+
+typedef struct
+{
     API_RESULT event_result;
     ATT_HANDLE att_handle;
 
@@ -814,8 +827,8 @@ typedef struct
 {
     API_RESULT event_result;
     ATT_HANDLE att_handle;
-    uint8_t num_compl;
-} ble_att_write_compl_t;
+    ATT_ATTR_HANDLE attr_handle;
+} ble_att_tx_compl_t;
 
 typedef struct
 {
@@ -837,3 +850,36 @@ typedef struct
     uint8_t data_len;
     uint8_t *name;
 } ble_adv_report_t;
+
+
+typedef struct
+{
+    bd_addr_t peer_address;
+
+    uint16_t conn_interval_min;
+    uint16_t conn_interval_max;
+    uint16_t conn_latency;
+    uint16_t supervision_timeout;
+
+    uint8_t is_agree;   ///0:is not agree,1:is agree
+} ble_conn_update_param_ind_t;
+
+typedef struct
+{
+    bd_addr_t peer_address;
+
+    uint8_t status;
+    uint16_t conn_interval;
+    uint16_t conn_latency;
+    uint16_t supervision_timeout;
+} ble_conn_update_param_compl_ind_t;
+
+typedef struct
+{
+    API_RESULT event_result;
+    ATT_HANDLE att_handle;
+    ATT_ATTR_HANDLE attr_handle;
+
+    uint8_t *data;
+    uint16_t len;
+}ble_att_rw_t;

@@ -131,6 +131,17 @@ bk_err_t bk_int_set_priority(icu_int_src_t src, uint32_t int_priority);
  */
 bk_err_t bk_int_set_group(void);
 
+/**
+ * @brief     Register callback for mac ps
+ *
+ * @param mac_ps_cb  mac ps callback
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_int_register_mac_ps_callback(int_mac_ps_callback_t mac_ps_cb);
+
 #ifdef __cplusplus
 
 }

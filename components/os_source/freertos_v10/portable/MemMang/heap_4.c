@@ -122,7 +122,11 @@ uint8_t *ucHeap;
 	heap - probably so it can be placed in a special segment or address. */
 	extern uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
 #else
+#if CONFIG_CACHE_ENABLE
+	static __attribute__((section(".sram_cache"))) uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
+#else
 	static uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
+#endif
 #endif /* configAPPLICATION_ALLOCATED_HEAP */
 
 #ifndef CONFIG_MEM_DEBUG_FUNC_NAME_LEN

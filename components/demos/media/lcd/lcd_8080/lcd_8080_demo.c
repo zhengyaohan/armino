@@ -14,6 +14,9 @@
 #include <lcd_dma2d_config.h>
 #include <st7796s.h>
 #include "modules/image_scale.h"
+#include "BK7256_RegList.h"
+#include <driver/dma2d.h>
+#include "lcd_disp_ll_macro_def_mp2.h"
 
 #if (CONFIG_SDCARD_HOST)
 #include "ff.h"
@@ -21,284 +24,163 @@
 #include "test_fatfs.h"
 #endif
 
-typedef struct {
-	volatile uint32_t dma_int_cnt;
-	uint32_t          dma_transfer_cnt;
-	volatile uint32_t lcd_isr_cnt;
-	uint32_t          dma_transfer_len;
-	volatile uint32_t dma_frame_end_flag;
-} dma_transfer_t;
 
+extern const uint8_t fg_blend_image1[];
 
-static dma_transfer_t s_dma_transfer_param = {0};
 #define LCD_FRAMEADDR   0x60000000 /**<define frame base addr */
-static dma_id_t lcd_dma_id = DMA_ID_MAX;
+#define LCD_FRAMEADDR2   0x60200000 /**<define frame base addr */
 
-static void lcd_i8080_isr(void)
+#define LCD_SIZE_X 320
+#define LCD_SIZE_Y 480
+
+#define LCD_POINT_DISPLAY_X 3
+#define LCD_POINT_DISPLAY_Y 3
+
+//CMD2A dafult value
+#define ST7796_XS 0
+#define ST7796_XE (LCD_SIZE_X - 1)
+//CMD2B dafult value
+#define ST7796_YS 0
+#define ST7796_YE (LCD_SIZE_Y - 1)
+
+//normal partical
+#define PARTICAL_XS   0x65//101
+#define PARTICAL_XE   0xdc//220
+#define PARTICAL_YS   0x65//101
+#define PARTICAL_YE   0x17c //380
+
+//edge partical
+#define EDGE_PARTICAL_XS   1
+#define EDGE_PARTICAL_XE   220
+#define EDGE_PARTICAL_YS   1
+#define EDGE_PARTICAL_YE   380
+
+
+uint8_t g_disp_frame_done_flag = 0;
+
+void lcd_i8080_isr(void)
 {
-//	bk_gpio_set_output_high(GPIO_2);
-#if(1)
-	bk_lcd_rgb_display_en(0);
-	bk_lcd_pixel_config(X_PIXEL_8080, Y_PIXEL_8080);
-	bk_lcd_rgb_display_en(1);
-	bk_lcd_8080_write_cmd(RAM_WRITE);
-#else
-	//use this appear asic bug, nest resion modify
-	bk_lcd_8080_write_cmd(continue_write);
-#endif
-//	bk_gpio_set_output_low(GPIO_2);
+	g_disp_frame_done_flag = 1;
+	os_printf("lcd_i8080_isr. \r\n");
 }
 
-
-static void dma_finish_isr(dma_id_t id)
+static void dma2d_lcd_fill_test(uint32_t frameaddr, uint16_t width, uint16_t high, uint16_t color)
 {
-	//bk_gpio_set_output_high(GPIO_3);
-	s_dma_transfer_param.dma_int_cnt ++;
-	if (s_dma_transfer_param.dma_int_cnt == s_dma_transfer_param.dma_transfer_cnt)
+//	void *pDiSt=&(((uint16_t *)frameaddr)[y*320+x]);
+
+	dma2d_config_t dma2d_config = {0};
+
+	dma2d_config.init.mode	 = DMA2D_R2M;					   /**< Mode Register to Memory */
+	dma2d_config.init.color_mode	   = DMA2D_OUTPUT_RGB565;  /**< DMA2D Output color mode is ARGB4444 (16 bpp) */
+	dma2d_config.init.output_offset  = 0; 		   /**< offset in output */
+	dma2d_config.init.red_blue_swap   = DMA2D_RB_REGULAR;		/**< No R&B swap for the output image */
+	dma2d_config.init.alpha_inverted = DMA2D_REGULAR_ALPHA; 	/**< No alpha inversion for the output image */
+	bk_dma2d_driver_init(&dma2d_config);
+	bk_dma2d_start_transfer(&dma2d_config, color, frameaddr, width, high);
+	while (bk_dma2d_is_transfer_busy()) {
+	}
+}
+
+static void cpu_lcd_fill_test(uint32_t *addr, uint32_t color)
+{
+	uint32_t *p_addr = addr;
+	os_printf("p_addr = %x", p_addr);
+	for(int i=0; i<320*240; i++)
 	{
-		s_dma_transfer_param.dma_int_cnt = 0;
-		bk_dma_set_src_start_addr(lcd_dma_id, (uint32_t)LCD_FRAMEADDR);
-		s_dma_transfer_param.dma_frame_end_flag = 1;
-		//BK_LOG_ON_ERR(bk_dma_start(lcd_dma_id));
+		*(p_addr + i) = color;
 	}
-	else {
-		bk_dma_set_src_start_addr(lcd_dma_id, ((uint32_t)LCD_FRAMEADDR + (uint32_t)(s_dma_transfer_param.dma_transfer_len * s_dma_transfer_param.dma_int_cnt)));
-		BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(lcd_dma_id));
-		bk_dma_start(lcd_dma_id);
-	}
-	//bk_gpio_set_output_low(GPIO_3);
+	
+	os_printf("p_addr0 = %x\r\n", *p_addr);
+	os_printf("p_addr1 = %x \r\n", *(p_addr + 1));
 }
 
-static void dma_pre_config(uint32_t dma_ch)
-{
-	dma_config_t dma_config = {0};
-
-	dma_config.mode = DMA_WORK_MODE_SINGLE;
-	dma_config.chan_prio = 0;
-	dma_config.src.dev = DMA_DEV_DTCM;
-	dma_config.src.width = DMA_DATA_WIDTH_32BITS;
-	dma_config.src.start_addr = (uint32_t) LCD_FRAMEADDR;
-	dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
-	dma_config.dst.dev = DMA_DEV_DTCM;
-	dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
-	dma_config.dst.start_addr = (uint32_t) LCD_FRAMEADDR + 0x50000;
-	dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE;
-
-	BK_LOG_ON_ERR(bk_dma_init(dma_ch, &dma_config));
-	BK_LOG_ON_ERR(bk_dma_set_transfer_len(dma_ch, 640)); 
-	BK_LOG_ON_ERR(bk_dma_register_isr(dma_ch, NULL, dma_finish_isr));
-	BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(dma_ch));
-	BK_LOG_ON_ERR(bk_dma_start(dma_ch));
-}
-
-/**
-  * @brief dma transfer lcd config
-  * @param1  is_8080_if 1：8080 interface, 0 rgb interface
-  * @param2  dma chanal
-  * @param3  dma_src_mem_addr dma src addr
-  * @param4   dma_dst_width 0:8bit, 1:16bit, 2:32bit
-  * @return none
-  */
-static void dma_lcd_config(uint8_t is_8080_if, uint32_t dma_ch, uint32_t dma_src_mem_addr,uint32_t dma_dst_width)
-{
-	dma_config_t dma_config = {0};
-
-	dma_config.mode = DMA_WORK_MODE_SINGLE;
-	dma_config.chan_prio = 0;
-	dma_config.src.dev = DMA_DEV_DTCM;
-	dma_config.src.width = DMA_DATA_WIDTH_32BITS;
-	dma_config.src.start_addr = (uint32) dma_src_mem_addr;
-	dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
-	dma_config.dst.dev = DMA_DEV_LCD_DATA;
-	dma_config.dst.width = dma_dst_width;
-	if(is_8080_if) //8080 fifo
-		dma_config.dst.start_addr = (uint32) REG_DISP_DAT_FIFO;
-	else //rgb fifo
-		dma_config.dst.start_addr = (uint32) REG_DISP_RGB_FIFO;
-
-	BK_LOG_ON_ERR(bk_dma_init(dma_ch, &dma_config));
-	BK_LOG_ON_ERR(bk_dma_set_transfer_len(dma_ch, s_dma_transfer_param.dma_transfer_len));
-	BK_LOG_ON_ERR(bk_dma_enable_finish_interrupt(dma_ch));
-}
-
-
-void lcd_help(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
-{
-	os_printf("lcd_8080_init=start \r\n.");
-	os_printf("lcd_fill=x,y w,h,color \r\n.");
-	os_printf("lcd_8080_close\r\n.");
-	os_printf("lcd_8080_sdcard_test=blend|rotate\r\n.");
-}
-
-
-void lcd_8080_init(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+void lcd_8080_display_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 	bk_err_t ret = BK_OK;
+	uint32_t ARR_DISP_partial_3x3[9] = {0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9};
 
-	lcd_dma_id = bk_dma_alloc(DMA_DEV_LCD_DATA);
-	if ((lcd_dma_id < DMA_ID_0) || (lcd_dma_id >= DMA_ID_MAX)) {
-		os_printf("malloc dma fail \r\n");
-		return;
-	}
-	os_printf("malloc lcd dma ch is DMA_ch%x \r\n", lcd_dma_id);
-
-//	bk_gpio_enable_output(GPIO_2);	//output
-//	bk_gpio_enable_output(GPIO_3);	//output
-
-	if (os_strcmp(argv[1], "start") == 0) {
-		s_dma_transfer_param.dma_transfer_len = 61440;
-		s_dma_transfer_param.dma_transfer_cnt = 5;
-		s_dma_transfer_param.dma_frame_end_flag = 0; 
-		s_dma_transfer_param.dma_int_cnt = 0;
-
+	if (os_strcmp(argv[1], "dma2d_fill") == 0)
+	{
+		os_printf("psram init \r\n"),
+		bk_psram_init();
+		uint32_t frameaddr = os_strtoul(argv[2], NULL, 10) & 0xFFFF;
+		os_printf("frameaddr= %x \r\n", frameaddr);
+		uint32_t width = os_strtoul(argv[3], NULL, 10) & 0xFFFF;
+		uint32_t high = os_strtoul(argv[4], NULL, 10) & 0xFFFF;
+		uint32_t color = os_strtoul(argv[5], NULL, 16) & 0xFFFF;
+		os_printf("(width, high) = (%x %x )\r\n", width, high);
+		os_printf("color = %x \r\n", color);
+		dma2d_lcd_fill_test(frameaddr,width, high, color);
+	}  else if (os_strcmp(argv[1], "cpu_fill") == 0) {
+		bk_psram_init();
+		uint32_t addr = os_strtoul(argv[2], NULL, 16) & 0xffffffff;
+		os_printf("addr = (%x\r\n", addr);
+		uint32_t color = os_strtoul(argv[3], NULL, 16) & 0xffffffff;
+		os_printf("color = (%x\r\n", color);
+		cpu_lcd_fill_test((uint32_t*) addr, color);
+	} else if (os_strcmp(argv[1], "init") == 0) {
+		//step1: fill FRAMEADDR data all oxffff init lcd
 		os_printf("lcd driver init. \r\n");
-		bk_lcd_driver_init(LCD_96M);
-
-		os_printf("psram init. \r\n");
-		bk_psram_init(0x00054043);
+		ret = bk_lcd_driver_init(LCD_80M);
+		if (ret != BK_OK) {
+			os_printf("bk_lcd_driver_init failed\r\n");
+			return;
+		}
 
 		os_printf("i8080 lcd init. \r\n");
-		bk_lcd_8080_init(X_PIXEL_8080, Y_PIXEL_8080);
-
-		os_printf("st7796 init. \r\n");
+		ret = bk_lcd_8080_init(LCD_SIZE_X, LCD_SIZE_Y);
+		if (ret != BK_OK) {
+			os_printf("bk_lcd_8080_initinit failed\r\n");
+			return;
+		}
+		ret = bk_lcd_isr_register(I8080_OUTPUT_EOF, lcd_i8080_isr);
+		if (ret != BK_OK) {
+			os_printf("bk_lcd_isr_register failed\r\n");
+			return;
+		}	
+		bk_lcd_set_display_base_addr(LCD_FRAMEADDR);
+		os_printf("base addr = %x\r\n", lcd_disp_ll_get_mater_rd_base_addr());
 		ret = st7796s_init();
 		if (ret != BK_OK) {
 			os_printf("st7796s init failed\r\n");
 			return;
 		}
-
-		bk_lcd_isr_register(I8080_OUTPUT_EOF, lcd_i8080_isr);
-		os_printf("i8080 pre dma1 config. \r\n");
-		dma_pre_config(lcd_dma_id);
-		os_printf("wait dma pre transfer done. \r\n");
-
-		while(s_dma_transfer_param.dma_frame_end_flag == 0);
-		s_dma_transfer_param.dma_frame_end_flag = 0;
-
-		dma_lcd_config(1, lcd_dma_id, (uint32) LCD_FRAMEADDR, 1);
-		os_printf("8080 lcd start transfer. \r\n");
+		os_printf("st7796 init ok. \r\n");
+	} else if (os_strcmp(argv[1], "frame_disp") == 0) {
+		//st7796s_set_display_mem_area(ST7796_XS, ST7796_XE, ST7796_YS, ST7796_YE);
+		os_printf("bk_lcd_8080_start_transfer \r\n");
+		bk_lcd_8080_start_transfer(1);
+		os_printf("bk_lcd_8080_ram_write \r\n");
+		bk_lcd_8080_ram_write(RAM_WRITE);
+	} else if (os_strcmp(argv[1], "disp_continue") == 0) {
+		//st7796s_set_display_mem_area(ST7796_XS, ST7796_XE, ST7796_YS, ST7796_YE);
+		os_printf("bk_lcd_8080_ram_write \r\n");
+		bk_lcd_8080_ram_write(CONTINUE_WRITE);
+	}
+	else if (os_strcmp(argv[1], "point_display")) {
+//		st7796s_set_display_mem_area(LCD_POINT_DISPLAY_X, LCD_POINT_DISPLAY_X);
+		bk_lcd_8080_send_cmd((sizeof(ARR_DISP_partial_3x3)/sizeof(ARR_DISP_partial_3x3[0])), 0x2c, ARR_DISP_partial_3x3);
+	} else if (os_strcmp(argv[1], "point_and_frame_display")) {
+		//step 3 sd card read to psram a 320*480 picture
+		bk_lcd_set_display_base_addr(LCD_FRAMEADDR);
 		bk_lcd_8080_start_transfer(1);
 		bk_lcd_8080_write_cmd(RAM_WRITE);
-	}
-	else {
-		os_printf("cmd is : lcd_8080_init = start \r\n");
-	}
-}
-
-
-
-void lcd_fill(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
-{
-	uint16_t x, y, w, h, color;
-
-	uint32_t frameaddr = 0x60000000;
-	x = os_strtoul(argv[1], NULL, 10) & 0xFFFF;
-	os_printf("x = %d \r\n", x);
-
-	y = os_strtoul(argv[2], NULL, 10) & 0xFFFF;
-	os_printf("y = %d \r\n", y);
-
-	w = os_strtoul(argv[3], NULL, 10) & 0xFFFF;
-	os_printf("w = %d \r\n", w);
-
-	h= os_strtoul(argv[4], NULL, 10) & 0xFFFF;
-	os_printf("h = %d \r\n", h);
-	
-	color = os_strtoul(argv[5], NULL, 16) & 0xFFFF;
-	os_printf("fill_color = %x \r\n", color);
-
-	dma2d_lcd_fill(frameaddr, x, y, w, h, color);
-	BK_LOG_ON_ERR(bk_dma_start(lcd_dma_id));
-}
-
-
-void lcd_8080_close(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
-{
-	bk_err_t ret = BK_OK;
-
-	os_memset(&s_dma_transfer_param, 0, sizeof(s_dma_transfer_param));
-	os_printf("deinit lcd 8080 \r\n");
-	bk_lcd_8080_deinit();
-	bk_dma_deinit(lcd_dma_id);
-	ret = bk_dma_free(DMA_DEV_LCD_DATA, lcd_dma_id);
-	if (ret == BK_OK) {
-		os_printf("free dma: %d success\r\n", lcd_dma_id);
-		return;
-	}
-	os_printf("deinit lcd dma and free lcd dma ch\r\n");
-	bk_psram_deinit();
-	os_printf("psram deinit. \r\n");
-	os_printf("lcd power down. \r\n");
-	os_printf("lcd 8080 closed. \r\n");
-}
-
-
-
-void lcd_8080_sdcard_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
-{
-	int err = kNoErr;
-	uint32_t src_w = os_strtoul(argv[2], NULL, 10) & 0xFFFF;
-	os_printf("image src_w	= %d \r\n", src_w);
-	uint32_t src_h = os_strtoul(argv[3], NULL, 10) & 0xFFFF;
-	os_printf("image src_h	= %d \r\n", src_h);
-
-	uint32_t dst_w =320;
-	uint32_t dst_h =480;
-
-//		uint32_t srcaddr = os_strtoul(argv[7], NULL, 16) & 0xFFFFFFFF;
-//		uint32_t dstaddr = os_strtoul(argv[8], NULL, 16) & 0xFFFFFFFF;
-	unsigned char *pSrcImg = (unsigned char *) 0x60200000;
-//		unsigned char *pDstImg = (unsigned char *) dstaddr;
-	unsigned char *pDstImg = (unsigned char *) 0x60000000;
-
-	//bk_gpio_set_output_high(GPIO_2);
-	if (os_strcmp(argv[1], "compress_only") == 0){
-		err = image_16bit_scaling(pSrcImg, pDstImg, src_w, src_h, dst_w, dst_h);
-	} else if (os_strcmp(argv[1], "compress_rotate") == 0) { 
-		err = image_16bit_scaling_rotate(pSrcImg, pDstImg, src_w, src_h, dst_w, dst_h);
-	} else if (os_strcmp(argv[1], "anticlockwise_rotate") == 0) {
-		image_16bit_rotate90_anticlockwise(pDstImg, pSrcImg, src_w, src_h);
-	} else if (os_strcmp(argv[1], "clockwise_rotate") == 0) {
-		image_16bit_rotate90_clockwise(pDstImg, pSrcImg, src_w, src_h);
-	} else if (os_strcmp(argv[1], "crop_compress") == 0) {
-		err = image_scale_crop_compress(pSrcImg, pDstImg, src_w, src_h, dst_w, dst_h);
-	} else if (os_strcmp(argv[1], "only_crop") == 0) {
-		image_center_crop(pSrcImg, pDstImg, src_w, src_h, dst_w, dst_h);
-	}  else if (os_strcmp(argv[1], "dma2d_crop") == 0) {
-		dma2d_crop_params_t  crop_params;
-		crop_params.dst_addr = (uint32_t)pDstImg;
-		crop_params.src_addr = (uint32_t)pSrcImg;
-		crop_params.x = (src_w - dst_w)/2;
-		crop_params.y = (src_h - dst_h)/2;
-		crop_params.src_width = src_w;
-		crop_params.src_height = src_h;
-		crop_params.dst_width = dst_w;
-		crop_params.dst_height = dst_h;
-		dma2d_crop_image(&crop_params);
-	} else if (os_strcmp(argv[1], "crop_compress_rotate") == 0) {
-		err = image_scale_crop_compress_rotate(pSrcImg, pDstImg, src_w, src_h, dst_w, dst_h);
-	} else if (os_strcmp(argv[1], "uyvy_to_rgb565") == 0) {
-		uyvy_to_rgb565_convert(pSrcImg, pDstImg, src_w, src_h);
-	} else if (os_strcmp(argv[1], "yuyv_to_rgb565") == 0) {
-		yuyv_to_rgb565_convert(pSrcImg, pDstImg, src_w, src_h);
-	} else if (os_strcmp(argv[1], "rgb565_to_uyvy") == 0) {
-		rgb565_to_uyvy_convert((uint16_t *)pSrcImg, (uint16_t *)pDstImg, src_w, src_h);
-	} else if (os_strcmp(argv[1], "rgb565_to_yuyv") == 0) {
-		rgb565_to_yuyv_convert((uint16_t *)pSrcImg, (uint16_t *)pDstImg, src_w, src_h);
-	} else if (os_strcmp(argv[1], "rgb565_blend") == 0) {
-		uint32_t bgimg_w = os_strtoul(argv[2], NULL, 10) & 0xFFFF; //100
-		uint32_t bgimg_h = os_strtoul(argv[3], NULL, 10) & 0xFFFF; //60
-		uint32_t bg_offset = dst_w - bgimg_w;
-		dma2d_blend_rgb565_data(pSrcImg, pDstImg, pDstImg, 0, bg_offset, bg_offset, bgimg_w, bgimg_h, 80);
-	} else {
-		os_printf("argv[1] error. \r\n");
-		return ;
-	}
-	bk_dma_start(lcd_dma_id);
-	//bk_gpio_set_output_low(GPIO_2);
-	if (err != BK_OK) {
-		os_printf("img_down_scale error\n");
-		return;
+		while(g_disp_frame_done_flag == 0);
+		g_disp_frame_done_flag=0;
+		bk_lcd_8080_start_transfer(0);
+		bk_lcd_8080_send_cmd((sizeof(ARR_DISP_partial_3x3)/sizeof(ARR_DISP_partial_3x3[0])), 0x2c, ARR_DISP_partial_3x3);
+	} else if (os_strcmp(argv[1], "partical_display")) {
+		bk_lcd_set_partical_display(PARTICAL_XS, PARTICAL_XE, PARTICAL_YS, PARTICAL_YE);
+		//st7796s_set_display_mem_area(PARTICAL_XS, PARTICAL_XE, PARTICAL_YS, PARTICAL_YE);
+		bk_lcd_8080_start_transfer(1);
+		bk_lcd_8080_ram_write(RAM_WRITE);
+	}  else if (os_strcmp(argv[1], "edge_partical")) {
+		bk_lcd_set_partical_display(EDGE_PARTICAL_XS, EDGE_PARTICAL_XE, EDGE_PARTICAL_YS, EDGE_PARTICAL_YE);
+		//st7796s_set_display_mem_area(PARTICAL_XS, PARTICAL_XE, PARTICAL_YS, PARTICAL_YE);
+		bk_lcd_8080_start_transfer(1);
+		bk_lcd_8080_write_cmd(RAM_WRITE);
+	} else if (os_strcmp(argv[1], "close") == 0) {
+		bk_lcd_8080_deinit();
 	}
 }
 

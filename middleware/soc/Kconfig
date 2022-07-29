@@ -54,7 +54,12 @@ menu "SOC_CONFIG"
 	config SOC_ARCH
 		string "Soc arch"
 		default "unknow"
+
 	config SOC_BK7256XX
-		bool "workaround for bk7256"
+		bool "For bk7256 series chipset"
 		default n
+
+	config BK7256XX_MP
+		bool "For bk7256 series chipset mass production"
+		default y
 endmenu

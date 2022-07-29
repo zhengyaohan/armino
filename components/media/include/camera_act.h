@@ -27,20 +27,36 @@ typedef enum
 	DVP_STATE_ENABLED,
 } dvp_state_t;
 
-
 typedef struct
 {
 	dvp_state_t state;
+	uint32_t debug : 1;
 	uint32_t param;
 } dvp_info_t;
 
+typedef enum
+{
+	UVC_STATE_DISABLED,
+	UVC_STATE_ENABLED,
+	UVC_STATE_STOP,
+} uvc_state_t;
 
+typedef struct
+{
+	uvc_state_t state;
+	uint32_t param;
+} uvc_info_t;
 
 void dvp_camera_event_handle(uint32_t event, uint32_t param);
 void set_dvp_camera_state(dvp_state_t state);
 dvp_state_t get_dvp_camera_state(void);
-
 void dvp_camera_init(void);
+
+void uvc_camera_event_handle(uint32_t event, uint32_t param);
+void set_uvc_camera_state(uvc_state_t state);
+uvc_state_t get_uvc_camera_state(void);
+void uvc_camera_init(void);
+
 
 #ifdef __cplusplus
 }

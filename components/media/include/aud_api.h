@@ -20,8 +20,8 @@
 extern "C" {
 #endif
 
-void adc_open(void);
-void dac_open(void);
+bk_err_t adc_open(void);
+bk_err_t dac_open(void);
 
 
 #ifdef __cplusplus

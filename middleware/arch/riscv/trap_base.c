@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include "boot.h"
 #include "sdkconfig.h"
-#include "bk_private/reset_reason.h"
+#include "reset_reason.h"
 #include <os/os.h>
 #include "bk_arch.h"
 #include "stack_base.h"
@@ -23,11 +23,15 @@
 #include <driver/wdt.h>
 #include <bk_wdt.h>
 
-
-#if (CONFIG_SOC_BK7256XX && CONFIG_SLAVE_CORE)
-#define RAM_BASE_ADDR 0x30060000
+#if (CONFIG_CACHE_ENABLE)
+	#define SRAM_BLOCK_COUNT 4
+	extern unsigned int g_sram_addr_map[SRAM_BLOCK_COUNT];
 #else
-#define RAM_BASE_ADDR 0x30000000
+	#if (CONFIG_SLAVE_CORE)
+	#define RAM_BASE_ADDR 0x30060000
+	#else
+	#define RAM_BASE_ADDR 0x30000000
+	#endif
 #endif
 
 #define SYS_DELAY_TIME_5S	    (85000000UL)
@@ -264,7 +268,13 @@ void user_except_handler (unsigned long mcause, SAVED_CONTEXT *context) {
 
 #if CONFIG_MEMDUMP_ALL
 	stack_mem_dump((uint32_t)&_dtcm_ema_start, (uint32_t)&_dtcm_bss_end);
+#if CONFIG_CACHE_ENABLE && (!CONFIG_SLAVE_CORE)
+	for (int i = 0; i < SRAM_BLOCK_COUNT; i++) {
+		stack_mem_dump(g_sram_addr_map[i], g_sram_addr_map[i] + 0x20000);
+	}
+#else
 	stack_mem_dump(RAM_BASE_ADDR, (uint32_t)&_end);
+#endif
 #endif
 
 	rtos_dump_backtrace();
@@ -284,7 +294,7 @@ void user_except_handler (unsigned long mcause, SAVED_CONTEXT *context) {
 	BK_DUMP_OUT("************************************user except handler end************************************\r\n");
 	BK_DUMP_OUT("***********************************************************************************************\r\n");
 
-	// bk_reboot();
+	bk_reboot();
 
 }
 

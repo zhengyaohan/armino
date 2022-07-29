@@ -129,7 +129,7 @@
 #endif
 
 #if (CONFIG_SLAVE_CORE)
-#define configTOTAL_HEAP_SIZE                       ( ( size_t ) ( 65 * 1024 ) )
+#define configTOTAL_HEAP_SIZE                       ( ( size_t ) ( 60 * 1024 ) )
 #elif (CONFIG_DUAL_CORE)
 #define configTOTAL_HEAP_SIZE                       ( ( size_t ) ( 160 * 1024 ) )
 #else

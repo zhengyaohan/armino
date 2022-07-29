@@ -4,8 +4,9 @@
  *
  */
 #include"platform.h"
+#include "cache.h"
 #include <os/os.h>
-#include "bk_private/reset_reason.h"
+#include "reset_reason.h"
 #include "bk_pm_internal_api.h"
 #include "boot.h"
 
@@ -17,6 +18,7 @@ extern void entry_main(void);
 extern void UartDbgInit();
 extern int print_str(char * st);
 
+//volatile int g_test_mode = 1;
 
 void close_wdt(void)
 {
@@ -36,8 +38,12 @@ void reset_handler(void)
     /// TODO: DEBUG VERSION close the wdt
 	close_wdt();
 
-    //write_csr(NDS_MCACHE_CTL, (read_csr(NDS_MCACHE_CTL) | 0x1)); // Enable  ICache
-	//write_csr(NDS_MCACHE_CTL, (read_csr(NDS_MCACHE_CTL) | 0x2)); // Enable  DCache
+	//while(g_test_mode);
+
+#if (!CONFIG_SLAVE_CORE)
+	sram_dcache_map();
+#endif
+
 	/*
 	 * Initialize LMA/VMA sections.
 	 * Relocation for any sections that need to be copied from LMA to VMA.

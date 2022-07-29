@@ -3,7 +3,6 @@ set(incs include)
 set(srcs
 	legacy_init.c
 	components_init.c
-	reset_reason.c
 	)
 set(priv_req bk_common bk_netif bk_ble bk_ate driver easy_flash bk_libs riscv media)
 

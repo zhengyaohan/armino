@@ -19,7 +19,6 @@
 #include <driver/trng.h>
 #include "trng_driver.h"
 #include "trng_hal.h"
-#include "bk_wifi_rw.h"
 
 typedef struct {
 	trng_hal_t hal;
@@ -92,12 +91,6 @@ bk_err_t bk_trng_stop(void)
 	return BK_OK;
 }
 
-uint32_t prandom_get(void)
-{
-	return bk_wifi_get_monotonic_counter_2_lo();
-}
-
-#if (CONFIG_TRNG_SUPPORT)
 int bk_rand(void)
 {
 	int i = 0, number = 0;
@@ -106,15 +99,8 @@ int bk_rand(void)
 	for(i = 0; i < TRNG_READ_COUNT; i++) {
 		trng_get_random_number();
 	}
-	
+
 	number = (int)trng_get_random_number();
 	return (number & RAND_MAX);
 }
-#else
-int bk_rand(void)
-{
-	int number = (int)prandom_get();
-	return (number & RAND_MAX);
-}
-#endif
 

@@ -24,7 +24,7 @@
 #include <driver/uart.h>
 #include "bk_rtos_debug.h"
 #if CONFIG_SHELL_ASYNCLOG
-#include "shell_task.h"
+#include "components/shell_task.h"
 #endif
 #include "bk_uart_debug.h"
 #include "bk_api_cli.h"
@@ -1282,7 +1282,7 @@ int bk_cli_init(void)
 	cli_flash_init();
 #endif
 
-#if (CONFIG_FLASH_QUAD_ENABLE == 1)
+#if (CLI_CFG_FLASH == 1)
 	cli_flash_test_init();
 #endif
 

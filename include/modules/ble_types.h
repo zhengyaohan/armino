@@ -330,6 +330,10 @@ typedef enum
     BLE_STOP_PERIODIC,
     BLE_DELETE_PERIODIC,
 
+    BLE_SET_LOCAL_NAME,
+    BLE_GET_LOCAL_NAME,
+
+    BLE_READ_LOCAL_ADDR,
     BLE_CMD_MAX,
 } ble_cmd_t;
 
@@ -376,6 +380,10 @@ typedef enum
     BLE_5_DISCOVERY_CHAR_EVENT,
 
     BLE_5_RECV_NOTIFY_EVENT,
+
+    BLE_5_ATT_READ_RESPONSE,
+
+    BLE_5_CONN_UPD_PAR_ASK,
 } ble_notice_t;
 
 typedef enum{
@@ -451,7 +459,10 @@ typedef enum{
 	MST_TYPE_MTU_EXC = 0x10,
 	MST_TYPE_MTU_EXC_DONE,
 
+	MST_TYPE_UPP_ASK = 0x20,   ///Ask if you agree to update the parameter
 	MST_TYPE_UPDATA_STATUS,    ////updata param status
+
+
 }MASTER_COMMON_TYPE;
 typedef void (*app_sdp_comm_callback)(MASTER_COMMON_TYPE type,uint8 conidx,void *param);
 
@@ -706,6 +717,48 @@ typedef struct
     uint8_t                         cte_type;
 } ble_periodic_param_t;
 
+
+typedef struct
+{
+    uint8_t is_agree;   ///0:is not agree,1:is agree,0xFF;Let me think about it;other:is agree
+
+    uint8_t conn_idx;
+
+    /// Minimum Connection Event Duration
+    uint16_t ce_len_min;
+    /// Maximum Connection Event Duration
+    uint16_t ce_len_max;
+
+    /// Connection interval minimum
+    uint16_t intv_min;
+    /// Connection interval maximum
+    uint16_t intv_max;
+    /// Latency
+    uint16_t latency;
+    /// Supervision timeout
+    uint16_t time_out;
+} ble_conn_update_para_ind_t;
+
+
+
+struct mst_comm_updata_para
+{
+    /// Status of the request
+    uint8_t is_agree;   ///0:is not agree,1:is agree,0xFF;Let me think about it;other:is agree
+    /// Minimum Connection Event Duration
+    uint16_t ce_len_min;
+    /// Maximum Connection Event Duration
+    uint16_t ce_len_max;
+
+    /// Connection interval minimum
+    uint16_t intv_min;
+    /// Connection interval maximum
+    uint16_t intv_max;
+    /// Latency
+    uint16_t latency;
+    /// Supervision timeout
+    uint16_t time_out;
+};
 
 /**
  * @brief for sync ble api call return

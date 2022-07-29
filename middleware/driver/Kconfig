@@ -361,6 +361,12 @@ menu "Driver"
 				bool "Enable MPC"
 				default n
 	endmenu
+	
+	menu "PRRO"
+			config PRRO
+				bool "Enable PRRO"
+				default n
+	endmenu
 
 	menu "System control"
 		config SYS_REDUCE_NORMAL_POWER
@@ -448,12 +454,12 @@ menu "Driver"
 	endmenu
 
 	menu "TIMER"
+		config TIMER
+			bool "Enable TIMER"
+			default y
+		
 		config TIMER_COUNTER
 			bool "Enable timer counter"
-			default y
-
-	      config TIMER
-			bool "Enable TIMER"
 			default y
 
 		config TIMER_SUPPORT_ID_BITS
@@ -477,6 +483,24 @@ menu "Driver"
 			bool "Enable saradc measure range divide"
 			default n
 	endmenu
+	
+	menu "FLASH"
+		config FLASH
+			bool "Enable flash"
+			default y
+
+		config FLASH_QUAD_ENABLE
+			bool "Enable flash quad enable"
+			default n
+		
+		config FLASH_SRC_CLK_60M
+			bool "Enable flash source clock 60M"
+			default n
+		
+		config FLASH_ORIGIN_API
+			bool "Enable flash old api"
+			default n
+	endmenu
 
 	config SUPPORT_IRDA
 		bool "Enable IRDA"
@@ -497,22 +521,6 @@ menu "Driver"
 	config JPEG_DEC
 		bool "Enable JPEGDEC Display"
 		default n
-
-	config FLASH
-		bool "Enable flash"
-		default y
-
-	config FLASH_QUAD_ENABLE
-		bool "Enable flash quad enable"
-		default n
-
-	config FLASH_SRC_CLK_60M
-		bool "Enable flash source clock 60M"
-		default n
-
-	config TIMER_INIT_EN
-		bool "Enable timer init"
-		default y
 
 	config EFUSE
 		bool "Enable efuse"

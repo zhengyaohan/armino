@@ -37,7 +37,6 @@ void uart_struct_dump(uart_id_t id)
 	SOC_LOGI("  dev_status=0x%x value=0x%x\n", &hw->dev_status, hw->dev_status);
 	SOC_LOGI("\r\n");
 
-
 	SOC_LOGI("  config=0x%x value=0x%x\n", &hw->config, hw->config.v);
 	SOC_LOGI("    tx_enable: %x\n", hw->config.tx_enable);
 	SOC_LOGI("    rx_enable: %x\n", hw->config.rx_enable);

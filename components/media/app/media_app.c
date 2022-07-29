@@ -18,6 +18,7 @@
 #include <components/log.h>
 #include <common/bk_include.h>
 #include <driver/int.h>
+#include <driver/dvp_camera_types.h>
 
 #include <components/video_transfer.h>
 
@@ -42,10 +43,8 @@ static beken_queue_t media_app_msg_queue = NULL;
 bk_err_t media_send_msg_sync(uint32_t event, uint32_t param)
 {
 	int ret = kGeneralErr;
-	param_pak_t *param_pak = (param_pak_t*) os_malloc(sizeof(param_pak_t));
+	param_pak_t *param_pak = (param_pak_t *) os_malloc(sizeof(param_pak_t));
 	media_msg_t msg;
-
-	LOGI("%s+++\n", __func__);
 
 	if (param_pak == NULL)
 	{
@@ -87,7 +86,6 @@ out:
 		os_free(param_pak);
 	}
 
-	LOGI("%s---\n", __func__);
 	return ret;
 }
 
@@ -95,6 +93,8 @@ out:
 bk_err_t media_app_camera_open(app_camera_type_t type)
 {
 	int ret = kGeneralErr;
+
+	LOGI("%s\n", __func__);
 
 	if (type == APP_CAMERA_DVP)
 	{
@@ -104,7 +104,30 @@ bk_err_t media_app_camera_open(app_camera_type_t type)
 			return kNoErr;
 		}
 
-		ret = media_send_msg_sync(EVENT_DVP_OPEN_IND, 0);
+		ret = media_send_msg_sync(EVENT_DVP_OPEN_IND, DVP_MODE_JPG);
+	}
+	else if (type == APP_CAMERA_YUV)
+	{
+		if (DVP_STATE_DISABLED != get_dvp_camera_state())
+		{
+			LOGI("%s already opened\n", __func__);
+			return kNoErr;
+		}
+
+		ret = media_send_msg_sync(EVENT_DVP_OPEN_IND, DVP_MODE_YUV);
+	}
+	else if (type == APP_CAMERA_UVC)
+	{
+
+#if (CONFIG_USB_UVC)
+		if (UVC_STATE_DISABLED != get_uvc_camera_state())
+		{
+			LOGI("%s already opened\n", __func__);
+			return kNoErr;
+		}
+
+		ret = media_send_msg_sync(EVENT_UVC_OPEN_IND, 0);
+#endif
 	}
 
 	return ret;
@@ -114,6 +137,8 @@ bk_err_t media_app_camera_close(app_camera_type_t type)
 {
 	int ret = kGeneralErr;
 
+	LOGI("%s\n", __func__);
+
 	if (type == APP_CAMERA_DVP)
 	{
 		if (DVP_STATE_ENABLED != get_dvp_camera_state())
@@ -122,7 +147,32 @@ bk_err_t media_app_camera_close(app_camera_type_t type)
 			return kNoErr;
 		}
 
-		ret = media_send_msg_sync(EVENT_DVP_CLOSE_IND, 0);
+		ret = media_send_msg_sync(EVENT_DVP_CLOSE_IND, DVP_MODE_JPG);
+	}
+	else if (type == APP_CAMERA_YUV)
+	{
+		if (DVP_STATE_ENABLED != get_dvp_camera_state())
+		{
+			LOGI("%s already closed\n", __func__);
+			return kNoErr;
+		}
+
+		ret = media_send_msg_sync(EVENT_DVP_CLOSE_IND, DVP_MODE_YUV);
+	}
+	else if (type == APP_CAMERA_UVC)
+	{
+
+
+#if (CONFIG_USB_UVC)
+
+		if (UVC_STATE_DISABLED == get_uvc_camera_state())
+		{
+			LOGI("%s already opened\n", __func__);
+			return kNoErr;
+		}
+
+		ret = media_send_msg_sync(EVENT_UVC_CLOSE_IND, 0);
+#endif
 	}
 
 	return ret;
@@ -133,7 +183,7 @@ bk_err_t media_app_transfer_video_open(void *setup_cfg)
 	int ret = kNoErr;
 	video_setup_t *ptr = NULL;
 
-	LOGI("%s, %p\n", __func__, ((video_setup_t*)setup_cfg)->send_func);
+	LOGI("%s, %p\n", __func__, ((video_setup_t *)setup_cfg)->send_func);
 
 	if (TRS_STATE_DISABLED != get_trs_video_transfer_state())
 	{
@@ -142,7 +192,7 @@ bk_err_t media_app_transfer_video_open(void *setup_cfg)
 	}
 
 	ptr = (video_setup_t *)os_malloc(sizeof(video_setup_t));
-	os_memcpy(ptr, (video_setup_t*)setup_cfg, sizeof(video_setup_t));
+	os_memcpy(ptr, (video_setup_t *)setup_cfg, sizeof(video_setup_t));
 
 	ret = media_send_msg_sync(EVENT_TRS_VIDEO_TRANSFER_OPEN_IND, (uint32_t)ptr);
 
@@ -164,7 +214,7 @@ bk_err_t media_app_transfer_video_close(void)
 }
 
 
-bk_err_t media_app_lcd_open(void)
+bk_err_t media_app_lcd_open(uint32_t lcd_ppi)
 {
 	if (LCD_STATE_DISABLED != get_lcd_state())
 	{
@@ -172,7 +222,7 @@ bk_err_t media_app_lcd_open(void)
 		return kNoErr;
 	}
 
-	return media_send_msg_sync(EVENT_LCD_OPEN_IND, 0);
+	return media_send_msg_sync(EVENT_LCD_OPEN_IND, lcd_ppi);
 }
 
 bk_err_t media_app_lcd_close(void)
@@ -185,6 +235,40 @@ bk_err_t media_app_lcd_close(void)
 
 	return media_send_msg_sync(EVENT_LCD_CLOSE_IND, 0);
 }
+
+bk_err_t media_app_uvc_start(void)
+{
+	if (UVC_STATE_STOP != get_uvc_camera_state())
+	{
+		LOGI("%s not opened\n", __func__);
+		return kNoErr;
+	}
+
+	return media_send_msg_sync(EVENT_UVC_START_IND, 0);
+}
+
+bk_err_t media_app_uvc_stop(void)
+{
+	if (UVC_STATE_ENABLED != get_uvc_camera_state())
+	{
+		LOGI("%s not start\n", __func__);
+		return kNoErr;
+	}
+
+	return media_send_msg_sync(EVENT_UVC_STOP_IND, 0);
+}
+
+bk_err_t media_app_uvc_param_set(uvc_camera_device_t *param)
+{
+	if (UVC_STATE_STOP != get_uvc_camera_state())
+	{
+		LOGI("%s not start\n", __func__);
+		return kNoErr;
+	}
+
+	return media_send_msg_sync(EVENT_UVC_PARAM_IND, (uint32_t)param);
+}
+
 
 bk_err_t media_app_send_msg(media_msg_t *msg)
 {
@@ -221,7 +305,7 @@ bk_err_t media_app_capture(char *name)
 			len = 31;
 		}
 
-		capture_name = (char*)os_malloc(len);
+		capture_name = (char *)os_malloc(len);
 		os_memset(capture_name, 0, len);
 		os_memcpy(capture_name, name, len);
 	}

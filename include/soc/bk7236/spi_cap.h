@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-#define SOC_SPI_UNIT_NUM              1
+#define SOC_SPI_UNIT_NUM              2
 
 #ifdef __cplusplus
 }

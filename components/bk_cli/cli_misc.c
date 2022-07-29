@@ -8,6 +8,10 @@
 #include <components/system.h>
 #include <modules/wifi.h>
 #include "sys_driver.h"
+#if CONFIG_ARCH_RISCV
+#include "cache.h"
+#endif
+
 
 #if (CONFIG_EFUSE)
 static void efuse_cmd_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
@@ -199,6 +203,76 @@ void test_common_io(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **a
 }
 #endif
 
+#if CONFIG_ARCH_RISCV
+extern void show_pmp_config(void);
+static void pmp_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	if (argc == 2) {
+		if (os_strncmp(argv[1], "test1", 5) == 0) {
+			int *test_ptr = NULL;
+			*test_ptr = 0x12345678;
+			return;
+		}
+		if (os_strncmp(argv[1], "test2", 5) == 0) {
+			int *test_ptr = (int *)0x10000000; //itcm
+			*test_ptr = 0x12345678;
+			return;
+		}
+	}
+
+	os_printf("pmp test, get/test1/test2 pmp. e.g. pmp test\r\n");
+	show_pmp_config();
+}
+#endif
+
+void set_printf_uart_port(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	unsigned char uart_port = 0;
+
+	if (argc != 2) {
+		os_printf("set log/shell uart port 0/1/2");
+		return;
+	}
+
+	uart_port = os_strtoul(argv[1], NULL, 10);
+	os_printf("set_printf_uart_port: %d.\r\n", uart_port);
+
+	if (uart_port < UART_ID_MAX) {
+#if CONFIG_SHELL_ASYNCLOG
+		shell_set_uart_port(uart_port);
+#else
+		bk_set_printf_port(uart_port);
+#endif
+	} else {
+		os_printf("uart_port must be 0/1/2.\r\n");
+	}
+
+	os_printf("uart_port end.\r\n");
+}
+
+#if CONFIG_CACHE_ENABLE
+static void prvBUS(void) {
+	union {
+		char a[10];
+		int i;
+	} u;
+
+	int *p = (int *) &(u.a[1]);
+	os_printf("prvBUS() enter(%x).\n", &(u.a[1]));
+	os_printf("prvBUS() p(%x).\n", p);
+	*p = 17;
+	os_printf("prvBUS() left().\n");
+}
+
+
+void show_cache_config(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	show_cache_config_info();
+
+	prvBUS();
+}
+#endif
+
 #define MISC_CMD_CNT (sizeof(s_misc_commands) / sizeof(struct cli_command))
 static const struct cli_command s_misc_commands[] = {
 	{"version", NULL, get_version},
@@ -216,12 +290,19 @@ static const struct cli_command s_misc_commands[] = {
 #endif //#if (CONFIG_EFUSE)
 #endif
 #if (CONFIG_MASTER_CORE) 
-	{"bootcore1", "boot slave core,0:start,1:stop,others:start and stop many times", boot_slave_core},
+	{"bootcore1", "boot slave core,1:start,0:stop,others:start and stop many times", boot_slave_core},
 #endif
 	{"jtagmode", "get jtag mode", get_jtag_mode},
-	{"setjtagmode", "reboot system", set_jtag_mode},
+	{"setjtagmode", "set jtag mode 0(cpu0)/1(cpu1)", set_jtag_mode},
 #if CONFIG_COMMON_IO
 	{"testcommonio", "test common io", test_common_io},
+#endif
+#if CONFIG_ARCH_RISCV
+	{"pmp", "pmp test, get/test pmp. e.g. pmp test", pmp_command},
+#endif
+	{"setprintport", "set log/shell uart port 0/1/2", set_printf_uart_port},
+#if CONFIG_CACHE_ENABLE
+	{"cache", "show cache config info", show_cache_config},
 #endif
 };
 

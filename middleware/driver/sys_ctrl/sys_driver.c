@@ -220,3 +220,11 @@ void sys_drv_set_ana_vctrl_sysldo(uint32_t value)
     rtos_enable_int(int_level);
 }
 
+void sys_drv_set_ana_vtempsel(uint32_t value)
+{
+    uint32_t int_level = rtos_disable_int();
+    sys_hal_set_ana_vtempsel(value);
+    rtos_enable_int(int_level);
+}
+
+

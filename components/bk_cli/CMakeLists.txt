@@ -65,12 +65,6 @@ if (CONFIG_IPERF_TEST)
 	)
 endif()
 
-if (CONFIG_FLASH)
-	list(APPEND srcs
-		cli_flash.c
-	)
-endif()
-
 if (CONFIG_GENERAL_DMA)
 	list(APPEND srcs
 		cli_dma.c
@@ -107,7 +101,7 @@ if (CONFIG_FLASH)
 	)
 endif()
 
-if (CONFIG_FLASH_QUAD_ENABLE)
+if (CONFIG_FLASH)
 	list(APPEND srcs
 		cli_flash_test.c
 	)
@@ -292,5 +286,5 @@ armino_component_register(SRCS "${srcs}"
 	INCLUDE_DIRS "${incs}"
 	REQUIRES utf8 temp_detect app driver user_driver bk_system iperf fatfs user_driver http
 	#PRIV_REQUIRES airkiss bk_common bk_netif bk_ble bk_ps
-	PRIV_REQUIRES bk_common bk_netif bk_ble bk_ps fatfs bk_init at bk_wifi compal media_common media
+	PRIV_REQUIRES bk_common bk_netif bk_ble bk_ps fatfs bk_init at bk_wifi compal media_common media bk_bt
 	)

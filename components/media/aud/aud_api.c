@@ -34,19 +34,23 @@
 #define LOGD(...) BK_LOGD(TAG, ##__VA_ARGS__)
 
 
-void adc_open(void)
+bk_err_t adc_open(void)
 {
 	media_msg_t msg;
 	msg.event = EVENT_AUD_ADC_OPEN;
 
 	media_send_msg(&msg);
+
+	return BK_OK;
 }
 
-void dac_open(void)
+bk_err_t dac_open(void)
 {
 	media_msg_t msg;
 	msg.event = EVENT_AUD_DAC_OPEN;
 
 	media_send_msg(&msg);
+
+	return BK_OK;
 }
 

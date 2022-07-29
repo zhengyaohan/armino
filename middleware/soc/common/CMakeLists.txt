@@ -30,6 +30,12 @@ if (CONFIG_MPC)
 	)
 endif()
 
+if (CONFIG_PRRO)
+	list(APPEND srcs 
+		hal/prro_hal.c
+	)
+endif()
+
 if (CONFIG_FFT)
 	list(APPEND srcs
 		hal/fft_hal.c

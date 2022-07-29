@@ -94,7 +94,7 @@ static void video_transfer_jpeg_eof_callback(jpeg_unit_t id, void *param)
 
 	if (frame_buffer_id == 2)
 		frame_buffer_id = 0;
-	else
+	else
 		frame_buffer_id++;
 	// get idle frame buff addr and buf_len
 	bk_err_t ret = video_transfer_get_idle_buff(frame_buffer_id, &info);
@@ -399,8 +399,7 @@ static void video_transfer_cpu1_main(beken_thread_arg_t data)
 	video_mailbox_msg_t mb_msg;
 
 	// step 1: init psram
-	uint32_t psram_mode = 0x00054043;
-	ret = bk_psram_init(psram_mode);
+	ret = bk_psram_init();
 	if (ret != BK_OK) {
 		os_printf("psram init error \r\n");
 		return;

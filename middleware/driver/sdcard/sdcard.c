@@ -11,10 +11,8 @@
 #include "bk_drv_model.h"
 #include "bk_sys_ctrl.h"
 #include <os/mem.h>
-//#include "arch.h"
 #include "bk_arm_arch.h"
 #include "bk_gpio.h"
-#include "bk_mcu_ps.h"
 #include "bk_misc.h"
 #include <driver/gpio.h>
 
@@ -112,6 +110,8 @@ static uint16 NoneedInitflag = 0;
 static UINT8 no_need_send_cmd12_flag = 1;
 static UINT8 SDIO_WR_flag = SDIO_RD_DATA;
 static UINT32 last_WR_addr = 0;
+static sdcard_ps_callback_t s_sdcard_ps_suspend_cb = NULL;
+static sdcard_ps_callback_t s_sdcard_ps_resume_cb = NULL;
 
 #define SDIO_RD_DATA             0
 #define SDIO_WR_DATA             1
@@ -127,7 +127,7 @@ static bool sdcard_check_inserted(void)
 	volatile uint32_t i = 0;
 	bool is_inserted = true;
 #if CONFIG_SOC_BK7256XX	//Temp code.
-	sd_data0 = 4;	//GPIO_4;
+	sd_data0 = 6;	//GPIO_6;
 #else
 #if (CONFIG_SD1_HOST_INTF)
 	sd_data0 = 36;
@@ -274,7 +274,11 @@ uint32 get_timeout_param(uint8 cmd_or_data)
 			timeout_param = DATA_TIMEOUT_13M;
 		break;
 
+#if CONFIG_SOC_BK7256XX
+	//Hasn't 26M
+#else
 	case CLK_26M:
+#endif
 	default:
 		if (cmd_or_data)
 			timeout_param = CMD_TIMEOUT_26M;
@@ -326,7 +330,11 @@ cmd1_loop:
 			sdcard.Addr_shift_bit = 9;
 	}
 	reg = REG_READ(REG_SDCARD_FIFO_THRESHOLD);
+#if CONFIG_SOC_BK7256XX
+	reg |= SDCARD_FIFO_SD_STA_RST;
+#else
 	reg |= 20;
+#endif
 	REG_WRITE(REG_SDCARD_FIFO_THRESHOLD, reg);
 
 	return cmd.err;
@@ -351,7 +359,11 @@ static SDIO_Error sdcard_mmc_cmd8_process(void)
 	if (cmd.err != SD_OK)
 		goto freebuf;
 	REG_WRITE(REG_SDCARD_FIFO_THRESHOLD, (1 << 20));// reset first
+#if CONFIG_SOC_BK7256XX
+	REG_WRITE(REG_SDCARD_FIFO_THRESHOLD, SDIO_REG0XD_CLK_REC_SEL | SDIO_REG0XD_SD_RD_WAIT_SEL | 0x3ffff);// set fifo later
+#else
 	REG_WRITE(REG_SDCARD_FIFO_THRESHOLD, 0x3ffff);// set fifo later
+#endif
 	driver_sdcard_recv_data_start(get_timeout_param(0));
 
 	tmp = 0;
@@ -644,12 +656,35 @@ static SDIO_Error sdcard_cmd12_process(uint32 addr)
 {
 	SDIO_CMD_S cmd;
 
+#if CONFIG_SOC_BK7256XX
+	//1:clock always on, 0:auto gate
+	//after one block transfer finish, the clock is auto gate, and next cmd can't send out
+	{
+		sdio_clk_gate_config(1);
+	}
+#endif
+
 	cmd.index = 12;
 	cmd.arg = addr;
 	cmd.flags = SD_CMD_SHORT;
 	cmd.timeout = get_timeout_param(1);
 	sdio_send_cmd(&cmd);
 	cmd.err = sdio_wait_cmd_response(cmd.index);
+
+#if CONFIG_SOC_BK7256XX
+	{
+		uint32_t reg = REG_READ(REG_SDCARD_CMD_RSP_INT_MASK);
+		reg &= ~(0x1 << SDIO_REG0XA_TX_FIFO_NEED_WRITE_MASK_CG_POS);
+		REG_WRITE(REG_SDCARD_CMD_RSP_INT_MASK, reg);
+	}
+
+	//1:clock always on, 0:auto gate
+	//after cmd12 send out,restore the clock to auto gate status
+	{
+		sdio_clk_gate_config(0);
+	}
+#endif
+
 	return cmd.err;
 }
 
@@ -744,7 +779,7 @@ SDIO_Error sdcard_initialize(void)
 			return SD_INVALID_VOLTRANGE;
 		}
 
-		SDCARD_PRT("send cmd55&cmd41 complete, card is ready\r\n");
+		SDCARD_PRT("send cmd55&cmd41 complete, card is ready, retry_time=%d\r\n", (SD_MAX_VOLT_TRIAL-retry_time));
 
 		if (resp0 & OCR_MSK_HC)
 			SDCARD_PRT("High Capacity SD Memory Card\r\n");
@@ -792,12 +827,9 @@ SDIO_Error sdcard_initialize(void)
 		goto err_return;
 	}
 
-	// change to high speed clk
-#if CONFIG_SOC_BK7256XX
-	sdcard_clock_set(CLK_26M);
-#else
+	// change to default speed clk
 	sdcard_clock_set(CLK_13M);
-#endif
+
 	rtos_delay_milliseconds(2);
 	// get CSD
 	err = sdcard_cmd9_process(SD_CARD);
@@ -832,11 +864,8 @@ MMC_init:
 		goto err_return;
 	err = sdcard_mmc_cmd3_process();
 	os_printf("cmd 3 :%x\r\n", err);
-#if CONFIG_SOC_BK7256XX
-	sdcard_clock_set(CLK_26M);
-#else
 	sdcard_clock_set(CLK_13M);
-#endif
+
 	err = sdcard_cmd9_process(MMC_CARD);
 	os_printf("cmd 9 :%x\r\n", err);
 	if (sdcard.Addr_shift_bit == 0) {
@@ -875,15 +904,39 @@ void sdcard_get_card_info(SDCARD_S *card_info)
 	card_info->Addr_shift_bit = sdcard.Addr_shift_bit;
 }
 
+#if CONFIG_SOC_BK7256XX
+static void sdcard_dump_transfer_data(UINT8 *write_buff, uint32_t first_block, uint32_t cnt)
+{
+	uint32_t i = 0;
+
+	SDCARD_DBG("[+]sdcard_dump_transfer_data:addr=0x%x,cnt=%d\r\n", write_buff, cnt);
+
+	for(i = 0; i < cnt; i+=16)
+	{
+		SDCARD_DBG("0x%08x, 0x%08x, 0x%08x, 0x%08x\r\n",
+			(uint32_t)(*(uint32_t *)&write_buff[i]),
+			(uint32_t)(*(uint32_t *)&write_buff[i+4]),
+			(uint32_t)(*(uint32_t *)&write_buff[i+8]),
+			(uint32_t)(*(uint32_t *)&write_buff[i+12]));
+	}
+
+	SDCARD_DBG("[-]sdcard_dump_transfer_data:addr=0x%x,cnt=%d\r\n", first_block, cnt);
+}
+#endif
+
 SDIO_Error
 sdcard_read_single_block(UINT8 *readbuff, UINT32 readaddr, UINT32 blocksize)
 {
 	SDIO_CMD_S cmd;
 	SDIO_Error ret;
 
+#if CONFIG_SOC_BK7256
+
+#else
 #if CONFIG_SDCARD_HOST
 	if(sdcard_check_inserted() == false)
 		return SD_ERROR;
+#endif
 #endif
 
 	sdio_clk_config(1);
@@ -928,19 +981,40 @@ static void sd_read_data_init(void)
 {
 	UINT32 reg;
 
+#if CONFIG_SOC_BK7256XX
+
+#else
 #if CONFIG_SDCARD_HOST
 	if(sdcard_check_inserted() == false)
 		return;
+#endif
 #endif
 
 	sdio_clk_config(1);
 	reg  = get_timeout_param(0);
 	REG_WRITE(REG_SDCARD_DATA_REC_TIMER, reg);
 	REG_WRITE(REG_SDCARD_CMD_RSP_INT_SEL, 0xFFFFFFFF);
-	reg = REG_READ(REG_SDCARD_FIFO_THRESHOLD);
-	reg &= ~(0xFFFF | (1 << 16) | (1 << 20));
-	reg  |= (0x0101 | ((1 << 16) | (1 << 20)));
-	REG_WRITE(REG_SDCARD_FIFO_THRESHOLD, reg);
+
+#if CONFIG_SOC_BK7256XX
+		reg = REG_READ(REG_SDCARD_FIFO_THRESHOLD);
+
+		//reset to 0
+		reg &= ~(SDCARD_FIFO_SD_STA_RST | SDCARD_FIFO_TX_FIFO_RST | SDCARD_FIFO_RX_FIFO_RST);
+		REG_WRITE(REG_SDCARD_FIFO_THRESHOLD, reg);
+
+		//reset to 1
+		reg |= (SDCARD_FIFO_SD_STA_RST | SDCARD_FIFO_TX_FIFO_RST | SDCARD_FIFO_RX_FIFO_RST);
+		REG_WRITE(REG_SDCARD_FIFO_THRESHOLD, reg);
+
+		reg &= (0xffff | (SDCARD_FIFO_SD_RATE_SELECT_MASK << SDCARD_FIFO_SD_RATE_SELECT_POSI) | SDIO_REG0XD_CLK_REC_SEL | SDIO_REG0XD_SD_RD_WAIT_SEL);
+		reg |= (0x0101 | SDCARD_FIFO_RX_FIFO_RST);
+		REG_WRITE(REG_SDCARD_FIFO_THRESHOLD, reg);
+#else
+		reg = REG_READ(REG_SDCARD_FIFO_THRESHOLD);
+		reg &= ~(0xFFFF | (1 << 16) | (1 << 20));
+		reg  |= (0x0101 | ((1 << 16) | (1 << 20)));
+		REG_WRITE(REG_SDCARD_FIFO_THRESHOLD, reg);
+#endif
 
 #ifdef CONFIG_SDCARD_BUSWIDTH_4LINE
 	reg = 0x1 | (1 << 2) | (1 << 3) | (512 << 4) | (1 << 17);
@@ -1016,20 +1090,83 @@ SDIO_Error sdcard_read_multi_block(UINT8 *read_buffer, int first_block, int bloc
 	if (0 == op_flag)
 		ret = sdcard_rcv_data(read_buffer, block_num);
 	else {
+#if CONFIG_SOC_BK7256XX
+		uint32_t ret2 = 0;
+		uint32_t retry_cnt = 0;
+#endif
+
 		if (1 == op_flag)
 			ret = sdcard_send_write_stop(0);
 		else if (2 == op_flag)
 			ret = sdcard_send_read_stop();
+
+/*
+ * WORKAROUND:
+ * Some special sdcard maybe at busy status after CMD12,
+ * so it can't response the next cmd,F.E:CMD18 which reads multi-block data.
+ * BK7256XX_MP chip can't retry with CMD18, if it sends CMD18,BK7256 sdio
+ * will start to read data from data-lines to the sdio FIFO but the data is 0.
+ */
+#if CONFIG_SOC_BK7256XX
+		/*
+		 * after stop cmd, should do check busy;
+		 * 1.read to switch start address
+		 * 2.write to read
+		 * 3.write and has sent stop(file system use sdcard_ctrl), and then start read
+		 */
+		if((1 == op_flag) || (2 == op_flag) || ((3 == op_flag) && SDIO_WR_flag == SDIO_WR_DATA))
+		{
+			sdio_clk_config(1);
+			while(retry_cnt < 256)
+			{
+				retry_cnt++;
+
+				ret2 = sdcard_acmd6_process();
+				if (SD_OK == ret2)
+				{
+					SDCARD_DBG("check sdcard ready:acmd6 pass,retry_cnt=%d\r\n", retry_cnt);
+					break;
+				}
+			}
+		}
+#endif
 		sd_read_data_init();
+#if CONFIG_SOC_BK7256XX
+		if(ret2 == SD_OK)	//ACMD6 pass means sdcard is not busy.
+		{
+			//CMD18:notify sdcard,will read multi-block data
+			ret2 = sdcard_cmd18_process(first_block);
+			if (SD_OK == ret2)
+			{
+				ret2 += sdcard_rcv_data(read_buffer, block_num);
+			}
+			else
+				SDCARD_FATAL("--cmd18 send error:ret=%d\r\n", ret2);
+		}
+
+		ret += ret2;
+#else
 		ret += sdcard_cmd18_process(first_block);
 		if (SD_OK == ret)
+		{
 			ret = sdcard_rcv_data(read_buffer, block_num);
+		}
+#endif
+
 	}
 
 	if (SD_OK != ret) {
 		no_need_send_cmd12_flag = 1;
 		ret += sdcard_send_read_stop();
 	}
+
+#if CONFIG_SOC_BK7256XX
+	{
+		SDCARD_DBG("[-]%s:first_block=%d,block_num=%d\r\n", __func__, first_block, block_num);
+		sdcard_dump_transfer_data(read_buffer, first_block, block_num*512);
+	}
+#endif
+
 	SDIO_WR_flag = SDIO_RD_DATA;
 	last_WR_addr = first_block + block_num;
 	return ret;
@@ -1050,9 +1187,13 @@ SDIO_Error sdcard_read_multi_block(UINT8 *read_buff, int first_block, int block_
 		Ret = sdcard_send_write_stop(0);		//write stop
 	}
 
+#if CONFIG_SOC_BK7256
+
+#else
 #if CONFIG_SDCARD_HOST
 	if(sdcard_check_inserted() == false)
 		return SD_ERROR;
+#endif
 #endif
 
 	sdio_clk_config(1);
@@ -1135,9 +1276,13 @@ SDIO_Error sdcard_write_single_block(UINT8 *writebuff, UINT32 writeaddr)
 	SDIO_CMD_S cmd;
 	UINT32 tmpval, reg;
 
+#if CONFIG_SOC_BK7256XX
+
+#else
 #if CONFIG_SDCARD_HOST
 	if(sdcard_check_inserted() == false)
 		return SD_ERROR;
+#endif
 #endif
 
 	sdio_clk_config(1);
@@ -1151,7 +1296,11 @@ SDIO_Error sdcard_write_single_block(UINT8 *writebuff, UINT32 writeaddr)
 	reg = REG_READ(REG_SDCARD_FIFO_THRESHOLD);
 	REG_WRITE(REG_SDCARD_FIFO_THRESHOLD, reg | SDCARD_FIFO_SD_STA_RST);
 
+#if CONFIG_SOC_BK7256XX
+	reg &= (0xffff | (SDCARD_FIFO_SD_RATE_SELECT_MASK << SDCARD_FIFO_SD_RATE_SELECT_POSI) | SDIO_REG0XD_CLK_REC_SEL | SDIO_REG0XD_SD_RD_WAIT_SEL);
+#else
 	reg &= (0xffff | (SDCARD_FIFO_SD_RATE_SELECT_MASK << SDCARD_FIFO_SD_RATE_SELECT_POSI));
+#endif
 	reg |= (0x0101 /*| SDCARD_FIFO_TX_FIFO_RST*/);
 	REG_WRITE(REG_SDCARD_FIFO_THRESHOLD, reg);
 
@@ -1182,9 +1331,13 @@ SDIO_Error sdcard_write_single_block(UINT8 *writebuff, UINT32 writeaddr)
 			  ;
 		REG_WRITE(REG_SDCARD_DATA_REC_CTRL, reg);
 
+#if CONFIG_SOC_BK7256XX
+	//no need to check tx fifo need write
+#else
 		do {
 			reg = REG_READ(REG_SDCARD_CMD_RSP_INT_SEL);
 		} while (!(reg & SDCARD_CMDRSP_TX_FIFO_NEED_WRITE));
+#endif
 
 		while (1) {
 			reg = REG_READ(REG_SDCARD_CMD_RSP_INT_SEL);
@@ -1224,20 +1377,40 @@ static SDIO_Error sdcard_cmd25_process(UINT32 block_addr)
 	SDIO_CMD_S cmd;
 	UINT32 reg;
 
+#if CONFIG_SOC_BK7256XX
+
+#else
 #if CONFIG_SDCARD_HOST
 	if(sdcard_check_inserted() == false)
 		return SD_ERROR;
 #endif
+#endif
 
 	sdio_clk_config(1);
 	REG_WRITE(REG_SDCARD_CMD_RSP_INT_SEL, 0xffffffff);
+
+#if CONFIG_SOC_BK7256XX
 	reg = REG_READ(REG_SDCARD_FIFO_THRESHOLD);
 
+	//reset to 0: 0 active
+	reg &= ~(SDCARD_FIFO_SD_STA_RST | SDCARD_FIFO_TX_FIFO_RST | SDCARD_FIFO_RX_FIFO_RST);
+	REG_WRITE(REG_SDCARD_FIFO_THRESHOLD, reg);
+
+	//reset to 1
+	reg |= (SDCARD_FIFO_SD_STA_RST | SDCARD_FIFO_TX_FIFO_RST | SDCARD_FIFO_RX_FIFO_RST);
+	REG_WRITE(REG_SDCARD_FIFO_THRESHOLD, reg);
+
+	reg &= (0xffff | (SDCARD_FIFO_SD_RATE_SELECT_MASK << SDCARD_FIFO_SD_RATE_SELECT_POSI) | SDIO_REG0XD_CLK_REC_SEL | SDIO_REG0XD_SD_RD_WAIT_SEL);
+	reg |= (0x0101 | SDCARD_FIFO_TX_FIFO_RST);
+	REG_WRITE(REG_SDCARD_FIFO_THRESHOLD, reg);
+#else
+	reg = REG_READ(REG_SDCARD_FIFO_THRESHOLD);
 	REG_WRITE(REG_SDCARD_FIFO_THRESHOLD, reg | SDCARD_FIFO_SD_STA_RST);
 
 	reg &= (0xffff | (SDCARD_FIFO_SD_RATE_SELECT_MASK << SDCARD_FIFO_SD_RATE_SELECT_POSI));
 	reg |= (0x0101 | SDCARD_FIFO_TX_FIFO_RST);
 	REG_WRITE(REG_SDCARD_FIFO_THRESHOLD, reg);
+#endif
 
 	cmd.index = 25;//WRITE_MULTIPLE_BLOCK;
 	cmd.arg = (UINT32)(block_addr << sdcard.Addr_shift_bit);
@@ -1266,6 +1439,13 @@ static SDIO_Error sdcard_write_data(UINT8 *write_buff, UINT32 block_num, UINT8 f
 				break;
 		}
 
+#if CONFIG_SOC_BK7256XX
+		//soc modification:enable clock gate function.
+		reg = REG_READ(REG_SDCARD_CMD_RSP_INT_MASK);
+		reg |= (0x1 << SDIO_REG0XA_TX_FIFO_NEED_WRITE_MASK_CG_POS);
+		REG_WRITE(REG_SDCARD_CMD_RSP_INT_MASK, reg);
+#endif
+
 		reg = REG_READ(REG_SDCARD_CMD_RSP_INT_MASK);
 		reg |= SDCARD_CMDRSP_TX_FIFO_EMPTY_MASK;
 		REG_WRITE(REG_SDCARD_CMD_RSP_INT_MASK, reg);
@@ -1279,6 +1459,24 @@ static SDIO_Error sdcard_write_data(UINT8 *write_buff, UINT32 block_num, UINT8 f
 #endif
 			  ;
 		REG_WRITE(REG_SDCARD_DATA_REC_CTRL, reg);
+
+#if CONFIG_SOC_BK7256XX
+		{
+			uint32_t k = 0;
+			do {
+				reg = REG_READ(REG_SDCARD_CMD_RSP_INT_SEL);
+
+				k++;
+				if(k > 0x10000000)
+				{
+					SDCARD_FATAL("write data too much time\r\n");
+					break;
+				}
+			} while (!(reg & SDCARD_CMDRSP_DATA_WR_END_INT));
+			SDCARD_DBG("SD Info:write blk data end, k=%d\r\n", k);
+			REG_WRITE(REG_SDCARD_CMD_RSP_INT_SEL, SDCARD_CMDRSP_DATA_WR_END_INT);
+		}
+#endif
 
 		do {
 			reg = REG_READ(REG_SDCARD_CMD_RSP_INT_SEL);
@@ -1306,10 +1504,13 @@ static SDIO_Error sdcard_write_data(UINT8 *write_buff, UINT32 block_num, UINT8 f
 
 		REG_WRITE(REG_SDCARD_CMD_RSP_INT_SEL, SDCARD_CMDRSP_DATA_WR_END_INT);
 
+#if CONFIG_SOC_BK7256XX
+
+#else
 		do {
 			reg = REG_READ(REG_SDCARD_CMD_RSP_INT_SEL);
 		} while (!(reg & SDCARD_CMDRSP_TX_FIFO_NEED_WRITE));
-
+#endif
 		if (2 != ((reg & SDCARD_CMDRSP_WR_STATU) >> 20)) {
 			ret = SD_ERROR;
 			os_printf("write data error !!!\r\n");
@@ -1328,6 +1529,9 @@ static SDIO_Error sdcard_send_write_stop(int err)
 	{
 		// 3. after the last block,write zero
 		GLOBAL_INT_DISABLE();
+#if CONFIG_SOC_BK7256XX
+		//soc modification:uses recovery function to instead fill-0.
+#else
 		while (1) {
 			reg = REG_READ(REG_SDCARD_FIFO_THRESHOLD);
 			if (reg & SDCARD_FIFO_TXFIFO_WR_READY) {
@@ -1354,6 +1558,7 @@ static SDIO_Error sdcard_send_write_stop(int err)
 			ret =  SD_ERROR;
 		else
 			ret =  SD_OK;
+#endif
 		reg = REG_READ(REG_SDCARD_FIFO_THRESHOLD);
 		reg |= SDCARD_FIFO_TX_FIFO_RST;
 		REG_WRITE(REG_SDCARD_FIFO_THRESHOLD, reg);
@@ -1363,9 +1568,13 @@ static SDIO_Error sdcard_send_write_stop(int err)
 		REG_WRITE(REG_SDCARD_CMD_RSP_INT_MASK, reg);
 		GLOBAL_INT_RESTORE();
 
+#if CONFIG_SOC_BK7256XX
+
+#else
 #if CONFIG_SDCARD_HOST
 		if(sdcard_check_inserted() == false)
 			return SD_ERROR;
+#endif
 #endif
 	}
 	ret += sdcard_cmd12_process(0);
@@ -1390,6 +1599,13 @@ SDIO_Error sdcard_write_multi_block(UINT8 *write_buff, UINT32 first_block, UINT3
 		}
 	}
 
+#if CONFIG_SOC_BK7256XX
+	{
+		SDCARD_DBG("%s:start dump first_block=%d, block_num = %d\r\n", __func__, first_block, block_num);
+		sdcard_dump_transfer_data(write_buff, first_block, block_num*512);
+	}
+#endif
+
 	if (1 == no_need_send_cmd12_flag)
 		op_flag = 3;//stop has send
 
@@ -1399,6 +1615,10 @@ SDIO_Error sdcard_write_multi_block(UINT8 *write_buff, UINT32 first_block, UINT3
 	if (0 == op_flag)//continue write
 		ret = sdcard_write_data(write_buff, block_num, 0);
 	else {
+#if CONFIG_SOC_BK7256XX
+		uint32_t retry_cnt = 0;
+		uint32_t ret2 = 0;
+#endif
 		if (1 == op_flag) {
 			/************if last state is single read:not send stop;***************/
 			ret = sdcard_send_read_stop();
@@ -1406,12 +1626,40 @@ SDIO_Error sdcard_write_multi_block(UINT8 *write_buff, UINT32 first_block, UINT3
 			ret = sdcard_send_write_stop(0);
 		}
 
-		//CMD25:notify sdcard,will write multi-block data
-		ret += sdcard_cmd25_process(first_block);
-		if (SD_OK == ret)
-			ret += sdcard_write_data(write_buff, block_num, 1);
-		else
-			SDCARD_FATAL("--cmd25 send error:ret=%d\r\n", ret);
+#if CONFIG_SOC_BK7256XX
+		if(ret == SD_OK)
+		{
+			//CMD25:notify sdcard,will write multi-block data
+			while(retry_cnt < 16)	//add retry count,maybe the card is busy after CMD12.
+			{
+				retry_cnt++;
+
+				ret2 = sdcard_cmd25_process(first_block);
+				if (SD_OK == ret2)
+				{
+					ret2 += sdcard_write_data(write_buff, block_num, 1);
+					if(SD_OK == ret2)
+					{
+						SDCARD_DBG("write data try_cnt=%d pass\r\n", retry_cnt);
+						break;
+					}
+					else
+						SDCARD_FATAL("sdcard write data fail \r\n");
+				}
+			}
+			if(retry_cnt >= 16)
+				SDCARD_FATAL("cmd25 retry_cnt=%d fail:ret=%d\r\n", retry_cnt);
+
+			ret += ret2;
+		}
+#else
+	//CMD25:notify sdcard,will write multi-block data
+	ret += sdcard_cmd25_process(first_block);
+	if (SD_OK == ret)
+		ret += sdcard_write_data(write_buff, block_num, 1);
+	else
+		SDCARD_FATAL("--cmd25 send error:ret=%d\r\n", ret);
+#endif
 	}
 	if (ret != SD_OK) {
 		ret += sdcard_send_write_stop(ret);
@@ -1429,9 +1677,13 @@ SDIO_Error sdcard_write_multi_block(UINT8 *write_buff, UINT32 first_block, UINT3
 	UINT32 i, j, reg, tmpval;
 	GLOBAL_INT_DECLARATION();
 
+#if CONFIG_SOC_BK7256
+
+#else
 #if CONFIG_SDCARD_HOST
 	if(sdcard_check_inserted() == false)
 		return SD_ERROR;
+#endif
 #endif
 
 	sdio_clk_config(1);
@@ -1440,9 +1692,15 @@ SDIO_Error sdcard_write_multi_block(UINT8 *write_buff, UINT32 first_block, UINT3
 
 	REG_WRITE(REG_SDCARD_FIFO_THRESHOLD, reg | SDCARD_FIFO_SD_STA_RST);
 
+#if CONFIG_SOC_BK7256XX
+	reg &= (0xffff | (SDCARD_FIFO_SD_RATE_SELECT_MASK << SDCARD_FIFO_SD_RATE_SELECT_POSI) | SDIO_REG0XD_SD_RD_WAIT_SEL | SDIO_REG0XD_CLK_REC_SEL);
+	reg |= (0x0101 | SDCARD_FIFO_TX_FIFO_RST);
+	REG_WRITE(REG_SDCARD_FIFO_THRESHOLD, reg);
+#else
 	reg &= (0xffff | (SDCARD_FIFO_SD_RATE_SELECT_MASK << SDCARD_FIFO_SD_RATE_SELECT_POSI));
 	reg |= (0x0101 | SDCARD_FIFO_TX_FIFO_RST);
 	REG_WRITE(REG_SDCARD_FIFO_THRESHOLD, reg);
+#endif
 
 	cmd.index = 25;//WRITE_MULTIPLE_BLOCK;
 	cmd.arg = (UINT32)(first_block << sdcard.Addr_shift_bit);
@@ -1477,9 +1735,13 @@ SDIO_Error sdcard_write_multi_block(UINT8 *write_buff, UINT32 first_block, UINT3
 			  ;
 		REG_WRITE(REG_SDCARD_DATA_REC_CTRL, reg);
 
+#if CONFIG_SOC_BK7256XX
+
+#else
 		do {
 			reg = REG_READ(REG_SDCARD_CMD_RSP_INT_SEL);
 		} while (!(reg & SDCARD_CMDRSP_TX_FIFO_NEED_WRITE));
+#endif
 
 		// 2. write other blocks
 		while (--block_num) {
@@ -1498,9 +1760,13 @@ SDIO_Error sdcard_write_multi_block(UINT8 *write_buff, UINT32 first_block, UINT3
 			} while (!(reg & SDCARD_CMDRSP_DATA_WR_END_INT));
 			REG_WRITE(REG_SDCARD_CMD_RSP_INT_SEL, SDCARD_CMDRSP_DATA_WR_END_INT);
 
+#if CONFIG_SOC_BK7256XX
+
+#else
 			do {
 				reg = REG_READ(REG_SDCARD_CMD_RSP_INT_SEL);
 			} while (!(reg & SDCARD_CMDRSP_TX_FIFO_NEED_WRITE));
+#endif
 
 			if (2 != ((reg & SDCARD_CMDRSP_WR_STATU) >> 20)) {
 				ret = SD_ERROR;
@@ -1547,10 +1813,15 @@ SDIO_Error sdcard_write_multi_block(UINT8 *write_buff, UINT32 first_block, UINT3
 
 	GLOBAL_INT_RESTORE();
 
+#if CONFIG_SOC_BK7256XX
+
+#else
 #if CONFIG_SDCARD_HOST
 	if(sdcard_check_inserted() == false)
 		return SD_ERROR;
 #endif
+#endif
+
 sndcmd12:
 	ret += sdcard_cmd12_process(0);
 	if (ret != SD_OK)
@@ -1611,7 +1882,8 @@ UINT32 sdcard_read(char *user_buf, UINT32 count, UINT32 op_flag)
 #if 1
 	//os_printf("sd_read:buf = %x, count=%d,sector num=%d\r\n", user_buf, count, op_flag);
 	result = sdcard_read_multi_block((uint8 *)user_buf, op_flag, count);
-//	os_printf("read finish\r\n");
+	if(result)
+		os_printf("read err:%d\r\n", result);
 	return result;
 #else
 
@@ -1664,35 +1936,41 @@ UINT32 sdcard_write(char *user_buf, UINT32 count, UINT32 op_flag)
 	SDIO_Error err = SD_OK;
 	UINT32 start_blk_addr;
 
-	peri_busy_count_add();
+	if (s_sdcard_ps_suspend_cb) {
+		s_sdcard_ps_suspend_cb();
+	}
 	// check operate parameter
 	start_blk_addr = op_flag;
 	err = sdcard_write_multi_block((UINT8 *)user_buf, start_blk_addr, count);
-
-	peri_busy_count_dec();
-
+	if (s_sdcard_ps_resume_cb) {
+		s_sdcard_ps_resume_cb();
+	}
 	return err;
 }
 
 UINT32 sdcard_ctrl(UINT32 cmd, void *parm)
 {
-	peri_busy_count_add();
-
+	if (s_sdcard_ps_suspend_cb) {
+		s_sdcard_ps_suspend_cb();
+	}
 	switch (cmd) {
 		case 0:	//it's called in fatfs:disk_io.c
 #if CONFIG_SOC_BK7256XX	//JIRA BK7256-1674
+		if(no_need_send_cmd12_flag == 0)
+		{
 			sdcard_send_write_stop(0);
 			no_need_send_cmd12_flag = 1;
-
+		}
 #else	//reserve previous codes.
-			sdcard_cmd12_process(0);
+		sdcard_cmd12_process(0);
 #endif
 			break;
 	default:
 		break;
 	}
-
-	peri_busy_count_dec();
+	if (s_sdcard_ps_resume_cb) {
+		s_sdcard_ps_resume_cb();
+	}
 
 	return 0;
 }
@@ -1710,5 +1988,16 @@ void clr_sd_noinitial_flag(void)
 {
 	NoneedInitflag = 0;
 }
+
+void sdcard_register_ps_suspend_callback(sdcard_ps_callback_t ps_suspend_cb)
+{
+	s_sdcard_ps_suspend_cb = ps_suspend_cb;
+}
+
+void sdcard_register_ps_resume_callback(sdcard_ps_callback_t ps_resume_cb)
+{
+	s_sdcard_ps_resume_cb = ps_resume_cb;
+}
+
 #endif  // CONFIG_SDCARD_HOST
 // EOF

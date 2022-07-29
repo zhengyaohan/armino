@@ -30,5 +30,5 @@ elseif(CONFIG_NON_OS)
 endif()
 endif()
 
-armino_component_register(SRCS "${srcs}" INCLUDE_DIRS "${incs}" PRIV_REQUIRES bk_common bk_init)
+armino_component_register(SRCS "${srcs}" INCLUDE_DIRS "${incs}" PRIV_REQUIRES bk_common)
 

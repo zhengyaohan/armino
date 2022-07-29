@@ -30,6 +30,10 @@ config SPIDMA
 	bool "Enable SPI DMA"
 	default n
 	
-	config VIDEO_LCD
-	bool "Enable SPI DMA"
+config VIDEO_DVP_LCD
+	bool "Enable dvp lcd display"
+	default n
+	
+config VIDEO_UVC_LCD
+	bool "Enable UVC lcd display"
 	default n

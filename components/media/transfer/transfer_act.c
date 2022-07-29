@@ -40,6 +40,9 @@
 
 #include <soc/mapping.h>
 
+#include <driver/timer.h>
+
+
 #include "bk_general_dma.h"
 
 #include "transfer_act.h"
@@ -77,13 +80,12 @@ typedef struct
 
 
 
-trs_info_t trs_info;
+transfer_info_t transfer_info;
 
 
 #define MAX_TX_SIZE (1472)
-//#define MAX_COPY_SIZE (1472 - sizeof(transfer_data_t))
-#define MAX_COPY_SIZE (1468)
-#define MAX_RETRY (100)
+#define MAX_COPY_SIZE (1472 - sizeof(transfer_data_t))
+#define MAX_RETRY (10000)
 #define RETRANSMITS_TIME (5)
 
 static beken_queue_t trs_task_queue = NULL;
@@ -100,6 +102,10 @@ frame_buffer_t *wifi_tranfer_frame = NULL;
 
 
 video_setup_t vido_transfer_info = {0};
+
+uint32_t lost_size = 0;
+uint32_t complete_size = 0;
+
 
 
 int dvp_frame_send(uint8_t *data, uint32_t size, uint32_t retry_max, uint32_t ms_time)
@@ -118,10 +124,12 @@ int dvp_frame_send(uint8_t *data, uint32_t size, uint32_t retry_max, uint32_t ms
 		if (ret == size)
 		{
 			//LOGI("size: %d\n", size);
+			complete_size += size;
 			break;
 		}
 
 		//LOGI("retry\n");
+		lost_size += size;
 		rtos_delay_milliseconds(ms_time);
 
 	}
@@ -168,7 +176,8 @@ static void dvp_frame_handle(frame_buffer_t *buffer)
 		wifi_tranfer_data->eof = 1;
 		wifi_tranfer_data->cnt = count + 1;
 
-		dma_memcpy(wifi_tranfer_data->data, buffer->frame + (MAX_COPY_SIZE * i), tail);
+		/* fix for psram 4bytes alignment */
+		dma_memcpy(wifi_tranfer_data->data, buffer->frame + (MAX_COPY_SIZE * i), (tail % 4) ? ((tail / 4 + 1) * 4) : tail);
 
 		ret = dvp_frame_send((uint8_t *)wifi_tranfer_data, tail + sizeof(transfer_data_t), MAX_RETRY, RETRANSMITS_TIME);
 
@@ -192,12 +201,29 @@ static void dvp_frame_handle(frame_buffer_t *buffer)
 }
 
 
+void transfer_dump(uint32_t ms)
+{
+	uint32_t lost = lost_size, complete = complete_size, speed;
+	lost_size = 0;
+	complete_size = 0;
+
+	if (transfer_info.state == TRS_STATE_DISABLED)
+	{
+		return;
+	}
+
+	lost = lost / 1024 / (ms / 1000);
+	complete = complete / 1024;
+	speed = (complete * 8) / 1024;
+
+	LOGI("Lost: %uKB/s, Complete: %uKB/s, Speed: %uMb/s\n", lost, complete, speed);
+}
+
+
 static void trs_task_entry(beken_thread_arg_t data)
 {
 	bk_err_t ret = BK_OK;
 	trs_task_msg_t msg;
-
-	//storage_open();
 
 	while (1)
 	{
@@ -232,7 +258,6 @@ exit:
 	}
 
 	frame_id = 0;
-
 
 	rtos_deinit_queue(&trs_task_queue);
 	trs_task_queue = NULL;
@@ -350,7 +375,7 @@ void wifi_frame_complete_callback(frame_buffer_t *buffer)
 
 void video_transfer_open_handle(param_pak_t *param)
 {
-	video_setup_t *setup_cfg = (video_setup_t*)param->param;
+	video_setup_t *setup_cfg = (video_setup_t *)param->param;
 
 	LOGI("%s ++\n", __func__);
 
@@ -385,25 +410,26 @@ void wifi_transfer_event_handle(uint32_t event, uint32_t param)
 	switch (event)
 	{
 		case EVENT_TRS_VIDEO_TRANSFER_OPEN_IND:
-			video_transfer_open_handle((param_pak_t*)param);
+			video_transfer_open_handle((param_pak_t *)param);
 			break;
 		case EVENT_TRS_VIDEO_TRANSFER_CLOSE_IND:
-			video_transfer_close_handle((param_pak_t*)param);
+			video_transfer_close_handle((param_pak_t *)param);
 			break;
 	}
 }
 
 trs_state_t get_trs_video_transfer_state(void)
 {
-	return trs_info.state;
+	return transfer_info.state;
 }
 
 void set_trs_video_transfer_state(trs_state_t state)
 {
-	trs_info.state = state;
+	transfer_info.state = state;
 }
 
 void trs_video_transfer_init(void)
 {
-	trs_info.state = TRS_STATE_DISABLED;
+	transfer_info.state = TRS_STATE_DISABLED;
+	transfer_info.debug = false;
 }

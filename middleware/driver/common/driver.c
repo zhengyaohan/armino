@@ -15,7 +15,6 @@
 #include <common/bk_include.h>
 #include "dd_pub.h"
 #include "bk_drv_model.h"
-#include "bk_pm_model.h"
 #include "bk_sys_ctrl.h"
 #include "sys_driver.h"
 #include <driver/int.h>
@@ -268,19 +267,10 @@ int driver_init(void)
 
 #if CONFIG_FLASH
 	bk_flash_driver_init();
+#if CONFIG_FLASH_ORIGIN_API
 	extern int hal_flash_init();
 	hal_flash_init();
 #endif
-
-#if CONFIG_POWER_CLOCK_RF
-	extern void rf_ps_pm_init(void);
-	rf_ps_pm_init();
-#else
-	#if CONFIG_SLAVE_CORE
-
-	#else
-	dev_pm_init();
-	#endif
 #endif
 
 #if CONFIG_SECURITY

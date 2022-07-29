@@ -2,11 +2,18 @@
 
 //legacy
 ble_err_t bk_ble_init(void);
+ble_err_t bk_ble_init_ext(void *func);//ble_notice_cb_t func
 ble_err_t bk_ble_deinit(void);
 uint8_t bk_ble_find_actv_state_idx_handle(uint8_t state);
 uint8_t bk_ble_find_master_state_idx_handle(uint8_t state);
 
 //ethermind
+ble_err_t bk_ble_set_tasks_stack_size(uint16_t size, uint8_t index);
+uint16_t bk_ble_get_task_stack_size(uint8_t index);
+ble_err_t bk_ble_get_tasks_name(char *name[], uint8_t max_name_len, uint8_t *count);
+const char * bk_ble_get_task_name(uint8_t index);
+uint8_t bk_ble_get_task_count(void);
+
 ble_err_t bk_ble_create_connection(ble_conn_param_normal_t *conn_param, ble_cmd_cb_t callback);
 ble_err_t bk_ble_create_connection_ex(ble_conn_param_ex_t *conn_param, ble_cmd_cb_t callback);
 
@@ -133,9 +140,31 @@ ble_err_t bk_ble_gatt_db_add_characteristic_descriptor
                /* IN */  ATT_VALUE         * desc_value
            );
 
+ble_err_t bk_ble_hci_read_phy(
+                bd_addr_t *peer_addr,
+                uint8_t peer_addr_type,
+                ble_cmd_cb_t callback);
+
+ble_err_t bk_ble_hci_set_phy(
+                bd_addr_t *peer_addr,
+                uint8_t peer_addr_type,
+                ble_set_phy_t *le_set_phy,
+                ble_cmd_cb_t callback);
+ble_err_t bk_ble_set_local_name(     uint8_t *name, uint8_t name_len,  ble_cmd_cb_t callback);
+ble_err_t bk_ble_get_local_name(     ble_cmd_cb_t callback);
+ble_err_t bk_ble_read_local_addr(ble_cmd_cb_t callback);
+
 ble_err_t bk_ble_gatt_db_dyn_register(void);
 
 ble_err_t bk_ble_gatt_db_init_pl(GATT_DB_PL_EXT_HANDLER_CB hndlr_cb);
 void bk_ble_bt_gatt_db_get_char_val_hndl(GATT_DB_HANDLE *gdbh, ATT_ATTR_HANDLE *attr_handle);
 ble_err_t bk_ble_disconnect_connection(bd_addr_t *addr, uint8_t addr_type, ble_cmd_cb_t callback);
 ble_err_t bk_ble_cancel_connect(ble_cmd_cb_t callback);
+ble_err_t bk_ble_update_connection_params(ble_update_conn_param_t *conn_param, ble_cmd_cb_t callback);
+ble_err_t bk_ble_set_gatt_mtu(ATT_HANDLE *att_handle, uint16_t mtu);
+ble_err_t bk_ble_gatt_read_resp(ATT_HANDLE    * att_handle, void *rsp_param);
+ble_err_t bk_ble_gatt_get_char_val(GATT_DB_HANDLE    * handle, ATT_VALUE        * attr_value);
+ble_err_t bk_ble_att_read(ATT_HANDLE * att_handle, ATT_ATTR_HANDLE hdl);
+
+
+

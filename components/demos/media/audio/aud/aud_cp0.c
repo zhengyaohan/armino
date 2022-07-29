@@ -311,13 +311,12 @@ void cli_aud_cp0_adc_to_sd_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, in
 
 void cli_aud_cp0_psram_init_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
-	uint32_t mode = 0x00054043;
 	bk_err_t ret = BK_OK;
 
 	if (os_strcmp(argv[1], "start") == 0) {
 		os_printf("cp0: init psram \n");
 
-		ret = bk_psram_init(mode);
+		ret = bk_psram_init();
 		if (ret != BK_OK) {
 			os_printf("psram init error\n");
 		}

@@ -120,12 +120,15 @@ void cli_ping_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **arg
 		os_printf("Please input: ping <host address>\n");
 		return;
 	}
-
+	if (argc == 2 && (os_strcmp("--stop", argv[1]) == 0)) {
+		ping_stop();
+		return;
+	}
 	if (argc > 2)
 		cnt = os_strtoul(argv[2], NULL, 10);
 
 	os_printf("ping IP address:%s\n", argv[1]);
-	ping(argv[1], cnt, 0);
+	ping_start(argv[1], cnt, 0);
 #endif
 }
 

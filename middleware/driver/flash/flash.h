@@ -27,6 +27,8 @@
 
 #define REG_FLASH_DATA_FLASH_SW              (FLASH_BASE + 2 * 4)
 
+#define REG_FLASH_SR_CMD                     (FLASH_BASE + 3 * 4)
+
 #define REG_FLASH_RDID_DATA_FLASH            (FLASH_BASE + 4 * 4)
 
 #define REG_FLASH_SR_DATA_CRC_CNT            (FLASH_BASE + 5 * 4)

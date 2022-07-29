@@ -205,8 +205,11 @@ void audio_adc_start(void)
 		return;
 	}
 
+#ifdef CONFIG_PSRAM
 	ret = audio_adc_dma_config(aud_adc_dma_id, (int32_t *)psram_map->aud_adc, AUD_8K_FRAME_SAMP_SIZE * 2, AUD_8K_FRAME_SAMP_SIZE);
-
+#else
+	ret = audio_adc_dma_config(aud_adc_dma_id, (int32_t *)NULL, AUD_8K_FRAME_SAMP_SIZE * 2, AUD_8K_FRAME_SAMP_SIZE);
+#endif
 	ret = bk_dma_start(aud_adc_dma_id);
 	if (ret != BK_OK)
 	{

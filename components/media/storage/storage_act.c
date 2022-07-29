@@ -115,7 +115,8 @@ static void storage_capture_save(frame_buffer_t *frame)
 	sprintf(file_name, "%d:/%d_%s", DISK_NUMBER_SDIO_SD, frame->id, capture_name);
 
 	FRESULT fr = f_open(&fp1, file_name, FA_CREATE_ALWAYS | FA_WRITE);
-	if (fr != FR_OK) {
+	if (fr != FR_OK)
+	{
 		LOGE("can not open file: %s, error: %d\n", file_name, fr);
 		goto error;
 	}
@@ -123,7 +124,8 @@ static void storage_capture_save(frame_buffer_t *frame)
 	LOGI("open file:%s!\n", file_name);
 
 	fr = f_write(&fp1, (char *)frame->frame, frame->length, &uiTemp);
-	if (fr != FR_OK) {
+	if (fr != FR_OK)
+	{
 		LOGE("f_write failed 1 fr = %d\r\n", fr);
 	}
 
@@ -131,7 +133,7 @@ static void storage_capture_save(frame_buffer_t *frame)
 
 	LOGI("%s, complete\n", __func__);
 
-	error:
+error:
 
 #endif
 
@@ -156,7 +158,7 @@ static void storage_task_entry(beken_thread_arg_t data)
 			switch (msg.type)
 			{
 				case STORAGE_TASK_DATA:
-					storage_capture_save((frame_buffer_t*)msg.data);
+					storage_capture_save((frame_buffer_t *)msg.data);
 					break;
 
 				case STORAGE_TASK_EXIT:
@@ -236,13 +238,13 @@ void storage_open_handle(void)
 
 void storage_capture_frame_callback(frame_buffer_t *frame)
 {
-	storage_task_send_msg(STORAGE_TASK_DATA , (uint32_t)frame);
+	storage_task_send_msg(STORAGE_TASK_DATA, (uint32_t)frame);
 }
 
 
 void storage_capture_handle(param_pak_t *param)
 {
-	LOGI("%s, %s\n", __func__, (char*)param->param);
+	LOGI("%s, %s\n", __func__, (char *)param->param);
 
 	if (storage_info.capture_state == STORAGE_STATE_ENABLED)
 	{
@@ -252,10 +254,10 @@ void storage_capture_handle(param_pak_t *param)
 
 	if (capture_name == NULL)
 	{
-		capture_name = (char*)os_malloc(32);
+		capture_name = (char *)os_malloc(32);
 	}
 
-	os_memcpy(capture_name, (char*)param->param, 31);
+	os_memcpy(capture_name, (char *)param->param, 31);
 	capture_name[31] = 0;
 
 	frame_buffer_frame_register(MODULE_CAPTURE, storage_capture_frame_callback);
@@ -275,7 +277,7 @@ void storage_event_handle(uint32_t event, uint32_t param)
 			break;
 
 		case EVENT_STORAGE_CAPTURE_IND:
-			storage_capture_handle((param_pak_t*)param);
+			storage_capture_handle((param_pak_t *)param);
 			break;
 	}
 }

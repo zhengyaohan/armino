@@ -24,12 +24,15 @@
 #define TAG "mcli"
 
 #define LOGI(...) BK_LOGI(TAG, ##__VA_ARGS__)
+#define LOGE(...) BK_LOGE(TAG, ##__VA_ARGS__)
 
-
+#define UNKNOW_ERROR (-686)
 
 void media_cli_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
-	LOGI("%\n", __func__);
+	int ret = UNKNOW_ERROR;
+
+	LOGI("%s\n", __func__);
 
 	if (argc > 0)
 	{
@@ -38,12 +41,26 @@ void media_cli_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 #if (defined(CONFIG_CAMERA) && !defined(CONFIG_SLAVE_CORE))
 			if (os_strcmp(argv[2], "open") == 0)
 			{
-				media_app_camera_open(APP_CAMERA_DVP);
+				if (os_strcmp(argv[3], "yuv") == 0)
+				{
+					ret = media_app_camera_open(APP_CAMERA_YUV);
+				}
+				else
+				{
+					ret = media_app_camera_open(APP_CAMERA_DVP);
+				}
 			}
 
 			if (os_strcmp(argv[2], "close") == 0)
 			{
-				media_app_camera_close(APP_CAMERA_DVP);
+				if (os_strcmp(argv[3], "yuv") == 0)
+				{
+					ret = media_app_camera_close(APP_CAMERA_YUV);
+				}
+				else
+				{
+					ret = media_app_camera_close(APP_CAMERA_DVP);
+				}
 			}
 #endif
 		}
@@ -51,12 +68,12 @@ void media_cli_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 #ifdef CONFIG_AUDIO
 		if (os_strcmp(argv[1], "adc") == 0)
 		{
-			adc_open();
+			ret = adc_open();
 		}
 
 		if (os_strcmp(argv[1], "dac") == 0)
 		{
-			dac_open();
+			ret = dac_open();
 		}
 #endif
 
@@ -67,11 +84,11 @@ void media_cli_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 
 			if (argc >= 3)
 			{
-				media_app_capture(argv[2]);
+				ret = media_app_capture(argv[2]);
 			}
 			else
 			{
-				media_app_capture("unknow.jpg");
+				ret = media_app_capture("unknow.jpg");
 			}
 #endif
 		}
@@ -79,23 +96,75 @@ void media_cli_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 		if (os_strcmp(argv[1], "lcd") == 0)
 		{
 #if defined(CONFIG_LCD) && !defined(CONFIG_SLAVE_CORE)
+			media_ppi_t ppi = PPI_480X272;
+
+			if (os_strcmp(argv[3], "480X272") == 0)
+			{
+				ppi = PPI_480X272;
+			}
+
+			if (os_strcmp(argv[3], "1024X600") == 0)
+			{
+				ppi = PPI_1024X600;
+			}
+
 			if (os_strcmp(argv[2], "open") == 0)
 			{
-				media_app_lcd_open();
+				ret = media_app_lcd_open(ppi);
 			}
 
 			if (os_strcmp(argv[2], "close") == 0)
 			{
-				media_app_lcd_close();
+				ret = media_app_lcd_close();
+			}
+#endif
+		}
+		if (os_strcmp(argv[1], "uvc") == 0)
+		{
+#if defined(CONFIG_USB_UVC) && !defined(CONFIG_SLAVE_CORE)
+			if (os_strcmp(argv[2], "open") == 0)
+			{
+				ret = media_app_camera_open(APP_CAMERA_UVC);
+			}
+
+			if (os_strcmp(argv[2], "start") == 0)
+			{
+				ret = media_app_uvc_start();
+			}
+
+			if (os_strcmp(argv[2], "stop") == 0)
+			{
+				ret = media_app_uvc_stop();
+			}
+
+			if (os_strcmp(argv[2], "param") == 0)
+			{
+				if (argc != 6)
+				{
+					LOGI("param number error\r\n");
+					return;
+				}
+
+				uvc_camera_device_t config;
+
+				config.width = os_strtoul(argv[3], NULL, 10);
+				config.height = os_strtoul(argv[4], NULL, 10);
+				config.fps = os_strtoul(argv[5], NULL, 10);
+				media_app_uvc_param_set(&config);
+			}
+
+			if (os_strcmp(argv[2], "close") == 0)
+			{
+				ret = media_app_camera_close(APP_CAMERA_UVC);
 			}
 #endif
 		}
 	}
 
-
-
-
-
+	if (ret == UNKNOW_ERROR)
+	{
+		LOGE("%s unknow cmd\n", __func__);
+	}
 }
 
 

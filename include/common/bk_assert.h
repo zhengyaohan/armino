@@ -15,6 +15,7 @@
 #pragma once
 
 #include <components/log.h>
+#include <components/system.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,7 +38,7 @@ extern void trap_entry(void);
 #else // #if CONFIG_SHELL_ASYNCLOG
 
 #define BK_DUMP_OUT                         os_printf
-#define BK_DUMP_RAW_OUT(buf, len)           uart_write_string(CONFIG_UART_PRINT_PORT, buf)
+#define BK_DUMP_RAW_OUT(buf, len)           uart_write_string(bk_get_printf_port(), buf)
 
 #endif // #if CONFIG_SHELL_ASYNCLOG
 

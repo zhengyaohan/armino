@@ -37,6 +37,7 @@
 #include <driver/dvp_camera.h>
 #include <driver/dvp_camera_types.h>
 
+#include <driver/timer.h>
 
 #define TAG "dvp_act"
 
@@ -45,10 +46,25 @@
 #define LOGE(...) BK_LOGE(TAG, ##__VA_ARGS__)
 #define LOGD(...) BK_LOGD(TAG, ##__VA_ARGS__)
 
+#define DEBUG_INTERVAL (1000 * 2)
+
+extern void transfer_dump(uint32_t ms);
+#if CONFIG_LCD
+extern uint32_t media_jpg_isr_count;
+extern uint32_t media_decoder_isr_count;
+extern uint32_t media_rgb_isr_count;
+#endif
+
 
 dvp_info_t dvp_info;
 
-
+static void dvp_debug_dump(timer_id_t timer_id)
+{
+	transfer_dump(DEBUG_INTERVAL);
+#if CONFIG_LCD
+	LOGI("ISR, jpg: %d, decoder: %d, rgb: %d\n", media_jpg_isr_count, media_decoder_isr_count, media_rgb_isr_count);
+#endif
+}
 
 void dvp_open_handle(param_pak_t *param)
 {
@@ -65,7 +81,7 @@ void dvp_open_handle(param_pak_t *param)
 
 	frame_buffer_enable(true);
 
-	ret = bk_dvp_camera_open();
+	ret = bk_dvp_camera_open(param->param);
 
 
 	if (ret != kNoErr)
@@ -75,6 +91,11 @@ void dvp_open_handle(param_pak_t *param)
 	}
 
 	set_dvp_camera_state(DVP_STATE_ENABLED);
+
+	if (dvp_info.debug)
+	{
+		bk_timer_start(TIMER_ID1, DEBUG_INTERVAL, dvp_debug_dump);
+	}
 
 out:
 	MEDIA_EVT_RETURN(param, ret);
@@ -97,6 +118,12 @@ void dvp_close_handle(param_pak_t *param)
 
 	set_dvp_camera_state(DVP_STATE_DISABLED);
 
+	if (dvp_info.debug)
+	{
+		bk_timer_stop(TIMER_ID3);
+	}
+
+
 	frame_buffer_enable(false);
 
 out:
@@ -108,10 +135,10 @@ void dvp_camera_event_handle(uint32_t event, uint32_t param)
 	switch (event)
 	{
 		case EVENT_DVP_OPEN_IND:
-			dvp_open_handle((param_pak_t*)param);
+			dvp_open_handle((param_pak_t *)param);
 			break;
 		case EVENT_DVP_CLOSE_IND:
-			dvp_close_handle((param_pak_t*)param);
+			dvp_close_handle((param_pak_t *)param);
 			break;
 	}
 }
@@ -129,4 +156,6 @@ void set_dvp_camera_state(dvp_state_t state)
 void dvp_camera_init(void)
 {
 	dvp_info.state = DVP_STATE_DISABLED;
+	dvp_info.debug = true;
 }
+

@@ -98,6 +98,26 @@ void sdio_gpio_config(void)
 #endif
 }
 
+#if CONFIG_SOC_BK7256XX
+//1:clock always on, 0:auto gate
+void sdio_clk_gate_config(uint8_t enable)
+{
+	uint32_t reg = REG_READ(REG_SDCARD_FIFO_THRESHOLD);
+
+	//os_printf("%s:reg=0x%x, en=%d\r\n", __func__, reg, enable);
+	if(enable)
+		reg |= (1<<SDIO_REG0XD_CLK_GATE_ON_POS);
+	else
+		reg &= ~(1<<SDIO_REG0XD_CLK_GATE_ON_POS);
+
+	//reset the fifo realte status
+	if(!enable)	//auto gate
+		reg &= ~(SDCARD_FIFO_RX_FIFO_RST | SDCARD_FIFO_TX_FIFO_RST | SDCARD_FIFO_SD_STA_RST);
+
+	REG_WRITE(REG_SDCARD_FIFO_THRESHOLD, reg);
+}
+#endif
+
 void sdio_clk_config(UINT8 enable)
 {
 	sys_drv_dev_clk_pwr_up(CLK_PWR_ID_SDIO, enable);
@@ -162,6 +182,11 @@ void sdio_register_reset(void)
 		  | ((SDCARD_TX_FIFO_THRD & SDCARD_FIFO_TX_FIFO_THRESHOLD_MASK)
 			 << SDCARD_FIFO_TX_FIFO_THRESHOLD_POSI);
 	REG_WRITE(REG_SDCARD_FIFO_THRESHOLD, reg);
+
+#if (CONFIG_SOC_BK7256XX)
+	reg = REG_READ(REG_SDCARD_FIFO_THRESHOLD);
+	REG_WRITE(REG_SDCARD_FIFO_THRESHOLD, reg | (1<<SDIO_REG0XD_CLK_REC_SEL_POS));
+#endif
 }
 
 #if 0
@@ -209,6 +234,9 @@ void sdio_sendcmd_function(UINT8 cmd_index, UINT32 flag,
 SDIO_Error sdio_wait_cmd_response(UINT32 cmd)
 {
 	UINT32 reg;
+#if (CONFIG_SOC_BK7256XX)
+	uint32_t i_timeout = 0x1000000;
+#endif
 
 	while (1) {
 		reg = REG_READ(REG_SDCARD_CMD_RSP_INT_SEL);
@@ -217,6 +245,15 @@ SDIO_Error sdio_wait_cmd_response(UINT32 cmd)
 				   | SDCARD_CMDRSP_RSP_END_INT
 				   | SDCARD_CMDRSP_TIMEOUT_INT))
 			break;
+
+#if (CONFIG_SOC_BK7256XX)
+		i_timeout--;
+		if(i_timeout == 0)
+		{
+			SDCARD_WARN("%s:cmd%d fatal err:no resp/end/timeout int\r\n", __func__, cmd);
+			return SD_CMD_RSP_TIMEOUT;
+		}
+#endif
 	}
 
 	REG_WRITE(REG_SDCARD_CMD_RSP_INT_SEL, SD_CMD_RSP);//clear the int flag
@@ -369,9 +406,13 @@ SDIO_Error sdcard_write_data(UINT8 *writebuff, UINT32 block)
 		  ;
 	REG_WRITE(REG_SDCARD_DATA_REC_CTRL, reg);
 
+#if CONFIG_SOC_BK7256XX
+
+#else
 	do {
 		reg = REG_READ(REG_SDCARD_CMD_RSP_INT_SEL);
 	} while (!(reg & SDCARD_CMDRSP_TX_FIFO_NEED_WRITE));
+#endif
 
 	// 2. write other blocks
 	while (--block) {
@@ -390,9 +431,13 @@ SDIO_Error sdcard_write_data(UINT8 *writebuff, UINT32 block)
 		} while (!(reg & SDCARD_CMDRSP_DATA_WR_END_INT));
 		REG_WRITE(REG_SDCARD_CMD_RSP_INT_SEL, SDCARD_CMDRSP_DATA_WR_END_INT);
 
+#if CONFIG_SOC_BK7256XX
+
+#else
 		do {
 			reg = REG_READ(REG_SDCARD_CMD_RSP_INT_SEL);
 		} while (!(reg & SDCARD_CMDRSP_TX_FIFO_NEED_WRITE));
+#endif
 
 		if (2 != ((reg & SDCARD_CMDRSP_WR_STATU) >> 20))
 			return SD_ERROR;

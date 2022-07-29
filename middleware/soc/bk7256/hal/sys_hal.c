@@ -145,12 +145,20 @@ __attribute__((section(".itcm_sec_code"))) void sys_hal_enter_deep_sleep(void * 
     clock_value = sys_ll_get_ana_reg6_value();
 	clock_value |= (1 << SYS_ANA_REG6_EN_SLEEP_POS);
 	clock_value &= ~((1 << SYS_ANA_REG6_EN_DPLL_POS)|(1 << SYS_ANA_REG6_EN_AUDPLL_POS)|(1 << SYS_ANA_REG6_EN_PSRAM_LDO_POS)|(1 << SYS_ANA_REG6_EN_DCO_POS)|(1 << SYS_ANA_REG6_EN_USB_POS));
-    sys_ll_set_ana_reg6_value(clock_value);
+
+	clock_value &= ~((1 << SYS_ANA_REG6_EN_SYSLDO_POS)|(1 << SYS_ANA_REG6_PWD_GADC_BUF_POS));//0:vddaon drop enable
+
+	sys_ll_set_ana_reg6_value(clock_value);
 
 	clock_value = 0;
-    clock_value = sys_ll_get_ana_reg5_value();
+	clock_value = sys_ll_get_ana_reg5_value();
 	clock_value &= ~(1 << SYS_ANA_REG5_ENCB_POS);//global central bias enable
-    sys_ll_set_ana_reg5_value(clock_value);
+	sys_ll_set_ana_reg5_value(clock_value);
+
+	clock_value = 0;
+	clock_value = sys_ll_get_ana_reg9_value();
+	clock_value &= ~(1 << 5);
+	sys_ll_set_ana_reg9_value(clock_value);
 
 	clock_value = 0;
     sys_ll_set_ana_reg19_value(clock_value);
@@ -200,10 +208,10 @@ void sys_hal_exit_low_voltage()
     sys_ll_set_ana_reg6_value(clock_value);
 
 }
-//uint32_t  g_previous_tick = 0;
-//uint32_t  g_wifi_previous_tick = 0;
+
 #define BIT_AON_PMU_WAKEUP_ENA                   (0x1F0U)
 #define PM_HARDEARE_DELAY_TIME_FROM_LOWVOL_WAKE  (0x4)
+#define PM_EXIT_WFI_FROM_LOWVOL_WAIT_COUNT       (100)// about 4us(using 26m clock)
 //specify:low voltage process can't be interrupt or the system can't response external interrupt after wakeup.
 #if 1
 #define MTIMER_LOW_VOLTAGE_MINIMUM_TICK (10400)	//26M, 400 us
@@ -230,9 +238,15 @@ __attribute__((section(".itcm_sec_code"))) void sys_hal_enter_low_voltage(void)
 	uint32_t  h_vol = 0;
 	int       ret = 0;
 	uint32_t  analog_clk = 0;
+	uint32_t  center_bias = 0;
+	uint32_t  en_bias_5u = 0;
+	uint32_t  count = 0;
+
 #if CONFIG_LOW_VOLTAGE_DEBUG
 	uint64_t start_tick = riscv_get_mtimer();
 #endif
+
+	clear_csr(NDS_MIE, MIP_MTIP);
 
 	int_state1 = sys_ll_get_cpu0_int_0_31_en_value();
 	int_state2 = sys_ll_get_cpu0_int_32_63_en_value();
@@ -264,7 +278,7 @@ __attribute__((section(".itcm_sec_code"))) void sys_hal_enter_low_voltage(void)
 	//before WFI
 	mtimer_reset_next_tick(MTIMER_LOW_VOLTAGE_MINIMUM_TICK);
 
-      /*mask all interner interrupt*/
+    /*mask all external interrupt*/
 	sys_ll_set_cpu0_int_halt_clk_op_cpu0_int_mask(1);
 
 	//gpio_disable_output();
@@ -292,15 +306,31 @@ __attribute__((section(".itcm_sec_code"))) void sys_hal_enter_low_voltage(void)
 	clock_value = 0;
 	clock_value = sys_ll_get_ana_reg6_value();
 	analog_clk  = clock_value;
-	/*temp close analog clk solution, we will record the opened clk,then it will close them ,when wakeup will open them*/
+
 	clock_value |= (1 << SYS_ANA_REG6_EN_SLEEP_POS);//enable xtal26m sleep
 	//clock_value &= ~((1 << SYS_ANA_REG6_XTAL_LPMODE_CTRL_POS)|(1 << SYS_ANA_REG6_EN_DPLL_POS)|(1 << SYS_ANA_REG6_EN_AUDPLL_POS)|(1 << SYS_ANA_REG6_EN_PSRAM_LDO_POS)|(1 << SYS_ANA_REG6_EN_DCO_POS)|(1 << SYS_ANA_REG6_EN_XTALL_POS)|(1 << SYS_ANA_REG6_EN_USB_POS));
 	clock_value &= ~((1 << SYS_ANA_REG6_EN_DPLL_POS)|(1 << SYS_ANA_REG6_EN_USB_POS)|(1 << SYS_ANA_REG6_EN_AUDPLL_POS)|(1 << SYS_ANA_REG6_EN_PSRAM_LDO_POS)|(1 << SYS_ANA_REG6_EN_DCO_POS));
+
+	clock_value &= ~((1 << SYS_ANA_REG6_PWD_GADC_BUF_POS)|(1 << SYS_ANA_REG6_EN_TEMPDET_POS));
+
 	sys_ll_set_ana_reg6_value(clock_value);
 
 
+	clock_value = 0;
+	clock_value = sys_ll_get_ana_reg5_value();
+	center_bias = clock_value;
+	clock_value &= ~(1 << SYS_ANA_REG5_ENCB_POS);//global central bias enable
+	sys_ll_set_ana_reg5_value(clock_value);
+
+	clock_value = 0;
+	clock_value = sys_ll_get_ana_reg9_value();
+	en_bias_5u  = clock_value;
+	clock_value &= ~(1 << 5);
+	sys_ll_set_ana_reg9_value(clock_value);
+
+
 	/*4.set sleep parameters*/
-	ret = aon_pmu_hal_set_sleep_parameters(0x1);//a)close isolat temp for bt/wifi wakeup in low voltage;b)let 1.5ms time for xtal 26m stability
+	ret = aon_pmu_hal_set_sleep_parameters(0x1);
 	if(ret== -1)
 	{
 		return;
@@ -322,7 +352,6 @@ __attribute__((section(".itcm_sec_code"))) void sys_hal_enter_low_voltage(void)
 	sys_ll_set_cpu0_int_32_63_en_cpu0_rtc_int_en(0x1);
 	sys_ll_set_cpu0_int_32_63_en_cpu0_touched_int_en(0x1);
 	sys_ll_set_cpu0_int_32_63_en_cpu0_dm_irq_en(0x1);
-	set_csr(NDS_MIE, MIP_MTIP);
 
 //just debug:maybe some guys changed the CPU clock or Flash clock caused the time of
 //MTIMER_LOW_VOLTAGE_MINIMUM_TICK isn't enough.
@@ -332,21 +361,22 @@ __attribute__((section(".itcm_sec_code"))) void sys_hal_enter_low_voltage(void)
 		g_low_voltage_tick = riscv_get_mtimer() - start_tick;
 #endif
 
-	/*6.mask all interner interrupt*/
-	//sys_ll_set_cpu0_int_halt_clk_op_cpu0_int_mask(1);
-	//__asm volatile( "wfi" );
-       /*get interrupt */
-	while(1)
-	{
-		/*6.WFI*/
-		__asm volatile( "wfi" );
-		extern u32 arch_get_int_status(void);
+	/*6.WFI*/
+	__asm volatile( "wfi" );
+	__asm volatile( "nop" );
+	__asm volatile( "nop" );
+	__asm volatile( "nop" );
+	__asm volatile( "nop" );
+	__asm volatile( "nop" );
+	__asm volatile( "nop" );
+	__asm volatile( "nop" );
+	__asm volatile( "nop" );
+	__asm volatile( "nop" );
+	__asm volatile( "nop" );
+	__asm volatile( "nop" );
+	__asm volatile( "nop" );
+	for(count = PM_EXIT_WFI_FROM_LOWVOL_WAIT_COUNT; count > 0; count--);//for protect stability when exit wfi or halt cpu
 
-		if(arch_get_int_status() != 0)
-		{
-			break;
-		}
-	}
 	s_pm_wakeup_from_lowvol_consume_time = 0;
 	s_pm_wakeup_from_lowvol_consume_time = bk_aon_rtc_get_current_tick(AON_RTC_ID_1);
 	sys_ll_set_ana_reg2_spi_latchb(0x1);
@@ -380,12 +410,19 @@ __attribute__((section(".itcm_sec_code"))) void sys_hal_enter_low_voltage(void)
 	clock_value &= ~(1 << SYS_ANA_REG6_EN_SLEEP_POS);//disable xtal26m sleep
 	sys_ll_set_ana_reg6_value(clock_value);
 
-	//os_printf("low voltage wake up 123456\r\n");
-	/*add delay for xtal 26m, analog suggest 800us,we add protect time to 1ms*/
+	clock_value = 0;
+	clock_value = sys_ll_get_ana_reg5_value();
+	clock_value |= center_bias;
+	sys_ll_set_ana_reg5_value(clock_value);
+
+	clock_value = 0;
+	clock_value = sys_ll_get_ana_reg9_value();
+	clock_value |= en_bias_5u;
+	sys_ll_set_ana_reg9_value(clock_value);
+
 
 	previous_tick = bk_aon_rtc_get_current_tick(AON_RTC_ID_1);
-	//g_previous_tick = previous_tick;
-	//g_wifi_previous_tick = previous_tick;
+
 	current_tick = previous_tick;
 	while(((uint32_t)(current_tick - previous_tick)) < (uint32_t)(LOW_POWER_DPLL_STABILITY_DELAY_TIME*RTC_TICKS_PER_1MS))/*32*1*/
 	{
@@ -415,7 +452,9 @@ __attribute__((section(".itcm_sec_code"))) void sys_hal_enter_low_voltage(void)
 
 	sys_ll_set_cpu0_int_0_31_en_value(int_state1);
 	sys_ll_set_cpu0_int_32_63_en_value(int_state2);
-	//set_csr(NDS_MIE, MIP_MTIP);
+
+	set_csr(NDS_MIE, MIP_MTIP);
+
 	//gpio_restore();
 
 }
@@ -566,7 +605,7 @@ void sys_hal_module_RF_power_ctrl (module_name_t module,power_module_state_t pow
 	value = sys_ll_get_ana_reg6_value();
     if(power_state == POWER_MODULE_STATE_ON)//power on
     {
-		value |= ((1 << SYS_ANA_REG6_EN_SYSLDO_POS)|(1 << SYS_ANA_REG6_EN_DPLL_POS)|(1 << SYS_ANA_REG6_EN_TEMPDET_POS)|(1 << SYS_ANA_REG6_EN_DCO_POS));//en_sysldo,en_dpll
+		value |= ((1 << SYS_ANA_REG6_EN_SYSLDO_POS)|(1 << SYS_ANA_REG6_EN_DPLL_POS)|(1 << SYS_ANA_REG6_EN_DCO_POS));//en_sysldo,en_dpll
 		//value &= ~(1 << SYS_ANA_REG6_XTAL_LPMODE_CTRL_POS);//when using the xtal as the 32k,it need close the xtal low power mode
 		//value |= (1 << 11);//en_audpll //temp close,we will open when be neeeded
 		//value |= (1 << 8);//en_dco     //now no module using,temp close,we will open when be neeeded
@@ -701,9 +740,11 @@ void sys_hal_low_power_hardware_init()
 	uint32_t param = 0;
 	uint32_t  pmu_state = 0;
 
-	param = aon_pmu_hal_reg_get(PMU_REG0);
-	param = 0x1; //memcheck bypass
-	aon_pmu_hal_reg_set(PMU_REG0,param);
+	param = 0x4;
+	sys_ll_set_ana_reg2_spi_latchb(0x1);
+	sys_ll_set_ana_reg3_vhsel_ldodig(param);
+
+	sys_ll_set_ana_reg0_band(0x13);//open the dpll 320m
 
 	param = 0;
 	param = sys_ll_get_ana_reg5_value();
@@ -725,11 +766,6 @@ void sys_hal_low_power_hardware_init()
 	pmu_state |= BIT_AON_PMU_WAKEUP_ENA;
 	aon_pmu_hal_reg_set(PMU_REG0x41,pmu_state);
 
-	/*clear sleep flag*/
-	pmu_state = 0;
-	pmu_state =  aon_pmu_hal_reg_get(PMU_REG2);
-	pmu_state |= ~(BIT(BIT_SLEEP_FLAG_DEEP_SLEEP));
-	aon_pmu_hal_reg_set(PMU_REG2,pmu_state);
 }
 int32 sys_hal_lp_vol_set(uint32_t value)
 {
@@ -742,7 +778,6 @@ uint32_t sys_hal_lp_vol_get()
 	sys_ll_set_ana_reg2_spi_latchb(0x1);
 	return sys_ll_get_ana_reg3_vlsel_ldodig();
 }
-
 /*for low power function end*/
 /*sleep feature end*/
 
@@ -1069,7 +1104,6 @@ void sys_hal_spi_select_clock(spi_id_t num, spi_src_clk_t mode)
 			break;
 	}
 }
-
 #if 1	//tmp build
 void sys_hal_set_clk_select(dev_clk_select_id_t dev, dev_clk_select_t clk_sel)
 {
@@ -1730,7 +1764,10 @@ void sys_hal_set_dpll_reset(uint32_t value)
 
 void sys_hal_set_gadc_ten(uint32_t value)
 {
-    sys_ll_set_ana_reg7_gadc_ten(value);
+#ifndef CONFIG_BK7256XX_MP
+		sys_ll_set_ana_reg7_gadc_ten(value);
+#endif
+
 }
 /**  WIFI End **/
 
@@ -1769,6 +1806,11 @@ void sys_hal_aud_mic2_en(uint32_t value)
 void sys_hal_aud_audpll_en(uint32_t value)
 {
 	sys_ll_set_ana_reg6_en_audpll(value);
+}
+
+void sys_hal_aud_aud_en(uint32_t value)
+{
+	sys_ll_set_ana_reg6_en_aud(value);
 }
 
 void sys_hal_aud_dacdrv_en(uint32_t value)
@@ -1980,32 +2022,77 @@ void sys_hal_video_power_en(uint32_t value)
 	sys_ll_set_cpu_power_sleep_wakeup_pwd_vidp(value);
 }
 
+void sys_hal_set_auxs_clk_sel(uint32_t value)
+{
+	sys_ll_set_cpu_clk_div_mode2_cksel_auxs(value);
+}
+
+void sys_hal_set_auxs_clk_div(uint32_t value)
+{
+	sys_ll_set_cpu_clk_div_mode2_ckdiv_auxs(value);
+}
+
 /** jpeg end **/
 
 /**  psram Start **/
-void sys_hal_psram_volstage_sel(uint32_t value)
+void sys_hal_psram_volstage_sel(uint32_t enable)
 {
-	sys_ll_set_ana_reg6_psldo_vsel(value);
+	uint32_t value = sys_ll_get_ana_reg6_value();
+
+	if (enable)
+		value |= (0x1 << 5);
+	else
+		value &= ~(0x1 << 5);
+
+	sys_ll_set_ana_reg6_value(value);
 }
 
-void sys_hal_psram_xtall_osc_enable(uint32_t value)
+void sys_hal_psram_xtall_osc_enable(uint32_t enable)
 {
-	sys_ll_set_ana_reg6_en_xtall(value);
+	uint32_t value = sys_ll_get_ana_reg6_value();
+
+	if (enable)
+		value |= (0x1 << 7);
+	else
+		value &= ~(0x1 << 7);
+
+	sys_ll_set_ana_reg6_value(value);
 }
 
-void sys_hal_psram_doc_enable(uint32_t value)
+void sys_hal_psram_doc_enable(uint32_t enable)
 {
-	sys_ll_set_ana_reg6_en_dco(value);
+	uint32_t value = sys_ll_get_ana_reg6_value();
+
+	if (enable)
+		value |= (0x1 << 8);
+	else
+		value &= ~(0x1 << 8);
+
+	sys_ll_set_ana_reg6_value(value);
 }
 
-void sys_hal_psram_dpll_enable(uint32_t value)
+void sys_hal_psram_ldo_enable(uint32_t enable)
 {
-	sys_ll_set_ana_reg6_en_dpll(value);
+	uint32_t value = sys_ll_get_ana_reg6_value();
+
+	if (enable)
+		value |= (0x1 << 9);
+	else
+		value &= ~(0x1 << 9);
+
+	sys_ll_set_ana_reg6_value(value);
 }
 
-void sys_hal_psram_ldo_enable(uint32_t value)
+void sys_hal_psram_dpll_enable(uint32_t enable)
 {
-	sys_ll_set_ana_reg6_en_psram_ldo(value);
+	uint32_t value = sys_ll_get_ana_reg6_value();
+
+	if (enable)
+		value |= (0x1 << 12);
+	else
+		value &= ~(0x1 << 12);
+
+	sys_ll_set_ana_reg6_value(value);
 }
 
 void sys_hal_psram_clk_sel(uint32_t value)
@@ -2016,6 +2103,14 @@ void sys_hal_psram_clk_sel(uint32_t value)
 void sys_hal_psram_set_clkdiv(uint32_t value)
 {
 	sys_ll_set_cpu_clk_div_mode2_ckdiv_psram(value);
+}
+
+void sys_hal_psram_power_enable(void)
+{
+	uint32_t value = sys_ll_get_ana_reg6_value();
+	value |= (0x1 << 9);
+	//value &= ~(0x1 << 5);
+	sys_ll_set_ana_reg6_value(value);
 }
 
 /**  psram End **/
@@ -7894,4 +7989,11 @@ void sys_hal_set_ana_vctrl_sysldo(uint32_t value)
 {
     sys_ll_set_ana_reg5_vctrl_sysldo(value);
 }
+
+void sys_hal_set_ana_vtempsel(uint32_t value)
+{
+    sys_ll_set_ana_reg9_vtempsel(value);
+}
+
+
 

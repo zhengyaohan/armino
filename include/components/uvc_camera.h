@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include <components/uvc_camera_types.h>
+#include <driver/uvc_camera_types.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -87,7 +87,7 @@ bk_err_t bk_uvc_save_frame(uint8_t file_id);
  *    - kNoErr: succeed
  *    - others: other errors.
  */
-bk_err_t bk_uvc_get_ppi_fps(uvc_ppi_fps_t *param, uint16_t count);
+bk_err_t bk_uvc_get_ppi_fps(uvc_camera_device_t *param, uint16_t count);
 
 /**
  * @brief     set uvc ppi and fps

@@ -5,7 +5,7 @@ LCD RGB Display YUV
 
 1、功能概述
 --------------------------
-	lcd rgb displey yuv demo 实现了RGB屏幕实时显示dvp camera yuv 数据的功能。
+	lcd rgb display yuv demo 实现了RGB屏幕实时显示dvp camera yuv 数据的功能。
 
 2、代码路径
 --------------------------

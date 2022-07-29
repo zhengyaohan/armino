@@ -68,8 +68,14 @@ typedef enum
 	DOORBELL_PLUS,
 } doorbell_mode_t;
 
+typedef enum
+{
+	DVP = 0,
+	UVC,
+} camera_type_t;
 
 static doorbell_mode_t video_transfer_mode = CPU0;
+static camera_type_t video_camera_type = DVP;
 
 extern void delay(int num);
 
@@ -159,18 +165,6 @@ static void demo_doorbell_udp_handle_cmd_data(UINT8 *data, UINT16 len)
 	}
 
 	DBD("doorbell cmd: %08X, param: %d, len: %d\n", cmd, param, len);
-	switch(cmd) {
-	case LCD_DISPLAY_BLEND_OPEN:
-		bk_lcd_video_blending(1);
-		break;
-
-	case LCD_DISPLAY_BLEND_CLOSE:
-		bk_lcd_video_blending(0);;
-		break;
-
-	default:
-		break;
-	}
 
 #if AUDIO_TRANSFER_ENABLE
 	audio_transfer_cmd_handle(cmd, param);
@@ -252,7 +246,11 @@ static void demo_doorbell_udp_receiver(UINT8 *data, UINT32 len, struct sockaddr_
 			}
 			else if (video_transfer_mode == DOORBELL_PLUS)
 			{
-				media_app_camera_open(APP_CAMERA_DVP);
+				if (video_camera_type == DVP)
+					media_app_camera_open(APP_CAMERA_DVP);
+				else
+					media_app_camera_open(APP_CAMERA_UVC);
+
 				media_app_transfer_video_open(&setup);
 			}
 			else if (video_transfer_mode == CPU1_PLUS)
@@ -271,13 +269,16 @@ static void demo_doorbell_udp_receiver(UINT8 *data, UINT32 len, struct sockaddr_
 			else if (video_transfer_mode == CPU1)
 			{
 #if CONFIG_DUAL_CORE
-				bk_video_transfer_cpu0_deinit();
+				//bk_video_transfer_cpu0_deinit();
 #endif
 			}
 			else if (video_transfer_mode == DOORBELL_PLUS)
 			{
 				media_app_transfer_video_close();
-				media_app_camera_close(APP_CAMERA_DVP);
+				if (video_camera_type == DVP)
+					media_app_camera_close(APP_CAMERA_DVP);
+				else
+					media_app_camera_close(APP_CAMERA_UVC);
 			}
 			else if (video_transfer_mode == CPU1_PLUS)
 			{
@@ -584,6 +585,7 @@ void cli_doorbell_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, c
 	if (argc > 0)
 	{
 		uint8_t mode = os_strtoul(argv[1], NULL, 10);
+		uint8_t camera_type = os_strtoul(argv[2], NULL, 10);
 
 		if (mode == CPU0)
 		{
@@ -604,6 +606,15 @@ void cli_doorbell_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, c
 		else
 		{
 			video_transfer_mode = CPU0;
+		}
+
+		if (camera_type == DVP)
+		{
+			video_camera_type = DVP;
+		}
+		else
+		{
+			video_camera_type = UVC;
 		}
 	}
 

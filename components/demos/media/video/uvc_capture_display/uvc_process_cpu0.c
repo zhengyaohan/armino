@@ -217,8 +217,7 @@ void uvc_process_cpu0(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 	bk_err_t err;
 	if (os_strcmp(argv[1], "cpu0_init") == 0) {
 		// step1: init psram
-		uint32_t mode = 0x00054043;
-		err = bk_psram_init(mode);
+		err = bk_psram_init();
 		if (err != BK_OK) {
 			os_printf("psram init error\n");
 			return;

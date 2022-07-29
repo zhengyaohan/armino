@@ -13,20 +13,3 @@
 // limitations under the License.
 
 #pragma once
-
-#define JPEG_DEC_FRAME_SIZE (1280 * 720 * 2)
-#define JPEG_ENC_FRAME_SIZE (1024 * 250)
-#define JPEG_ENC_FRAME_COUNT (3)
-#define AUDIO_FRAME_SIZE (1024 * 20)
-
-#define PSRAM_NONCACHEABLE (0x60000000UL)
-#define PSRAM_CACHEABLE (0x64000000UL)
-
-typedef struct
-{
-	uint8_t jpeg_dec[JPEG_DEC_FRAME_SIZE];
-	uint8_t jpeg_enc[JPEG_ENC_FRAME_COUNT][JPEG_ENC_FRAME_SIZE];
-	uint8_t aud_adc[AUDIO_FRAME_SIZE];
-} psram_map_t;
-
-#define psram_map ((psram_map_t*)PSRAM_NONCACHEABLE)

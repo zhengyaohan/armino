@@ -198,6 +198,9 @@ bk_err_t bk_aud_driver_init(void)
 	//enable audpll en
 	sys_drv_aud_audpll_en(1);
 
+	//enable audio adc power
+	sys_drv_aud_aud_en(1);
+
 	// config analog register
 	sys_drv_analog_reg12_set(0x8610E0E0);
 	sys_drv_analog_reg13_set(0x0F808400);
@@ -257,6 +260,9 @@ bk_err_t bk_aud_driver_deinit(void)
 
 	//disable audpll en
 	sys_drv_aud_audpll_en(0);
+
+	//disable audio adc power
+	sys_drv_aud_aud_en(0);
 
 	//sys_drv_aud_clock_en(0);
 	bk_pm_clock_ctrl(PM_CLK_ID_AUDIO, CLK_PWR_CTRL_PWR_DOWN);

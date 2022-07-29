@@ -5,7 +5,7 @@ LCD RGB Display JPEG
 
 1、功能概述
 --------------------------
-	lcd rgb displey jpeg demo 实现了RGB屏幕实时显示dvp camera jpeg 数据的功能。
+	lcd rgb display jpeg demo 实现了RGB屏幕实时显示dvp camera jpeg 数据的功能。
 
 2、代码路径
 --------------------------
@@ -20,7 +20,7 @@ demo支持的命令如下表:
 +-------------------------------------------+------------------------+
 |Command                                    |Description             |
 +===========================================+========================+
-|cpu1 lcd_video=lcd_video_jpeg_dec,fps      |config clk div and pfs  |
+|cpu1 lcd_video_jpeg_dec=clk_div,fps        |config clk div and pfs  |
 +-------------------------------------------+------------------------+
 |cpu1 lcd_rgb_close=jpeg_display            | close lcd              |
 +-------------------------------------------+------------------------+

@@ -40,6 +40,7 @@ extern "C" {
  * @return none.
  */
 bk_err_t st7796s_init(void);
+void i8080_display_off(void);
 
 /**
  * @brief  set display mem area
@@ -47,8 +48,8 @@ bk_err_t st7796s_init(void);
  * @param  row
  * @return none
  */
+void st7796s_set_display_mem_area(uint16 xs, uint16 xe, uint16 ys, uint16 ye);
 
-void st7796s_set_display_mem_area(uint16 column, uint16 row);
 
 #endif
 

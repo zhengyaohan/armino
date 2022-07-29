@@ -40,12 +40,12 @@ bk_err_t dma2d_hal_init(dma2d_config_t *dma2d)
 
 	// 000:m2m; 001:m2m pixel convert with fg; 010:m2m blend; 011:r2m.only with output; 100: m2m blend fix fg; 101:m2m blend fix bg;
 	dma2d_ll_set_dma2d_control_reg_mode(s_dma2d_hal.hw, dma2d->init.mode);
-
+	dma2d_ll_set_dma2d_control_reg_master_tran_length(s_dma2d_hal.hw, dma2d->init.trans_ability);
+	dma2d_ll_set_dma2d_control_reg_out_byte_revese(s_dma2d_hal.hw, dma2d->init.data_reverse);
 	dma2d_ll_set_dma2d_control_reg_line_offset_mode(s_dma2d_hal.hw, dma2d->init.line_offset_mode);
 
 	//0:argb888; 1:rgb888; 010:rgb565; 011:argb1555; 100:argb444
 	dma2d_ll_set_out_pfc_contrl_out_color_mode(s_dma2d_hal.hw, dma2d->init.color_mode);
-	
 	dma2d_ll_set_out_pfc_contrl_out_alpha_invert(s_dma2d_hal.hw, dma2d->init.alpha_inverted);
 	dma2d_ll_set_output_offset_out_line_offset(s_dma2d_hal.hw, dma2d->init.output_offset);
 	dma2d_ll_set_dma2d_fg_pfc_ctrl_fg_rb_swap(s_dma2d_hal.hw, dma2d->init.red_blue_swap);

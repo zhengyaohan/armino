@@ -1915,32 +1915,77 @@ void sys_hal_video_power_en(uint32_t value)
 	sys_ll_set_cpu_power_sleep_wakeup_pwd_vidp(value);
 }
 
+void sys_hal_set_auxs_clk_sel(uint32_t value)
+{
+	sys_ll_set_cpu_clk_div_mode2_cksel_auxs(value);
+}
+
+void sys_hal_set_auxs_clk_div(uint32_t value)
+{
+	sys_ll_set_cpu_clk_div_mode2_ckdiv_auxs(value);
+}
+
 /** jpeg end **/
 
 /**  psram Start **/
-void sys_hal_psram_volstage_sel(uint32_t value)
+void sys_hal_psram_volstage_sel(uint32_t enable)
 {
-	sys_ll_set_ana_reg6_psldo_vsel(value);
+	uint32_t value = sys_ll_get_ana_reg6_value();
+
+	if (enable)
+		value |= (0x1 << 5);
+	else
+		value &= ~(0x1 << 5);
+
+	sys_ll_set_ana_reg6_value(value);
 }
 
-void sys_hal_psram_xtall_osc_enable(uint32_t value)
+void sys_hal_psram_xtall_osc_enable(uint32_t enable)
 {
-	sys_ll_set_ana_reg6_en_xtall(value);
+	uint32_t value = sys_ll_get_ana_reg6_value();
+
+	if (enable)
+		value |= (0x1 << 7);
+	else
+		value &= ~(0x1 << 7);
+
+	sys_ll_set_ana_reg6_value(value);
 }
 
-void sys_hal_psram_doc_enable(uint32_t value)
+void sys_hal_psram_doc_enable(uint32_t enable)
 {
-	sys_ll_set_ana_reg6_en_dco(value);
+	uint32_t value = sys_ll_get_ana_reg6_value();
+
+	if (enable)
+		value |= (0x1 << 8);
+	else
+		value &= ~(0x1 << 8);
+
+	sys_ll_set_ana_reg6_value(value);
 }
 
-void sys_hal_psram_dpll_enable(uint32_t value)
+void sys_hal_psram_ldo_enable(uint32_t enable)
 {
-	sys_ll_set_ana_reg6_en_dpll(value);
+	uint32_t value = sys_ll_get_ana_reg6_value();
+
+	if (enable)
+		value |= (0x1 << 9);
+	else
+		value &= ~(0x1 << 9);
+
+	sys_ll_set_ana_reg6_value(value);
 }
 
-void sys_hal_psram_ldo_enable(uint32_t value)
+void sys_hal_psram_dpll_enable(uint32_t enable)
 {
-	sys_ll_set_ana_reg6_en_psram_ldo(value);
+	uint32_t value = sys_ll_get_ana_reg6_value();
+
+	if (enable)
+		value |= (0x1 << 12);
+	else
+		value &= ~(0x1 << 12);
+
+	sys_ll_set_ana_reg6_value(value);
 }
 
 void sys_hal_psram_clk_sel(uint32_t value)
@@ -1951,6 +1996,13 @@ void sys_hal_psram_clk_sel(uint32_t value)
 void sys_hal_psram_set_clkdiv(uint32_t value)
 {
 	sys_ll_set_cpu_clk_div_mode2_ckdiv_psram(value);
+}
+
+void sys_hal_psram_power_enable(void)
+{
+	uint32_t value = sys_ll_get_ana_reg6_value();
+	value |= (0x1 << 12) | (0x1 << 7) | (0x1 << 5) | (0x1 << 8) | (0x1 << 9);
+	sys_ll_set_ana_reg6_value(value);
 }
 
 /**  psram End **/

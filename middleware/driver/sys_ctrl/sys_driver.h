@@ -312,6 +312,7 @@ uint32_t sys_drv_aud_vdd1v5_en(uint32_t value);
 uint32_t sys_drv_aud_mic1_en(uint32_t value);
 uint32_t sys_drv_aud_mic2_en(uint32_t value);
 uint32_t sys_drv_aud_audpll_en(uint32_t value);
+uint32_t sys_drv_aud_aud_en(uint32_t value);
 uint32_t sys_drv_aud_dacdrv_en(uint32_t value);
 uint32_t sys_drv_aud_bias_en(uint32_t value);
 uint32_t sys_drv_aud_dacr_en(uint32_t value);
@@ -368,6 +369,7 @@ uint32_t sys_drv_set_clk_div_mode1_clkdiv_jpeg(uint32_t value);
 uint32_t sys_drv_set_jpeg_disckg(uint32_t value);
 uint32_t sys_drv_set_cpu_clk_div_mode1_clkdiv_bus(uint32_t value);
 uint32_t sys_drv_video_power_en(uint32_t value);
+uint32_t sys_drv_set_auxs(uint32_t cksel, uint32_t ckdiv);
 
 /**  jPEG End **/
 
@@ -379,6 +381,7 @@ uint32_t sys_drv_psram_dpll_enable(uint32_t value);
 uint32_t sys_drv_psram_ldo_enable(uint32_t value);
 uint32_t sys_drv_psram_clk_sel(uint32_t value);
 uint32_t sys_drv_psram_set_clkdiv(uint32_t value);
+uint32_t sys_drv_psram_power_enable(void);
 
 /**  psram End **/
 
@@ -429,6 +432,7 @@ void sys_drv_set_ana_cb_cal_manu_val(uint32_t value);
 void sys_drv_set_ana_vlsel_ldodig(uint32_t value);
 void sys_drv_set_ana_vhsel_ldodig(uint32_t value);
 void sys_drv_set_ana_vctrl_sysldo(uint32_t value);
+void sys_drv_set_ana_vtempsel(uint32_t value);
 
 uint32_t sys_drv_get_cpu_storage_connect_op_select_flash_sel(void);
 void sys_drv_set_cpu_storage_connect_op_select_flash_sel(uint32_t value);

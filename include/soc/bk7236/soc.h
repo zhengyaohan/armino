@@ -24,11 +24,9 @@ extern "C" {
 
 #define SOC_ICU_REG_BASE      (0x00802000)
 #define SOC_PWM_REG_BASE      (0x00802B00)
-#define SOC_TIMER_REG_BASE    (0x00802A00)
 #define SOC_DMA_REG_BASE      (0x00809000)
 //#define SOC_EFUSE_REG_BASE    (0x00800000 + 0x1D * 4)
-#define SOC_UART_REG_BASE     (0x00802100)
-#define SOC_ADC_REG_BASE      (0x00802C00)
+//#define SOC_UART_REG_BASE     (0x00802100)
 #define SOC_CALENDAR_REG_BASE (0x00800000 + 0x55 * 4)
 
 #if 0

@@ -86,6 +86,38 @@ void cli_wifi_iplog_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 	if (iplog_mode)
 		demo_wifi_iplog_init(iplog_mode);
 }
+void cli_wifi_ipdbg_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	char *ipdbg_module = NULL;
+	char *ipdbg_para = NULL;
+	char *ipdbg_para_value = NULL;
+
+	if (argc == 3)
+	{
+		ipdbg_module = argv[1];
+		ipdbg_para = argv[2];
+		if (ipdbg_module && ipdbg_para)
+			demo_wifi_ipdbg_init(ipdbg_module, ipdbg_para, ipdbg_para_value);
+		else
+			CLI_LOGI("cli_wifi_ipdbg_cmd:invalid argc param\r\n");
+	}
+	else if(argc == 4)
+	{
+		ipdbg_module = argv[1];
+		ipdbg_para = argv[2];
+		ipdbg_para_value = argv[3];
+		if (ipdbg_module && ipdbg_para && ipdbg_para_value)
+			demo_wifi_ipdbg_init(ipdbg_module, ipdbg_para, ipdbg_para_value);
+		else
+			CLI_LOGI("cli_wifi_ipdbg_cmd:invalid argc param\r\n");
+	}
+	else
+	{
+		CLI_LOGI("cli_wifi_ipdbg_cmd:invalid argc num\r\n");
+		return;
+	}
+}
+
 typedef struct {
 	uint8_t channel;
 	uint32_t rx_cnt_mgmt;
@@ -792,6 +824,7 @@ static const struct cli_command s_wifi_commands[] = {
 	{"net", "net {sta/ap} ... - wifi net config", cli_wifi_net_cmd},
 	{"get", "get wifi status", cli_wifi_get_cmd},
 	{"iplog", "iplog [modle]", cli_wifi_iplog_cmd},
+	{"ipdbg", "ipdbg [module][para][value]", cli_wifi_ipdbg_cmd},
 
 #ifdef CONFIG_COMPONENTS_WPA_TWT_TEST
 	{"twt", "twt {setup|teardown}", cli_wifi_twt_cmd},

@@ -35,24 +35,24 @@ CPU1 0x10000 0x80000
 		ADDR _dtcm_bss_end
 	}
 
-	SRAM1 0x30060000 0xA000
+	SRAM1 0x30000000 0xA000
 	{
 		ADDR NEXT   _vedio_start
 		* KEEP (.video_spec_data)
 	}
 
-	SRAM2 0x3006A000 0x15c00
+	SWAP  0x3000FC00 0x400
+	{
+		ADDR NEXT   _swap_start
+		* KEEP (.swap_data)
+	}
+
+	SRAM2 0x3006C000 0x14000
 	{
 		LOADADDR NEXT _data_lmastart
 		ADDR NEXT _data_start
 		*(+RW,+ZI)
         STACK = 0x20007FE0
-	}
-
-	SWAP  0x3007fc00 0x400
-	{
-		ADDR NEXT   _swap_start
-		* KEEP (.swap_data)
 	}
 
 }

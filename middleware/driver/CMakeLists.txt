@@ -10,10 +10,9 @@ set(incs
 	include/bk_private
 	include/bk_private/legacy
 	common
+	reset_reason
 	pwm
-	rc_beken
 	flash
-	rw_pub
 	uart
 	sys_ctrl
 	gpio
@@ -36,6 +35,7 @@ set(incs
 
 set(srcs
 	common/driver.c
+	reset_reason/reset_reason.c
 	sys_ctrl/sys_driver.c
 	sys_ctrl/sys_driver_common.c
 	sys_ctrl/sys_ps_driver.c
@@ -57,13 +57,10 @@ set(srcs
 	spi/spi_statis.c
 	sys_ctrl/sys_ctrl.c
 	pmu/aon_pmu_driver.c
-	flash/flash.c
-	macphy_bypass/mac_phy_bypass.c
 	gpio/gpio_driver_base.c
 	uart/uart_driver.c
 	uart/uart_statis.c
 	uart/printf.c
-	rw_pub/rw_platf_pub.c
 	saradc/adc_driver.c
 	saradc/adc_statis.c
 	security/security.c
@@ -79,6 +76,22 @@ if (CONFIG_MPC)
 
 	list(APPEND srcs
 		mpc/mpc_driver.c
+	)
+endif()
+
+if (CONFIG_FLASH_ORIGIN_API)
+	list(APPEND srcs
+		flash/flash.c
+	)
+endif()
+
+if (CONFIG_PRRO)
+	list(APPEND incs
+		prro
+	)
+
+	list(APPEND srcs
+		prro/prro_driver.c
 	)
 endif()
 
@@ -121,7 +134,6 @@ endif()  #if (CONFIG_SUPPORT_IRDA)
 
 if (CONFIG_PWM)
 	list(APPEND srcs
-		pwm/mcu_ps_timer.c
 		pwm/pwm_driver.c
 		)
 endif()  #if (CONFIG_PWM)
@@ -372,7 +384,7 @@ if( "${target}" STREQUAL "bk7231u")
 	set(target "bk7251")
 endif()
 
-if( "${target}" STREQUAL "bk7236a" OR "${target}" STREQUAL "bk7236")
+if( "${target}" STREQUAL "bk7236a")
 	set(target "bk7231n")
 endif()
 
@@ -380,6 +392,7 @@ if( "${target}" STREQUAL "bk7231n"
 	OR  "${target}" STREQUAL "bk7251"
 	OR "${target}" STREQUAL "bk7271"
 	OR "${target}" STREQUAL "bk7256_cp1"
+	OR "${target}" STREQUAL "bk7236"
 	OR CONFIG_SOC_BK7256XX
 	)
 
@@ -395,15 +408,22 @@ if( "${target}" STREQUAL "bk7231n"
 endif()
 
 if (CONFIG_CAMERA)
-    list(APPEND srcs
-        "camera/dvp_camera.c"
-        "camera/dvp_gc0328c.c"
-        "camera/dvp_hm1055.c"
-    )
+	list(APPEND srcs
+        	"camera/dvp_camera.c"
+        	"camera/dvp_gc0328c.c"
+        	"camera/dvp_hm1055.c"
+		"camera/dvp_ov2640.c"
+    	)
+endif()
+
+if (CONFIG_USB_UVC)
+	list(APPEND srcs
+        	"camera/uvc_camera.c"
+	)
 endif()
 
 armino_component_register(SRCS "${srcs}"
 	INCLUDE_DIRS "${incs}"
 	REQUIRES arm9 riscv
-	PRIV_REQUIRES bk_common bk_log bk_ps bk_ate bk_init
+	PRIV_REQUIRES bk_log bk_ate
 )

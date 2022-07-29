@@ -11,6 +11,7 @@ set(incs
 set(srcs "stub.c")
 list(APPEND srcs
 	"hal/mpc_hal_debug.c"
+	"hal/prro_hal_debug.c"
 	"hal/pwm_hal_debug.c"
 	"hal/pwm_ll.c"
 	"hal/timer_hal_debug.c"
@@ -42,6 +43,9 @@ list(APPEND srcs
 	"hal/calendar_ll.c"
 	"hal/flash_hal_debug.c"
 	"hal/flash_ll.c"
+	"hal/aon_rtc_hal_debug.c"
+	"hal/aon_pmu_hal.c"
+	"hal/sdio_hal_debug.c"
 )
 armino_component_register(SRCS "${srcs}" INCLUDE_DIRS "${incs}")
 

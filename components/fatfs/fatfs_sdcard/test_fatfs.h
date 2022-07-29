@@ -33,6 +33,11 @@ extern "C" {
     extern void test_fatfs_format(DISK_NUMBER number);
 #endif
 
+#define FATFS_TAG "Fatfs"
+#define FATFS_LOGI(...) BK_LOGI(FATFS_TAG, ##__VA_ARGS__)
+#define FATFS_LOGW(...) BK_LOGW(FATFS_TAG, ##__VA_ARGS__)
+#define FATFS_LOGE(...) BK_LOGE(FATFS_TAG, ##__VA_ARGS__)
+#define FATFS_LOGD(...) BK_LOGD(FATFS_TAG, ##__VA_ARGS__)
 
 #ifdef __cplusplus
 }

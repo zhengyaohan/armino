@@ -25,6 +25,10 @@
 #include "mb_ipc_cmd.h"
 #endif
 
+#if CONFIG_CACHE_ENABLE
+#include "cache.h"
+#endif
+
 #define DMA_CPU_MASTER		0
 #define DMA_CPU_SLAVE1		1
 
@@ -186,10 +190,11 @@ bk_err_t bk_dma_driver_deinit(void)
     if (!s_dma_driver_is_init) {
         return BK_OK;
     }
-
+#if !CONFIG_SLAVE_CORE
     for (int id = 0; id < SOC_DMA_CHAN_NUM_PER_UNIT; id++) {
         dma_id_deinit_common(id);
     }
+#endif
 
 #if (CONFIG_SYSTEM_CTRL)
 	sys_drv_int_disable(GDMA_INTERRUPT_CTRL_BIT);
@@ -289,6 +294,10 @@ bk_err_t bk_dma_init(dma_id_t id, const dma_config_t *config)
     DMA_RETURN_ON_INVALID_ADDR(config->src.start_addr, config->src.end_addr);
     DMA_RETURN_ON_INVALID_ADDR(config->dst.start_addr, config->dst.end_addr);
     DMA_LOG_ON_ID_IS_STARTED(id);
+
+#if CONFIG_CACHE_ENABLE
+    flush_dcache((void *)config->src.start_addr, config->src.end_addr - config->src.start_addr);
+#endif
 
     dma_id_init_common(id);
     return dma_hal_init_dma(&s_dma.hal, id, config);
@@ -588,8 +597,8 @@ bk_err_t dma_memcpy_by_chnl(void *out, const void *in, uint32_t len, dma_id_t cp
     bk_dma_init(cpy_chnl, &dma_config);
     dma_hal_set_transfer_len(&s_dma.hal, cpy_chnl, len);
     dma_hal_start_common(&s_dma.hal, cpy_chnl);
-    BK_WHILE (dma_hal_get_enable_status(&s_dma.hal, cpy_chnl));
     GLOBAL_INT_RESTORE();
+    BK_WHILE (dma_hal_get_enable_status(&s_dma.hal, cpy_chnl));
 
     return BK_OK;
 

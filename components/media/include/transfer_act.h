@@ -31,8 +31,9 @@ typedef enum
 typedef struct
 {
 	trs_state_t state;
+	uint8_t debug : 1;
 	uint32_t param;
-} trs_info_t;
+} transfer_info_t;
 
 
 

@@ -225,7 +225,7 @@ function(__build_init armino_path)
     __component_add(${armino_path}/include ${prefix})
 
     # Set components required by all other components in the build
-    set(requires_common include bk_common bk_log bk_event driver bk_rtos common)
+    set(requires_common include bk_log bk_event driver bk_rtos common)
     armino_build_set_property(__COMPONENT_REQUIRES_COMMON "${requires_common}")
 
     armino_build_set_property(COMPILE_DEFINITIONS "-DAPP_VERSION=\"$ENV{APP_VERSION}\"" APPEND)
@@ -290,7 +290,12 @@ function(__build_resolve_and_add_req var component_target req type)
         __component_get_property(_component_dir ${component_target} COMPONENT_DIR)
         LOGE("Component '${_component_name}' depends on component '${req}', but '${req}' is not registered by armino_component_register()! See ${_component_dir}/CMakeLists.txt")
     endif()
-    __component_set_property(${component_target} ${type} ${_component_target} APPEND)
+
+    __component_get_property(tmp_property ${component_target} ${type} ${_component_target})
+
+    if (NOT ${_component_target} IN_LIST tmp_property)
+        __component_set_property(${component_target} ${type} ${_component_target} APPEND)
+    endif()
     set(${var} ${_component_target} PARENT_SCOPE)
 endfunction()
 
@@ -557,6 +562,10 @@ macro(armino_build_process target)
     # Perform component processing (inclusion of project_include.cmake, adding component
     # subdirectories, creating library targets, linking libraries, etc.)
     __build_process_project_includes()
+
+    #Secondary loading components start
+    __component_get_requirements()
+    #Secondary loading components end
 
     armino_build_get_property(armino_path ARMINO_PATH)
     armino_build_get_property(build_dir BUILD_DIR)

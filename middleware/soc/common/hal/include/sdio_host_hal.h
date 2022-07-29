@@ -15,8 +15,8 @@
 #pragma once
 
 #include "hal_config.h"
-#include "sdio_host_hw.h"
-#include "sdio_host_ll.h"
+#include "sdio_hw.h"
+#include "sdio_ll.h"
 #include <driver/hal/hal_sdio_host_types.h>
 #include <driver/hal/hal_gpio_types.h>
 
@@ -25,7 +25,7 @@ extern "C" {
 #endif
 
 typedef struct {
-	sdio_host_hw_t *hw;
+	sdio_hw_t *hw;
 	sdio_host_unit_t id;
 } sdio_host_hal_t;
 

@@ -13,12 +13,11 @@
 // limitations under the License.
 
 #include "sdio_host_hal.h"
-#include "sdio_host_ll.h"
 #include <driver/hal/hal_sdio_host_types.h>
 
 bk_err_t sdio_host_hal_init(sdio_host_hal_t *hal)
 {
-	hal->hw = (sdio_host_hw_t *)SDIO_HOST_LL_REG_BASE(hal->id);
+	hal->hw = (sdio_hw_t *)SDIO_LL_REG_BASE(hal->id);
 	sdio_host_ll_init(hal->hw);
 	return BK_OK;
 }

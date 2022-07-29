@@ -14,10 +14,12 @@
 
 #pragma once
 
-#define DISPLAY_FRAME_SIZE (480 * 800 * 2)
-#define JPEG_DEC_FRAME_SIZE (1280 * 720 * 2)
+#define DISPLAY_FRAME_SIZE (1280 * 720 * 2)
+#define JPEG_DEC_FRAME_SIZE ((DISPLAY_FRAME_SIZE & 0x0000FFFF) + 0x10000)
 #define JPEG_ENC_FRAME_SIZE (1024 * 250)
 #define JPEG_ENC_FRAME_COUNT (4)
+#define DISPLAY_FRAME_COUNT (2)
+
 #define AUDIO_FRAME_SIZE (1024 * 10)
 
 #define PSRAM_NONCACHEABLE (0x60000000UL)
@@ -25,9 +27,8 @@
 
 typedef struct
 {
-	uint8_t display[JPEG_DEC_FRAME_SIZE];
-	uint8_t jpeg_dec[JPEG_DEC_FRAME_SIZE];
-	uint8_t rotate[JPEG_DEC_FRAME_SIZE];
+	uint8_t display[DISPLAY_FRAME_COUNT][JPEG_DEC_FRAME_SIZE];
+	uint8_t rotate[DISPLAY_FRAME_SIZE];
 	uint8_t jpeg_enc[JPEG_ENC_FRAME_COUNT][JPEG_ENC_FRAME_SIZE];
 	uint8_t aud_adc[AUDIO_FRAME_SIZE];
 	uint8_t aud_dac[AUDIO_FRAME_SIZE];

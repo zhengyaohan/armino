@@ -59,7 +59,7 @@ static int app_wifi_init(void)
 static int app_ble_init(void)
 {
 #if CONFIG_BLE
-	BK_LOG_ON_ERR(bk_ble_init());
+    BK_LOG_ON_ERR(bk_ble_init_ext(NULL));
 #endif
 	return BK_OK;
 }

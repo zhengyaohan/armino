@@ -6,6 +6,7 @@
 #define CONFIG_SOC_BK7251 1
 #define CONFIG_SOC_STR "bk7251"
 #define CONFIG_SOC_ARCH "arm9"
+#define CONFIG_BK7256XX_MP 1
 #define CONFIG_TOOLCHAIN_PATH "/opt/gcc-arm-none-eabi-5_4-2016q3/bin"
 #define CONFIG_TOOLCHAIN_PREFIX "arm-none-eabi-"
 #define CONFIG_DEBUG_FIRMWARE 1
@@ -57,7 +58,6 @@
 #define CONFIG_SARADC 1
 #define CONFIG_SARADC_NEED_FLUSH 1
 #define CONFIG_FLASH 1
-#define CONFIG_TIMER_INIT_EN 1
 #define CONFIG_EFUSE 1
 #define CONFIG_AUDIO_DSP_IP_V1_0 1
 #define CONFIG_WIFI_ENABLE 1

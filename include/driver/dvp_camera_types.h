@@ -22,6 +22,20 @@
 extern "C" {
 #endif
 
+typedef enum
+{
+	DVP_MODE_JPG = 0,
+	DVP_MODE_YUV
+} dvp_mode_t;
+
+
+typedef enum
+{
+	JPEG_96M_MCLK_16M,
+	JPEG_96M_MCLK_24M,
+	JPEG_120M_MCLK_30M,
+} sensor_clk_t;
+
 
 typedef enum
 {
@@ -33,7 +47,8 @@ typedef enum
 	ID_BF2013,
 	ID_GC0308C,
 	ID_HM1055,
-	ID_GC2145
+	ID_GC2145,
+	ID_OV2640
 } sensor_id_t;
 
 

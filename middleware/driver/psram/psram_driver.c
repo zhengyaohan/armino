@@ -46,23 +46,13 @@ static bool s_psram_server_is_init = false;
 
 static void psram_init_common(void)
 {
-	//addSYSTEM_Reg0x46 |=  (0x1 << 9);// psram 上电
-	sys_drv_psram_ldo_enable(0x1);//bit9//psram 上电
-
-	//set_FLASH_Reg0x7_mode_sel(0x1);
-	//flash_set_line_mode(0x1);//sys_drv_flash_mode_sel(0x1);//set bit4-8
-	//sys_drv_set_flash_mode(0x1);
-
-	//set_SYSTEM_Reg0x9_cksel_flash(0x2);
-	//sys_drv_flash_cksel(0x2);//bit 24,25
-
 	addSYSTEM_Reg0xe |= (0x1 << 25); // not set
 
 	//setf_SYSTEM_Reg0x9_cksel_psram;//480M
-	sys_drv_psram_clk_sel(0x1);//480M
+	sys_drv_psram_clk_sel(0x0);//480M
 
 	//set_SYSTEM_Reg0x9_ckdiv_psram(1);//120M
-	sys_drv_psram_set_clkdiv(0x1);
+	sys_drv_psram_set_clkdiv(0x0);
 
 	//setf_SYSTEM_Reg0xc_psram_cken;
 	sys_drv_dev_clk_pwr_up(CLK_PWR_ID_PSRAM, CLK_PWR_CTRL_PWR_UP);//psram_clk_enable bit19=1
@@ -73,10 +63,8 @@ bk_err_t bk_psram_driver_init(void)
 	if (s_psram_driver_is_init)
 		return BK_OK;
 
-	//sys_drv_psram_dpll_enable(1);//bit12=1
-	//sys_drv_psram_dco_enable(1);//bit8=1
-	sys_drv_psram_xtall_osc_enable(1);//bit7=1
-	sys_drv_psram_volstage_sel(1);//bit5=0/1:1:1.8v
+	sys_drv_psram_power_enable();
+
 	s_psram_driver_is_init = true;
 
 	return BK_OK;
@@ -88,17 +76,15 @@ bk_err_t bk_psram_driver_deinit(void)
 		return BK_OK;
 	}
 
-	//sys_drv_psram_dpll_enable(0);//bit12=0
-	//sys_drv_psram_dco_enable(0);//bit8=1
-	//sys_drv_psram_xtall_osc_enable(0);//bit7=1
-	sys_drv_psram_volstage_sel(0);//bit5=0/1:1:1.8v
+	sys_drv_psram_ldo_enable(0); // 断电
+
 	s_psram_driver_is_init = false;
 	s_psram_server_is_init = false;
 
 	return BK_OK;
 }
 
-bk_err_t bk_psram_init(uint32_t mode)
+bk_err_t bk_psram_init(void)
 {
 	PSRAM_RETURN_ON_DRIVER_NOT_INIT();
 
@@ -106,10 +92,13 @@ bk_err_t bk_psram_init(uint32_t mode)
 		return BK_OK;
 	}
 
+	uint32_t mode = 0xd8054043;
 	uint32_t val = 0;
 
 	psram_init_common();
 	delay(1000);
+
+	psram_hal_set_sf_reset(1);
 
 	psram_hal_set_mode_value(mode);
 	delay(1500);
@@ -147,7 +136,6 @@ bk_err_t bk_psram_deinit(void)
 
 	sys_drv_dev_clk_pwr_up(CLK_PWR_ID_PSRAM, CLK_PWR_CTRL_PWR_DOWN);//psram_clk_disable
 	delay(1000);
-	sys_drv_psram_ldo_enable(0); // 断电
 	s_psram_server_is_init = false;
 	return BK_OK;
 }

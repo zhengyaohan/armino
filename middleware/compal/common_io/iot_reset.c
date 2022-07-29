@@ -29,7 +29,7 @@
 
 #include <common/bk_include.h>
 #include <components/system.h>
-#include "bk_private/reset_reason.h"
+#include "reset_reason.h"
 
 
 

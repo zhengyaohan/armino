@@ -15,6 +15,7 @@
 #pragma once
 
 #include <common/bk_include.h>
+#include "media_core.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,7 +27,7 @@ extern "C" {
 			res->ret = val; \
 			rtos_set_semaphore(&res->sem); \
 		} \
-    } while(0)
+	} while(0)
 
 
 /*
@@ -69,7 +70,7 @@ typedef enum
 {
 	EVENT_COM_DEFAULT_IND = (COM_EVENT << MEDIA_EVT_BIT),
 	EVENT_COM_FRAME_WIFI_FREE_IND,
-	EVENT_COM_FRAME_LCD_FREE_IND,
+	EVENT_COM_FRAME_DECODER_FREE_IND,
 	EVENT_COM_FRAME_CAPTURE_FREE_IND,
 	EVENT_COM_FRAME_REQUEST_IND,
 
@@ -92,7 +93,11 @@ typedef enum
 	EVENT_TRS_VIDEO_TRANSFER_OPEN_IND = (TRS_EVENT << MEDIA_EVT_BIT),
 	EVENT_TRS_VIDEO_TRANSFER_CLOSE_IND,
 
-
+	EVENT_UVC_OPEN_IND = (UVC_EVENT << MEDIA_EVT_BIT),
+	EVENT_UVC_CLOSE_IND,
+	EVENT_UVC_START_IND,
+	EVENT_UVC_STOP_IND,
+	EVENT_UVC_PARAM_IND,
 } media_event_t;
 
 

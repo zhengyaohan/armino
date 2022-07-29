@@ -62,41 +62,56 @@ static const dvp_host_config_t host_config =
 	.pxdata7 = GPIO_39
 };
 
-bk_err_t trs_task_send_msg(uint8_t msg_type, uint32_t data);
 
-
-static void dvp_rx_handler(void *curptr, uint32_t newlen, uint32_t is_eof, uint32_t frame_len)
+void frame_buffer_jpg_complete(frame_buffer_t *buffer)
 {
-
+	frame_buffer_generate_complete(buffer, FRAME_JPEG);
 }
 
-static void dvp_act_eof_handler(void)
+frame_buffer_t *frame_buffer_jpg_alloc(void)
 {
-	//TODO
+	return frame_buffer_alloc(FRAME_JPEG);
 }
 
-
-static const jpegenc_desc_t jpegenc_desc =
-{
-	.rxbuf_len = 1472 * 4,
-	.node_len = 1472,
-	.rx_read_len = 0,
-	.sener_cfg = 0,
-	.node_full_handler = dvp_rx_handler,
-	.data_end_handler = dvp_act_eof_handler,
-};
-
-static const dvp_camera_config_t dvp_camera_config =
+static const dvp_camera_config_t dvp_camera_jpg_config =
 {
 	.host = &host_config,
-	.jpegenc_desc = &jpegenc_desc,
-	.frame_complete = frame_buffer_generate_complete,
-	.frame_alloc = frame_buffer_alloc,
+	.frame_complete = frame_buffer_jpg_complete,
+	.frame_alloc = frame_buffer_jpg_alloc,
 };
 
-bk_err_t bk_dvp_camera_open(void)
+void frame_buffer_yuv_complete(frame_buffer_t *buffer)
 {
-	return bk_dvp_camera_driver_init(&dvp_camera_config);
+	frame_buffer_generate_complete(buffer, FRAME_DISPLAY);
+}
+
+frame_buffer_t *frame_buffer_yuv_alloc(void)
+{
+	return frame_buffer_alloc(FRAME_DISPLAY);
+}
+
+static const dvp_camera_config_t dev_camera_yuv_config =
+{
+	.host = &host_config,
+	.frame_complete = frame_buffer_yuv_complete,
+	.frame_alloc = frame_buffer_yuv_alloc,
+};
+
+
+bk_err_t bk_dvp_camera_open(dvp_mode_t mode)
+{
+	int ret = BK_OK;
+
+	if (DVP_MODE_JPG == mode)
+	{
+		ret = bk_dvp_camera_driver_init(&dvp_camera_jpg_config, mode);
+	}
+	else if (DVP_MODE_YUV == mode)
+	{
+		ret = bk_dvp_camera_driver_init(&dev_camera_yuv_config, mode);
+	}
+
+	return ret;
 }
 
 bk_err_t bk_dvp_camera_close(void)

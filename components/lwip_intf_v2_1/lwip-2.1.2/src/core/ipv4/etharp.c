@@ -240,33 +240,36 @@ etharp_tmr(void)
  * send arp reply when set interval.
  */
 int cusarpsum = 0;
+bool special_arp_flag = false;
 void
 etharp_reply(void)
 {
-  int i;
-  int mark = 0;
-  struct netif *netif;
-  NETIF_FOREACH(netif) {
-    struct dhcp *dhcp = netif_dhcp_data(netif);
-    if (dhcp != NULL) {
-	  for (i = 0; i < ARP_TABLE_SIZE; ++i) {
-    	u8_t state = arp_table[i].state;
-   		if (state != ETHARP_STATE_EMPTY && ip4_addr_cmp(ip_2_ip4(&dhcp->server_ip_addr), &arp_table[i].ipaddr)) {
-		  etharp_raw(arp_table[i].netif,
+	int i;
+	int mark = 0;
+	struct netif *netif;
+	NETIF_FOREACH(netif) {
+	struct dhcp *dhcp = netif_dhcp_data(netif);
+	if (dhcp != NULL) {
+		for (i = 0; i < ARP_TABLE_SIZE; ++i) {
+		u8_t state = arp_table[i].state;
+		if (state != ETHARP_STATE_EMPTY && ip4_addr_cmp(ip_2_ip4(&dhcp->server_ip_addr), &arp_table[i].ipaddr)) {
+			special_arp_flag = true;
+			etharp_raw(arp_table[i].netif,
 					 (struct eth_addr *)arp_table[i].netif->hwaddr, &arp_table[i].ethaddr,
 					 (struct eth_addr *)arp_table[i].netif->hwaddr, netif_ip4_addr(arp_table[i].netif),
 					 &arp_table[i].ethaddr, &arp_table[i].ipaddr,
 					 ARP_REPLY);
 		  mark = 1;
-	  	}
-	  }
-	  if(mark == 0) {
-		LWIP_DEBUGF(ETHARP_DEBUG, ("mark null, send request\n"));	
+		}
+		}
+		if(mark == 0) {
+		special_arp_flag = true;
+		LWIP_DEBUGF(ETHARP_DEBUG, ("mark null, send request\n"));
 		etharp_request(netif, ip_2_ip4(&dhcp->server_ip_addr));
 		cusarpsum = 1;
-   	  }
-    }
-  }
+		}
+	}
+	}
 }
 #endif
 

@@ -67,7 +67,7 @@ _start:
 	    csrsi mmisc_ctl, 2
 	#endif
 
-#ifdef CFG_CACHE_ENABLE
+#ifndef CACHE_DISABLE
 	/* Enable I/D cache with HW prefetcher and D-cache write-around (threshold: 4 cache lines) */
 	li t0, (0x3 << 13)
 	csrc mcache_ctl, t0

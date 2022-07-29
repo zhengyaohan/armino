@@ -18,7 +18,7 @@
 #include <driver/wdt.h>
 #include "wdt_driver.h"
 #include "wdt_hal.h"
-#include "bk_private/reset_reason.h"
+#include "reset_reason.h"
 #include "bk_fake_clock.h"
 #include "icu_driver.h"
 #include "power_driver.h"
@@ -99,6 +99,10 @@ static void wdt_deinit_common(void)
 #endif
 }
 
+//addSYSTEM_Reg0xa
+#define addSYSTEM_Reg0xa                                        *((volatile unsigned long *) (0x44010000+0xa*4))
+#define set_SYSTEM_Reg0xa_ckdiv_wdt(val)                        addSYSTEM_Reg0xa = ((addSYSTEM_Reg0xa & (~0xc)) | ((val) << 2))
+
 bk_err_t bk_wdt_driver_init(void)
 {
 	if (s_wdt_driver_is_init) {
@@ -110,6 +114,8 @@ bk_err_t bk_wdt_driver_init(void)
 #if (CONFIG_SYSTEM_CTRL)
 	bk_timer_start(TIMER_ID2, WDT_BARK_TIME_MS, (timer_isr_t)bk_wdt_feed_handle);
 #endif
+	set_SYSTEM_Reg0xa_ckdiv_wdt(3);
+
 	s_wdt_driver_is_init = true;
 
 	return BK_OK;
@@ -187,12 +193,12 @@ void bk_int_wdt_feed(void)
 	}
 }
 
-uint32_t bk_get_feed_watchdog_time()
+uint32_t bk_wdt_get_feed_time()
 {
 	return s_feed_watchdog_time;
 }
 
-void bk_set_feed_watchdog_time(uint32_t dw_set_time)
+void bk_wdt_set_feed_time(uint32_t dw_set_time)
 {
 	s_feed_watchdog_time = dw_set_time;
 }
@@ -238,7 +244,7 @@ void bk_task_wdt_timeout_check(void)
 	}
 }
 
-uint32_t bk_get_wdt_driver_init_flag()
+bool bk_wdt_is_driver_inited()
 {
 	return s_wdt_driver_is_init;
 }

@@ -23,33 +23,36 @@ extern "C" {
 
 typedef enum
 {
-	MODULE_LCD,
+	MODULE_DECODER,
 	MODULE_WIFI,
 	MODULE_RECODER,
 	MODULE_CAPTURE,
+	MODULE_DISPLAY,
 } frame_module_t;
-
 
 typedef struct
 {
 	uint8_t enable : 1;
 	uint8_t wifi_register : 1;
 	uint8_t wifi_lock : 1;
-	uint8_t lcd_register : 1;
-	uint8_t lcd_lock : 1;
+	uint8_t decoder_register : 1;
+	uint8_t decoder_lock : 1;
 	uint8_t recoder_register : 1;
 	uint8_t recoder_lock : 1;
 	uint8_t capture_register : 1;
-	uint8_t capture_lock : 1;	
+	uint8_t capture_lock : 1;
+	uint8_t display_register : 1;
+	uint8_t display_lock : 4;
 	void (*wifi_comp_cb)(frame_buffer_t *buffer);
-	void (*lcd_comp_cb)(frame_buffer_t *buffer);
+	void (*decoder_comp_cb)(frame_buffer_t *buffer);
 	void (*recoder_comp_cb)(frame_buffer_t *buffer);
 	void (*capture_comp_cb)(frame_buffer_t *buffer);
+	uint8_t (*display_comp_cb)(frame_buffer_t *buffer);
 } frame_buffer_info_t;
 
-void frame_buffer_generate_complete(frame_buffer_t *buffer);
-frame_buffer_t *frame_buffer_alloc(void);
-frame_buffer_t *frame_buffer_get_available_frame(void);
+void frame_buffer_generate_complete(frame_buffer_t *buffer, frame_type_t type);
+frame_buffer_t *frame_buffer_alloc(frame_type_t type);
+frame_buffer_t *frame_buffer_get_available_frame(frame_type_t type);
 void frame_buffer_free_request(frame_buffer_t *buffer, frame_module_t module);
 void frame_buffer_frame_register(frame_module_t module, void *callback);
 void frame_buffer_frame_deregister(frame_module_t module);

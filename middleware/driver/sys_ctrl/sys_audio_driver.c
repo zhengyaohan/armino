@@ -93,6 +93,15 @@ uint32_t sys_drv_aud_audpll_en(uint32_t value)
 	return SYS_DRV_SUCCESS;
 }
 
+uint32_t sys_drv_aud_aud_en(uint32_t value)
+{
+	uint32_t int_level = rtos_disable_int();
+
+	sys_hal_aud_aud_en(value);
+	rtos_enable_int(int_level);
+	return SYS_DRV_SUCCESS;
+}
+
 uint32_t sys_drv_aud_dacdrv_en(uint32_t value)
 {
 	uint32_t int_level = rtos_disable_int();

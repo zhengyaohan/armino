@@ -186,10 +186,7 @@ bk_err_t bk_timer_driver_init(void)
 #if (SOC_TIMER_INTERRUPT_NUM > 1)
     bk_int_isr_register(INT_SRC_TIMER1, timer1_isr, NULL);
 #endif
-#if CONFIG_TIMER_INIT_EN
     timer_hal_init(&s_timer.hal);
-#endif
-
     s_timer_driver_is_init = true;
 
     return BK_OK;
@@ -251,7 +248,10 @@ bk_err_t bk_timer_start(timer_id_t timer_id, uint32_t time_ms, timer_isr_t callb
     TIMER_RETURN_TIMER_ID_IS_ERR(timer_id);
 #endif
     BK_LOG_ON_ERR(bk_timer_start_without_callback(timer_id, time_ms));
-    s_timer_isr[timer_id] = callback;
+
+    if (timer_id < SOC_TIMER_CHAN_NUM_PER_UNIT){
+        s_timer_isr[timer_id] = callback;
+    }
 
     return BK_OK;
 }

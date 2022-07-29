@@ -39,6 +39,13 @@ if (CONFIG_AUDIO)
 	)
 endif()
 
+if (CONFIG_USB_UVC)
+	list(APPEND srcs
+		camera/uvc_act.c
+		camera/uvc.c
+	)
+endif()
+
 else()
 	set(srcs
 		core/media_minor.c
@@ -51,7 +58,7 @@ else()
 if (CONFIG_CAMERA)
 	list(APPEND srcs
 		camera/camera_act.c
-		camera/dvp.c	
+		camera/dvp.c
 	)
 endif()
 
@@ -74,6 +81,13 @@ endif()
 if (CONFIG_LCD)
 	list(APPEND srcs
 		lcd/lcd_act.c
+	)
+endif()
+
+if (CONFIG_USB_UVC)
+	list(APPEND srcs
+		camera/uvc_act.c
+		camera/uvc.c
 	)
 endif()
 

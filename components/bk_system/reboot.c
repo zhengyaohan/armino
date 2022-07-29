@@ -18,12 +18,14 @@
 #include <components/system.h>
 #include <driver/wdt.h>
 #include "bk_misc.h"
-#include "bk_private/reset_reason.h"
+#include "reset_reason.h"
 #include "drv_model_pub.h"
 #include "param_config.h"
 #include "aon_pmu_driver.h"
 
 #define TAG "sys"
+
+extern volatile unsigned int g_enter_exception;
 
 void bk_reboot(void)
 {
@@ -33,6 +35,7 @@ void bk_reboot(void)
 
 #if (CONFIG_SOC_BK7256XX)
 	set_reboot_tag(REBOOT_TAG_REQ);
+	g_enter_exception = 1;
 #endif
 #if (CONFIG_SYSTEM_CTRL)
 	uint32_t param =0;

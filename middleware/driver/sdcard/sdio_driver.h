@@ -7,13 +7,23 @@
 #define SDCARD_DEBUG
 
 #ifdef SDCARD_DEBUG
+#if CONFIG_SOC_BK7256XX
+#define SD_TAG "sd"
+#define SDCARD_PRT(...) BK_LOGI(SD_TAG, ##__VA_ARGS__)
+#define SDCARD_WARN(...) BK_LOGW(SD_TAG, ##__VA_ARGS__)
+#define SDCARD_FATAL(...) BK_LOGE(SD_TAG, ##__VA_ARGS__)
+#define SDCARD_DBG(...) BK_LOGD(SD_TAG, ##__VA_ARGS__)
+#else
 #define SDCARD_PRT      os_printf
 #define SDCARD_WARN     warning_prf
 #define SDCARD_FATAL    fatal_prf
+#define SDCARD_DBG		null_prf
+#endif
 #else
 #define SDCARD_PRT      null_prf
 #define SDCARD_WARN     null_prf
 #define SDCARD_FATAL    null_prf
+#define SDCARD_DBG		null_prf
 #endif
 
 /* SDCARD Register*/
@@ -82,6 +92,23 @@
 #define SDCARD_CMDRSP_RX_OVERFLOW_MASK        (1 << 8)
 #define SDCARD_CMDRSP_TX_FIFO_EMPTY_MASK      (1 << 9)
 
+#if CONFIG_SOC_BK7256XX
+#define SDIO_REG0XA_TX_FIFO_NEED_WRITE_MASK_CG_POS (13) 
+#define SDIO_REG0XA_TX_FIFO_NEED_WRITE_MASK_CG_MASK (0x1) 
+
+#define SDIO_REG0XA_WRITE_WAIT_JUMP_SEL_POS (14) 
+#define SDIO_REG0XA_WRITE_WAIT_JUMP_SEL_MASK (0x1) 
+
+#define SDIO_REG0XA_IDLE_STOP_JUMP_SEL_POS (15) 
+#define SDIO_REG0XA_IDLE_STOP_JUMP_SEL_MASK (0x1) 
+
+#define SDIO_REG0XA_RESERVED0_POS (16) 
+#define SDIO_REG0XA_RESERVED0_MASK (0xFFFF) 
+#else
+#define SDIO_REG0XA_RESERVED0_POS (13) 
+#define SDIO_REG0XA_RESERVED0_MASK (0x7FFFF) 
+#endif
+
 #define REG_SDCARD_WR_DATA_ADDR             (SDCARD_BASE_ADDR + 11*4)
 #define REG_SDCARD_RD_DATA_ADDR             (SDCARD_BASE_ADDR + 12*4)
 
@@ -97,6 +124,36 @@
 #define SDCARD_FIFO_SD_STA_RST               (1 << 20)
 #define SDCARD_FIFO_SD_RATE_SELECT_POSI      (21)
 #define SDCARD_FIFO_SD_RATE_SELECT_MASK      (0x3)
+
+#if CONFIG_SOC_BK7256XX
+#define SDIO_REG0XD_SD_RD_WAIT_SEL_POS (23) 
+#define SDIO_REG0XD_SD_RD_WAIT_SEL_MASK (0x1) 
+#define SDIO_REG0XD_SD_RD_WAIT_SEL (0x1 << SDIO_REG0XD_SD_RD_WAIT_SEL_POS) 
+	
+#define SDIO_REG0XD_SD_WR_WAIT_SEL_POS (24) 
+#define SDIO_REG0XD_SD_WR_WAIT_SEL_MASK (0x1) 
+
+#define SDIO_REG0XD_CLK_REC_SEL_POS (25) 
+#define SDIO_REG0XD_CLK_REC_SEL_MASK (0x1) 
+#define SDIO_REG0XD_CLK_REC_SEL (0x1<<SDIO_REG0XD_CLK_REC_SEL_POS) 
+#endif
+
+#if CONFIG_SOC_BK7256XX
+#define SDIO_REG0XD_SAMP_SEL_POS (26) 
+#define SDIO_REG0XD_SAMP_SEL_MASK (0x1) 
+
+#define SDIO_REG0XD_CLK_GATE_ON_POS (27) 
+#define SDIO_REG0XD_CLK_GATE_ON_MASK (0x1) 
+
+#define SDIO_REG0XD_HOST_WR_BLK_EN_POS (28) 
+#define SDIO_REG0XD_HOST_WR_BLK_EN_MASK (0x1) 
+
+#define SDIO_REG0XD_HOST_RD_BLK_EN_POS (29) 
+#define SDIO_REG0XD_HOST_RD_BLK_EN_MASK (0x1) 
+
+#define SDIO_REG0XD_RESERVED0_POS (30) 
+#define SDIO_REG0XD_RESERVED0_MASK (0x3) 
+#endif
 
 // SDcard defination
 /* Exported types ------------------------------------------------------------*/
@@ -151,13 +208,12 @@ typedef enum {
 
 #if (CONFIG_SOC_BK7256XX)	//Temp code, clock module should re-arch.
 //XTL 26M:divider 0:/1  1:/2  2:/4  3:/8  4:/16  5:/32  6:/64  7:/256
-#define	CLK_26M                  0
-#define	CLK_13M                  1
-#define	CLK_6_5M                 2
-#define	CLK_3_2_5M               3
-#define	CLK_1_6M	             4
-#define	CLK_800K	             5
-#define	CLK_400K	             6
+#define	CLK_13M                  0
+#define	CLK_6_5M                 1
+#define	CLK_3_2_5M               2
+#define	CLK_1_6M	             3
+#define	CLK_800K	             4
+#define	CLK_400K	             5
 #define	CLK_100K	             7
 #define CLK_LOWEST				(CLK_100K)
 
@@ -217,6 +273,9 @@ typedef enum {
 // interface function
 void sdio_set_clock(UINT8 clk_index);
 void sdio_gpio_config(void);
+#if CONFIG_SOC_BK7256XX
+void sdio_clk_gate_config(uint8_t enable);
+#endif
 void sdio_clk_config(UINT8 enable);
 void sdio_register_reset(void);
 void sdio_sendcmd_function(UINT8 cmd_index, UINT32 flag,

@@ -29,6 +29,8 @@
 #include "BK7256_RegList.h"
 #include "bk_general_dma.h"
 
+#if (!CONFIG_BK7256XX_MP)
+
 
 extern void delay(int num);
 
@@ -103,6 +105,8 @@ static void dma_finish_isr(dma_id_t id)
 
 static void dma_lcd_config(uint32_t dma_ch, uint32_t dma_src_mem_addr)
 {
+	uint32_t rgb_fifo = bk_lcd_get_rgb_data_fifo_addr();
+
 	dma_config_t dma_config = {0};
 	
 	dma_config.mode = DMA_WORK_MODE_SINGLE;
@@ -113,7 +117,7 @@ static void dma_lcd_config(uint32_t dma_ch, uint32_t dma_src_mem_addr)
 	dma_config.src.addr_inc_en = DMA_ADDR_INC_ENABLE;
 	dma_config.dst.dev = DMA_DEV_LCD_DATA;
 	dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
-	dma_config.dst.start_addr = (uint32) REG_DISP_RGB_FIFO;
+	dma_config.dst.start_addr = rgb_fifo;
 
 	BK_LOG_ON_ERR(bk_dma_init(dma_ch, &dma_config));
 	BK_LOG_ON_ERR(bk_dma_set_transfer_len(dma_ch, s_dma_transfer_param.dma_transfer_len));
@@ -122,6 +126,10 @@ static void dma_lcd_config(uint32_t dma_ch, uint32_t dma_src_mem_addr)
 
 static void dma_jpeg_config(uint32_t dma_ch)
 {
+	uint32_t jpeg_fifo_addr;
+
+	bk_jpeg_enc_get_fifo_addr(&jpeg_fifo_addr);
+
 	dma_config_t dma_config = {0};
 	dma_config.mode = DMA_WORK_MODE_SINGLE;
 	dma_config.chan_prio = 0;
@@ -129,7 +137,7 @@ static void dma_jpeg_config(uint32_t dma_ch)
 	dma_config.src.width = DMA_DATA_WIDTH_32BITS;
 	dma_config.dst.dev = DMA_DEV_DTCM;
 	dma_config.dst.width = DMA_DATA_WIDTH_32BITS;
-	dma_config.src.start_addr = JPEG_RX_FIFO;
+	dma_config.src.start_addr = jpeg_fifo_addr;
 	dma_config.dst.start_addr = (uint32_t)jpeg_buff;
 	dma_config.dst.addr_inc_en = DMA_ADDR_INC_ENABLE;
 	BK_LOG_ON_ERR(bk_dma_init(dma_ch, &dma_config));
@@ -271,7 +279,7 @@ static void lcd_rgb_display_capture_main(beken_thread_arg_t param_data)
 	lcd_capture_setup = (lcd_capture_setup_t *)(int)param_data;
 
 	/*  -------------------------step: init PSRAM---------------------------- */
-	bk_psram_init(0x00054043);
+	bk_psram_init();
 
 	/*  -------------------------step: init LCD------------------------ */
 	lcd_rgb_display_config(lcd_capture_setup->x_pixel, lcd_capture_setup->y_pixel);
@@ -428,4 +436,4 @@ void cli_cp0_lcd_rgb_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, cha
 	}
 
 }
-
+#endif

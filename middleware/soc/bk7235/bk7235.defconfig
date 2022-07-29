@@ -53,6 +53,9 @@ CONFIG_NO_HOSTED=y
 # CONFIG_FTPD_UPGRADE is not set
 CONFIG_OTA_HTTP=y
 # CONFIG_OTA_TFTP is not set
+
+# CONFIG_HTTP_OTA_WITH_BLE is not set
+CONFIG_HTTP_OTA_WITH_BLE=y
 # end of Application
 
 # CONFIG_AT is not set
@@ -64,6 +67,7 @@ CONFIG_AT_CMD=y
 CONFIG_PSRAM=n
 # end of PSRAM
 
+CONFIG_MEDIA=y
 #
 # Audio
 #

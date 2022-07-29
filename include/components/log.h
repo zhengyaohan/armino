@@ -116,7 +116,7 @@ void bk_mem_dump(const char* titile, uint32_t start, uint32_t len);
 
 #if CONFIG_SHELL_ASYNCLOG
 
-#include "shell_task.h"
+#include "components/shell_task.h"
 
 #undef BK_LOG_FORMAT
 #undef BK_LOGE

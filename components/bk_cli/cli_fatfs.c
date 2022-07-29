@@ -13,7 +13,7 @@ static void fatfs_operate(char *pcWriteBuffer, int xWriteBufferLen, int argc, ch
 	char write_content[64];
 	uint64_t content_len = 0;
 	uint32_t test_cnt = 0;
-	
+
 	if (argc >= 3) {
 		cmd = argv[1][0];
 		drv_num = os_strtoul(argv[2], NULL, 10);
@@ -38,6 +38,7 @@ static void fatfs_operate(char *pcWriteBuffer, int xWriteBufferLen, int argc, ch
 				}
 			}
 		}
+
 		switch (cmd) {
 		case 'M':
 			test_mount(drv_num);
@@ -82,7 +83,7 @@ static void fatfs_operate(char *pcWriteBuffer, int xWriteBufferLen, int argc, ch
 			break;
 		case 'F':
 			test_fatfs_format(drv_num);
-			os_printf("format :%x\r\n");
+			os_printf("format :%d\r\n", drv_num);
 			break;
 		case 'S':
 			scan_file_system(drv_num);
@@ -95,11 +96,67 @@ static void fatfs_operate(char *pcWriteBuffer, int xWriteBufferLen, int argc, ch
 		os_printf("cmd param error\r\n");
 }
 
+static beken_thread_t idle_fatfs_out_test_handle = NULL;
+static bool s_fatfs_idle_test_stop_flag = 1;
+
+static void cli_fatfs_idle_out_test(void)
+{
+	char *file_name = "1.txt";
+
+	test_mount(1);
+	rtos_delay_milliseconds(10);
+	test_fatfs_format(1);
+
+	while (1) {
+		rtos_delay_milliseconds(50);
+		if(s_fatfs_idle_test_stop_flag)
+			break;
+		else
+			test_fatfs_auto_test(1, file_name, 12487, 1);
+	}
+
+	rtos_delete_thread(&idle_fatfs_out_test_handle);
+
+}
+
+static void fatfs_idle_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	if (argc < 2) {
+		return;
+	}
+
+	if (os_strcmp(argv[1], "start") == 0) {
+		if (!idle_fatfs_out_test_handle && s_fatfs_idle_test_stop_flag){
+			CLI_LOGI("fatfs_idle_test START!\n");
+			s_fatfs_idle_test_stop_flag = 0;
+			if(rtos_create_thread(&idle_fatfs_out_test_handle, 8, "idle_fatfs_out",
+				(beken_thread_function_t) cli_fatfs_idle_out_test, 2048, 0)) {
+					CLI_LOGI("fatfs_idle_test rtos_create_thread FAILED!\n");
+					return;
+			}
+		} else
+			CLI_LOGI("fatfs idle test WORKING!\n");
+
+	} else if (os_strcmp(argv[1], "stop") == 0) {
+		if (idle_fatfs_out_test_handle && !s_fatfs_idle_test_stop_flag) {
+			s_fatfs_idle_test_stop_flag = 1;
+			CLI_LOGI("fatfs_idle_test STOP! Please clean FLAG!\n");
+		} else
+			CLI_LOGI("PLEASE start fatfs idle test!\n");
+
+	} else if (os_strcmp(argv[1], "clean") == 0) {
+		if (idle_fatfs_out_test_handle && s_fatfs_idle_test_stop_flag)
+			idle_fatfs_out_test_handle = NULL;
+		else
+			CLI_LOGI("PLEASE start->stop->clean, check thread status!\n");
+	}
+}
 
 
 #define FATFS_CMD_CNT (sizeof(s_fatfs_commands) / sizeof(struct cli_command))
 static const struct cli_command s_fatfs_commands[] = {
 	{"fatfstest", "fatfstest <cmd>", fatfs_operate},
+	{"fatfs_idle_test", "fatfs_idle_test {start|stop|clean}", fatfs_idle_test},
 };
 
 int cli_fatfs_init(void)

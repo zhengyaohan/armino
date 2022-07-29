@@ -15,14 +15,20 @@
 #pragma once
 
 #include <common/bk_include.h>
+#include "media_evt.h"
+#include <driver/dvp_camera_types.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-bk_err_t bk_dvp_camera_open(void);
+bk_err_t bk_dvp_camera_open(dvp_mode_t mode);
 bk_err_t bk_dvp_camera_close(void);
-
+bk_err_t bk_uvc_camera_open(void);
+bk_err_t bk_uvc_camera_start(void);
+bk_err_t bk_uvc_camera_stop(void);
+bk_err_t bk_uvc_camera_close(void);
+bk_err_t bk_uvc_camera_param_set(param_pak_t *param);
 
 #ifdef __cplusplus
 }

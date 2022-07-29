@@ -71,8 +71,8 @@ bk_err_t timer_hal_init(timer_hal_t *hal)
 {
     hal->hw = (timer_hw_t *)TIMER_LL_REG_BASE(hal->id);
 
-    for (int group = 0; group < SOC_TIMER_GROUP_NUM; group++) {
-        timer_ll_init(hal->hw, group);
+    for (int chan = 0; chan < SOC_TIMER_CHAN_NUM_PER_UNIT; chan++) {
+        timer_ll_init(hal->hw, chan);
     }
 
     return BK_OK;

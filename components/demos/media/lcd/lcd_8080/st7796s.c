@@ -2,7 +2,24 @@
 #include <driver/lcd.h>
 #include "st7796s.h"
 
-extern void delay(INT32 num);
+extern void  delay_ms(INT32 ms_count);
+
+uint32_t param_sleep_out[1]  = {0x0 };
+uint32_t param_command1[1]   = {0xc3};
+uint32_t param_command2[1]   = {0x96};
+uint32_t param_memacess[1]   = {0x48};
+uint32_t param_color_md[1]   = {0x05};
+uint32_t param_polar_cv[1]   = {0x01};
+uint32_t param_disp_out[8]   = {0x40, 0x8a, 0x00, 0x00, 0x29, 0x19, 0xa5, 0x33};
+uint32_t param_power_1[1]    = {0x06};
+uint32_t param_power_2[1]    = {0xa7};
+uint32_t param_vcom_ctl[1]   = {0x18};
+uint32_t param_cath_ctl1[14] = {0xf0, 0x09, 0x0b, 0x06, 0x04, 0x15, 0x2f, 0x54, 0x42, 0x3c, 0x17, 0x14, 0x18, 0x1b};
+uint32_t param_cath_ctl2[14] = {0xf0, 0x09, 0x0b, 0x06, 0x04, 0x03, 0x2d, 0x43, 0x42, 0x3b, 0x16, 0x14, 0x17, 0x1b};
+uint32_t param_command12[1]  = {0x3c};
+uint32_t param_command22[1]  = {0x69};
+uint32_t param_display_on[1] = {0x0 };
+
 
 /**
  * @brief  lcd_st7796s_init
@@ -11,110 +28,52 @@ extern void delay(INT32 num);
  */
 bk_err_t st7796s_init(void)
 {
-	delay(16470);
-	//delay(16470);
+	delay_ms(131);
 
-	//*************LCD Driver Initial *****//
-	bk_lcd_8080_write_cmd(SLEEP_OUT);
-	delay(16470);//120ms
-	//delay(16470);//120ms
+	bk_lcd_8080_send_cmd(0, SLEEP_OUT, param_sleep_out);
+	delay_ms(120);
+	//cpu_delay(6428571);  //ASIC code need wait 120ms
 
-	bk_lcd_8080_write_cmd(COMMAND_1);
+	bk_lcd_8080_send_cmd(1, COMMAND_1, param_command1);
+	bk_lcd_8080_send_cmd(1, COMMAND_2, param_command2);
+	bk_lcd_8080_send_cmd(1, MEM_ACCESS_CTRL, param_memacess);
+	bk_lcd_8080_send_cmd(1, COLOR_MODE, param_color_md );
+	bk_lcd_8080_send_cmd(1, PLOAR_CONVERT, param_polar_cv);
+	bk_lcd_8080_send_cmd(8, DISP_OUT_CTRL, param_disp_out );
+	bk_lcd_8080_send_cmd(1, POWER_CTRL1, param_power_1  );
+	bk_lcd_8080_send_cmd(1, POWER_CTRL2, param_power_2  );
+	bk_lcd_8080_send_cmd(1, VCOM_CTRL, param_vcom_ctl );
+	bk_lcd_8080_send_cmd(14, CATHODE_CTRL, param_cath_ctl1);
+	bk_lcd_8080_send_cmd(14, ANODE_CTRL, param_cath_ctl2);
+	bk_lcd_8080_send_cmd(1, COMMAND_1, param_command12);
+	bk_lcd_8080_send_cmd(1, COMMAND_2, param_command22);
 
-	bk_lcd_8080_write_data(0xc3);
-	bk_lcd_8080_write_cmd(COMMAND_2);
-	bk_lcd_8080_write_data(0x96);
-	bk_lcd_8080_write_cmd(MEM_ACCESS_CTRL);
-	bk_lcd_8080_write_data(0x48);
-	bk_lcd_8080_write_cmd(COLOR_MODE);
-	bk_lcd_8080_write_data(0x5);
-	bk_lcd_8080_write_cmd(PLOAR_CONVERT);
-	bk_lcd_8080_write_data(0x1);
-	bk_lcd_8080_write_cmd(DISP_OUT_CTRL);
-	bk_lcd_8080_write_data(0x40);
-	bk_lcd_8080_write_data(0x8a);
-	bk_lcd_8080_write_data(0x00);
-	bk_lcd_8080_write_data(0x00);
-	bk_lcd_8080_write_data(0x29);
-	bk_lcd_8080_write_data(0x19);
-	bk_lcd_8080_write_data(0xa5);
-	bk_lcd_8080_write_data(0x33);
-	bk_lcd_8080_write_cmd(POWER_CTRL1);//no
-	bk_lcd_8080_write_data(0x06);
-	bk_lcd_8080_write_cmd(POWER_CTRL2);
-	bk_lcd_8080_write_data(0xa7);
-	bk_lcd_8080_write_cmd(VCOM_CTRL);
-	bk_lcd_8080_write_data(0x18);
-	bk_lcd_8080_write_cmd(CATHODE_CTRL); //Positive Voltage Gamma Control
-	bk_lcd_8080_write_data(0xf0);
-	bk_lcd_8080_write_data(0x09);
-	bk_lcd_8080_write_data(0x0b);
-	bk_lcd_8080_write_data(0x06);
-	bk_lcd_8080_write_data(0x04);
-	bk_lcd_8080_write_data(0x15);
-	bk_lcd_8080_write_data(0x2f);
-	bk_lcd_8080_write_data(0x54);
-	bk_lcd_8080_write_data(0x42);
-	bk_lcd_8080_write_data(0x3c);
-	bk_lcd_8080_write_data(0x17);
-	bk_lcd_8080_write_data(0x14);
-	bk_lcd_8080_write_data(0x18);
-	bk_lcd_8080_write_data(0x1b);
-	bk_lcd_8080_write_cmd(ANODE_CTRL); //Negative Voltage Gamma Control
-	bk_lcd_8080_write_data(0xf0);
-	bk_lcd_8080_write_data(0x09);
-	bk_lcd_8080_write_data(0x0b);
-	bk_lcd_8080_write_data(0x06);
-	bk_lcd_8080_write_data(0x04);
-	bk_lcd_8080_write_data(0x03);
-	bk_lcd_8080_write_data(0x2d);
-	bk_lcd_8080_write_data(0x43);
-	bk_lcd_8080_write_data(0x42);
-	bk_lcd_8080_write_data(0x3b);
-	bk_lcd_8080_write_data(0x16);
-	bk_lcd_8080_write_data(0x14);
-	bk_lcd_8080_write_data(0x17);
-	bk_lcd_8080_write_data(0x1b);
+	delay_ms(120);
+	bk_lcd_8080_send_cmd(0, DISPLAY_ON, param_display_on);
 
-	bk_lcd_8080_write_cmd(COMMAND_1);
-	bk_lcd_8080_write_data(0x3c);
-	bk_lcd_8080_write_cmd(COMMAND_1);
-	bk_lcd_8080_write_data(0x69);
-	
-	//delay(16470);
-	delay(16470);//120ms
-	bk_lcd_8080_write_cmd(DISPLAY_ON); //Display ON
 	return BK_OK;
 }
 
-
-void st7796s_set_display_mem_area(uint16 column, uint16 row)
+void st7796s_set_display_mem_area(uint16 xs, uint16 xe, uint16 ys, uint16 ye)
 {
-	/*
-	This function need set in initial.
-	Can't set again in int handle.
-	Will cause imag dislocaled.
-	*/
+	uint16 xs_l, xs_h, xe_l, xe_h;
+	uint16 ys_l, ys_h, ye_l, ye_h; 
 
-	uint16 column_num1,column_num2,row_num1,row_num2;
+	xs_h = xs >> 8;
+	xs_l = xs & 0xff;
 
-	column_num1 = column >> 8;
-	column_num2 = column & 0xff;
+	xe_h = xe >> 8;
+	xe_l = xe & 0xff;
 
-	row_num1 = row >> 8;
-	row_num2 = row & 0xff;
+	ys_h = ys >> 8;
+	ys_l = ys & 0xff;
 
-	bk_lcd_8080_write_cmd(COLUMN_SET);
-	bk_lcd_8080_write_data(0x0);
-	bk_lcd_8080_write_data(0x0);
-	bk_lcd_8080_write_data(column_num1);
-	bk_lcd_8080_write_data(column_num2);
-	
-	bk_lcd_8080_write_cmd(ROW_SET);
-	bk_lcd_8080_write_data(0x0);
-	bk_lcd_8080_write_data(0x0);
-	bk_lcd_8080_write_data(row_num1);
-	bk_lcd_8080_write_data(row_num2);
+	ye_h = ye >> 8;
+	ye_l = ye & 0xff;
+
+	uint32_t param_clumn[4] = {xs_h, xs_l, xe_h, xe_l};
+	uint32_t param_row[4]= {ys_h, ys_l, ye_h, ye_l};
+
+	bk_lcd_8080_send_cmd(4, 0x2a, param_clumn);
+	bk_lcd_8080_send_cmd(4, 0x2b, param_row	);
 }
-
-

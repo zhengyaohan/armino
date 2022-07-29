@@ -14,7 +14,7 @@
 
 #include <stdint.h>
 #include "boot.h"
-#include "bk_private/reset_reason.h"
+#include "reset_reason.h"
 #include <os/os.h>
 #include "bk_arch.h"
 #include "stack_base.h"

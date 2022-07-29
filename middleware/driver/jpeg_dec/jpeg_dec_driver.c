@@ -16,7 +16,6 @@
 #include <common/bk_include.h>
 #include <os/mem.h>
 #include "arch_interrupt.h"
-#include "lcd_disp_ll_macro_def.h"
 #include "lcd_disp_hal.h"
 #include <driver/lcd.h>
 #include "gpio_map.h"
@@ -30,28 +29,16 @@
 #include "sys_driver.h"
 #include <driver/lcd_disp_types.h>
 #include "jpeg_dec_macro_def.h"
+#include "jpeg_dec_ll_macro_def.h"
 #include "jpeg_dec_hal.h"
 #include <driver/jpeg_dec.h>
 #include "driver/jpeg_dec_types.h"
+#include <driver/hal/hal_jpeg_dec_types.h>
 #include <modules/pm.h>
 
-static JDEC jdec;
-volatile uint32_t mcu_idex = 0;
-volatile uint32_t mcu_y_num = 0;
-uint32_t jpegdec_block_num = 0;
-uint32_t jpegdec_pixel_x = 0;
-
 #if (USE_JPEG_DEC_COMPLETE_CALLBACKS == 1)
-typedef struct {
-	jpeg_dec_isr_t callback;
-	uint32_t param;
-} jpeg_decoder_callback_t;
-
-static jpeg_decoder_callback_t s_jpeg_decoder_isr = {NULL};
-
+jpeg_dec_isr_cb_t  s_jpeg_dec_isr[DEC_ISR_MAX] = {NULL};
 static void jpeg_decoder_isr(void);
-static void jpeg_decoder_isr_common(void);
-
 #endif
 
 bk_err_t bk_jpeg_dec_driver_init(void)
@@ -82,117 +69,88 @@ bk_err_t bk_jpeg_dec_driver_deinit(void)
 	return BK_OK;
 }
 
-JRESULT bk_jpeg_dec_init(uint32_t * dec_src_addr, uint32_t *dec_dest_addr)
+bk_err_t bk_jpeg_dec_hw_init(jpeg_dec_xpixel_t xpixel, unsigned char *input_buf, unsigned char * output_buf)
+{
+	jpg_dec_config(xpixel, input_buf, output_buf);
+	jpeg_dec_auto_frame_end_int_en(1);
+	return BK_OK;
+}
+
+bk_err_t bk_jpeg_dec_line_int_en(uint32_t line_num)
+{
+	jpeg_dec_auto_line_num_int_en(1, (line_num / 8));  //line num mast be multiple of 8
+	return BK_OK;
+}
+
+bk_err_t bk_jpeg_dec_line_int_dis(void)
+{
+	jpeg_dec_auto_line_num_int_en(0, 0);  //line num mast be multiple of 8
+	return BK_OK;
+}
+
+JRESULT bk_jpeg_dec_hw_start(void)
 {
 	int ret = 0;
 
-	switch (s_jpeg_decoder_isr.param) {
-		case JPEGDEC_X_PIXEL_720: // PIXEL_1280_720
-			jpegdec_pixel_x = 1280;
-			jpegdec_block_num = 28800;
-			break;
-		case JPEGDEC_X_PIXEL_640: //PIXEL_640_480
-			jpegdec_pixel_x = 640;
-			jpegdec_block_num = 9600;
-			break;
-		case JPEGDEC_X_PIXEL_320: //PIXEL_320_480
-			jpegdec_pixel_x = 320;
-			jpegdec_block_num = 4800;
-			break;
-		case JPEGDEC_X_PIXEL_480: //PIXEL_480_272
-			jpegdec_pixel_x = 480;
-			jpegdec_block_num = 4080;
- 			break;
-		default:
-			break;
-	}
-	ret = JpegdecInit(&jdec, dec_src_addr);
+	ret = JpegdecInit();
 	if(ret != JDR_OK)
 	{
+		os_printf("JpegdecInit error %x \r\n", ret);
 		return ret;
 	}
-	ret = jd_decomp(&jdec, s_jpeg_decoder_isr.param, dec_src_addr, dec_dest_addr);
+	ret = jd_decomp();
 	if(ret != JDR_OK)
 	{
+		os_printf("jd_decomp error %x \r\n", ret);
 		return ret;
 	}
 	return JDR_OK;
 }
 
-bk_err_t bk_jpeg_dec_start(void)
-{
-	//hal_jpeg_dec_start();
-	REG_DC_CLR;
-	REG_DEC_START;
-
-	return BK_OK;
-}
-
-/**
- * @brief  bk_jpeg_dec_isr_register
- * @param1  jpeg_dec_isr
- * @return  none .
- */
-
 
 #if (USE_JPEG_DEC_COMPLETE_CALLBACKS == 1)
-bk_err_t bk_jpeg_dec_complete_cb(jpeg_dec_isr_t isr, jpeg_dec_xpixel_t pixel_x)
+bk_err_t bk_jpeg_dec_isr_register(jpeg_dec_isr_type_t isr_id, jpeg_dec_isr_cb_t cb_isr)
 {
+	if ((isr_id) >= DEC_ISR_MAX) 
+		return BK_FAIL;
+
 	GLOBAL_INT_DECLARATION();
 	GLOBAL_INT_DISABLE();
-	s_jpeg_decoder_isr.callback = isr;
-	s_jpeg_decoder_isr.param = pixel_x;
+	s_jpeg_dec_isr[isr_id] = cb_isr;
 	GLOBAL_INT_RESTORE();
 	return BK_OK;
 }
-
 static void jpeg_decoder_isr(void)
 {
-	uint8_t  bm4;
-//	uint32_t pixel_x = jpegdec_pixel_x;
-//	uint32_t block_num = jpegdec_block_num;
-
-	mcu_y_num = mcu_y_num + 1;
-	if(mcu_y_num == jpegdec_pixel_x/4) {
-		mcu_y_num = 0;
-		REG_JPEG_MCUY = REG_JPEG_MCUY + 8;
-	}
-	mcu_idex++;
-	bm4 = mcu_idex & 0x3;
-	REG_JPEG_MCUX = (mcu_y_num >> 2) << 4;
-
-	if((bm4 == 2) || (bm4 == 3))
-		REG_JPEG_DCUV = 0x1;
-	else
-		REG_JPEG_DCUV = 0x0;
-	
-	if((jpegdec_pixel_x == 480) && (mcu_idex == 2500)) {
-		jpeg_decoder_isr_common();
-	}
-
-	if(mcu_idex == (jpegdec_block_num)) {
-		mcu_idex = 0;
-		REG_JPEG_DCUV = 0x0;
-		REG_JPEG_MCUX= 0;
-		REG_JPEG_MCUY = 0;
-		dec_busy2_clr;
-		REG_JPEG_ACC_REG0 = 0;
-		if ((jpegdec_pixel_x == 1280) || (jpegdec_pixel_x == 640)) {
-			jpeg_decoder_isr_common();
+	if (jpeg_dec_ll_get_reg0x5f_dec_frame_int_clr()) {
+		if(jpeg_dec_ll_get_reg0x2_jpeg_dec_linen())  //enable line num en
+		{
+			if(jpeg_dec_ll_get_reg0x1_mcu_index() == 0) {
+				jpeg_dec_ll_set_reg0x0_jpeg_dec_en(0);
+				jpeg_dec_ll_set_reg0x0_jpeg_dec_en(3);
+				jpeg_dec_ll_set_reg0x5f_dec_frame_int_clr(1);
+				if (s_jpeg_dec_isr[DEC_END_OF_FRAME]) {
+					s_jpeg_dec_isr[DEC_END_OF_FRAME]();
+				}
+			} else {
+				jpeg_dec_ll_set_reg0x8_dec_cmd(JPEGDEC_START);
+				jpeg_dec_ll_set_reg0x5f_dec_frame_int_clr(1);
+				if (s_jpeg_dec_isr[DEC_END_OF_LINE_NUM]) {
+					s_jpeg_dec_isr[DEC_END_OF_LINE_NUM]();
+				}
+			} 
+		} else {
+			jpeg_dec_ll_set_reg0x0_jpeg_dec_en(0);
+			jpeg_dec_ll_set_reg0x0_jpeg_dec_en(3);
+			jpeg_dec_ll_set_reg0x5f_dec_frame_int_clr(1);
+			if (s_jpeg_dec_isr[DEC_END_OF_FRAME]) {
+				s_jpeg_dec_isr[DEC_END_OF_FRAME]();
+			}
 		}
 	} else {
-		dec_busy2_clr;
-		REG_DEC_START;
+		os_printf("int status = %x not auto int and line int \r\n", jpeg_dec_ll_get_reg0x5f_value());
 	}
 }
-
-static void jpeg_decoder_isr_common(void)
-{
-	if (s_jpeg_decoder_isr.callback) {
-		s_jpeg_decoder_isr.callback(NULL);
-	}
-}
-
 
 #else
 bk_err_t  bk_jpeg_dec_isr_register(jpeg_dec_isr_t jpeg_dec_isr)

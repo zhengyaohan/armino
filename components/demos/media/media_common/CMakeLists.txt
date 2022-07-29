@@ -6,4 +6,4 @@ set(srcs
 	)
 endif()
 
-armino_component_register(SRCS "${srcs}" INCLUDE_DIRS "${incs}" PRIV_REQUIRES video audio_transfer audio_transfer_sd)
+armino_component_register(SRCS "${srcs}" INCLUDE_DIRS "${incs}" PRIV_REQUIRES video audio_transfer)

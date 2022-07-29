@@ -58,7 +58,6 @@ audio_transfer_context_t audio_transfer_context;
 static bool aud_trs_drv_mb_busy_status = false;
 #endif
 #endif //CONFIG_AUD_TRAS_MODE_CPU1
-//extern void delay(int num);
 
 /* extern api */
 bk_err_t bk_aud_tras_drv_deinit(void);
@@ -591,7 +590,7 @@ static bk_err_t audio_transfer_encoder_process(void)
 		size = audio_transfer_context.aud_cb.audio_send_mic_data((uint8_t *)temp_tx_context.ping.buff_addr, temp_tx_context.buff_length);
 		if (size != temp_tx_context.buff_length) {
 			//os_printf("send audio data by wifi fail \r\n");
-			os_printf("audio lost \r\n");
+			//os_printf("audio lost \r\n");
 		}
 	}
 #endif

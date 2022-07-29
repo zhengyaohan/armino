@@ -15,6 +15,7 @@
 #pragma once
 
 #include <common/bk_include.h>
+#include <driver/uvc_camera_types.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,6 +24,7 @@ extern "C" {
 typedef enum
 {
 	APP_CAMERA_DVP,
+	APP_CAMERA_YUV,
 	APP_CAMERA_UVC,
 } app_camera_type_t;
 
@@ -36,10 +38,12 @@ bk_err_t media_app_camera_open(app_camera_type_t type);
 bk_err_t media_app_camera_close(app_camera_type_t type);
 bk_err_t media_app_transfer_video_open(void *setup_cfg);
 bk_err_t media_app_transfer_video_close(void);
-bk_err_t media_app_lcd_open(void);
+bk_err_t media_app_lcd_open(uint32_t lcd_ppi);
 bk_err_t media_app_lcd_close(void);
 bk_err_t media_app_capture(char *name);
-
+bk_err_t media_app_uvc_start(void);
+bk_err_t media_app_uvc_stop(void);
+bk_err_t media_app_uvc_param_set(uvc_camera_device_t *param);
 
 #ifdef __cplusplus
 }

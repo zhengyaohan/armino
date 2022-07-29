@@ -636,7 +636,7 @@ int gc0328c_init(const dvp_camera_config_t *config)
 }
 
 
-int gc0328c_set_ppi(const dvp_camera_config_t *config, sensor_ppi_t ppi)
+int gc0328c_set_ppi(const dvp_camera_config_t *config, media_ppi_t ppi)
 {
 	uint32_t size, i;
 	int ret = -1;
@@ -801,16 +801,18 @@ int gc0328c_set_fps(const dvp_camera_config_t *config, sensor_fps_t fps)
 const dvp_sensor_config_t dvp_sensor_gc0328c =
 {
 	.name = "gc0328c",
+	.clk = JPEG_96M_MCLK_24M,
 	/* default config */
 	.def_ppi = PPI_640X480,
 	.def_fps = FPS20,
 	/* capability config */
 	.fps_cap = FPS5 | FPS10 | FPS20 | FPS25 | FPS30,
-	.ppi_cap = PPI_320X240 | PPI_480X272 | PPI_640X480,
+	.ppi_cap = PPI_SUPPORT_320X240 | PPI_SUPPORT_480X272 | PPI_SUPPORT_640X480,
 	.id = ID_GC0328C,
-	.address = GC0328C_WRITE_ADDRESS >> 1, //0x21
+	.address = (GC0328C_WRITE_ADDRESS >> 1),
 	.init = gc0328c_init,
 	.detect = gc0328c_detect,
 	.set_ppi = gc0328c_set_ppi,
 	.set_fps = gc0328c_set_fps,
 };
+

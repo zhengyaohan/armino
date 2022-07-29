@@ -19,7 +19,8 @@ extern "C" {
 #endif
 
 #define SOC_DMA_UNIT_NUM               1
-#define SOC_DMA_CHAN_NUM_PER_UNIT      6
+#define SOC_DMA_CHAN_NUM_PER_UNIT      12
+
 
 #ifdef __cplusplus
 }

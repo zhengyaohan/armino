@@ -22,7 +22,9 @@
 #include <driver/adc.h>
 #include "drv_model.h"
 #include "sys_driver.h"
+#if CONFIG_FLASH_ORIGIN_API
 #include "flash.h"
+#endif
 
 #define CFG_USE_TEMPERATURE_DETECT                 1
 #define CFG_SUPPORT_SARADC                         1

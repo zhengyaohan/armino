@@ -109,7 +109,7 @@ static void media_major_message_handle(void)
 {
 	bk_err_t ret = BK_OK;
 	media_msg_t msg;
-	
+
 	frame_buffer_init();
 
 #ifdef CONFIG_CAMERA
@@ -126,6 +126,10 @@ static void media_major_message_handle(void)
 
 #ifdef CONFIG_CAMERA
 	storage_init();
+#endif
+
+#ifdef CONFIG_USB_UVC
+	uvc_camera_init();
 #endif
 
 	while (1)
@@ -168,6 +172,12 @@ static void media_major_message_handle(void)
 #ifdef CONFIG_CAMERA
 				case STORAGE_EVENT:
 					storage_event_handle(msg.event, msg.param);
+					break;
+#endif
+
+#if CONFIG_USB_UVC
+				case UVC_EVENT:
+					uvc_camera_event_handle(msg.event, msg.param);
 					break;
 #endif
 
@@ -249,7 +259,7 @@ bk_err_t media_major_init(void)
 		LOGE("create media major thread fail\n");
 		goto error;
 	}
-	
+
 	media_app_init();
 
 #ifdef CONFIG_DUAL_CORE

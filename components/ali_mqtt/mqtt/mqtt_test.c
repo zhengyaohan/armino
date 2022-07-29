@@ -12,7 +12,7 @@
 #include "iot_export_mqtt.h"
 
 #if CONFIG_SHELL_ASYNCLOG
-#include "shell_task.h"
+#include "components/shell_task.h"
 #endif
 
 #include <os/os.h>

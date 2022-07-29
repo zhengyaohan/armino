@@ -2,4 +2,8 @@ menu "HTTP_CONFIG"
 	config HTTP
 		bool "Enable http"
 		default y
+
+	config HTTP_OTA_WITH_BLE
+		bool "Disable http ota with ble"
+		default n
 endmenu

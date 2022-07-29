@@ -27,6 +27,7 @@ static void cli_sdio_host_help(void)
 {
 	CLI_LOGI("sdio_host_driver init\r\n");
 	CLI_LOGI("sdio_host driver deinit\r\n");
+	CLI_LOGI("sdio send_cmd Index Arg(hex-decimal) RSP_Type Timeout_Value\r\n");
 }
 
 static void cli_sdio_host_driver_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -66,19 +67,20 @@ static void cli_sdio_host_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc
 	} else if (os_strcmp(argv[1], "deinit") == 0) {
 		BK_LOG_ON_ERR(bk_sdio_host_deinit());
 		CLI_LOGI("sdio host deinit\r\n");
-	} else if (os_strcmp(argv[1], "send_command") == 0) {
+	} else if (os_strcmp(argv[1], "send_cmd") == 0) {
 		bk_err_t error_state = BK_OK;
 		sdio_host_cmd_cfg_t cmd_cfg = {0};
 
-		cmd_cfg.cmd_index = SD_CMD_GO_IDLE_STATE;
-		cmd_cfg.argument = 0;
-		cmd_cfg.response = SDIO_HOST_CMD_RSP_NONE;
-		cmd_cfg.wait_rsp_timeout = CMD_TIMEOUT_200K;
+		//modify to send cmd by parameter,then we can easy to debug any cmds.
+		cmd_cfg.cmd_index = os_strtoul(argv[2], NULL, 10);			//CMD0,CMD-XXX,SD_CMD_GO_IDLE_STATE
+		cmd_cfg.argument = os_strtoul(argv[3], NULL, 16);			//0x123456xx
+		cmd_cfg.response = os_strtoul(argv[4], NULL, 10);			//SDIO_HOST_CMD_RSP_NONE,SHORT,LONG
+		cmd_cfg.wait_rsp_timeout = os_strtoul(argv[5], NULL, 10);	//CMD_TIMEOUT_200K;
 
 		bk_sdio_host_send_command(&cmd_cfg);
 		error_state = bk_sdio_host_wait_cmd_response(cmd_cfg.cmd_index);
 		if (error_state != BK_OK) {
-			CLI_LOGW("sd card cmd0 go_idle_state err:-%x\r\n", -error_state);
+			CLI_LOGW("sdio:cmd %d err:-%x\r\n", cmd_cfg.cmd_index, -error_state);
 		}
 	} else if (os_strcmp(argv[1], "config_data") == 0) {
 		sdio_host_data_config_t data_config = {0};
@@ -191,8 +193,8 @@ static void cli_sd_card_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, 
 #define SDIO_HOST_CMD_CNT (sizeof(s_sdio_host_commands) / sizeof(struct cli_command))
 static const struct cli_command s_sdio_host_commands[] = {
 	{"sdio_host_driver", "sdio_host_driver {init|deinit}", cli_sdio_host_driver_cmd},
-	{"sdio", "sdio {init|read}", cli_sdio_host_cmd},
-	{"sd_card", "sd_card {init|read}", cli_sd_card_cmd},
+	{"sdio", "sdio {init|deinit|send_cmd|config_data}", cli_sdio_host_cmd},
+	{"sd_card", "sd_card {init|read|write|erase|cmp|}", cli_sd_card_cmd},
 };
 
 int cli_sdio_host_init(void)

@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-#define WDT_R_BASE                  (SOC_AON_WDT_REG_BASE) //AON_WDT
+#define WDT_R_BASE                  (SOC_WDT_REG_BASE) //AON_WDT
 
 #define WDT_R_CTRL                  (WDT_R_BASE)
 

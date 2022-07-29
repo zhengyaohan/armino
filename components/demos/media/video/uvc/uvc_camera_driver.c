@@ -16,7 +16,7 @@
 #include <os/os.h>
 #include <stdio.h>
 #include <components/uvc_camera.h>
-#include <components/uvc_camera_types.h>
+#include <driver/uvc_camera_types.h>
 #include <os/mem.h>
 #include "bk_usb.h"
 #include "bk_drv_model.h"
@@ -476,7 +476,7 @@ bk_err_t bk_uvc_register_frame_capture_callback(void *cb)
 	return BK_OK;
 }
 
-bk_err_t bk_uvc_get_ppi_fps(uvc_ppi_fps_t *param, uint16_t count)
+bk_err_t bk_uvc_get_ppi_fps(uvc_camera_device_t *param, uint16_t count)
 {
 	if (param == NULL)
 		return BK_FAIL;
