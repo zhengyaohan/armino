@@ -31,6 +31,9 @@
 #define LOGI(...) BK_LOGI(TAG, ##__VA_ARGS__)
 
 
+#define SENSOR_I2C_RERAD(reg, value)  cb->read_uint8((GC0328C_WRITE_ADDRESS >> 1), reg, value)
+#define SENSOR_I2C_WRITE(reg, value)  cb->write_uint8((GC0328C_WRITE_ADDRESS >> 1), reg, value)
+
 // gc0328c_DEV
 const uint8_t sensor_gc0328c_init_talbe[][2] =
 {
@@ -566,6 +569,28 @@ const uint8_t sensor_gc0328c_QVGA_320_240_talbe[][2] =
 	{0x58, 0x40},
 };
 
+const uint8_t sensor_gc0328c_VGA_320_480_talbe[][2] =
+{
+#if (GC_QVGA_USE_SUBSAMPLE == 1)
+	{0xFE, 0x00},
+	{0x59, 0x11},
+#endif
+
+	{0xFE, 0x00},
+	{0x50, 0x01},
+	{0x51, 0x00},
+	{0x52, 0x00},
+	{0x53, 0x00},
+	{0x54, 0x00},
+
+	{0x55, 0x01},
+	{0x56, 0xe0},
+	{0x57, 0x01},
+	{0x58, 0x40},
+};
+
+
+
 const uint8_t sensor_gc0328c_VGA_640_480_talbe[][2] =
 {
 #if (GC_QVGA_USE_SUBSAMPLE == 1)
@@ -587,19 +612,11 @@ const uint8_t sensor_gc0328c_VGA_640_480_talbe[][2] =
 };
 
 
-bool gc0328c_detect(const dvp_camera_config_t *config)
+bool gc0328c_detect(const dvp_camera_i2c_callback_t *cb)
 {
-	i2c_mem_param_t mem_param = {0};
 	uint8_t data = 0;
 
-	mem_param.dev_addr = GC0328C_WRITE_ADDRESS >> 1;
-	mem_param.mem_addr_size = I2C_MEM_ADDR_SIZE_8BIT;
-	mem_param.data_size = 1;
-	mem_param.timeout_ms = 2000;
-	mem_param.mem_addr = 0xF0;
-	mem_param.data = &data;
-
-	bk_i2c_memory_read(config->host->id, &mem_param);
+	SENSOR_I2C_RERAD(0xF0, &data);
 
 	LOGI("%s, id: 0x%02X\n", __func__, data);
 
@@ -613,41 +630,27 @@ bool gc0328c_detect(const dvp_camera_config_t *config)
 }
 
 
-int gc0328c_init(const dvp_camera_config_t *config)
+int gc0328c_init(const dvp_camera_i2c_callback_t *cb)
 {
 	uint32_t size = sizeof(sensor_gc0328c_init_talbe) / 2, i;
 
 	LOGI("%s\n", __func__);
 
-	i2c_mem_param_t mem_param = {0};
-	mem_param.dev_addr = GC0328C_WRITE_ADDRESS >> 1;
-	mem_param.mem_addr_size = I2C_MEM_ADDR_SIZE_8BIT;
-	mem_param.data_size = 1;
-	mem_param.timeout_ms = 2000;
-
 	for (i = 0; i < size; i++)
 	{
-		mem_param.mem_addr = sensor_gc0328c_init_talbe[i][0];
-		mem_param.data = (uint8_t *)(&sensor_gc0328c_init_talbe[i][1]);
-		BK_LOG_ON_ERR(bk_i2c_memory_write(config->host->id, &mem_param));
+		SENSOR_I2C_WRITE(sensor_gc0328c_init_talbe[i][0], sensor_gc0328c_init_talbe[i][1]);
 	}
 
 	return 0;
 }
 
 
-int gc0328c_set_ppi(const dvp_camera_config_t *config, media_ppi_t ppi)
+int gc0328c_set_ppi(const dvp_camera_i2c_callback_t *cb, media_ppi_t ppi)
 {
 	uint32_t size, i;
 	int ret = -1;
-	i2c_mem_param_t mem_param = {0};
 
 	LOGI("%s\n", __func__);
-
-	mem_param.dev_addr = GC0328C_WRITE_ADDRESS >> 1;
-	mem_param.mem_addr_size = I2C_MEM_ADDR_SIZE_8BIT;
-	mem_param.data_size = 1;
-	mem_param.timeout_ms = 2000;
 
 	switch (ppi)
 	{
@@ -657,9 +660,21 @@ int gc0328c_set_ppi(const dvp_camera_config_t *config, media_ppi_t ppi)
 
 			for (i = 0; i < size; i++)
 			{
-				mem_param.mem_addr = sensor_gc0328c_QVGA_320_240_talbe[i][0];
-				mem_param.data = (uint8_t *)(&sensor_gc0328c_QVGA_320_240_talbe[i][1]);
-				BK_LOG_ON_ERR(bk_i2c_memory_write(config->host->id, &mem_param));
+				SENSOR_I2C_WRITE(sensor_gc0328c_QVGA_320_240_talbe[i][0],
+					sensor_gc0328c_QVGA_320_240_talbe[i][1]);
+			}
+
+			ret = 0;
+		}
+		break;
+		case PPI_320X480:
+		{
+			size = sizeof(sensor_gc0328c_VGA_320_480_talbe) / 2;
+
+			for (i = 0; i < size; i++)
+			{
+				SENSOR_I2C_WRITE(sensor_gc0328c_VGA_320_480_talbe[i][0],
+					sensor_gc0328c_VGA_320_480_talbe[i][1]);
 			}
 
 			ret = 0;
@@ -672,9 +687,8 @@ int gc0328c_set_ppi(const dvp_camera_config_t *config, media_ppi_t ppi)
 
 			for (i = 0; i < size; i++)
 			{
-				mem_param.mem_addr = sensor_gc0328c_WQVGA_480_272_talbe[i][0];
-				mem_param.data = (uint8_t *)(&sensor_gc0328c_WQVGA_480_272_talbe[i][1]);
-				BK_LOG_ON_ERR(bk_i2c_memory_write(config->host->id, &mem_param));
+				SENSOR_I2C_WRITE(sensor_gc0328c_WQVGA_480_272_talbe[i][0],
+					sensor_gc0328c_WQVGA_480_272_talbe[i][1]);
 			}
 
 			ret = 0;
@@ -686,9 +700,8 @@ int gc0328c_set_ppi(const dvp_camera_config_t *config, media_ppi_t ppi)
 
 			for (i = 0; i < size; i++)
 			{
-				mem_param.mem_addr = sensor_gc0328c_VGA_640_480_talbe[i][0];
-				mem_param.data = (uint8_t *)(&sensor_gc0328c_VGA_640_480_talbe[i][1]);
-				BK_LOG_ON_ERR(bk_i2c_memory_write(config->host->id, &mem_param));
+				SENSOR_I2C_WRITE(sensor_gc0328c_VGA_640_480_talbe[i][0],
+					sensor_gc0328c_VGA_640_480_talbe[i][1]);
 			}
 
 			ret = 0;
@@ -705,18 +718,12 @@ int gc0328c_set_ppi(const dvp_camera_config_t *config, media_ppi_t ppi)
 	return ret;
 }
 
-int gc0328c_set_fps(const dvp_camera_config_t *config, sensor_fps_t fps)
+int gc0328c_set_fps(const dvp_camera_i2c_callback_t *cb, sensor_fps_t fps)
 {
 	uint32_t size, i;
 	int ret = -1;
-	i2c_mem_param_t mem_param = {0};
 
 	LOGI("%s\n", __func__);
-
-	mem_param.dev_addr = GC0328C_WRITE_ADDRESS >> 1;
-	mem_param.mem_addr_size = I2C_MEM_ADDR_SIZE_8BIT;
-	mem_param.data_size = 1;
-	mem_param.timeout_ms = 2000;
 
 	switch (fps)
 	{
@@ -726,9 +733,8 @@ int gc0328c_set_fps(const dvp_camera_config_t *config, sensor_fps_t fps)
 
 			for (i = 0; i < size; i++)
 			{
-				mem_param.mem_addr = sensor_gc0328c_QVGA_320_240_talbe[i][0];
-				mem_param.data = (uint8_t *)(&sensor_gc0328c_QVGA_320_240_talbe[i][1]);
-				BK_LOG_ON_ERR(bk_i2c_memory_write(config->host->id, &mem_param));
+				SENSOR_I2C_WRITE(sensor_gc0328c_5pfs_talbe[i][0],
+					sensor_gc0328c_5pfs_talbe[i][1]);
 			}
 
 			ret = 0;
@@ -740,9 +746,8 @@ int gc0328c_set_fps(const dvp_camera_config_t *config, sensor_fps_t fps)
 
 			for (i = 0; i < size; i++)
 			{
-				mem_param.mem_addr = sensor_gc0328c_10pfs_talbe[i][0];
-				mem_param.data = (uint8_t *)(&sensor_gc0328c_10pfs_talbe[i][1]);
-				BK_LOG_ON_ERR(bk_i2c_memory_write(config->host->id, &mem_param));
+				SENSOR_I2C_WRITE(sensor_gc0328c_10pfs_talbe[i][0],
+					sensor_gc0328c_10pfs_talbe[i][1]);
 			}
 
 			ret = 0;
@@ -756,9 +761,8 @@ int gc0328c_set_fps(const dvp_camera_config_t *config, sensor_fps_t fps)
 
 			for (i = 0; i < size; i++)
 			{
-				mem_param.mem_addr = sensor_gc0328c_20pfs_talbe[i][0];
-				mem_param.data = (uint8_t *)(&sensor_gc0328c_20pfs_talbe[i][1]);
-				BK_LOG_ON_ERR(bk_i2c_memory_write(config->host->id, &mem_param));
+				SENSOR_I2C_WRITE(sensor_gc0328c_20pfs_talbe[i][0],
+					sensor_gc0328c_20pfs_talbe[i][1]);
 			}
 
 			ret = 0;
@@ -770,9 +774,8 @@ int gc0328c_set_fps(const dvp_camera_config_t *config, sensor_fps_t fps)
 
 			for (i = 0; i < size; i++)
 			{
-				mem_param.mem_addr = sensor_gc0328c_25pfs_talbe[i][0];
-				mem_param.data = (uint8_t *)(&sensor_gc0328c_25pfs_talbe[i][1]);
-				BK_LOG_ON_ERR(bk_i2c_memory_write(config->host->id, &mem_param));
+				SENSOR_I2C_WRITE(sensor_gc0328c_25pfs_talbe[i][0],
+					sensor_gc0328c_25pfs_talbe[i][1]);
 			}
 
 			ret = 0;
@@ -784,9 +787,8 @@ int gc0328c_set_fps(const dvp_camera_config_t *config, sensor_fps_t fps)
 
 			for (i = 0; i < size; i++)
 			{
-				mem_param.mem_addr = sensor_gc0328c_30pfs_talbe[i][0];
-				mem_param.data = (uint8_t *)(&sensor_gc0328c_30pfs_talbe[i][1]);
-				BK_LOG_ON_ERR(bk_i2c_memory_write(config->host->id, &mem_param));
+				SENSOR_I2C_WRITE(sensor_gc0328c_30pfs_talbe[i][0],
+					sensor_gc0328c_30pfs_talbe[i][1]);
 			}
 
 			ret = 0;
@@ -807,7 +809,7 @@ const dvp_sensor_config_t dvp_sensor_gc0328c =
 	.def_fps = FPS20,
 	/* capability config */
 	.fps_cap = FPS5 | FPS10 | FPS20 | FPS25 | FPS30,
-	.ppi_cap = PPI_SUPPORT_320X240 | PPI_SUPPORT_480X272 | PPI_SUPPORT_640X480,
+	.ppi_cap = PPI_CAP_320X240 | PPI_CAP_320X480 | PPI_CAP_480X272 | PPI_CAP_640X480,
 	.id = ID_GC0328C,
 	.address = (GC0328C_WRITE_ADDRESS >> 1),
 	.init = gc0328c_init,

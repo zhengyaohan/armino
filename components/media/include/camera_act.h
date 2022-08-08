@@ -44,6 +44,7 @@ typedef enum
 typedef struct
 {
 	uvc_state_t state;
+	uint32_t debug : 1;
 	uint32_t param;
 } uvc_info_t;
 

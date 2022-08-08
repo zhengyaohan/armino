@@ -28,6 +28,34 @@
 
 #define UNKNOW_ERROR (-686)
 
+
+uint32_t get_string_to_ppi(char *string, uint32_t pre)
+{
+	uint32_t value = pre;
+
+	if (os_strcmp(string, "1024X600") == 0)
+	{
+		value = PPI_1024X600;
+	}
+
+	if (os_strcmp(string, "640X480") == 0)
+	{
+		value = PPI_640X480;
+	}
+
+	if (os_strcmp(string, "480X272") == 0)
+	{
+		value = PPI_480X272;
+	}
+
+	if (os_strcmp(string, "320X480") == 0)
+	{
+		value = PPI_320X480;
+	}
+
+	return value;
+}
+
 void media_cli_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 	int ret = UNKNOW_ERROR;
@@ -39,15 +67,17 @@ void media_cli_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 		if (os_strcmp(argv[1], "dvp") == 0)
 		{
 #if (defined(CONFIG_CAMERA) && !defined(CONFIG_SLAVE_CORE))
+			media_ppi_t ppi = get_string_to_ppi(argv[4], PPI_DEFAULT);
+
 			if (os_strcmp(argv[2], "open") == 0)
 			{
 				if (os_strcmp(argv[3], "yuv") == 0)
 				{
-					ret = media_app_camera_open(APP_CAMERA_YUV);
+					ret = media_app_camera_open(APP_CAMERA_YUV, ppi);
 				}
 				else
 				{
-					ret = media_app_camera_open(APP_CAMERA_DVP);
+					ret = media_app_camera_open(APP_CAMERA_DVP, ppi);
 				}
 			}
 
@@ -98,15 +128,7 @@ void media_cli_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 #if defined(CONFIG_LCD) && !defined(CONFIG_SLAVE_CORE)
 			media_ppi_t ppi = PPI_480X272;
 
-			if (os_strcmp(argv[3], "480X272") == 0)
-			{
-				ppi = PPI_480X272;
-			}
-
-			if (os_strcmp(argv[3], "1024X600") == 0)
-			{
-				ppi = PPI_1024X600;
-			}
+			ppi = get_string_to_ppi(argv[3], PPI_480X272);
 
 			if (os_strcmp(argv[2], "open") == 0)
 			{
@@ -117,14 +139,22 @@ void media_cli_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 			{
 				ret = media_app_lcd_close();
 			}
+
+			if (os_strcmp(argv[2], "backlight") == 0)
+			{
+				uint8_t level = os_strtoul(argv[3], NULL, 10) & 0xFF;
+				ret = media_app_lcd_set_backlight(level);
+			}
 #endif
 		}
 		if (os_strcmp(argv[1], "uvc") == 0)
 		{
 #if defined(CONFIG_USB_UVC) && !defined(CONFIG_SLAVE_CORE)
+			media_ppi_t ppi = PPI_DEFAULT;
+
 			if (os_strcmp(argv[2], "open") == 0)
 			{
-				ret = media_app_camera_open(APP_CAMERA_UVC);
+				ret = media_app_camera_open(APP_CAMERA_UVC, ppi);
 			}
 
 			if (os_strcmp(argv[2], "start") == 0)
@@ -159,6 +189,14 @@ void media_cli_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 			}
 #endif
 		}
+
+#ifdef CONFIG_MASTER_CORE
+		if (os_strcmp(argv[1], "mb") == 0)
+		{
+			media_app_mailbox_test();
+		}
+#endif
+
 	}
 
 	if (ret == UNKNOW_ERROR)

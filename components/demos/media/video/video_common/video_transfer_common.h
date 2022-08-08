@@ -91,7 +91,7 @@ typedef enum {
 typedef struct {
 	uint8_t type;
 	uint32_t data;
-}video_cpu_msg_t;
+}video_msg_t;
 
 typedef struct {
 	uint32_t dev_id;

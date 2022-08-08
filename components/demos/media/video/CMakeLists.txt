@@ -54,7 +54,6 @@ if (CONFIG_CAMERA OR CONFIG_SPIDMA)
 if (CONFIG_APP_DEMO_VIDEO_TRANSFER)
 	list(APPEND srcs
 		"video_transfer/video_transfer.c"
-		"video_transfer/video_transfer_save.c"
 		"dvp_capture/dvp_capture.c"
 		)
 endif()

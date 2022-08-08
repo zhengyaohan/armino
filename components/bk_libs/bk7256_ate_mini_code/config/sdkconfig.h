@@ -7,7 +7,6 @@
 #define CONFIG_SOC_STR "bk7256"
 #define CONFIG_SOC_ARCH "riscv"
 #define CONFIG_SOC_BK7256XX 1
-#define CONFIG_BK7256XX_MP 1
 #define CONFIG_TOOLCHAIN_PATH "/opt/risc-v/nds32le-elf-mculib-v5/bin"
 #define CONFIG_TOOLCHAIN_PREFIX "riscv32-elf-"
 #define CONFIG_DEBUG_FIRMWARE 1
@@ -86,6 +85,7 @@
 #define CONFIG_JPEG_DEC 1
 #define CONFIG_EFUSE 1
 #define CONFIG_AUDIO_RISCV_IP_V1_0 1
+#define CONFIG_CHANGE_JTAG_GPIO 1
 #define CONFIG_ARCH_RISCV 1
 #define CONFIG_NEST_INT_SUPPORT 1
 #define CONFIG_MEMDUMP_ALL 1

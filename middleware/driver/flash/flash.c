@@ -11,7 +11,7 @@
 #include "bk_mcu_ps.h"
 #include <os/mem.h>
 #include <components/log.h>
-#include "bk_private/bk_ate.h"
+#include <components/ate.h>
 #include "bk_pm_model.h"
 #include "sys_driver.h"
 #include "flash_bypass.h"

@@ -134,7 +134,7 @@ static uint16_t tempd_calculate_temperature(void)
 	sum2 = s_raw_temperature_data[3] + s_raw_temperature_data[4];
 	sum = sum1 / 2 + sum2 / 2;
 	sum = sum / 2;
-	sum = sum / 6;
+	sum = sum / 16;
 	s_raw_temperature_data[0] = sum;
 
 #else

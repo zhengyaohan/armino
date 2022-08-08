@@ -52,7 +52,7 @@ extern void transfer_dump(uint32_t ms);
 #if CONFIG_LCD
 extern uint32_t media_jpg_isr_count;
 extern uint32_t media_decoder_isr_count;
-extern uint32_t media_rgb_isr_count;
+extern uint32_t media_lcd_isr_count;
 #endif
 
 
@@ -62,11 +62,11 @@ static void dvp_debug_dump(timer_id_t timer_id)
 {
 	transfer_dump(DEBUG_INTERVAL);
 #if CONFIG_LCD
-	LOGI("ISR, jpg: %d, decoder: %d, rgb: %d\n", media_jpg_isr_count, media_decoder_isr_count, media_rgb_isr_count);
+	LOGI("ISR, jpg: %d, decoder: %d, lcd: %d\n", media_jpg_isr_count, media_decoder_isr_count, media_lcd_isr_count);
 #endif
 }
 
-void dvp_open_handle(param_pak_t *param)
+void dvp_open_handle(param_pak_t *param, dvp_mode_t mode)
 {
 	int ret = 0;
 
@@ -81,7 +81,7 @@ void dvp_open_handle(param_pak_t *param)
 
 	frame_buffer_enable(true);
 
-	ret = bk_dvp_camera_open(param->param);
+	ret = bk_dvp_camera_open(param->param, mode);
 
 
 	if (ret != kNoErr)
@@ -120,7 +120,7 @@ void dvp_close_handle(param_pak_t *param)
 
 	if (dvp_info.debug)
 	{
-		bk_timer_stop(TIMER_ID3);
+		bk_timer_stop(TIMER_ID1);
 	}
 
 
@@ -134,8 +134,11 @@ void dvp_camera_event_handle(uint32_t event, uint32_t param)
 {
 	switch (event)
 	{
-		case EVENT_DVP_OPEN_IND:
-			dvp_open_handle((param_pak_t *)param);
+		case EVENT_DVP_JPEG_OPEN_IND:
+			dvp_open_handle((param_pak_t *)param, DVP_MODE_JPG);
+			break;
+		case EVENT_DVP_YUV_OPEN_IND:
+			dvp_open_handle((param_pak_t *)param, DVP_MODE_YUV);
 			break;
 		case EVENT_DVP_CLOSE_IND:
 			dvp_close_handle((param_pak_t *)param);

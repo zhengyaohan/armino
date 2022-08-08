@@ -282,6 +282,10 @@ if (CONFIG_DOORBELL)
 	list(APPEND srcs cli_doorbell.c)
 endif()
 
+if (CONFIG_PSRAM)
+	list(APPEND srcs cli_psram.c)
+endif()
+
 armino_component_register(SRCS "${srcs}"
 	INCLUDE_DIRS "${incs}"
 	REQUIRES utf8 temp_detect app driver user_driver bk_system iperf fatfs user_driver http

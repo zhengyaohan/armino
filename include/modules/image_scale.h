@@ -65,6 +65,11 @@ int image_16bit_rotate90_clockwise(uint8_t *des, uint8_t *src, uint32_t img_widt
 int yuyv_rotate_degree90(unsigned char *yuyv, unsigned char *rotatedYuyv, int width, int height);
 
 /**
+ * @brief yuyv data clockwise rotate90
+ */
+int vuyy_rotate_degree90(unsigned char *yuyv, unsigned char *rotatedYuyv, int width, int height);
+
+/**
  * @brief  uyvy422 data convert to RGB565 data
  */
 int uyvy_to_rgb565_convert(unsigned char *src_buf, unsigned char *out_buf,int img_width, int img_height);

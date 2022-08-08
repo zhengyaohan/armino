@@ -1471,6 +1471,10 @@ int bk_cli_init(void)
 	media_cli_init();
 #endif
 
+#if (CLI_CFG_PSRAM)
+	cli_psram_init();
+#endif
+
 
 	/* sort cmds after registered all cmds. */
 	cli_sort_command(NULL, 0, 0, NULL);

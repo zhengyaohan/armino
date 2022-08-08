@@ -27,10 +27,17 @@ APP_VERSION := unknow
 endif
 
 ifeq ("$(PROJECT)", "")
-	export PROJECT := legacy_app
+	export PROJECT := app
 else
 	export PROJECT := $(PROJECT)
 endif
+
+ifeq ("$(PROJECT_LIBS)", "")
+	export PROJECT_LIBS := $(PROJECT)
+else
+	export PROJECT_LIBS := $(PROJECT_LIBS)
+endif
+
 
 ifeq ("$(PROJECT_DIR)", "")
 	export PROJECT_DIR := projects/$(PROJECT)

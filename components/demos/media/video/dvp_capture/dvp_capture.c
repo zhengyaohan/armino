@@ -6,8 +6,6 @@
 #include <driver/timer.h>
 #include <components/video_transfer.h>
 #include <components/dvp_camera.h>
-#include "video_transfer_log.h"
-#include "video_transfer_save.h"
 #include "video_transfer_cpu0.h"
 #if (CONFIG_SDCARD_HOST)
 #include "ff.h"
@@ -281,10 +279,6 @@ static int video_buff_read_image(void)
 }
 #endif
 
-static void pkt_calc_log_timer_isr(timer_id_t chan)
-{
-	bk_video_transfer_pkt_calc_enable(1);
-}
 
 void image_save_dvp(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
@@ -394,26 +388,6 @@ error1:
 			os_printf("set camera ppi and fps error\n");
 			return;
 		}
-	} else if (os_strcmp(argv[1], "log") == 0) {
-		uint8_t enable = os_strtoul(argv[2], NULL, 10);
-		bk_video_transfer_log_enable(enable);
-	} else if (os_strcmp(argv[1], "save_image") == 0) {
-		uint8_t enable = os_strtoul(argv[2], NULL, 10);
-		bk_video_transfer_image_save_enable(enable);
-	} else if (os_strcmp(argv[1], "pkt_calc") == 0) {
-		uint8_t enable = os_strtoul(argv[2], NULL, 10);
-		if (enable) {
-			int ret = 0;
-			ret = bk_timer_start(TIMER_ID0, 1000, pkt_calc_log_timer_isr);
-			if (ret != BK_OK) {
-				os_printf("Timer start failed\r\n");
-			}
-		} else {
-			bk_timer_stop(TIMER_ID0);
-		}
-	} else if (os_strcmp(argv[1], "pkt_reset") == 0) {
-		uint8_t enable = os_strtoul(argv[2], NULL, 10);
-		bk_video_transfer_pkt_reset_enable(enable);
 	}
 
 #if (CONFIG_DUAL_CORE && CONFIG_PSRAM)

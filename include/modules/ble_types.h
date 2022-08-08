@@ -362,6 +362,12 @@ typedef enum
     BLE_5_CREATE_DB,
     /// tx complete event, param null
     BLE_5_TX_DONE,
+    ///smp report
+    BLE_5_PAIRING_REQ,
+    BLE_5_PAIRING_SUCCEED,
+    BLE_5_PAIRING_FAILED,
+    BLE_5_PARING_PASSKEY_REQ,
+    BLE_5_ENCRYPT_EVENT,
 
     /// as master, recv connect event
     BLE_5_INIT_CONNECT_EVENT,
@@ -438,6 +444,12 @@ struct ble_sdp_char_desc_inf
     /// Descriptor handle
     uint16_t desc_hdl;
 };
+
+typedef struct
+{
+    uint8_t conn_idx;
+	uint8_t status;
+} ble_smp_ind_t;
 
 
 typedef enum{
@@ -800,6 +812,84 @@ typedef void (*ble_notice_cb_t)(ble_notice_t notice, void *param);
 **/
 typedef ble_err_t (*ble_hci_to_host_cb)(uint8_t *buf, uint16_t len);
 
+/// Authentication mask
+enum gap_auth_mask
+{
+    /// No Flag set
+    GAP_AUTH_NONE    = 0,
+    /// Bond authentication
+    GAP_AUTH_BOND    = (1 << 0),
+    /// Man In the middle protection
+    GAP_AUTH_MITM    = (1 << 2),
+    /// Secure Connection
+    GAP_AUTH_SEC_CON = (1 << 3),
+    /// Key Notification
+    GAP_AUTH_KEY_NOTIF = (1 << 4)
+};
+
+enum gap_auth
+{
+    /// No MITM No Bonding
+    GAP_AUTH_REQ_NO_MITM_NO_BOND  = (GAP_AUTH_NONE),
+    /// No MITM Bonding
+    GAP_AUTH_REQ_NO_MITM_BOND     = (GAP_AUTH_BOND),
+    /// MITM No Bonding
+    GAP_AUTH_REQ_MITM_NO_BOND     = (GAP_AUTH_MITM),
+    /// MITM and Bonding
+    GAP_AUTH_REQ_MITM_BOND        = (GAP_AUTH_MITM | GAP_AUTH_BOND),
+    /// SEC_CON and No Bonding
+    GAP_AUTH_REQ_SEC_CON_NO_BOND  = (GAP_AUTH_SEC_CON | GAP_AUTH_MITM),
+    /// SEC_CON and Bonding
+    GAP_AUTH_REQ_SEC_CON_BOND     = (GAP_AUTH_SEC_CON | GAP_AUTH_MITM | GAP_AUTH_BOND),
+
+    GAP_AUTH_REQ_LAST,
+
+    /// Mask of  authentication features without reserved flag
+    GAP_AUTH_REQ_MASK             = 0x1F,
+};
+
+/// IO Capability Values
+enum gap_io_cap
+{
+    /// Display Only
+    GAP_IO_CAP_DISPLAY_ONLY = 0x00,
+    /// Display Yes No
+    GAP_IO_CAP_DISPLAY_YES_NO,
+    /// Keyboard Only
+    GAP_IO_CAP_KB_ONLY,
+    /// No Input No Output
+    GAP_IO_CAP_NO_INPUT_NO_OUTPUT,
+    /// Keyboard Display
+    GAP_IO_CAP_KB_DISPLAY,
+    GAP_IO_CAP_LAST
+};
+
+/// Security Defines
+enum gap_sec_req
+{
+    /// No security (no authentication and encryption)
+    GAP_NO_SEC = 0x00,
+    /// Unauthenticated pairing with encryption
+    GAP_SEC1_NOAUTH_PAIR_ENC,
+    /// Authenticated pairing with encryption
+    GAP_SEC1_AUTH_PAIR_ENC,
+    /// Unauthenticated pairing with data signing
+    GAP_SEC2_NOAUTH_DATA_SGN,
+    /// Authentication pairing with data signing
+    GAP_SEC2_AUTH_DATA_SGN,
+    /// Secure Connection pairing with encryption
+    GAP_SEC1_SEC_CON_PAIR_ENC,
+};
+
+/// OOB Data Present Flag Values
+enum gap_oob
+{
+    /// OOB Data not present
+    GAP_OOB_AUTH_DATA_NOT_PRESENT = 0x00,
+    /// OOB data present
+    GAP_OOB_AUTH_DATA_PRESENT,
+    GAP_OOB_AUTH_DATA_LAST
+};
 
 /**
  * @}

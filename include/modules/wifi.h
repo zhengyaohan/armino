@@ -821,6 +821,17 @@ bk_err_t bk_wifi_ap_vif_probe_req_frame_cb_register(void *cb);
 bk_err_t bk_wifi_send_listen_interval_req(uint8_t interval);
 
 /**
+ * @brief  Get wifi statistic info.
+ *
+ * @param get wifi info from fw
+ *
+ * @return
+ * 	-BK_OK: on success
+ * 	-others:real error, used for future.
+ */
+bk_err_t bk_wifi_get_statistic_info(wifi_statistics_info_t *wifiinfo);
+
+/**
  * @}
  */
 

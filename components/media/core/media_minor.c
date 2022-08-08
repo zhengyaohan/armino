@@ -22,6 +22,7 @@
 #include "comm_act.h"
 #include "lcd_act.h"
 #include "mailbox_channel.h"
+#include "mailbox_act.h"
 
 
 #define TAG "media1"
@@ -36,10 +37,36 @@ static beken_queue_t media_minor_msg_queue = NULL;
 
 static void media_minor_mailbox_rx_isr(void *param, mb_chnl_cmd_t *cmd_buf)
 {
-	LOGI("%s\n", __func__);
+	LOGI("%s, %08X\n", __func__, cmd_buf->param1);
+	bk_err_t ret;
 
+	switch (cmd_buf->param1 >> MEDIA_EVT_BIT)
+	{
+#ifdef CONFIG_CAMERA
+		case MAILBOX_CMD:
+		{
+			media_msg_t msg;
+			msg.event = cmd_buf->param1;
+			msg.param = cmd_buf->param2;
 
+			if (media_minor_msg_queue)
+			{
+				ret = rtos_push_to_queue(&media_minor_msg_queue, &msg, BEKEN_NO_WAIT);
+
+				if (BK_OK != ret)
+				{
+					LOGE("%s failed\n", __func__);
+				}
+			}
+
+		}
+		break;
+#endif
+		default:
+			break;
+	}
 }
+
 
 static void media_minor_mailbox_tx_isr(void *param)
 {
@@ -57,6 +84,18 @@ static void media_minor_mailbox_tx_cmpl_isr(void *param, mb_chnl_ack_t *ack_buf)
 bk_err_t media_send_msg(media_msg_t *msg)
 {
 	bk_err_t ret;
+
+	if (msg->event >> MEDIA_EVT_BIT == MAILBOX_CMD)
+	{
+		LOGE("%s failed, error event\n", __func__);
+		return BK_FAIL;
+	}
+
+	if (msg->event >> MEDIA_EVT_BIT == MAILBOX_EVT)
+	{
+		ret = media_mailbox_send_msg(msg->event, msg->param, 0);
+		return ret;
+	}
 
 	if (media_minor_msg_queue)
 	{
@@ -88,10 +127,10 @@ static void media_minor_message_handle(void)
 		{
 			switch (msg.event >> MEDIA_EVT_BIT)
 			{
+#if 0
 				case COM_EVENT:
 					comm_event_handle(msg.event, msg.param);
 					break;
-
 #ifdef CONFIG_CAMERA
 				case DVP_EVENT:
 					dvp_camera_event_handle(msg.event, msg.param);
@@ -113,6 +152,13 @@ static void media_minor_message_handle(void)
 #if CONFIG_USB_UVC
 				case UVC_EVENT:
 					uvc_camera_event_handle(msg.event, msg.param);
+					break;
+#endif
+#endif
+
+#ifdef CONFIG_DUAL_CORE
+				case MAILBOX_CMD:
+					mailbox_cmd_handle(msg.event, msg.param);
 					break;
 #endif
 

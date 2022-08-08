@@ -90,7 +90,7 @@ out:
 }
 
 
-bk_err_t media_app_camera_open(app_camera_type_t type)
+bk_err_t media_app_camera_open(app_camera_type_t type, media_ppi_t ppi)
 {
 	int ret = kGeneralErr;
 
@@ -104,7 +104,7 @@ bk_err_t media_app_camera_open(app_camera_type_t type)
 			return kNoErr;
 		}
 
-		ret = media_send_msg_sync(EVENT_DVP_OPEN_IND, DVP_MODE_JPG);
+		ret = media_send_msg_sync(EVENT_DVP_JPEG_OPEN_IND, ppi);
 	}
 	else if (type == APP_CAMERA_YUV)
 	{
@@ -114,7 +114,7 @@ bk_err_t media_app_camera_open(app_camera_type_t type)
 			return kNoErr;
 		}
 
-		ret = media_send_msg_sync(EVENT_DVP_OPEN_IND, DVP_MODE_YUV);
+		ret = media_send_msg_sync(EVENT_DVP_YUV_OPEN_IND, ppi);
 	}
 	else if (type == APP_CAMERA_UVC)
 	{
@@ -126,7 +126,7 @@ bk_err_t media_app_camera_open(app_camera_type_t type)
 			return kNoErr;
 		}
 
-		ret = media_send_msg_sync(EVENT_UVC_OPEN_IND, 0);
+		ret = media_send_msg_sync(EVENT_UVC_OPEN_IND, ppi);
 #endif
 	}
 
@@ -174,6 +174,20 @@ bk_err_t media_app_camera_close(app_camera_type_t type)
 		ret = media_send_msg_sync(EVENT_UVC_CLOSE_IND, 0);
 #endif
 	}
+
+	return ret;
+}
+
+bk_err_t media_app_mailbox_test(void)
+{
+	bk_err_t ret = BK_FAIL;
+	uint32_t param = 0x88888888;
+
+	LOGI("%s +++\n", __func__);
+
+	ret = media_send_msg_sync(EVENT_LCD_DEFAULT_CMD, param);
+
+	LOGI("%s ---\n", __func__);
 
 	return ret;
 }
@@ -235,6 +249,19 @@ bk_err_t media_app_lcd_close(void)
 
 	return media_send_msg_sync(EVENT_LCD_CLOSE_IND, 0);
 }
+
+
+bk_err_t media_app_lcd_set_backlight(uint8_t level)
+{
+	if (LCD_STATE_ENABLED != get_lcd_state())
+	{
+		LOGI("%s not open\n", __func__);
+		return kNoErr;
+	}
+
+	return media_send_msg_sync(EVENT_LCD_SET_BACKLIGHT_IND, level);
+}
+
 
 bk_err_t media_app_uvc_start(void)
 {

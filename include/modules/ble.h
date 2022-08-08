@@ -894,6 +894,37 @@ uint8_t bk_ble_gatt_write_ccc(uint8_t con_idx,uint16_t ccc_handle,uint16_t ccc_v
  */
 ble_err_t bk_ble_gatt_write_value(uint8_t con_idx, uint16_t att_handle, uint16_t len, uint8_t *data);
 
+/**
+ * @brief As slaver, send response value
+ *
+ * @param
+ *    - len: the length of attribute's value
+ *    - buf: attribute's value
+ *    - prf_id: The id of the profile
+ *    - att_idx: The index of the attribute
+ *
+ * @return
+ * - BK_ERR_BLE_SUCCESS: succeed
+ * - others: fail
+ */
+ble_err_t bk_ble_read_response_value(uint32_t len, uint8_t *buf, uint16_t prf_id, uint16_t att_idx);
+
+/**
+ * @brief As master, configure attribute value
+ *
+ * @param
+ *    - con_idx: the index of connection
+ *    - mode: authentication features
+ *    - iocap: IO Capability Values
+ *    - sec_req: Security Defines
+ *    - oob: OOB Data Present Flag Values
+ *
+ * @return
+ * - BK_ERR_BLE_SUCCESS: succeed
+ * - others: fail
+ */
+ble_err_t bk_ble_sec_send_auth_mode(uint8_t con_idx, uint8_t mode, uint8_t iocap, uint8_t sec_req, uint8_t oob);
+
 
 /*
  * @}

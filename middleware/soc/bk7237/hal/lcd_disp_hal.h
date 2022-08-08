@@ -14,19 +14,29 @@
 
 #pragma once
 
-#if (CONFIG_BK7256XX_MP)
 #include "lcd_disp_ll_macro_def_mp2.h"
-#else
-#include "lcd_disp_ll_macro_def.h"
-#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#define BK7256_DISP_BASE_ADDR             0x48060000
+#define reg_DISP_INT_CONFIG               (*((volatile unsigned long *)   (BK7256_DISP_BASE_ADDR+0*4)))
+#define reg_DISP_RGB_CONFIG               (*((volatile unsigned long *)   (BK7256_DISP_BASE_ADDR+1*4)))
+#define reg_DISP_RGB_FIFO                 (*((volatile unsigned long *)   (BK7256_DISP_BASE_ADDR+2*4)))
+#define reg_DISP_SYNC_CONFIG              (*((volatile unsigned long *)   (BK7256_DISP_BASE_ADDR+3*4)))
+#define reg_DISP_I8080_CONFIG             (*((volatile unsigned long *)   (BK7256_DISP_BASE_ADDR+4*4)))
+#define reg_DISP_CMD_FIFO                 (*((volatile unsigned long *)   (BK7256_DISP_BASE_ADDR+5*4)))
+#define reg_DISP_DAT_FIFO                 (*((volatile unsigned long *)   (BK7256_DISP_BASE_ADDR+6*4)))
+#define reg_DISP_I8080_THRD               (*((volatile unsigned long *)   (BK7256_DISP_BASE_ADDR+7*4)))
+#define reg_DISP_STATUS                   (*((volatile unsigned long *)   (BK7256_DISP_BASE_ADDR+8*4)))
+#define reg_DISP_SYNC_LOW                 (*((volatile unsigned long *)   (BK7256_DISP_BASE_ADDR+9*4)))
+#define reg_DISP_PARTIAL1                 (*((volatile unsigned long *)   (BK7256_DISP_BASE_ADDR+10*4)))
+#define reg_DISP_PARTIAL2                 (*((volatile unsigned long *)   (BK7256_DISP_BASE_ADDR+11*4)))
+#define reg_DISP_THRD                     (*((volatile unsigned long *)   (BK7256_DISP_BASE_ADDR+12*4)))
+#define reg_DISP_BASE_ADDR                (*((volatile unsigned long *)   (BK7256_DISP_BASE_ADDR+13*4)))
 
-#if (CONFIG_BK7256XX_MP)
-//common rgb and 8080 all use
+//common
 #define lcd_hal_soft_reset                 lcd_disp_ll_set_display_int_soft_rset
 #define lcd_hal_display_yuv_sel            lcd_disp_ll_set_hsync_vsync_yuv_sel
 #define lcd_hal_set_rgb_data_revert        lcd_disp_ll_set_rgb_sync_low_pfc_pixel_reve  //rgb display input data two byte revert
@@ -52,22 +62,6 @@ void lcd_hal_set_sync_low(uint8_t hsync_back_low, uint16_t vsync_back_low);
 #define lcd_hal_get_8080_fifo_empty_status      lcd_disp_ll_get_disp_status_disp_fifo_empty
 #define lcd_hal_get_8080_fifo_near_full_status  lcd_disp_ll_get_disp_status_disp_fifo_near_full
 void lcd_hal_8080_cmd_send(uint8_t param_count, uint32_t command, uint32_t *param);
-
-#else
-//rgb cfg
-#define I8080_DATA_FIFO               (LCD_DISP_I8080_DAT_FIFO_ADDR)
-#define RGB_DATA_FIFO                 (LCD_DISP_RGB_FIFO_ADDR)
-#define lcd_hal_set_rgb_clk_div        lcd_disp_ll_set_status_rgb_clk_div
-#define lcd_hal_set_rgb_clk_rev_edge   lcd_disp_ll_set_status_dclk_rev
-#define lcd_hal_rgb_yuv_sel            lcd_disp_ll_set_hsync_vsync_cfg_yuv_sel
-#define lcd_hal_rgb_display_en         lcd_disp_ll_set_status_rgb_disp_on
-#define lcd_hal_rgb_io_enable          lcd_disp_ll_set_status_rgb_on
-#define lcd_hal_rgb_start_transfer     lcd_disp_ll_set_rgb_cfg_lcd_display_on
-void lcd_hal_rgb_set_thrd(uint16_t wr_threshold_val, uint16_t rd_threshold_val);
-void lcd_hal_mem_clr(void);
-//8080 cfg
-#define lcd_hal_8080_fifo_mode         lcd_disp_ll_set_i8080_config_i8080_fifo_mode
-#endif
 
 //common
 #define lcd_hal_int_status_get          lcd_disp_ll_get_display_int_value

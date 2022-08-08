@@ -1,9 +1,11 @@
 #The value config in bk7236.defconfig will over write the Kconfig's default value.
 #If the default value in Kconfig satisfy your needs, then you needn't to config again here.
 
-CONFIG_SOC_ARCH="arm9"
+CONFIG_SOC_ARCH="cm33"
 CONFIG_SOC_BK7236=y
 CONFIG_SOC_STR="bk7236"
+CONFIG_ARCH_CM33=y
+CONFIG_CMSIS=y
 
 #
 # ARMINO Configuration
@@ -16,7 +18,7 @@ CONFIG_SOC_STR="bk7236"
 #
 # Compile/Build
 #
-
+CONFIG_TOOLCHAIN_PATH="/opt/gcc-arm-none-eabi-9-2020-q2-update/bin"
 #
 # Debug
 #

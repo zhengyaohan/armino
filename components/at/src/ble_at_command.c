@@ -66,7 +66,7 @@ static uint8_t s_ethermind_send_test_value = 0xa;
 static uint16_t s_ethermind_send_size_value = 20;
 static uint16_t s_ethermind_send_intv_value = 1000;
 
-static ATT_HANDLE s_ethermind_att_handle;
+static uint8_t s_ethermind_att_handle; //ATT_CON_ID
 
 
 static uint8_t s_ethermind_service_type = 0;
@@ -81,7 +81,8 @@ static beken_timer_t ble_ethermind_performance_rx_statistics_tmr;
 
 static ATT_ATTR_HANDLE s_ethermind_nordic_write_attr_handle[8];
 static ATT_ATTR_HANDLE s_ethermind_nordic_write_notify_handle[8];
-static ATT_HANDLE s_ethermind_nordic_att_info[8];
+//static ATT_HANDLE s_ethermind_nordic_att_info[8];
+static uint8_t s_ethermind_nordic_att_info[8];
 static uint8_t s_ethermind_nordic_used[8] = {0};
 
 const uint8_t nus_tx_uuid[] = {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,0x03,0x00,0x40,0x6e};
@@ -91,8 +92,8 @@ static uint16_t plc_ccc_handle[10] = {0};
 static uint16_t plc_rx_handle[10] = {0};
 
 static uint8_t send_value[32] = {0};
-static ATT_HANDLE att_handle;
-static ATT_ATTR_HANDLE attr_handle = 0;
+//static ATT_HANDLE att_handle;
+static ATT_ATTR_HANDLE s_read_tmp_attr_handle = 0;
 
 
 int set_ble_name_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
@@ -229,7 +230,7 @@ const at_command_t ble_at_cmd_table[] = {
     {30, "CREATEPERIODICSYNC", 1, "create periodic sync", ble_create_periodic_sync_handle},
     {31, "STARTPERIODICSYNC", 1, "set periodic sync start", ble_start_periodic_sync_handle},
     {32, "STOPPERIODICSYNC", 1, "set periodic sync stop", ble_stop_periodic_sync_handle},
-    {33, "ATTWRITE", 1, "att write <DEVICE_HANDLE> <ATT_CON_ID> <ATT_ATTR_HANDLE> <value>", ble_att_write_handle},
+    {33, "ATTWRITE", 1, "att write <ATT_CON_ID> <ATT_ATTR_HANDLE> <value>", ble_att_write_handle},
     {34, "ENABLEPLRTEST", 0, "enable packet loss ratio test", ble_enable_packet_loss_ratio_test_handle},
     {35, "MQTTLOOPBACK", 0, "enable mqtt loopback test", ble_mqtt_loop_handle},
     {36, "POWER", 0, "power on/off", ble_power_handle},
@@ -381,14 +382,13 @@ static int8_t ethermind_clean_info_by_index(uint8_t index)
     return 0;
 }
 
-static int8_t ethermind_find_index_by_info(uint8_t *index, ATT_HANDLE *att_handle)
+static int8_t ethermind_find_index_by_info(uint8_t *index, uint8_t att_con_id)
 {
 
     for (uint8_t i = 0; i < sizeof(s_ethermind_nordic_used) / sizeof(s_ethermind_nordic_used[0]); ++i)
     {
         if(s_ethermind_nordic_used[i] &&
-            s_ethermind_nordic_att_info[i].att_id == att_handle->att_id &&
-            s_ethermind_nordic_att_info[i].device_id == att_handle->device_id)
+            s_ethermind_nordic_att_info[i] == att_con_id)
         {
             *index = i;
             return 0;
@@ -404,7 +404,7 @@ static int8_t ethermind_find_index_by_att_con_id(uint8_t *index, ATT_CON_ID att_
     for (uint8_t i = 0; i < sizeof(s_ethermind_nordic_used) / sizeof(s_ethermind_nordic_used[0]); ++i)
     {
         if(s_ethermind_nordic_used[i] &&
-            s_ethermind_nordic_att_info[i].att_id == att_id)
+            s_ethermind_nordic_att_info[i] == att_id)
         {
             *index = i;
             return 0;
@@ -462,41 +462,50 @@ void ble_at_notice_cb(ble_notice_t notice, void *param)
         os_printf("read_cb:conn_idx:%d, prf_id:%d, att_idx:%d\r\n",
                 r_req->conn_idx, r_req->prf_id, r_req->att_idx);
 
-		if (r_req->prf_id == g_test_prf_task_id) {
-		    switch(r_req->att_idx)
-		    {
-			    case TEST_IDX_CHAR_DECL:
-			        break;
-			    case TEST_IDX_CHAR_VALUE:
-			        break;
-			    case TEST_IDX_CHAR_DESC:
-			        r_req->value[0] = 0x11;
-			        r_req->value[1] = 0x22;
-			        r_req->value[2] = 0x33;
-			        r_req->length = 3;
-			        break;
+        if (r_req->prf_id == g_test_prf_task_id) {
+            switch(r_req->att_idx)
+            {
+                case TEST_IDX_CHAR_DECL:
+                    break;
+                case TEST_IDX_CHAR_VALUE:
+                    break;
+                case TEST_IDX_CHAR_DESC:
+                {
+                    uint8_t value[3] = {0};
+                    uint32_t length = 3;
+                    value[0] = 0x11;
+                    value[1] = 0x22;
+                    value[2] = 0x33;
+                    length = 3;
+                    bk_ble_read_response_value(length, value, r_req->prf_id, r_req->att_idx);
+                    break;
+                }
+                case TEST_IDX_CHAR_DATALEN_DECL:
 
-			    case TEST_IDX_CHAR_DATALEN_DECL:
+                    break;
+                case TEST_IDX_CHAR_DATALEN_VALUE:
+                {
+                    uint8_t *value = (uint8_t *)&s_test_data_len;
+                    bk_ble_read_response_value(sizeof(s_test_data_len), value, r_req->prf_id, r_req->att_idx);
+                    break;
+                }
 
-			        break;
-			    case TEST_IDX_CHAR_DATALEN_VALUE:
-			        r_req->length = sizeof(s_test_data_len);
-			        os_memcpy(r_req->value, &s_test_data_len, sizeof(s_test_data_len));
-			        break;
+                case TEST_IDX_CHAR_INTER_DECL:
 
-			    case TEST_IDX_CHAR_INTER_DECL:
+                    break;
 
-			        break;
-			    case TEST_IDX_CHAR_INTER_VALUE:
-			        r_req->length = sizeof(s_test_send_inter);
-			        os_memcpy(r_req->value, &s_test_send_inter, sizeof(s_test_send_inter));
-			        break;
+                case TEST_IDX_CHAR_INTER_VALUE:
+                {
+                    uint8_t *value = (uint8_t *)&s_test_send_inter;
+                    bk_ble_read_response_value(sizeof(s_test_send_inter), value, r_req->prf_id, r_req->att_idx);
+                    break;
+                }
 
-			    default:
-			        break;
-		    }
-		}
-		break;
+                default:
+                    break;
+            }
+        }
+        break;
     }
     case BLE_5_REPORT_ADV:
     {
@@ -596,8 +605,8 @@ void ble_at_notice_cb(ble_notice_t notice, void *param)
         else
         {
             ble_conn_att_t *conn_att = (typeof(conn_att))param;
-            os_printf("%s ethermind connected, DEVICE_HANDLE %d ATT_CON_ID %d atype %d addr 0x%02X:%02X:%02X:%02X:%02X:%02X\n", __func__,
-                      conn_att->att_handle.device_id, conn_att->att_handle.att_id, conn_att->peer_addr_type,
+            os_printf("%s ethermind connected, ATT_CON_ID %d atype %d addr 0x%02X:%02X:%02X:%02X:%02X:%02X\n", __func__,
+                      conn_att->conn_handle, conn_att->peer_addr_type,
                       conn_att->peer_addr[5],
                       conn_att->peer_addr[4],
                       conn_att->peer_addr[3],
@@ -605,7 +614,7 @@ void ble_at_notice_cb(ble_notice_t notice, void *param)
                       conn_att->peer_addr[1],
                       conn_att->peer_addr[0]
                       );
-            s_ethermind_att_handle = conn_att->att_handle;
+            s_ethermind_att_handle = conn_att->conn_handle;
             if ((STATE_CONNECTINIG == g_peer_dev.state) && (!os_memcmp(g_peer_dev.bdaddr.addr, conn_att->peer_addr, BK_BLE_GAP_BD_ADDR_LEN)))
             {
                 g_peer_dev.state = STATE_CONNECTED;
@@ -624,9 +633,9 @@ void ble_at_notice_cb(ble_notice_t notice, void *param)
         {
             ble_conn_att_t *att_handle = (typeof(att_handle))param;
             uint8_t index = 0;
-            os_printf("%s ethermind disconnect reason %d did %d attid %d atype %d addr 0x%02X:%02X:%02X:%02X:%02X:%02X\n", __func__,
+            os_printf("%s ethermind disconnect reason %d attid %d atype %d addr 0x%02X:%02X:%02X:%02X:%02X:%02X\n", __func__,
                       att_handle->event_result,
-                      att_handle->att_handle.device_id, att_handle->att_handle.att_id, att_handle->peer_addr_type,
+                      att_handle->conn_handle, att_handle->peer_addr_type,
                       att_handle->peer_addr[5],
                       att_handle->peer_addr[4],
                       att_handle->peer_addr[3],
@@ -637,7 +646,7 @@ void ble_at_notice_cb(ble_notice_t notice, void *param)
 
             memset(&s_ethermind_att_handle, 0, sizeof(s_ethermind_att_handle));
 
-            if(0 == ethermind_find_index_by_info(&index, &att_handle->att_handle))
+            if(0 == ethermind_find_index_by_info(&index, att_handle->conn_handle))
             {
                 ethermind_clean_info_by_index(index);
             }
@@ -702,9 +711,9 @@ void ble_at_notice_cb(ble_notice_t notice, void *param)
         else
         {
             ble_att_tx_compl_t *tx_comp = (typeof(tx_comp))param;
-            os_printf("%s BLE_5_TX_DONE res %d DEVICE_HANDLE %d ATT_CON_ID %d ATT_ATTR_HANDLE %d\n", __func__,
+            os_printf("%s BLE_5_TX_DONE res %d ATT_CON_ID %d ATT_ATTR_HANDLE %d\n", __func__,
                       tx_comp->event_result,
-                      tx_comp->att_handle.device_id, tx_comp->att_handle.att_id, tx_comp->attr_handle);
+                      tx_comp->conn_handle, tx_comp->attr_handle);
 
             if(s_ethermind_service_type == 1 && s_ethermind_auto_tx_enable)
             {
@@ -754,25 +763,25 @@ void ble_at_notice_cb(ble_notice_t notice, void *param)
 
         if (loop_type == LT_COEX)
         {
-            os_printf("DEVICE_HANDLE %d ATT_CON_ID %d data %s len %d sendto mqtt\n",
-                      tmp->att_handle.device_id, tmp->att_handle.att_id,
+            os_printf("ATT_CON_ID %d data %s len %d sendto mqtt\n",
+                      tmp->conn_handle,
                       tmp->data, tmp->len);
 
-            ble_send_data_2_mqtt(tmp->att_handle.att_id, tmp->len, tmp->data);
+            ble_send_data_2_mqtt(tmp->conn_handle, tmp->len, tmp->data);
         }
         else
         {
             uint8_t index = 0;
-            if(0 == ethermind_find_index_by_info(&index, &tmp->att_handle))
+            if(0 == ethermind_find_index_by_info(&index, tmp->conn_handle))
             {
-                os_printf("%s DEVICE_HANDLE %d ATT_CON_ID %d, send data to nordic %s\n", __func__,
-                          tmp->att_handle.device_id, tmp->att_handle.att_id, tmp->data);
+                os_printf("%s ATT_CON_ID %d, send data to nordic len %d %s\n", __func__,
+                          tmp->conn_handle, tmp->len, tmp->data);
 
-                bk_ble_att_write(&tmp->att_handle, s_ethermind_nordic_write_attr_handle[index], tmp->data, tmp->len);
+                bk_ble_att_write(tmp->conn_handle, s_ethermind_nordic_write_attr_handle[index], tmp->data, tmp->len);
             }
             else
             {
-                os_printf("%s cant find info DEVICE_HANDLE %d ATT_CON_ID %d\n", __func__, tmp->att_handle.device_id, tmp->att_handle.att_id);
+                os_printf("%s cant find info ATT_CON_ID %d\n", __func__, tmp->conn_handle);
             }
         }
     }
@@ -792,8 +801,8 @@ void ble_at_notice_cb(ble_notice_t notice, void *param)
         uint8_t found = 0;
         uint8_t i = 0;
 
-        os_printf("%s BLE_5_DISCOVERY_CHAR_EVENT count %d DEVICE_HANDLE %d ATT_CON_ID %d\n", __func__, tmp->count,
-                  tmp->att_handle.device_id, tmp->att_handle.att_id);
+        os_printf("%s BLE_5_DISCOVERY_CHAR_EVENT count %d ATT_CON_ID %d\n", __func__, tmp->count,
+                  tmp->conn_handle);
 
         //
 
@@ -828,9 +837,9 @@ void ble_at_notice_cb(ble_notice_t notice, void *param)
         }
 
 
-        if(0 == ethermind_find_index_by_info(&index, &tmp->att_handle))
+        if(0 == ethermind_find_index_by_info(&index, tmp->conn_handle))
         {
-            os_printf("%s nordic info already exist ! att_id %d\n", __func__, tmp->att_handle.att_id);
+            os_printf("%s nordic info already exist ! att_id %d\n", __func__, tmp->conn_handle);
         }
         else if(0 == ethermind_find_idle_info_index(&index))
         {
@@ -860,7 +869,7 @@ void ble_at_notice_cb(ble_notice_t notice, void *param)
                     os_printf("%s add to nordic info list %d\n", __func__, index);
                     s_ethermind_nordic_used[index] = 1;
                     s_ethermind_nordic_write_attr_handle[index] = tmp->character[i].value_handle;
-                    s_ethermind_nordic_att_info[index] = tmp->att_handle;
+                    s_ethermind_nordic_att_info[index] = tmp->conn_handle;
                 }
                 else if(!os_memcmp(&tmp->character[i].uuid.uuid_128.value, nus_tx_uuid, sizeof(nus_tx_uuid)))
                 {
@@ -921,9 +930,9 @@ void ble_at_notice_cb(ble_notice_t notice, void *param)
         ble_att_rw_t *tmp = (typeof(tmp))param;
         if(!tmp->event_result)
         {
-            os_printf("%s device_id:%d, att_id:%d, attr_hand:0x%x, result:%d\r\n",__func__,
-                      tmp->att_handle.device_id, tmp->att_handle.att_id,
-                      attr_handle,
+            os_printf("%s att_id:%d, attr_hand:0x%x, result:%d\r\n",__func__,
+                      tmp->conn_handle,
+                      s_read_tmp_attr_handle,
                       tmp->event_result
                       );
             os_printf("data-> ");
@@ -936,14 +945,36 @@ void ble_at_notice_cb(ble_notice_t notice, void *param)
                rtos_set_semaphore( &ble_at_cmd_sema );
         }else
         {
-            os_printf("%s: Recevied Error Response!!! device_id:%d, att_id:%d, attr_hand:%d, resp code:%d",__func__,
-                      tmp->att_handle.device_id, tmp->att_handle.att_id,
+            os_printf("%s: Recevied Error Response!!! att_id:%d, attr_hand:%d, resp code:%d",__func__,
+                      tmp->conn_handle,
                       ((uint8_t *)(&(tmp->event_result)))[1],
                       ((uint8_t *)(&(tmp->event_result)))[0]
                       );
         }
     }
     break;
+
+    case BLE_5_PAIRING_REQ:
+    {
+        bk_printf("BLE_5_PAIRING_REQ\r\n");
+        ble_smp_ind_t *s_ind = (ble_smp_ind_t *)param;
+        bk_ble_sec_send_auth_mode(s_ind->conn_idx, GAP_AUTH_REQ_NO_MITM_BOND, GAP_IO_CAP_NO_INPUT_NO_OUTPUT,
+            GAP_SEC1_NOAUTH_PAIR_ENC, GAP_OOB_AUTH_DATA_NOT_PRESENT);
+        break;
+    }
+
+    case BLE_5_PARING_PASSKEY_REQ:
+        bk_printf("BLE_5_PARING_PASSKEY_REQ\r\n");
+        break;
+
+    case BLE_5_ENCRYPT_EVENT:
+        bk_printf("BLE_5_ENCRYPT_EVENT\r\n");
+        break;
+
+    case BLE_5_PAIRING_SUCCEED:
+        bk_printf("BLE_5_PAIRING_SUCCEED\r\n");
+        break;
+
     default:
         break;
     }
@@ -2793,11 +2824,10 @@ int ble_update_mtu_2_max_handle(char *pcWriteBuffer, int xWriteBufferLen, int ar
     }
     else
     {
-        ATT_HANDLE att_handle;
+        uint8_t conn_handle;
 
-        att_handle.device_id = os_strtoul(argv[0], NULL, 10) & 0xFF;
-        att_handle.att_id = os_strtoul(argv[1], NULL, 10) & 0xFF;
-        err = bk_ble_set_gatt_mtu(&att_handle, 517);
+        conn_handle = os_strtoul(argv[0], NULL, 10) & 0xFF;
+        err = bk_ble_set_gatt_mtu(conn_handle, 517);
 
         if (err == 0)
         {
@@ -3221,7 +3251,7 @@ static void ble_tx_test_active_timer_callback(void *param)
     tmp_buff[0] = s_ethermind_send_test_value++;
 
 
-    retval = bk_ble_send_notify(&s_ethermind_att_handle, s_ethermind_send_test_service_handle,
+    retval = bk_ble_send_notify(s_ethermind_att_handle, s_ethermind_send_test_service_handle,
                        s_ethermind_send_char_test_handle, tmp_buff, s_ethermind_send_size_value);
 
     os_free(tmp_buff);
@@ -3241,7 +3271,7 @@ static void ble_tx_test_passive_timer_callback(void *param)
     API_RESULT retval = 0;
     uint8_t *tmp_buff = NULL;
     GATT_DB_HANDLE *gdbh = (GATT_DB_HANDLE *)param;
-    ATT_HANDLE att_handle;
+    uint8_t conn_handle;
 
     tmp_buff = os_malloc(s_ethermind_send_size_value);
 
@@ -3254,14 +3284,14 @@ static void ble_tx_test_passive_timer_callback(void *param)
     os_memset(tmp_buff, 0, s_ethermind_send_size_value);
     tmp_buff[0] = s_ethermind_send_test_value++;
 
-    retval = bk_ble_get_att_handle_from_device_handle(&att_handle, &(gdbh->device_id));
+    retval = bk_ble_get_conn_handle_from_device_handle(&conn_handle, &(gdbh->device_id));
 
     if (retval != 0)
     {
         return;
     }
 
-    retval = bk_ble_send_notify(&att_handle, gdbh->service_id, gdbh->char_id,
+    retval = bk_ble_send_notify(conn_handle, gdbh->service_id, gdbh->char_id,
                        tmp_buff, s_ethermind_send_size_value);
 
     os_free(tmp_buff);
@@ -4191,7 +4221,7 @@ int ble_connect_by_name_handle(char *pcWriteBuffer, int xWriteBufferLen, int arg
         err = kParamErr;
         goto error;
     }
-    
+
     conn_param.intv_min = os_strtoul(argv[0], NULL, 16) & 0xFFFF;
     conn_param.con_latency = os_strtoul(argv[1], NULL, 16) & 0xFFFF;
     if (conn_param.intv_min < CON_INTERVAL_MIN || conn_param.intv_min > CON_INTERVAL_MAX
@@ -4249,7 +4279,7 @@ int ble_connect_by_name_handle(char *pcWriteBuffer, int xWriteBufferLen, int arg
 
     if(bk_ble_get_host_stack_type() != BK_BLE_HOST_STACK_TYPE_ETHERMIND)
     {
-        if (ble_at_cmd_sema != NULL) 
+        if (ble_at_cmd_sema != NULL)
         {
                 err = rtos_get_semaphore(&ble_at_cmd_sema, 10000);
                 if(err != kNoErr) {
@@ -4347,7 +4377,7 @@ int ble_connect_by_name_handle(char *pcWriteBuffer, int xWriteBufferLen, int arg
                 goto error;
             }
             err = rtos_get_semaphore(&ble_at_cmd_sema, AT_SYNC_CMD_TIMEOUT_MS);
-            
+
             if(err != kNoErr)
             {
                 goto error;
@@ -4376,7 +4406,7 @@ int ble_connect_by_name_handle(char *pcWriteBuffer, int xWriteBufferLen, int arg
 
                 tmp.peer_address_type = g_peer_dev.addr_type;
                 os_memcpy(tmp.peer_address.addr, &(g_peer_dev.bdaddr.addr[0]), BK_BLE_GAP_BD_ADDR_LEN);
-                os_printf("%s start conn, peer addr: %x %x %x %x %x %x\r\n", __func__, tmp.peer_address.addr[0], tmp.peer_address.addr[1], 
+                os_printf("%s start conn, peer addr: %x %x %x %x %x %x\r\n", __func__, tmp.peer_address.addr[0], tmp.peer_address.addr[1],
                             tmp.peer_address.addr[2],tmp.peer_address.addr[3],tmp.peer_address.addr[4],tmp.peer_address.addr[5]);
                 g_peer_dev.state = STATE_CONNECTINIG;
 
@@ -4414,9 +4444,9 @@ int ble_connect_by_name_handle(char *pcWriteBuffer, int xWriteBufferLen, int arg
                 goto error;
             }
         }
-    
+
     }
-    
+
 error:
     msg = AT_CMD_RSP_ERROR;
     g_peer_dev.state = STATE_IDLE;
@@ -4835,6 +4865,9 @@ int ble_att_write_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, cha
     uint8_t data_count = 0;
     int8_t i = 0;
 
+    uint8_t conn_handle = 0;
+    ATT_ATTR_HANDLE attr_handle = 0;
+
     if(bk_ble_get_host_stack_type() != BK_BLE_HOST_STACK_TYPE_ETHERMIND)
     {
         err = kParamErr;
@@ -4848,27 +4881,27 @@ int ble_att_write_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, cha
         goto error;
     }
 
-    att_handle.device_id = os_strtoul(argv[0], NULL, 10) & 0xFF;
-    att_handle.att_id = os_strtoul(argv[1], NULL, 10) & 0xFF;
-    attr_handle = os_strtoul(argv[2], NULL, 10) & 0xFFFF;
+    //att_handle.device_id = os_strtoul(argv[0], NULL, 10) & 0xFF;
+    conn_handle = os_strtoul(argv[0], NULL, 10) & 0xFF;
+    attr_handle = os_strtoul(argv[1], NULL, 10) & 0xFFFF;
 
-    if(strlen(argv[3]) > sizeof(send_value) * 2)
+    if(strlen(argv[2]) > sizeof(send_value) * 2)
     {
         os_printf("\nThe number of data is wrong!\n");
         err = kParamErr;
         goto error;
     }
 
-    for (i = strlen(argv[3]) - 2, data_count = 0; i >= 0; i -= 2, data_count++)
+    for (i = strlen(argv[2]) - 2, data_count = 0; i >= 0; i -= 2, data_count++)
     {
         os_memset(tmp_buf, 0, sizeof(tmp_buf));
-        os_memcpy(tmp_buf, argv[3] + i, 2);
+        os_memcpy(tmp_buf, argv[2] + i, 2);
 
         send_value[data_count] = os_strtoul(tmp_buf, NULL, 10) & 0xFF;
     }
-    os_printf("%s %d %d %d %d\n", __func__, att_handle.device_id, att_handle.att_id, attr_handle, data_count);
+    os_printf("%s %d %d %d\n", __func__, conn_handle, attr_handle, data_count);
 
-    err = bk_ble_att_write(&att_handle, attr_handle, send_value, data_count);
+    err = bk_ble_att_write(conn_handle, attr_handle, send_value, data_count);
 
     if (err != BK_ERR_BLE_SUCCESS)
     {
@@ -4893,6 +4926,8 @@ static int ble_att_read_handle(char *pcWriteBuffer, int xWriteBufferLen, int arg
 {
     int err = kNoErr;
     char *msg = NULL;
+    ATT_HANDLE att_handle;
+
     if(bk_ble_get_host_stack_type() != BK_BLE_HOST_STACK_TYPE_ETHERMIND)
     {
         err = kParamErr;
@@ -4906,9 +4941,11 @@ static int ble_att_read_handle(char *pcWriteBuffer, int xWriteBufferLen, int arg
         goto error;
     }
 
+    //uint8_t conn_handle = 0;
+
     att_handle.device_id = os_strtoul(argv[0], NULL, 10) & 0xFF;
     att_handle.att_id = os_strtoul(argv[1], NULL, 10) & 0xFF;
-    attr_handle = os_strtoul(argv[2], NULL, 10) & 0xFFFF;
+    s_read_tmp_attr_handle = os_strtoul(argv[2], NULL, 10) & 0xFFFF;
 //    os_printf("%s %d %d %d\n", __func__, att_handle.device_id, att_handle.att_id, attr_handle);
 
     if (ble_at_cmd_table[37].is_sync_cmd)
@@ -4921,7 +4958,7 @@ static int ble_att_read_handle(char *pcWriteBuffer, int xWriteBufferLen, int arg
 
     bk_ble_set_notice_cb(ble_at_notice_cb);
 
-    bk_ble_att_read(&att_handle, attr_handle);
+    bk_ble_att_read(att_handle.att_id, s_read_tmp_attr_handle);
 
     if(ble_at_cmd_sema != NULL) {
         err = rtos_get_semaphore(&ble_at_cmd_sema, AT_SYNC_CMD_TIMEOUT_MS);
@@ -5051,7 +5088,7 @@ int ble_enable_packet_loss_ratio_test_handle(char *pcWriteBuffer, int xWriteBuff
             {
                 if(s_ethermind_nordic_used[i])
                 {
-                    bk_ble_att_write(&s_ethermind_nordic_att_info[i], s_ethermind_nordic_write_notify_handle[i], (uint8_t *)&noti_enable, sizeof(noti_enable));
+                    bk_ble_att_write(s_ethermind_nordic_att_info[i], s_ethermind_nordic_write_notify_handle[i], (uint8_t *)&noti_enable, sizeof(noti_enable));
                 }
 
             }
@@ -5103,9 +5140,8 @@ int ble_enable_packet_loss_ratio_test_handle(char *pcWriteBuffer, int xWriteBuff
             {
                 if(s_ethermind_nordic_used[i])
                 {
-                    os_printf("%s DEVICE_HANDLE %d ATT_CON_ID %d set notify param\n", __func__, s_ethermind_nordic_att_info[i].device_id,
-                              s_ethermind_nordic_att_info[i].att_id);
-                    bk_ble_att_write(&s_ethermind_nordic_att_info[i], s_ethermind_nordic_write_attr_handle[i], (uint8_t *)&cmd, sizeof(cmd));
+                    os_printf("%s ATT_CON_ID %d set notify param\n", __func__, s_ethermind_nordic_att_info[i]);
+                    bk_ble_att_write(s_ethermind_nordic_att_info[i], s_ethermind_nordic_write_attr_handle[i], (uint8_t *)&cmd, sizeof(cmd));
                 }
             }
         }
@@ -5133,9 +5169,8 @@ int ble_enable_packet_loss_ratio_test_handle(char *pcWriteBuffer, int xWriteBuff
             {
                 if(s_ethermind_nordic_used[i])
                 {
-                    os_printf("%s DEVICE_HANDLE %d ATT_CON_ID %d enable notify\n", __func__, s_ethermind_nordic_att_info[i].device_id,
-                              s_ethermind_nordic_att_info[i].att_id);
-                    bk_ble_att_write(&s_ethermind_nordic_att_info[i], s_ethermind_nordic_write_notify_handle[i], (uint8_t *)&noti_enable, sizeof(noti_enable));
+                    os_printf("%s ATT_CON_ID %d enable notify\n", __func__, s_ethermind_nordic_att_info[i]);
+                    bk_ble_att_write(s_ethermind_nordic_att_info[i], s_ethermind_nordic_write_notify_handle[i], (uint8_t *)&noti_enable, sizeof(noti_enable));
                 }
 
             }
@@ -5511,13 +5546,12 @@ static void ble_mqtt_loop_recv_handle(void *pcontext, void *pclient, iotx_mqtt_e
                     uint8_t index = 0;
                     if(0 == ethermind_find_index_by_att_con_id(&index, con_idx))
                     {
-                        os_printf("%s DEVICE_HANDLE %d ATT_CON_ID %d, send data to nordic %s\n", __func__,
-                                  s_ethermind_nordic_att_info[index].device_id,
-                                  s_ethermind_nordic_att_info[index].att_id,
+                        os_printf("%s ATT_CON_ID %d, send data to nordic %s\n", __func__,
+                                  s_ethermind_nordic_att_info[index],
                                   data);
 
 
-                        bk_ble_att_write(&s_ethermind_nordic_att_info[index], s_ethermind_nordic_write_attr_handle[index], data, vaild_len);
+                        bk_ble_att_write(s_ethermind_nordic_att_info[index], s_ethermind_nordic_write_attr_handle[index], data, vaild_len);
                     }
                     else
                     {

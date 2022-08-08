@@ -115,6 +115,10 @@ menu "Cli"
         config COMPONENTS_WFA_CA
                 bool "WFA_CA"
                 default n
+
+	config ENABLE_WIFI_DEFAULT_CONNECT
+		bool "Enable Wi-Fi Default Connect"
+		default n
 endmenu
 
 menu "DUAL_CORE"

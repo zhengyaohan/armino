@@ -116,7 +116,7 @@ BK7256工具链下载路径如下：
 编译工程
 ------------------------------------
 
-在终端下输入下述命令编译 Armino 默认工程，PROJECT为可选参数，默认为legacy_app，默认工程为启动 WiFi，BLE，初始化常见驱动，并启动 Armino 默认 Cli 程序::
+在终端下输入下述命令编译 Armino 默认工程，PROJECT为可选参数，默认为app，默认工程为启动 WiFi，BLE，初始化常见驱动，并启动 Armino 默认 Cli 程序::
 
     cd ~/armino
     make bk7237
@@ -153,7 +153,7 @@ BK7256工具链下载路径如下：
     工程配置文件 Override 芯片配置文件 Override 默认配置
     如： sdkconfig.default >> bk7237.defconfig >> KConfig
     + 工程配置文件示例：
-        projects/legacy_app/sdkconfig.defaults
+        projects/app/sdkconfig.defaults
         projects/harmony/sdkconfig.defaults
     + 芯片配置文件示例：
         middleware/arch/bk7237/bk7237.defconfig
@@ -218,7 +218,7 @@ BK7256工具链下载路径如下：
 新建工程
 ------------------------------------
 
-默认工程为projects/legacy_app，新建工程可参考projects/harmony工程
+默认工程为projects/app，新建工程可参考projects/harmony工程
 
 
 烧录代码

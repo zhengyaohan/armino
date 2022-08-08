@@ -5,11 +5,10 @@ import subprocess
 import sys
 
 dual_core_porjects = [
-        ['bk7256', 'legacy_app'],
-        ['bk7256', 'bk7256xx_mp'],
-        ['bk7256', 'bk7256_config2'],
-        ['bk7235', 'bk7235_config2'],
-        ['bk7237', 'legacy_app']
+        ['bk7256', 'app'],
+        ['bk7256', 'customization/bk7256_config2'],
+        ['bk7235', 'customization/bk7235_config2'],
+        ['bk7237', 'app']
     ]
 
 ## argv[1] = $(ARMINO_SOC)

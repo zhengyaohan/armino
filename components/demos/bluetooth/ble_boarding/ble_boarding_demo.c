@@ -170,35 +170,33 @@ static void ble_at_notice_cb(ble_notice_t notice, void *param)
         os_printf("read_cb:conn_idx:%d, prf_id:%d, att_idx:%d\r\n",
                 r_req->conn_idx, r_req->prf_id, r_req->att_idx);
 
-		if (r_req->prf_id == PRF_TASK_ID_BOARDING) {
-			switch(r_req->att_idx)
-		    {
-			    case BOARDING_IDX_CHAR_DECL:
-			        break;
-			    case BOARDING_IDX_CHAR_VALUE:
-			        break;
+        if (r_req->prf_id == PRF_TASK_ID_BOARDING) {
+            switch(r_req->att_idx)
+            {
+                case BOARDING_IDX_CHAR_DECL:
+                    break;
+                case BOARDING_IDX_CHAR_VALUE:
+                    break;
 
-			    case BOARDING_IDX_CHAR_SSID_DECL:
-			        break;
-			    case BOARDING_IDX_CHAR_SSID_VALUE:
-			        r_req->length = s_boarding_ssid_len;
-			        os_memcpy(r_req->value, s_boarding_ssid, r_req->length);
-					os_printf("len:%d, data[0]:0x%02x, data[1]:0x%02x, data[2]:0x%02x\r\n", r_req->length, r_req->value[0], r_req->value[1], r_req->value[2]);
-			        break;
+                case BOARDING_IDX_CHAR_SSID_DECL:
+                    break;
+                case BOARDING_IDX_CHAR_SSID_VALUE:
+                    bk_ble_read_response_value(s_boarding_ssid_len, s_boarding_ssid, r_req->prf_id, r_req->att_idx);
+                    os_printf("len:%d, data[0]:0x%02x, data[1]:0x%02x, data[2]:0x%02x\r\n", s_boarding_ssid_len, s_boarding_ssid[0], s_boarding_ssid[1], s_boarding_ssid[2]);
+                    break;
 
-			    case BOARDING_IDX_CHAR_PASSWORD_DECL:
-			        break;
-			    case BOARDING_IDX_CHAR_PASSWORD_VALUE:
-			        r_req->length = s_boarding_password_len;
-			        os_memcpy(r_req->value, s_boarding_password, r_req->length);
-					os_printf("len:%d, data[0]:0x%02x, data[1]:0x%02x, data[2]:0x%02x\r\n", r_req->length, r_req->value[0], r_req->value[1], r_req->value[2]);
-			        break;
+                case BOARDING_IDX_CHAR_PASSWORD_DECL:
+                    break;
+                case BOARDING_IDX_CHAR_PASSWORD_VALUE:
+                    bk_ble_read_response_value(s_boarding_password_len, s_boarding_password, r_req->prf_id, r_req->att_idx);
+                    os_printf("len:%d, data[0]:0x%02x, data[1]:0x%02x, data[2]:0x%02x\r\n", s_boarding_password_len, s_boarding_password[0], s_boarding_password[1], s_boarding_password[2]);
+                    break;
 
-			    default:
-			        break;
-		    }
-		}
-		break;
+                default:
+                    break;
+            }
+        }
+        break;
     }
     case BLE_5_REPORT_ADV: {
         ble_recv_adv_t *r_ind = (ble_recv_adv_t *)param;
@@ -291,6 +289,24 @@ static void ble_at_notice_cb(ble_notice_t notice, void *param)
         updata_param->con_latency, updata_param->sup_to);
         break;
     }
+    case BLE_5_PAIRING_REQ:
+        bk_printf("BLE_5_PAIRING_REQ\r\n");
+        ble_smp_ind_t *s_ind = (ble_smp_ind_t *)param;
+        bk_ble_sec_send_auth_mode(s_ind->conn_idx, GAP_AUTH_REQ_NO_MITM_BOND, GAP_IO_CAP_NO_INPUT_NO_OUTPUT,
+            GAP_SEC1_NOAUTH_PAIR_ENC, GAP_OOB_AUTH_DATA_NOT_PRESENT);
+        break;
+
+    case BLE_5_PARING_PASSKEY_REQ:
+        bk_printf("BLE_5_PARING_PASSKEY_REQ\r\n");
+        break;
+
+    case BLE_5_ENCRYPT_EVENT:
+        bk_printf("BLE_5_ENCRYPT_EVENT\r\n");
+        break;
+
+    case BLE_5_PAIRING_SUCCEED:
+        bk_printf("BLE_5_PAIRING_SUCCEED\r\n");
+        break;
     default:
         break;
     }

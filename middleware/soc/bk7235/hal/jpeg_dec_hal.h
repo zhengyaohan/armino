@@ -73,8 +73,6 @@ struct JDEC {
 
 //static 	JDEC jdec; /* Decompression object */
 
-#if (CONFIG_BK7256XX_MP)
-
 int jpg_dec_config(jpeg_dec_xpixel_t xpixel, unsigned char *input_buf, unsigned char * output_buf);
 void jpeg_dec_block_int_en(bool auto_int_en);
 void jpeg_dec_auto_frame_end_int_en(bool auto_int_en);
@@ -82,16 +80,6 @@ void jpeg_dec_auto_line_num_int_en(bool line_int_en, uint16_t line_num);
 
 JRESULT JpegdecInit(void);
 JRESULT jd_decomp(void);
-
-#else
-/* TJpgDec API functions */
-JRESULT jd_prepare (JDEC*, uint16_t(*)(JDEC*,uint8_t*,uint16_t), void*, uint16_t, void*);
-
-/* JDEC :Initialized decompression object */
-JRESULT jd_decomp (JDEC* jd, uint8_t size, uint32_t* dec_src_addr, uint32_t* dec_dest_addr);
-
-void JpegdecInit(JDEC* jdec,  uint32_t * dec_src_addr);
-#endif
 
 int jpg_decoder_init(void);
 

@@ -184,6 +184,12 @@ uint32_t aon_pmu_hal_bias_cal_get()
 {
 	return aon_pmu_ll_get_reg7e_bias_cal();
 }
+
+void aon_pmu_hal_psram_iodrv_set(uint32_t io_drv)
+{
+	aon_pmu_ll_set_reg41_psram_iodrv(io_drv);
+}
+
 #else
 void aon_pmu_hal_set_sleep_parameters(uint32_t value)
 {

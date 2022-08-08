@@ -19,7 +19,7 @@
 #include <common/bk_include.h>
 #include "bk_sys_ctrl.h"
 #include "bk_drv_model.h"
-#include "bk_private/bk_ate.h"
+#include <components/ate.h>
 #include <driver/wdt.h>
 #include "bk_wdt.h"
 #include <common/sys_config.h>

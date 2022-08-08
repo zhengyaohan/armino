@@ -22,7 +22,7 @@
 extern "C" {
 #endif
 
-bk_err_t bk_dvp_camera_open(dvp_mode_t mode);
+bk_err_t bk_dvp_camera_open(media_ppi_t ppi, dvp_mode_t mode);
 bk_err_t bk_dvp_camera_close(void);
 bk_err_t bk_uvc_camera_open(void);
 bk_err_t bk_uvc_camera_start(void);

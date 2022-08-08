@@ -21,4 +21,10 @@ menu "AUD_TRAS_CONFIG"
 			depends on AUDIO_TRANSFER
 			bool "enable Audio Transfer AEC dump debug"
 			default n
+
+	config AUD_TRAS_LOST_COUNT_DEBUG
+			depends on AUDIO_TRANSFER
+			bool "enable Audio Transfer lost count debug"
+			default n
+
 endmenu

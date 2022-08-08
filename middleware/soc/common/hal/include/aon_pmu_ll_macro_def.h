@@ -684,17 +684,20 @@ static inline void aon_pmu_ll_set_reg40_halt_clkena(uint32_t value)
 
 /* REG_0x41 */
 #define AON_PMU_REG41_ADDR  (AON_PMU_LL_REG_BASE  + 0x41*4) //REG ADDR :0x44000104
-#define AON_PMU_REG41_LPO_CONFIG_POS (0) 
-#define AON_PMU_REG41_LPO_CONFIG_MASK (0x3) 
+#define AON_PMU_REG41_LPO_CONFIG_POS (0)
+#define AON_PMU_REG41_LPO_CONFIG_MASK (0x3)
 
-#define AON_PMU_REG41_FLSHSCK_IOCAP_POS (2) 
-#define AON_PMU_REG41_FLSHSCK_IOCAP_MASK (0x3) 
+#define AON_PMU_REG41_FLSHSCK_IOCAP_POS (2)
+#define AON_PMU_REG41_FLSHSCK_IOCAP_MASK (0x3)
 
-#define AON_PMU_REG41_WAKEUP_ENA_POS (4) 
-#define AON_PMU_REG41_WAKEUP_ENA_MASK (0x1F) 
+#define AON_PMU_REG41_WAKEUP_ENA_POS (4)
+#define AON_PMU_REG41_WAKEUP_ENA_MASK (0x1F)
 
-#define AON_PMU_REG41_RESERVED_POS (9) 
-#define AON_PMU_REG41_RESERVED_MASK (0x7FFFFF) 
+#define AON_PMU_REG41_PSRAM_IODRV_POS (9)
+#define AON_PMU_REG41_PSRAM_IODRV_MASK (0x3)
+
+#define AON_PMU_REG41_RESERVED_POS (11)
+#define AON_PMU_REG41_RESERVED_MASK (0x7FFFFF)
 
 static inline uint32_t aon_pmu_ll_get_reg41_value(void)
 {
@@ -759,6 +762,25 @@ static inline void aon_pmu_ll_set_reg41_wakeup_ena(uint32_t value)
     reg_value |= ((value & AON_PMU_REG41_WAKEUP_ENA_MASK) << AON_PMU_REG41_WAKEUP_ENA_POS);
     REG_WRITE(AON_PMU_REG41_ADDR,reg_value);
 }
+
+/* REG_0x41:reg41->psram_iodrv:0x41[10:9], psram clk driver selection,None,R/W*/
+static inline uint32_t aon_pmu_ll_get_reg41_psram_iodrv(void)
+{
+    uint32_t reg_value;
+    reg_value = REG_READ(AON_PMU_REG41_ADDR);
+    reg_value = ((reg_value >> AON_PMU_REG41_PSRAM_IODRV_POS) & AON_PMU_REG41_PSRAM_IODRV_MASK);
+    return reg_value;
+}
+
+static inline void aon_pmu_ll_set_reg41_psram_iodrv(uint32_t value)
+{
+    uint32_t reg_value;
+    reg_value = REG_READ(AON_PMU_REG41_ADDR);
+    reg_value &= ~(AON_PMU_REG41_PSRAM_IODRV_MASK << AON_PMU_REG41_PSRAM_IODRV_POS);
+    reg_value |= ((value & AON_PMU_REG41_PSRAM_IODRV_MASK) << AON_PMU_REG41_PSRAM_IODRV_POS);
+    REG_WRITE(AON_PMU_REG41_ADDR,reg_value);
+}
+
 
 /* REG_0x42 */
 #define AON_PMU_REG42_ADDR  (AON_PMU_LL_REG_BASE  + 0x42*4) //REG ADDR :0x44000108

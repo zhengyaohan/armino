@@ -301,9 +301,6 @@ void sys_hal_aud_vdd1v5_en(uint32_t value);
 void sys_hal_aud_mic1_en(uint32_t value);
 void sys_hal_aud_mic2_en(uint32_t value);
 void sys_hal_aud_audpll_en(uint32_t value);
-#if CONFIG_BK7256XX_MP
-void sys_hal_set_ana_vtempsel(uint32_t value);
-#endif
 void sys_hal_aud_aud_en(uint32_t value);
 void sys_hal_aud_dacdrv_en(uint32_t value);
 void sys_hal_aud_bias_en(uint32_t value);

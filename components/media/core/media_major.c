@@ -18,6 +18,7 @@
 #include "media_core.h"
 #include "media_evt.h"
 #include "camera_act.h"
+#include "mailbox_act.h"
 #include "aud_act.h"
 #include "comm_act.h"
 #include "lcd_act.h"
@@ -26,6 +27,7 @@
 #include "mailbox_channel.h"
 #include "frame_buffer.h"
 #include "media_app.h"
+#include "mlist.h"
 
 
 #define MJ_TAG "media0"
@@ -37,6 +39,15 @@
 
 static beken_thread_t media_major_th_hd = NULL;
 static beken_queue_t media_major_msg_queue = NULL;
+
+#if 0
+static mlist_t *mailbox_free_list = NULL;
+static mlist_t *mailbox_msg_list = NULL;
+bool mailbox_busy = false;
+#define MAX_MAILBOX_QUEUE = 10;
+#endif
+
+extern uint32_t  platform_is_in_interrupt_context(void);
 
 #ifdef CONFIG_DUAL_CORE
 bk_err_t media_mailbox_send_msg(uint32_t cmd, uint32_t param1, uint32_t param2)
@@ -52,17 +63,29 @@ bk_err_t media_mailbox_send_msg(uint32_t cmd, uint32_t param1, uint32_t param2)
 
 static void media_major_mailbox_rx_isr(void *param, mb_chnl_cmd_t *cmd_buf)
 {
-	LOGI("%s\n", __func__);
+	LOGI("%s, %08X\n", __func__, cmd_buf->param1);
 
 	switch (cmd_buf->param1 >> MEDIA_EVT_BIT)
 	{
 #ifdef CONFIG_CAMERA
-		case DVP_EVENT:
+		case MAILBOX_EVT:
 		{
 			media_msg_t msg;
-
 			msg.event = cmd_buf->param1;
-			media_send_msg(&msg);
+			msg.param = cmd_buf->param2;
+
+			if (media_major_msg_queue)
+			{
+				bk_err_t ret;
+
+				ret = rtos_push_to_queue(&media_major_msg_queue, &msg, BEKEN_NO_WAIT);
+
+				if (BK_OK != ret)
+				{
+					LOGE("%s failed\n", __func__);
+				}
+			}
+
 		}
 		break;
 #endif
@@ -86,21 +109,41 @@ static void media_major_mailbox_tx_cmpl_isr(void *param, mb_chnl_ack_t *ack_buf)
 
 bk_err_t media_send_msg(media_msg_t *msg)
 {
-	bk_err_t ret;
+	bk_err_t ret = BK_OK;
+
+#ifdef CONFIG_DUAL_CORE
+
+	if (msg->event >> MEDIA_EVT_BIT == MAILBOX_EVT)
+	{
+		LOGE("%s failed, error event\n", __func__);
+		return BK_FAIL;
+	}
+
+	if (msg->event >> MEDIA_EVT_BIT == MAILBOX_CMD)
+	{
+		if (platform_is_in_interrupt_context())
+		{
+			LOGW("%s should not call form isr\n", __func__);
+		}
+
+		ret = media_mailbox_send_msg(msg->event, msg->param, 0);
+		return ret;
+	}
+#endif
 
 	if (media_major_msg_queue)
 	{
 		ret = rtos_push_to_queue(&media_major_msg_queue, msg, BEKEN_NO_WAIT);
 
-		if (kNoErr != ret)
+		if (BK_OK != ret)
 		{
 			LOGE("%s failed\n", __func__);
-			return kOverrunErr;
+			return BK_FAIL;
 		}
 
 		return ret;
 	}
-	return kNoResourcesErr;
+	return ret;
 }
 
 
@@ -181,6 +224,11 @@ static void media_major_message_handle(void)
 					break;
 #endif
 
+#ifdef CONFIG_DUAL_CORE
+				case MAILBOX_EVT:
+					mailbox_evt_handle(msg.event, msg.param);
+					break;
+#endif
 				case QUEUE_EVENT:
 
 					break;
@@ -196,6 +244,8 @@ static void media_major_message_handle(void)
 	}
 
 exit:
+
+	frame_buffer_deinit();
 
 	/* delate msg queue */
 	ret = rtos_deinit_queue(&media_major_msg_queue);
@@ -263,6 +313,26 @@ bk_err_t media_major_init(void)
 	media_app_init();
 
 #ifdef CONFIG_DUAL_CORE
+
+#if 0
+	if (mailbox_free_list)
+	{
+		mailbox_free_list = mlist_new(NULL);
+
+		for (int i = 0; i < MAX_MAILBOX_QUEUE; i ++)
+		{
+			media_msg_t *data = (media_msg_t *)osi_malloc(sizeof(media_msg_t));
+
+			mlist_append(mailbox_free_list, data);
+		}
+	}
+
+	if (mailbox_msg_list)
+	{
+		mailbox_msg_list = mlist_new(NULL);
+	}
+#endif
+
 	mb_chnl_open(MB_CHNL_MEDIA, NULL);
 	mb_chnl_ctrl(MB_CHNL_MEDIA, MB_CHNL_SET_RX_ISR, media_major_mailbox_rx_isr);
 	mb_chnl_ctrl(MB_CHNL_MEDIA, MB_CHNL_SET_TX_ISR, media_major_mailbox_tx_isr);

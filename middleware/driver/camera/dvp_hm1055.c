@@ -31,6 +31,9 @@
 #define TAG "hm1055"
 #define LOGI(...) BK_LOGI(TAG, ##__VA_ARGS__)
 
+#define SENSOR_I2C_RERAD(reg, value)  cb->read_uint16((HM1055_WRITE_ADDRESS >> 1), reg, value)
+#define SENSOR_I2C_WRITE(reg, value)  cb->write_uint16((HM1055_WRITE_ADDRESS >> 1), reg, value)
+
 
 // HM_1055_DEV
 /*MCLK = 60MHz 5fps default*/
@@ -696,24 +699,12 @@ const uint16_t sensor_hm1055_720P_5fps_talbe[][2] =
 	{0x0005, 0x01}, //Turn on rolling shutter
 };
 
-bool hm1055_detect(const dvp_camera_config_t *config)
+bool hm1055_detect(const dvp_camera_i2c_callback_t *cb)
 {
-	i2c_mem_param_t mem_param = {0};
 	uint8_t data[2] = {0};
 
-	mem_param.dev_addr = HM1055_WRITE_ADDRESS >> 1;
-	mem_param.mem_addr_size = I2C_MEM_ADDR_SIZE_16BIT;
-	mem_param.data_size = 1;
-	mem_param.timeout_ms = 2000;
-	mem_param.mem_addr = 0x0001;
-	mem_param.data = &data[0];
-
-	bk_i2c_memory_read(config->host->id, &mem_param);
-
-	mem_param.mem_addr = 0x0002;
-	mem_param.data = &data[1];
-
-	bk_i2c_memory_read(config->host->id, &mem_param);
+	SENSOR_I2C_RERAD(0x0001, &data[0]);
+	SENSOR_I2C_RERAD(0x0002, &data[1]);
 
 	LOGI("%s, id: 0x%02X%02X\n", __func__, data[0], data[1]);
 
@@ -727,42 +718,28 @@ bool hm1055_detect(const dvp_camera_config_t *config)
 	return false;
 }
 
-int hm1055_init(const dvp_camera_config_t *config)
+int hm1055_init(const dvp_camera_i2c_callback_t *cb)
 {
 	uint32_t size = sizeof(sensor_hm1055_init_talbe) / 4;
 
-	i2c_mem_param_t mem_param = {0};
-	mem_param.dev_addr = HM1055_WRITE_ADDRESS >> 1;
-	mem_param.mem_addr_size = I2C_MEM_ADDR_SIZE_16BIT;
-	mem_param.data_size = 1;
-	mem_param.timeout_ms = 2000;
-
-
 	for (uint32_t i = 0; i < size; i++)
 	{
-		mem_param.mem_addr = sensor_hm1055_init_talbe[i][0];
-		mem_param.data = (uint8_t *) & (sensor_hm1055_init_talbe[i][1]);
-		BK_LOG_ON_ERR(bk_i2c_memory_write(config->host->id, &mem_param));
+		SENSOR_I2C_WRITE(sensor_hm1055_init_talbe[i][0],
+			(uint8_t)sensor_hm1055_init_talbe[i][1]);
 	}
 
 	return 0;
 }
 
-int hm1055_set_ppi(const dvp_camera_config_t *config, media_ppi_t ppi)
+int hm1055_set_ppi(const dvp_camera_i2c_callback_t *cb, media_ppi_t ppi)
 {
 	return 0;
 }
 
-int hm1055_set_fps(const dvp_camera_config_t *config, sensor_fps_t fps)
+int hm1055_set_fps(const dvp_camera_i2c_callback_t *cb, sensor_fps_t fps)
 {
 	uint32_t size, i;
 	int ret = -1;
-	i2c_mem_param_t mem_param = {0};
-
-	mem_param.dev_addr = HM1055_WRITE_ADDRESS >> 1;
-	mem_param.mem_addr_size = I2C_MEM_ADDR_SIZE_16BIT;
-	mem_param.data_size = 1;
-	mem_param.timeout_ms = 2000;
 
 	switch (fps)
 	{
@@ -772,9 +749,8 @@ int hm1055_set_fps(const dvp_camera_config_t *config, sensor_fps_t fps)
 
 			for (i = 0; i < size; i++)
 			{
-				mem_param.mem_addr = sensor_hm1055_720P_5fps_talbe[i][0];
-				mem_param.data = (uint8_t *) & (sensor_hm1055_720P_5fps_talbe[i][1]);
-				BK_LOG_ON_ERR(bk_i2c_memory_write(config->host->id, &mem_param));
+				SENSOR_I2C_WRITE(sensor_hm1055_720P_5fps_talbe[i][0],
+					(uint8_t)sensor_hm1055_720P_5fps_talbe[i][1]);
 			}
 
 			ret = 0;
@@ -786,9 +762,8 @@ int hm1055_set_fps(const dvp_camera_config_t *config, sensor_fps_t fps)
 
 			for (i = 0; i < size; i++)
 			{
-				mem_param.mem_addr = sensor_hm1055_720P_10fps_talbe[i][0];
-				mem_param.data = (uint8_t *) & (sensor_hm1055_720P_10fps_talbe[i][1]);
-				BK_LOG_ON_ERR(bk_i2c_memory_write(config->host->id, &mem_param));
+				SENSOR_I2C_WRITE(sensor_hm1055_720P_10fps_talbe[i][0],
+					(uint8_t)sensor_hm1055_720P_10fps_talbe[i][1]);
 			}
 
 			ret = 0;
@@ -800,9 +775,8 @@ int hm1055_set_fps(const dvp_camera_config_t *config, sensor_fps_t fps)
 
 			for (i = 0; i < size; i++)
 			{
-				mem_param.mem_addr = sensor_hm1055_720P_15fps_talbe[i][0];
-				mem_param.data = (uint8_t *) & (sensor_hm1055_720P_15fps_talbe[i][1]);
-				BK_LOG_ON_ERR(bk_i2c_memory_write(config->host->id, &mem_param));
+				SENSOR_I2C_WRITE(sensor_hm1055_720P_15fps_talbe[i][0],
+					(uint8_t)sensor_hm1055_720P_15fps_talbe[i][1]);
 			}
 
 			ret = 0;
@@ -815,9 +789,8 @@ int hm1055_set_fps(const dvp_camera_config_t *config, sensor_fps_t fps)
 
 			for (i = 0; i < size; i++)
 			{
-				mem_param.mem_addr = sensor_hm1055_720P_20fps_talbe[i][0];
-				mem_param.data = (uint8_t *) & (sensor_hm1055_720P_20fps_talbe[i][1]);
-				BK_LOG_ON_ERR(bk_i2c_memory_write(config->host->id, &mem_param));
+				SENSOR_I2C_WRITE(sensor_hm1055_720P_20fps_talbe[i][0],
+					(uint8_t)sensor_hm1055_720P_20fps_talbe[i][1]);
 			}
 
 			ret = 0;
@@ -829,9 +802,8 @@ int hm1055_set_fps(const dvp_camera_config_t *config, sensor_fps_t fps)
 
 			for (i = 0; i < size; i++)
 			{
-				mem_param.mem_addr = sensor_hm1055_720P_25fps_talbe[i][0];
-				mem_param.data = (uint8_t *) & (sensor_hm1055_720P_25fps_talbe[i][1]);
-				BK_LOG_ON_ERR(bk_i2c_memory_write(config->host->id, &mem_param));
+				SENSOR_I2C_WRITE(sensor_hm1055_720P_25fps_talbe[i][0],
+					(uint8_t)sensor_hm1055_720P_25fps_talbe[i][1]);
 			}
 
 			ret = 0;
@@ -843,9 +815,8 @@ int hm1055_set_fps(const dvp_camera_config_t *config, sensor_fps_t fps)
 
 			for (i = 0; i < size; i++)
 			{
-				mem_param.mem_addr = sensor_hm1055_720P_30fps_talbe[i][0];
-				mem_param.data = (uint8_t *) & (sensor_hm1055_720P_30fps_talbe[i][1]);
-				BK_LOG_ON_ERR(bk_i2c_memory_write(config->host->id, &mem_param));
+				SENSOR_I2C_WRITE(sensor_hm1055_720P_30fps_talbe[i][0],
+					(uint8_t)sensor_hm1055_720P_30fps_talbe[i][1]);
 			}
 
 			ret = 0;
@@ -866,7 +837,7 @@ const dvp_sensor_config_t dvp_sensor_hm1055 =
 	.def_fps = FPS15,
 	/* capability config */
 	.fps_cap = FPS5 | FPS10 | FPS20 | FPS25 | FPS30,
-	.ppi_cap = PPI_SUPPORT_1280X720,
+	.ppi_cap = PPI_CAP_1280X720,
 	.id = ID_HM1055,
 	.address = (HM1055_WRITE_ADDRESS >> 1),
 	.init = hm1055_init,

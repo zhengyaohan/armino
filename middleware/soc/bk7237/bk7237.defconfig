@@ -586,3 +586,7 @@ CONFIG_MIDEA=n
 #
 CONFIG_CHIP_SUPPORT=n
 
+# jtag change group gpio
+#
+#
+CONFIG_CHANGE_JTAG_GPIO=y

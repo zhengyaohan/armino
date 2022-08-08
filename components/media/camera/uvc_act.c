@@ -23,6 +23,8 @@
 
 #include "frame_buffer.h"
 
+#include <driver/timer.h>
+
 
 #define TAG "uvc_act"
 
@@ -31,7 +33,24 @@
 #define LOGE(...) BK_LOGE(TAG, ##__VA_ARGS__)
 #define LOGD(...) BK_LOGD(TAG, ##__VA_ARGS__)
 
+#define DEBUG_INTERVAL (1000 * 2)
+
+extern void transfer_dump(uint32_t ms);
+#if CONFIG_LCD
+extern uint32_t media_jpg_isr_count;
+extern uint32_t media_decoder_isr_count;
+extern uint32_t media_lcd_isr_count;
+#endif
+extern uint32_t uvc_frame_id;
 uvc_info_t uvc_info;
+
+static void uvc_debug_dump(timer_id_t timer_id)
+{
+	transfer_dump(DEBUG_INTERVAL);
+#if CONFIG_LCD
+	LOGI("ISR, jpg: %d, decoder: %d, lcd: %d\n", uvc_frame_id, media_decoder_isr_count, media_lcd_isr_count);
+#endif
+}
 
 void uvc_open_handle(param_pak_t *param)
 {
@@ -57,6 +76,11 @@ void uvc_open_handle(param_pak_t *param)
 	}
 
 	set_uvc_camera_state(UVC_STATE_ENABLED);
+
+	if (uvc_info.debug)
+	{
+		bk_timer_start(TIMER_ID1, DEBUG_INTERVAL, uvc_debug_dump);
+	}
 
 out:
 	MEDIA_EVT_RETURN(param, ret);
@@ -85,6 +109,11 @@ void uvc_start_handle(param_pak_t *param)
 
 	set_uvc_camera_state(UVC_STATE_ENABLED);
 
+	if (uvc_info.debug)
+	{
+		bk_timer_start(TIMER_ID1, DEBUG_INTERVAL, uvc_debug_dump);
+	}
+
 out:
 	MEDIA_EVT_RETURN(param, ret);
 }
@@ -108,6 +137,11 @@ void uvc_stop_handle(param_pak_t *param)
 	{
 		LOGE("%s stop failed\n", __func__);
 		goto out;
+	}
+
+	if (uvc_info.debug)
+	{
+		bk_timer_stop(TIMER_ID1);
 	}
 
 	set_uvc_camera_state(UVC_STATE_STOP);
@@ -155,6 +189,11 @@ void uvc_close_handle(param_pak_t *param)
 		goto out;
 	}
 
+	if (uvc_info.debug)
+	{
+		bk_timer_stop(TIMER_ID1);
+	}
+
 	bk_uvc_camera_close();
 
 	set_uvc_camera_state(DVP_STATE_DISABLED);
@@ -200,6 +239,7 @@ void set_uvc_camera_state(uvc_state_t state)
 void uvc_camera_init(void)
 {
 	uvc_info.state = UVC_STATE_DISABLED;
+	uvc_info.debug = true;
 }
 
 

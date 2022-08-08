@@ -32,8 +32,11 @@
 #define OV2640_CHIP_PIDH (0x26)
 #define OV2640_CHIP_PIDL (0x42)
 
+#define SENSOR_I2C_RERAD(reg, value)  cb->read_uint8((OV2640_WRITE_ADDRESS >> 1), reg, value)
+#define SENSOR_I2C_WRITE(reg, value)  cb->write_uint8((OV2640_WRITE_ADDRESS >> 1), reg, value)
 
 
+#if 0
 const uint8_t sensor_ov2640_init_talbe[][2] =
 {
 	{0xff, 0x00},
@@ -238,9 +241,8 @@ const uint8_t sensor_ov2640_init_talbe[][2] =
 	{0xc2, 0x08 | 0x04},
 	{0x05, 0x00},
 };
+#endif
 
-
-// ov2640_DEV
 #if 0  //800X600
 const uint8_t sensor_ov2640_init_talbe[][2] =
 {
@@ -424,161 +426,465 @@ const uint8_t sensor_ov2640_init_talbe[][2] =
 };
 #endif
 
-int ov2640_write_i2c(i2c_id_t id, uint8_t addr, uint8_t value)
+
+const uint8_t sensor_ov2640_init_talbe[][2] =
 {
-	i2c_mem_param_t mem_param = {0};
+	{0xff, 0x01},
+	{0x12, 0x80},
+	{0xff, 0x00},
+	{0x2c, 0xff},
+	{0x2e, 0xdf},
+	{0xff, 0x01},
 
-	mem_param.dev_addr = OV2640_WRITE_ADDRESS >> 1;
-	mem_param.mem_addr_size = I2C_MEM_ADDR_SIZE_8BIT;
-	mem_param.data_size = 1;
-	mem_param.timeout_ms = 2000;
+	{0x03, 0x0f}, // 0x8f peak    //4f    //Bit[7:6]: Dummy frame control
+	{0x0f, 0x4b},
 
-	mem_param.mem_addr = 0;
-	mem_param.data = &value;
 
-	BK_LOG_ON_ERR(bk_i2c_memory_write(id, &mem_param));
+	{0x3c, 0x32},
+	{0x11, 0x00},
+	{0x09, 0x01}, //03},  //Bit[1:0]: Output drive select
+	{0x04, 0xa8}, //b7,b6 directs
+	{0x13, 0xe5},
+	{0x14, 0x28}, //0x48 peak
+	{0x2c, 0x0c},
+	{0x33, 0x78},
+	{0x3a, 0x33},
+	{0x3b, 0xfB},
+	{0x3e, 0x00},
+	{0x43, 0x11},
+	{0x16, 0x10},
+	{0x39, 0x02},
+	{0x35, 0x88},
+	{0x22, 0x09},
+	{0x37, 0x40},
+	{0x23, 0x00},
+	{0x34, 0xa0},
+	{0x36, 0x1a},
+	{0x06, 0x02},
+	{0x07, 0xc0},
+	{0x0d, 0xb7},
+	{0x0e, 0x01},
+	{0x4c, 0x00},
+	{0x4a, 0x81},
+	{0x21, 0x99},
+	//aec
+	//{{0x24},{0x58}},
+	//{{0x25},{0x50}},
+	//{{0x26},{0x92}},
 
-	return 0;
-}
+	//{{0x24, 0x70}},
+	//{{0x25, 0x60}},
+	//{{0x26, 0xa4}},
+	{0x24, 0x48},
+	{0x25, 0x38}, //40
+	{0x26, 0x82}, //82
 
-uint8_t ov2640_read_i2c(i2c_id_t id, uint8_t addr, uint8_t *value)
+	{0x5c, 0x00},
+	{0x63, 0x00},
+	{0x46, 0x3f},
+	{0x0c, 0x3c},
+	{0x61, 0x70},
+	{0x62, 0x80},
+	{0x7c, 0x05},
+	{0x20, 0x80},
+	{0x28, 0x30},
+	{0x6c, 0x00},
+	{0x6d, 0x80},
+	{0x6e, 0x00},
+	{0x70, 0x02},
+	{0x71, 0x94},
+	{0x73, 0xc1},
+	{0x3d, 0x34},
+	{0x5a, 0x57},
+	{0x4f, 0xbb},
+	{0x50, 0x9c},
+	{0xff, 0x00},
+	{0xe5, 0x7f},
+	{0xf9, 0xc0},
+	{0x41, 0x24},
+	{0xe0, 0x14},
+	{0x76, 0xff},
+	{0x33, 0xa0},
+	{0x42, 0x20},
+	{0x43, 0x18},
+	{0x4c, 0x00},
+	{0x87, 0xd0},
+	{0x88, 0x3f},
+	{0xd7, 0x03},
+	{0xd9, 0x10},
+	{0xd3, 0x82},
+	{0xc8, 0x08},
+	{0xc9, 0x80},
+	//
+	//{{0xff},{0x00}}, //added by peak on 20120409
+	{0x7c, 0x00},
+	{0x7d, 0x02}, //0x00 peak//0x07
+	{0x7c, 0x03},
+	{0x7d, 0x28}, //0x48//0x40
+	{0x7d, 0x28}, //0x48 peak//0x40
+
+	// removed by peak on 20120409
+
+	{0x7c, 0x08},
+	{0x7d, 0x20},
+	{0x7d, 0x10}, //0x10
+	{0x7d, 0x0e}, //0x0e
+
+	//contrast added by peak on 20120409
+	{0x7c, 0x00},
+	{0x7d, 0x04}, //0x48//0x40
+	{0x7c, 0x07}, //0x48 peak//0x40
+	{0x7d, 0x20},
+	{0x7d, 0x1c},
+	{0x7d, 0x2a}, //0x10
+	{0x7d, 0x06}, //0x0e
+
+	{0xff, 0x00}, //register page
+	{0x7c, 0x00},
+	{0x7d, 0x04},
+	{0x7c, 0x09},
+	{0x7d, 0x00}, //brightness value
+	{0x7d, 0x00}, //sign
+
+	{0xff, 0x00},
+	{0x7c, 0x00},
+	{0x7d, 0x00},
+	{0x7c, 0x05},
+	{0x7d, 0x80},
+	{0x7d, 0x80},
+
+	{0x90, 0x00},
+	{0x91, 0x0e},
+	{0x91, 0x1a}, //e3
+	{0x91, 0x31},
+	{0x91, 0x5a},
+	{0x91, 0x69},
+	{0x91, 0x75},
+	{0x91, 0x7e},
+	{0x91, 0x88},
+	{0x91, 0x8f},
+	{0x91, 0x96},
+	{0x91, 0xa3},
+	{0x91, 0xaf},
+	{0x91, 0xc4},
+	{0x91, 0xd7},
+	{0x91, 0xe8},
+	{0x91, 0x20},
+
+	{0x90, 0x00},
+	{0x91, 0x04},
+	{0x91, 0x0c},
+	{0x91, 0x20},
+	{0x91, 0x4c},
+	{0x91, 0x60},
+	{0x91, 0x74},
+	{0x91, 0x82},
+	{0x91, 0x8e},
+	{0x91, 0x97},
+	{0x91, 0x9f},
+	{0x91, 0xaa},
+	{0x91, 0xb4},
+	{0x91, 0xc8},
+	{0x91, 0xd9},
+	{0x91, 0xe8},
+	{0x91, 0x20},
+
+
+
+	{0x92, 0x00},
+	{0x93, 0x06},
+	{0x93, 0xc8}, //e3
+	{0x93, 0x05},
+	{0x93, 0x05},
+	{0x93, 0x00},
+	{0x93, 0x04},
+	{0x93, 0x00},
+	{0x93, 0x00},
+	{0x93, 0x00},
+	{0x93, 0x00},
+	{0x93, 0x00},
+	{0x93, 0x00},
+	{0x93, 0x00},
+
+	{0x96, 0x00},
+	{0x97, 0x08},
+	{0x97, 0x19},
+	{0x97, 0x02},
+	{0x97, 0x0c},
+	{0x97, 0x24},
+	{0x97, 0x30},
+	{0x97, 0x28},
+	{0x97, 0x26},
+	{0x97, 0x02},
+	{0x97, 0x98},
+	{0x97, 0x80},
+	{0x97, 0x00},
+	{0x97, 0x00},
+	{0xc3, 0xef}, //ed
+	{0xa4, 0x00},
+	{0xa8, 0x00},
+
+	{0xbf, 0x00},
+	{0xba, 0xdc},
+	{0xbb, 0x08},
+	{0xb6, 0x20},
+	{0xb8, 0x30},
+	{0xb7, 0x20},
+	{0xb9, 0x30},
+	{0xb3, 0xb4},
+	{0xb4, 0xca},
+	{0xb5, 0x34},
+	{0xb0, 0x46},
+	{0xb1, 0x46},
+	{0xb2, 0x06},
+	{0xc7, 0x00},
+	{0xc6, 0x51},
+	{0xc5, 0x11},
+	{0xc4, 0x9c},
+	///
+	{0xc0, 0xc8},
+	{0xc1, 0x96},
+	{0x86, 0x3d},
+	{0x50, 0x92},
+	{0x51, 0x90},
+	{0x52, 0x2c},
+	{0x53, 0x00},
+	{0x54, 0x00},
+	{0x55, 0x88},
+	{0x57, 0x00},
+	{0x5a, 0x50},
+	{0x5b, 0x3c},
+	{0x5c, 0x00},
+	{0xc3, 0xed},
+	{0x7f, 0x00},
+	{0xda, 0x01},
+	{0xe5, 0x1f},
+	{0xe1, 0x67},
+	{0xe0, 0x00},
+	{0xdd, 0x7f},
+	{0x05, 0x00},
+
+
+#if 1
+	{0xff, 0x01},
+	{0x5d, 0x55}, //0x00
+	//{{0x5e, 0x7d}},//0x3c
+	//{{0x5f, 0x7d}},//0x28
+	//{{0x60, 0x55}},//0x55
+	{0x5e, 0x55}, //0x3c
+	{0x5f, 0x55}, //0x28
+	{0x60, 0x55}, //0x55
+
+	{0xff, 0x00},
+	{0xc3, 0xef},
+	{0xa6, 0x00},
+	{0xa7, 0x0f},
+	{0xa7, 0x4e},
+	{0xa7, 0x7a},
+	{0xa7, 0x33},
+	{0xa7, 0x00},
+	{0xa7, 0x23},
+	{0xa7, 0x27},
+	{0xa7, 0x3a},
+	{0xa7, 0x70},
+	{0xa7, 0x33},
+	{0xa7, 0x00}, //L
+	{0xa7, 0x23},
+	{0xa7, 0x20},
+	{0xa7, 0x0c},
+	{0xa7, 0x66},
+	{0xa7, 0x33},
+	{0xa7, 0x00},
+	{0xa7, 0x23},
+	{0xc3, 0xef},
+
+	{0xa6, 0x00},
+	{0xa7, 0x20},
+	{0xa7, 0x00},
+	{0xa7, 0x20}, //red   //18
+	{0xa7, 0x31},
+	{0xa7, 0x10},
+	{0xa7, 0x28},
+	{0xa7, 0x00},
+	{0xa7, 0x20},
+	{0xa7, 0x1a}, //green
+	{0xa7, 0x31},
+	{0xa7, 0x10},
+	{0xa7, 0x28},
+	{0xa7, 0x00},
+	{0xa7, 0x20},
+	{0xa7, 0x19}, //blue
+	{0xa7, 0x31},
+	{0xa7, 0x10},
+	{0xa7, 0x28},
+
+#endif
+
+
+#if 1
+	{0xff, 0x00},
+	{0x92, 0x00},
+	{0x93, 0x06}, //0x06 peak
+	{0x93, 0xe3}, //e
+	{0x93, 0x05},
+	{0x93, 0x03},
+	{0x93, 0x00},
+	{0x93, 0x04},
+#endif
+
+	//{{0x03, 0x0f}},
+
+	{0xe0, 0x04},
+	{0xc0, 0xc8},
+	{0xc1, 0x96},
+	{0x86, 0x3d},
+	{0x50, 0x89},
+	{0x51, 0x90},
+	{0x52, 0x2c},
+	{0x53, 0x00},
+	{0x54, 0x00},
+	{0x55, 0x88},
+	{0x57, 0x00},
+	{0x5a, 0xa0},
+	{0x5b, 0x78},
+	{0x5c, 0x00},
+	{0xd3, 0x82},
+	{0xe0, 0x00},
+
+	//YUV422
+	{0xff, 0x00},
+	{0xda, 0x00},
+
+	{0xff, 0x00},  //AWB auto, bit[1]:0,auto
+	{0xc7, 0x00},
+
+	{0xff, 0x00}, //register page
+	{0x7c, 0x00},
+	{0x7d, 0x00},
+	{0x7c, 0x03},
+	{0x7d, 0x48},
+	{0x7d, 0x48},
+	{0x7c, 0x08},
+	{0x7d, 0x20},
+	{0x7d, 0x10},
+	{0x7d, 0x0e},
+
+};
+
+
+const uint8_t sensor_ov2640_1600X1200_talbe[][2] =
 {
-	i2c_mem_param_t mem_param = {0};
+	{0xff, 0x00},
+	{0xe0, 0x04},
+	{0xc0, 0xc8},
+	{0xc1, 0x96},
+	{0x86, 0x3d},
+	{0x50, 0x00},
+	{0x51, 0x90},
+	{0x52, 0x2c},
+	{0x53, 0x00},
+	{0x54, 0x00},
+	{0x55, 0x88},
+	{0x57, 0x00},
+	{0x5a, 0x90},
+	{0x5b, 0x2c},
+	{0x5c, 0x05},
+	{0xd3, 0x82},
+	{0xe0, 0x00},
+};
 
-	mem_param.dev_addr = OV2640_WRITE_ADDRESS >> 1;
-	mem_param.mem_addr_size = I2C_MEM_ADDR_SIZE_8BIT;
-	mem_param.data_size = 1;
-	mem_param.timeout_ms = 2000;
-
-	mem_param.mem_addr = addr;
-	mem_param.data = value;
-	bk_i2c_memory_read(id, &mem_param);
-
-	return 1;
-}
-
-static int ov2640_window_set(i2c_id_t id, uint16_t sx, uint16_t sy, uint16_t width, uint16_t height)
+const uint8_t sensor_ov2640_1280X720_talbe[][2] =
 {
-	uint16_t endx;
-	uint16_t endy;
-	uint8_t temp;
-	endx = sx + width / 2;  /*!< V*2 */
-	endy = sy + height / 2;
+	{0xff, 0x00},
+	{0xe0, 0x04},
+	{0xc0, 0xc8},
+	{0xc1, 0x96},
+	{0x86, 0x3d},
+	{0x50, 0x00},
+	{0x51, 0x90},
+	{0x52, 0x2c},
+	{0x53, 0x00},
+	{0x54, 0x00},
+	{0x55, 0x88},
+	{0x57, 0x00},
+	{0x5a, 0x40},
+	{0x5b, 0xb4},
+	{0x5c, 0x01},
+	{0xd3, 0x82},
+	{0xe0, 0x00},
+};
 
-	ov2640_write_i2c(id, 0XFF, 0X01);
-	temp = ov2640_read_i2c(id, 0X03, &temp);                /*!< Read the value before Vref */
-	temp &= 0XF0;
-	temp |= ((endy & 0X03) << 2) | (sy & 0X03);
-	ov2640_write_i2c(id, 0X03, temp);               /*!< Set the lowest two bits of start and end of Vref */
-	ov2640_write_i2c(id, 0X19, sy >> 2);            /*!< Set the start of Vref to 8 high bits  */
-	ov2640_write_i2c(id, 0X1A, endy >> 2);          /*!< Set the end of Vref to 8 high bits  */
 
-	temp = ov2640_read_i2c(id, 0X32, &temp);                /*!< Read the value before the Href */
-	temp &= 0XC0;
-	temp |= ((endx & 0X07) << 3) | (sx & 0X07);
-	ov2640_write_i2c(id, 0X32, temp);               /*!< Set the lowest 3 bits of start and end of Href */
-	ov2640_write_i2c(id, 0X17, sx >> 3);            /*!< Set the start of Href to 8 high bits */
-	ov2640_write_i2c(id, 0X18, endx >> 3);          /*!<et the end of Href to 8 high bits */
-	return 0;
-}
-
-static int ov2640_out_size_set(i2c_id_t id, uint16_t width, uint16_t height)
+const uint8_t sensor_ov2640_1024X768_talbe[][2] =
 {
-	uint16_t outh;
-	uint16_t outw;
-	uint8_t temp;
+	{0xff, 0x00},
+	{0xe0, 0x04},
+	{0xc0, 0xc8},
+	{0xc1, 0x96},
+	{0x86, 0x3d},
+	{0x50, 0x00},
+	{0x51, 0x90},
+	{0x52, 0x2c},
+	{0x53, 0x00},
+	{0x54, 0x00},
+	{0x55, 0x88},
+	{0x57, 0x00},
+	{0x5a, 0x90},
+	{0x5b, 0x2c},
+	{0x5c, 0x05},
+	{0xd3, 0x82},
+	{0xe0, 0x00},
+};
 
-	if (width % 4)
-	{
-		return -1;
-	}
-
-	if (height % 4)
-	{
-		return -1;
-	}
-
-	outw = width / 4;
-	outh = height / 4;
-	ov2640_write_i2c(id, 0XFF, 0X00);
-	ov2640_write_i2c(id, 0XE0, 0X04);
-	ov2640_write_i2c(id, 0X5A, outw & 0XFF);        /*!< Set the lower 8 bits of OUTW */
-	ov2640_write_i2c(id, 0X5B, outh & 0XFF);        /*!< Set the lower 8 bits of OUTH */
-	temp = (outw >> 8) & 0X03;
-	temp |= (outh >> 6) & 0X04;
-	ov2640_write_i2c(id, 0X5C, temp);               /*!< Set the high bits of OUTH/OUTW */
-	ov2640_write_i2c(id, 0XE0, 0X00);
-	return 0;
-}
-
-static int ov2640_image_win_Set(i2c_id_t id, uint16_t offx, uint16_t offy, uint16_t width, uint16_t height)
+const uint8_t sensor_ov2640_800X600_talbe[][2] =
 {
-	uint16_t hsize;
-	uint16_t vsize;
-	uint8_t temp;
+	{0xff, 0x00},
+	{0xe0, 0x04},
+	{0xc0, 0xc8},
+	{0xc1, 0x96},
+	{0x86, 0x35},
+	{0x50, 0x89},
+	{0x51, 0x90},
+	{0x52, 0x2c},
+	{0x53, 0x00},
+	{0x54, 0x00},
+	{0x55, 0x88},
+	{0x57, 0x00},
+	{0x5a, 0xc8},
+	{0x5b, 0x96},
+	{0x5c, 0x00},
+	{0xd3, 0x82},
+	{0xe0, 0x00},
+};
 
-	if (width % 4)
-	{
-		return -1;
-	}
-
-	if (height % 4)
-	{
-		return -1;
-	}
-
-	hsize = width / 4;
-	vsize = height / 4;
-	ov2640_write_i2c(id, 0XFF, 0X00);
-	ov2640_write_i2c(id, 0XE0, 0X04);
-	ov2640_write_i2c(id, 0X51, hsize & 0XFF);       /*!< Set the lower 8 bits of H_SIZE */
-	ov2640_write_i2c(id, 0X52, vsize & 0XFF);       /*!< Set the lower 8 bits of v_SIZE */
-	ov2640_write_i2c(id, 0X53, offx & 0XFF);        /*!< Set the lower 8 bits of offx */
-	ov2640_write_i2c(id, 0X54, offy & 0XFF);        /*!< Set the lower 8 bits of offy */
-	temp = (vsize >> 1) & 0X80;
-	temp |= (offy >> 4) & 0X70;
-	temp |= (hsize >> 5) & 0X08;
-	temp |= (offx >> 8) & 0X07;
-	ov2640_write_i2c(id, 0X55, temp);               /*!< Set H_SIZE/V_SIZE/OFFX, the high value of OFFY */
-	ov2640_write_i2c(id, 0X57, (hsize >> 2) & 0X80);    /*!< Set H_SIZE/V_SIZE/OFFX, the high value of OFFY */
-	ov2640_write_i2c(id, 0XE0, 0X00);
-	return 0;
-}
-
-static int ov2640_image_size_set(i2c_id_t id, uint16_t width, uint16_t height)
+const uint8_t sensor_ov2640_640X480_talbe[][2] =
 {
-	uint8_t temp;
-	ov2640_write_i2c(id, 0XFF, 0X00);
-	ov2640_write_i2c(id, 0XE0, 0X04);
-	ov2640_write_i2c(id, 0XC0, (width) >> 3 & 0XFF);
-	ov2640_write_i2c(id, 0XC1, (height) >> 3 & 0XFF);
-	temp = (width & 0X07) << 3;
-	temp |= height & 0X07;
-	temp |= (width >> 4) & 0X80;
-	ov2640_write_i2c(id, 0X8C, temp);
-	ov2640_write_i2c(id, 0XE0, 0X00);
-	return 0;
-}
+	{0xe0, 0x04},
+	{0xc0, 0xc8},
+	{0xc1, 0x96},
+	{0x86, 0x3d},
+	{0x50, 0x89},
+	{0x51, 0x90},
+	{0x52, 0x2c},
+	{0x53, 0x00},
+	{0x54, 0x00},
+	{0x55, 0x88},
+	{0x57, 0x00},
+	{0x5a, 0xa0},
+	{0x5b, 0x78},
+	{0x5c, 0x00},
+	{0xd3, 0x82},
+	{0xe0, 0x00},
+
+};
 
 
-bool ov2640_detect(const dvp_camera_config_t *config)
+bool ov2640_detect(const dvp_camera_i2c_callback_t *cb)
 {
-	i2c_mem_param_t mem_param = {0};
 	uint8_t pidh_data = 0, pidhl_data = 0;
 
-	mem_param.dev_addr = OV2640_WRITE_ADDRESS >> 1;
-	mem_param.mem_addr_size = I2C_MEM_ADDR_SIZE_8BIT;
-	mem_param.data_size = 1;
-	mem_param.timeout_ms = 2000;
-
-	mem_param.mem_addr = 0x0A;
-	mem_param.data = &pidh_data;
-	bk_i2c_memory_read(config->host->id, &mem_param);
-
-
-	mem_param.mem_addr = 0x0B;
-	mem_param.data = &pidhl_data;
-	bk_i2c_memory_read(config->host->id, &mem_param);
+	SENSOR_I2C_RERAD(0x0A,  &pidh_data);
+	SENSOR_I2C_RERAD(0x0B,  &pidhl_data);
 
 	LOGI("%s, id: 0x%02X%02X\n", __func__, pidh_data, pidhl_data);
 
@@ -593,83 +899,95 @@ bool ov2640_detect(const dvp_camera_config_t *config)
 }
 
 
-int ov2640_init(const dvp_camera_config_t *config)
+int ov2640_init(const dvp_camera_i2c_callback_t *cb)
 {
 	uint32_t size = sizeof(sensor_ov2640_init_talbe) / 2, i;
 
 	LOGI("%s\n", __func__);
 
-	i2c_mem_param_t mem_param = {0};
-	mem_param.dev_addr = OV2640_WRITE_ADDRESS >> 1;
-	mem_param.mem_addr_size = I2C_MEM_ADDR_SIZE_8BIT;
-	mem_param.data_size = 1;
-	mem_param.timeout_ms = 2000;
-
 	for (i = 0; i < size; i++)
 	{
-		mem_param.mem_addr = sensor_ov2640_init_talbe[i][0];
-		mem_param.data = (uint8_t *)(&sensor_ov2640_init_talbe[i][1]);
-		BK_LOG_ON_ERR(bk_i2c_memory_write(config->host->id, &mem_param));
+		SENSOR_I2C_WRITE(sensor_ov2640_init_talbe[i][0],
+			sensor_ov2640_init_talbe[i][1]);
 	}
 
 	return 0;
 }
 
 
-int ov2640_set_ppi(const dvp_camera_config_t *config, media_ppi_t ppi)
+int ov2640_set_ppi(const dvp_camera_i2c_callback_t *cb, media_ppi_t ppi)
 {
+	uint32_t size, i;
 	int ret = -1;
 
-#define WIDTH (1600)
-#define HEIGHT (1200)
+	LOGI("%s\n", __func__);
 
-	if (1)
+	switch (ppi)
 	{
-#if 0
-		uint16_t outh;
-		uint16_t outw;
-		uint8_t temp;
-		uint16_t width = 1280;
-		uint16_t height = 720;
-
-
-		LOGI("%s\n", __func__);
-
-
-		if (width % 4)
+		case PPI_1600X1200:
 		{
-			return 1;
-		}
-		if (height % 4)
-		{
-			return 2;
-		}
-		outw = width / 4;
-		outh = height / 4;
+			size = sizeof(sensor_ov2640_1600X1200_talbe) / 2;
 
-		ov2640_write_i2c(config->host->id, 0XFF, 0X00);
-		ov2640_write_i2c(config->host->id, 0XE0, 0X04);
-		ov2640_write_i2c(config->host->id, 0X50, outw & 0X00);  //配置v_divider hdivider
-		ov2640_write_i2c(config->host->id, 0X5A, outw & 0XFF);  //设置OUTW的低八位
-		ov2640_write_i2c(config->host->id, 0X5B, outh & 0XFF);  //设置OUTH的低八位
-		temp = (outw >> 8) & 0X03;
-		temp |= (outh >> 6) & 0X04;
-		ov2640_write_i2c(config->host->id, 0X5C, temp);             //设置OUTH/OUTW的高位
-		ov2640_write_i2c(config->host->id, 0XE0, 0X00);
-#endif
-	}
-	else
-	{
-		ov2640_window_set(config->host->id, 0, 0, 1600, 1200);
-		ov2640_image_size_set(config->host->id, 1600, 1200);
-		ov2640_image_win_Set(config->host->id, 0, 0, WIDTH, HEIGHT);
-		ov2640_out_size_set(config->host->id, WIDTH, HEIGHT);
+			for (i = 0; i < size; i++)
+			{
+				SENSOR_I2C_WRITE(sensor_ov2640_1600X1200_talbe[i][0],
+					sensor_ov2640_1600X1200_talbe[i][1]);
+			}
+
+			ret = 0;
+		}
+		break;
+		case PPI_1280X720:
+		{
+			size = sizeof(sensor_ov2640_1280X720_talbe) / 2;
+
+			for (i = 0; i < size; i++)
+			{
+				SENSOR_I2C_WRITE(sensor_ov2640_1280X720_talbe[i][0],
+					sensor_ov2640_1280X720_talbe[i][1]);
+			}
+
+			ret = 0;
+		}
+		break;
+
+		case PPI_800X600:
+		{
+			size = sizeof(sensor_ov2640_800X600_talbe) / 2;
+
+			for (i = 0; i < size; i++)
+			{
+				SENSOR_I2C_WRITE(sensor_ov2640_800X600_talbe[i][0],
+					sensor_ov2640_800X600_talbe[i][1]);
+			}
+
+			ret = 0;
+		}
+		break;
+		case PPI_640X480:
+		{
+			size = sizeof(sensor_ov2640_640X480_talbe) / 2;
+
+			for (i = 0; i < size; i++)
+			{
+				SENSOR_I2C_WRITE(sensor_ov2640_640X480_talbe[i][0],
+					sensor_ov2640_640X480_talbe[i][1]);
+			}
+
+			ret = 0;
+		}
+		break;
+
+		default:
+			break;
+
 	}
 
 	return ret;
 }
 
-int ov2640_set_fps(const dvp_camera_config_t *config, sensor_fps_t fps)
+
+int ov2640_set_fps(const dvp_camera_i2c_callback_t *cb, sensor_fps_t fps)
 {
 	int ret = -1;
 
@@ -685,11 +1003,11 @@ const dvp_sensor_config_t dvp_sensor_ov2640 =
 	.name = "ov2640",
 	.clk = JPEG_96M_MCLK_16M,
 	/* default config */
-	.def_ppi = PPI_1600X1200,
+	.def_ppi = PPI_1280X720,
 	.def_fps = FPS15,
 	/* capability config */
 	.fps_cap = FPS15,
-	.ppi_cap = PPI_SUPPORT_1280X720 | PPI_SUPPORT_1600X1200,
+	.ppi_cap = PPI_CAP_1280X720 | PPI_CAP_1600X1200,
 	.id = ID_OV2640,
 	.address = (OV2640_WRITE_ADDRESS >> 1),
 	.init = ov2640_init,

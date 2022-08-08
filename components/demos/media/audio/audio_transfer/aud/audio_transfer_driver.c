@@ -25,11 +25,17 @@
 #include "audio_mailbox.h"
 #include "media_common.h"
 #endif
-#include "audio_transfer_types.h"
 #include <driver/psram.h>
 #include <modules/aec.h>
 #include <modules/audio_ring_buff.h>
 #include <modules/g711.h>
+#include "audio_transfer_driver.h"
+#include "audio_transfer_private.h"
+
+#if CONFIG_AUD_TRAS_LOST_COUNT_DEBUG
+#include <driver/timer.h>
+#endif
+
 
 #define  AUD_DEBUG  0
 
@@ -46,6 +52,10 @@
 #define PSRAM_AUDIO_AEC_REF_DUMP_DEBUG_BASE      PSRAM_AUDIO_AEC_SIN_DUMP_DEBUG_BASE + 600
 #endif
 */
+
+#if CONFIG_AUD_TRAS_LOST_COUNT_DEBUG
+#define AUD_LOST_DEBUG_INTERVAL (1000 * 2)
+#endif
 
 #define TU_QITEM_COUNT      (60)
 static beken_thread_t  aud_trs_drv_thread_hdl = NULL;
@@ -589,8 +599,13 @@ static bk_err_t audio_transfer_encoder_process(void)
 	if (audio_transfer_context.aud_cb.audio_send_mic_data != NULL) {
 		size = audio_transfer_context.aud_cb.audio_send_mic_data((uint8_t *)temp_tx_context.ping.buff_addr, temp_tx_context.buff_length);
 		if (size != temp_tx_context.buff_length) {
-			//os_printf("send audio data by wifi fail \r\n");
-			//os_printf("audio lost \r\n");
+#if CONFIG_AUD_TRAS_LOST_COUNT_DEBUG
+			audio_transfer_context.lost_count.lost_size += temp_tx_context.buff_length;
+#endif
+		} else {
+#if CONFIG_AUD_TRAS_LOST_COUNT_DEBUG
+			audio_transfer_context.lost_count.complete_size += temp_tx_context.buff_length;
+#endif
 		}
 	}
 #endif
@@ -626,6 +641,20 @@ encoder_exit:
 
 	return BK_FAIL;
 }
+
+#if CONFIG_AUD_TRAS_LOST_COUNT_DEBUG
+static void aud_tras_lost_count_dump(timer_id_t timer_id)
+{
+	uint32_t lost = audio_transfer_context.lost_count.lost_size, complete = audio_transfer_context.lost_count.complete_size;
+	audio_transfer_context.lost_count.lost_size = 0;
+	audio_transfer_context.lost_count.complete_size = 0;
+
+	lost = lost / (AUD_LOST_DEBUG_INTERVAL / 1000);
+	complete = complete / 1024 / (AUD_LOST_DEBUG_INTERVAL / 1000);
+
+	os_printf("[AUD Tx] Lost: %uB/s, Complete: %uKB/s \r\n", lost, complete);
+}
+#endif
 
 static bk_err_t audio_transfer_decoder_process(void)
 {
@@ -764,6 +793,14 @@ static void audio_start_transfer_process(void)
 	pcm_data = NULL;
 	os_printf("enable audio and dma to start audio transfer complete \r\n");
 
+#if CONFIG_AUD_TRAS_LOST_COUNT_DEBUG
+	//bk_timer_driver_init();
+	ret = bk_timer_start(TIMER_ID5, AUD_LOST_DEBUG_INTERVAL, aud_tras_lost_count_dump);
+	if (ret != BK_OK)
+		os_printf("start audio lost count timer fail \r\n");
+	os_printf("start audio lost count timer complete \r\n");
+#endif
+
 	return;
 
 audio_start_transfer_exit:
@@ -771,19 +808,6 @@ audio_start_transfer_exit:
 	if (pcm_data)
 		os_free(pcm_data);
 }
-
-#if 0
-static bk_err_t audio_stop_transfer(void)
-{
-	audio_mailbox_msg_t mb_msg;
-
-	mb_msg.mb_cmd = AUD_MB_STOP_TRANSFER_CMD;
-	mb_msg.param1 = 0;
-	mb_msg.param2 = 0;
-	mb_msg.param3 = 0;
-	return audio_cp1_send_aud_mailbox_msg(&mb_msg);
-}
-#endif
 
 static void audio_transfer_get_config(aud_tras_drv_setup_t *setup)
 {
@@ -928,10 +952,20 @@ static void audio_transfer_get_config(aud_tras_drv_setup_t *setup)
 	audio_transfer_context.aec_dump.ref_dump_addr = setup->aec_dump.ref_dump_addr;
 	audio_transfer_context.aec_dump.out_dump_addr = setup->aec_dump.out_dump_addr;
 #endif
+
+#if CONFIG_AUD_TRAS_LOST_COUNT_DEBUG
+	audio_transfer_context.lost_count.complete_size = 0;
+	audio_transfer_context.lost_count.lost_size = 0;
+#endif
+
 }
 
 static void audio_transfer_deinit_config(void)
 {
+#if CONFIG_AUD_TRAS_LOST_COUNT_DEBUG
+	bk_timer_stop(TIMER_ID5);
+#endif
+
 	/* disable audio adc and dac */
 	bk_aud_stop_adc();
 	bk_aud_adc_deinit();

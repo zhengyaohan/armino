@@ -30,6 +30,7 @@
 #include "BK7256_RegList.h"
 #include "lcd_disp_ll_macro_def_mp2.h"
 
+
 extern void delay(INT32 num);
 typedef struct {
 	gpio_id_t gpio_id;
@@ -256,21 +257,25 @@ bk_err_t bk_lcd_driver_init(lcd_clk_t clk)
 		case LCD_320M:
 			ret = sys_drv_lcd_set(DISP_CLK_320M, DISP_DIV_L_0, DISP_DIV_H_0, DISP_INT_EN, DSIP_DISCLK_ALWAYS_ON);
 			break;
+		case LCD_160M:
+			ret = sys_drv_lcd_set(DISP_CLK_320M, DISP_DIV_L_1, DISP_DIV_H_0, DISP_INT_EN, DSIP_DISCLK_ALWAYS_ON);
+			break;
 		case LCD_40M:
 			ret = sys_drv_lcd_set(DISP_CLK_120M, DISP_DIV_L_0, DISP_DIV_H_1, DISP_INT_EN, DSIP_DISCLK_ALWAYS_ON);
 			//ret = sys_drv_lcd_set(DISP_CLK_320M, DISP_DIV_L_1, DISP_DIV_H_3, DISP_INT_EN, DSIP_DISCLK_ALWAYS_ON);
 			break;
 		case LCD_20M:
 			ret = sys_drv_lcd_set(DISP_CLK_320M, DISP_DIV_L_1, DISP_DIV_H_7, DISP_INT_EN, DSIP_DISCLK_ALWAYS_ON);
-			break;
+			//ret = sys_drv_lcd_set(DISP_CLK_120M, DISP_DIV_L_1, DISP_DIV_H_2, DISP_INT_EN, DSIP_DISCLK_ALWAYS_ON);
+		break;
 		case LCD_60M:
 			ret = sys_drv_lcd_set(DISP_CLK_120M, DISP_DIV_L_1, DISP_DIV_H_0, DISP_INT_EN, DSIP_DISCLK_ALWAYS_ON);
 			break;
 		case LCD_80M:
-			ret = sys_drv_lcd_set(DISP_CLK_320M, DISP_DIV_L_1, DISP_DIV_H_2, DISP_INT_EN, DSIP_DISCLK_ALWAYS_ON);
+			ret = sys_drv_lcd_set(DISP_CLK_320M, DISP_DIV_L_1, DISP_DIV_H_1, DISP_INT_EN, DSIP_DISCLK_ALWAYS_ON);
 			break;
-		case LCD_30M:
-			ret = sys_drv_lcd_set(DISP_CLK_120M, DISP_DIV_L_1, DISP_DIV_H_2, DISP_INT_EN, DSIP_DISCLK_ALWAYS_ON);
+		case LCD_54M:
+			ret = sys_drv_lcd_set(DISP_CLK_320M, DISP_DIV_L_1, DISP_DIV_H_2, DISP_INT_EN, DSIP_DISCLK_ALWAYS_ON);
 			break;
 		case LCD_32M:
 			ret = sys_drv_lcd_set(DISP_CLK_320M, DISP_DIV_L_1, DISP_DIV_H_4, DISP_INT_EN, DSIP_DISCLK_ALWAYS_ON);
@@ -326,7 +331,7 @@ bk_err_t bk_lcd_pixel_config(uint16_t x_pixel, uint16_t y_pixel)
 
 
 
-bk_err_t bk_lcd_8080_init(uint16_t x_pixel, uint16_t y_pixel)
+bk_err_t bk_lcd_8080_init(uint16_t x_pixel, uint16_t y_pixel,rgb_input_data_format_t input_data_format)
 {
 	bk_lcd_8080_gpio_init();
 	lcd_hal_rgb_display_sel(0); //25bit - rgb_on = 0 select 8080 mode
@@ -338,6 +343,7 @@ bk_err_t bk_lcd_8080_init(uint16_t x_pixel, uint16_t y_pixel)
 	bk_lcd_pixel_config(x_pixel, y_pixel);
 	lcd_hal_8080_display_enable(1);
 	lcd_hal_8080_int_enable(0, 1); //set eof int enable 
+	lcd_hal_display_yuv_sel(input_data_format);
 	bk_lcd_8080_reset(); 
 	//delay(7017857); //reset need 131ms.
 	return BK_OK;

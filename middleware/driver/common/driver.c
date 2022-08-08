@@ -72,7 +72,7 @@
 #endif
 
 #if CONFIG_ATE
-#include "bk_api_ate.h"
+#include <components/ate.h>
 #endif
 
 #if CONFIG_USB

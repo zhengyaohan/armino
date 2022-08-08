@@ -255,6 +255,13 @@ extern "C" {
 #define CLI_CFG_DVP        0
 #endif
 
+#if (CONFIG_PSRAM && !CONFIG_SLAVE_CORE)
+#define CLI_CFG_PSRAM        1
+#else
+#define CLI_CFG_PSRAM        0
+
+#endif
+
 #ifdef __cplusplus
 }
 #endif

@@ -59,7 +59,4 @@ menu "SOC_CONFIG"
 		bool "For bk7256 series chipset"
 		default n
 
-	config BK7256XX_MP
-		bool "For bk7256 series chipset mass production"
-		default y
 endmenu

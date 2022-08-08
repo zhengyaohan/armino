@@ -14,7 +14,6 @@
 
 #pragma once
 #include "driver/dvp_camera_types.h"
-#include <driver/i2c.h>
 
 
 #ifdef __cplusplus
@@ -22,34 +21,21 @@ extern "C" {
 #endif
 
 
-
 typedef struct
 {
-	i2c_id_t id;
-	uint32_t baud_rate;
-	i2c_addr_mode_t addr_mode;
-	gpio_id_t mclk;
-	gpio_id_t pck;
-	gpio_id_t hsync;
-	gpio_id_t vsync;
-	gpio_id_t pxdata0;
-	gpio_id_t pxdata1;
-	gpio_id_t pxdata2;
-	gpio_id_t pxdata3;
-	gpio_id_t pxdata4;
-	gpio_id_t pxdata5;
-	gpio_id_t pxdata6;
-	gpio_id_t pxdata7;
-} dvp_host_config_t;
-
-
-typedef struct
-{
-	const dvp_host_config_t *host;
+	media_ppi_t ppi;
+	dvp_mode_t mode;
 	void (*frame_complete)(frame_buffer_t* buffer);
 	frame_buffer_t* (*frame_alloc)(void);
 } dvp_camera_config_t;
 
+typedef struct
+{
+	int (*read_uint8) (uint8_t addr, uint8_t reg, uint8_t *value);
+	int (*read_uint16) (uint8_t addr, uint16_t reg, uint8_t *value);
+	int (*write_uint8) (uint8_t addr, uint8_t reg, uint8_t value);
+	int (*write_uint16) (uint8_t addr, uint16_t reg, uint8_t value);
+} dvp_camera_i2c_callback_t;
 
 
 typedef struct
@@ -62,10 +48,10 @@ typedef struct
 	uint16 address;
 	uint16 fps_cap;
 	uint16 ppi_cap;
-	bool (*detect)(const dvp_camera_config_t *config);
-	int (*init)(const dvp_camera_config_t *config);
-	int (*set_ppi)(const dvp_camera_config_t *config, media_ppi_t ppi);
-	int (*set_fps)(const dvp_camera_config_t *config, sensor_fps_t fps);
+	bool (*detect)(const dvp_camera_i2c_callback_t *cb);
+	int (*init)(const dvp_camera_i2c_callback_t *cb);
+	int (*set_ppi)(const dvp_camera_i2c_callback_t *cb, media_ppi_t ppi);
+	int (*set_fps)(const dvp_camera_i2c_callback_t *cb, sensor_fps_t fps);
 } dvp_sensor_config_t;
 
 #define GC_QVGA_USE_SUBSAMPLE          1
@@ -82,9 +68,14 @@ typedef struct
 } dvp_camera_device_t;
 
 
-bk_err_t bk_dvp_camera_driver_init(const dvp_camera_config_t *config, dvp_mode_t mode);
+bk_err_t bk_dvp_camera_driver_init(dvp_camera_config_t *config);
 bk_err_t bk_dvp_camera_driver_deinit(void);
 dvp_camera_device_t *bk_dvp_camera_get_device(void);
+
+int dvp_camera_i2c_read_uint8(uint8_t addr, uint8_t reg, uint8_t *value);
+int dvp_camera_i2c_read_uint16(uint8_t addr, uint16_t reg, uint8_t *value);
+int dvp_camera_i2c_write_uint8(uint8_t addr, uint8_t reg, uint8_t value);
+int dvp_camera_i2c_write_uint16(uint8_t addr, uint16_t reg, uint8_t value);
 
 
 #ifdef __cplusplus

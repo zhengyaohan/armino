@@ -49,7 +49,7 @@ video_transfer_setup_t video_cfg = {3, 20, (640 << 16) | 480};
 bk_err_t video_transfer_cpu0_send_msg(uint8_t msg_type, uint32_t data)
 {
 	bk_err_t ret;
-	video_cpu_msg_t msg;
+	video_msg_t msg;
 
 	if (vid_cpu0_msg_que) {
 		msg.type = msg_type;
@@ -347,7 +347,7 @@ static void video_transfer_cpu0_main(beken_thread_arg_t data)
 	delay(10000);
 
 	while(1) {
-		video_cpu_msg_t msg;
+		video_msg_t msg;
 		ret = rtos_pop_from_queue(&vid_cpu0_msg_que, &msg, BEKEN_WAIT_FOREVER);
 		if (kNoErr == ret) {
 			switch (msg.type) {
@@ -399,7 +399,7 @@ bk_err_t bk_video_transfer_cpu0_init(video_setup_t *setup_cfg)
 
 		ret = rtos_init_queue(&vid_cpu0_msg_que,
 							  "video_transfer_queue_cpu0",
-							  sizeof(video_cpu_msg_t),
+							  sizeof(video_msg_t),
 							  TU_QITEM_COUNT);
 		if (kNoErr != ret) {
 			os_printf("cp0: ceate video internal message queue in cpu0 failed \r\n");

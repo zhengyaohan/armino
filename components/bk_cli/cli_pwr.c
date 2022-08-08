@@ -10,6 +10,11 @@
 #include "bk_pm_internal_api.h"
 #include <driver/mailbox_channel.h>
 #include <driver/gpio.h>
+#include <driver/touch.h>
+#include <driver/touch_types.h>
+#include <driver/hal/hal_aon_rtc_types.h>
+#include <driver/aon_rtc_types.h>
+#include <driver/aon_rtc.h>
 
 #if CONFIG_MCU_PS
 static void cli_ps_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -71,35 +76,79 @@ _invalid_ps_arg:
 }
 #endif
 #if CONFIG_SYSTEM_CTRL
+#define PM_MANUAL_LOW_VOL_VOTE_ENABLE    (0)
+
 static UINT32 s_cli_sleep_mode = 0;
-static UINT32 s_pm_vote1 = 0;
-static UINT32 s_pm_vote2 = 0;
-static UINT32 s_pm_vote3 = 0;
-static void cli_pm_rtc_callback()
+static UINT32 s_pm_vote1       = 0;
+static UINT32 s_pm_vote2       = 0;
+static UINT32 s_pm_vote3       = 0;
+
+extern void stop_slave_core(void);
+#if CONFIG_AON_RTC
+static void cli_pm_rtc_callback(aon_rtc_id_t id, uint8_t *name_p, void *param)
 {
 	if(s_cli_sleep_mode == PM_MODE_DEEP_SLEEP)//when wakeup from deep sleep, all thing initial
 	{
-		bk_pm_sleep_mode_set(LOW_POWER_MODE_NONE);
-		//pm_power_ctrl(s_pm_vote1,POWER_MODULE_STATE_ON);
-		//pm_power_ctrl(s_pm_vote2,POWER_MODULE_STATE_ON);
-		//pm_power_ctrl(s_pm_vote3,POWER_MODULE_STATE_ON);
+		bk_pm_sleep_mode_set(PM_MODE_DEFAULT);
 	}
 	else if(s_cli_sleep_mode == PM_MODE_LOW_VOLTAGE)
 	{
-		bk_pm_sleep_mode_set(LOW_POWER_MODE_NONE);
-		bk_pm_module_vote_sleep_ctrl(s_pm_vote1,0x0,0x0);
-		bk_pm_module_vote_sleep_ctrl(s_pm_vote2,0x0,0x0);
-		bk_pm_module_vote_sleep_ctrl(s_pm_vote3,0x0,0x0);
+		bk_pm_sleep_mode_set(PM_MODE_DEFAULT);
+		bk_pm_module_vote_sleep_ctrl(PM_SLEEP_MODULE_NAME_APP,0x0,0x0);
 	}
 	else
 	{
-		bk_pm_sleep_mode_set(LOW_POWER_MODE_NONE);
+		bk_pm_sleep_mode_set(PM_MODE_DEFAULT);
 		bk_pm_module_vote_sleep_ctrl(s_pm_vote1,0x0,0x0);
 		bk_pm_module_vote_sleep_ctrl(s_pm_vote2,0x0,0x0);
 		bk_pm_module_vote_sleep_ctrl(s_pm_vote3,0x0,0x0);
 	}
-	os_printf("cli_pm_callback\r\n");
+	os_printf("cli_pm_rtc_callback\r\n");
 }
+#endif
+#if CONFIG_TOUCH
+void cli_pm_touch_callback(void *param)
+{
+	if(s_cli_sleep_mode == PM_MODE_DEEP_SLEEP)//when wakeup from deep sleep, all thing initial
+	{
+		bk_pm_sleep_mode_set(PM_MODE_DEFAULT);
+	}
+	else if(s_cli_sleep_mode == PM_MODE_LOW_VOLTAGE)
+	{
+		bk_pm_sleep_mode_set(PM_MODE_DEFAULT);
+		bk_pm_module_vote_sleep_ctrl(PM_SLEEP_MODULE_NAME_APP,0x0,0x0);
+	}
+	else
+	{
+		bk_pm_sleep_mode_set(PM_MODE_DEFAULT);
+		bk_pm_module_vote_sleep_ctrl(s_pm_vote1,0x0,0x0);
+		bk_pm_module_vote_sleep_ctrl(s_pm_vote2,0x0,0x0);
+		bk_pm_module_vote_sleep_ctrl(s_pm_vote3,0x0,0x0);
+	}
+	os_printf("cli_pm_touch_callback\r\n");
+}
+#endif
+void cli_pm_gpio_callback(gpio_id_t gpio_id)
+{
+	if(s_cli_sleep_mode == PM_MODE_DEEP_SLEEP)//when wakeup from deep sleep, all thing initial
+	{
+		bk_pm_sleep_mode_set(PM_MODE_DEFAULT);
+	}
+	else if(s_cli_sleep_mode == PM_MODE_LOW_VOLTAGE)
+	{
+		bk_pm_sleep_mode_set(PM_MODE_DEFAULT);
+		bk_pm_module_vote_sleep_ctrl(PM_SLEEP_MODULE_NAME_APP,0x0,0x0);
+	}
+	else
+	{
+		bk_pm_sleep_mode_set(PM_MODE_DEFAULT);
+		bk_pm_module_vote_sleep_ctrl(s_pm_vote1,0x0,0x0);
+		bk_pm_module_vote_sleep_ctrl(s_pm_vote2,0x0,0x0);
+		bk_pm_module_vote_sleep_ctrl(s_pm_vote3,0x0,0x0);
+	}
+	os_printf("cli_pm_gpio_callback\r\n");
+}
+#define PM_MANUAL_LOW_VOL_VOTE_ENABLE    (0)
 extern void stop_slave_core(void);
 static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
@@ -107,12 +156,14 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 	UINT32 pm_vote1 = 0,pm_vote2 = 0,pm_vote3=0;
 	UINT32 pm_wake_source = 0;
 	UINT32 pm_param1 = 0,pm_param2 = 0,pm_param3 = 0;
-	rtc_wakeup_param_t      rtc_wakeup_param         = {0};
+	//rtc_wakeup_param_t      rtc_wakeup_param         = {0};
 	system_wakeup_param_t   system_wakeup_param      = {0};
 	#if (!CONFIG_GPIO_WAKEUP_SUPPORT) && (!CONFIG_SLAVE_CORE)
 	gpio_wakeup_param_t     gpio_wakeup_param        = {0};
 	#endif
+	#if CONFIG_TOUCH
 	touch_wakeup_param_t    touch_wakeup_param       = {0};
+	#endif
 	usbplug_wakeup_param_t  usbplug_wakeup_param     = {0};
 
 	if (argc != 9) 
@@ -172,13 +223,28 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 	/*set wakeup source*/
 	if(pm_wake_source == PM_WAKEUP_SOURCE_INT_RTC)
 	{
-		rtc_wakeup_param.period = pm_param1;
-		rtc_wakeup_param.isr_callback = cli_pm_rtc_callback;
-		bk_pm_wakeup_source_set(PM_WAKEUP_SOURCE_INT_RTC, &rtc_wakeup_param);
+		//rtc_wakeup_param.period = pm_param1;
+		//rtc_wakeup_param.isr_callback = cli_pm_rtc_callback;
+		#if CONFIG_AON_RTC
+		alarm_info_t low_valtage_alarm = {
+										"low_vol",
+										pm_param1*RTC_TICKS_PER_1MS,
+										1,
+										cli_pm_rtc_callback,
+										NULL
+										};
+
+		//force unregister previous if doesn't finish.
+		bk_alarm_unregister(AON_RTC_ID_1, low_valtage_alarm.name);
+		bk_alarm_register(AON_RTC_ID_1, &low_valtage_alarm);
+		#endif
+		bk_pm_wakeup_source_set(PM_WAKEUP_SOURCE_INT_RTC, NULL);
+
 	}
 	else if(pm_wake_source == PM_WAKEUP_SOURCE_INT_GPIO)
 	{
 	#if CONFIG_GPIO_WAKEUP_SUPPORT
+		bk_gpio_register_isr(pm_param1, cli_pm_gpio_callback);
 		bk_gpio_register_wakeup_source(pm_param1,pm_param2);
 		bk_pm_wakeup_source_set(PM_WAKEUP_SOURCE_INT_GPIO, NULL);
 	#else
@@ -190,7 +256,6 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 		bk_pm_wakeup_source_set(PM_WAKEUP_SOURCE_INT_GPIO, &gpio_wakeup_param);
 		#endif
 	#endif
-
 	}
 	else if(pm_wake_source == PM_WAKEUP_SOURCE_INT_SYSTEM_WAKE)
 	{   
@@ -207,8 +272,11 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 	}
 	else if(pm_wake_source == PM_WAKEUP_SOURCE_INT_TOUCHED)
 	{
+		#if CONFIG_TOUCH
 		touch_wakeup_param.touch_channel = pm_param1;
+		bk_touch_register_touch_isr(touch_wakeup_param.touch_channel, cli_pm_touch_callback, NULL);
 		bk_pm_wakeup_source_set(PM_WAKEUP_SOURCE_INT_TOUCHED, &touch_wakeup_param);
+		#endif
 	}
 	else if(pm_wake_source == PM_WAKEUP_SOURCE_INT_USBPLUG)
 	{
@@ -242,7 +310,8 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 	}
 	else if(pm_sleep_mode == PM_MODE_LOW_VOLTAGE)
 	{
-		if(pm_vote1 == PM_POWER_MODULE_NAME_BTSP)
+		#if PM_MANUAL_LOW_VOL_VOTE_ENABLE
+		if(pm_vote1 == PM_SLEEP_MODULE_NAME_APP)
 		{
 			bk_pm_module_vote_sleep_ctrl(pm_vote1,0x1,pm_param3);
 		}
@@ -251,7 +320,7 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 			bk_pm_module_vote_sleep_ctrl(pm_vote1,0x1,0x0);
 		}
 
-		if(pm_vote2 == PM_POWER_MODULE_NAME_BTSP)
+		if(pm_vote2 == PM_SLEEP_MODULE_NAME_APP)
 		{
 			bk_pm_module_vote_sleep_ctrl(pm_vote2,0x1,pm_param3);
 		}
@@ -260,13 +329,19 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 			bk_pm_module_vote_sleep_ctrl(pm_vote2,0x1,0x0);
 		}
 
-		if(pm_vote3 == PM_POWER_MODULE_NAME_BTSP)
+		if(pm_vote3 == PM_SLEEP_MODULE_NAME_APP)
 		{
 			bk_pm_module_vote_sleep_ctrl(pm_vote3,0x1,pm_param3);
 		}
 		else
 		{
 			bk_pm_module_vote_sleep_ctrl(pm_vote3,0x1,0x0);
+		}
+		#endif
+
+		if((pm_vote1 == PM_SLEEP_MODULE_NAME_APP)||(pm_vote2 == PM_SLEEP_MODULE_NAME_APP)||(pm_vote3 == PM_SLEEP_MODULE_NAME_APP))
+		{
+			bk_pm_module_vote_sleep_ctrl(PM_SLEEP_MODULE_NAME_APP,0x1,pm_param3);
 		}
 	}
 	else
@@ -427,6 +502,25 @@ static void cli_pm_pwr_state(char *pcWriteBuffer, int xWriteBufferLen, int argc,
 
 	pm_pwr_module_state = bk_pm_module_power_state_get(pm_pwr_module);
 	os_printf("Get module[%d] power state[%d] \r\n",pm_pwr_module,pm_pwr_module_state);
+
+}
+static void cli_pm_auto_vote(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	UINT32 pm_ctrl  = 0;
+	if (argc != 2)
+	{
+		os_printf("set pm auto_vote parameter invalid %d\r\n",argc);
+		return;
+	}
+
+	pm_ctrl = os_strtoul(argv[1], NULL, 10);
+	if ((pm_ctrl < 0) || (pm_ctrl > 1))
+	{
+		os_printf("set pm auto vote value invalid %d\r\n",pm_ctrl);
+		return;
+	}
+
+	bk_pm_app_auto_vote_state_set(pm_ctrl);
 
 }
 static void cli_pm_vote_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -739,6 +833,7 @@ static const struct cli_command s_pwr_commands[] = {
 	{"pm_freq", "pm_freq [module_name][ frequency]", cli_pm_freq},
 	{"pm_ctrl", "pm_ctrl [ctrl_value]", cli_pm_ctrl},
 	{"pm_pwr_state", "pm_pwr_state [pwr_state]", cli_pm_pwr_state},
+	{"pm_auto_vote", "pm_auto_vote [auto_vote_value]", cli_pm_auto_vote},
 #endif
 #if CONFIG_TPC_PA_MAP
 	{"pwr", "pwr {sta|ap} pwr", cli_pwr_cmd },

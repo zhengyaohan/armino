@@ -24,7 +24,8 @@
 .global  riscv_get_instruct_cnt
 .global  arch_get_int_status
 
-.section .text
+//.section .text
+.section .itcm_sec_code, "ax"
 
 /*
  * void arch_disable_irq(void);

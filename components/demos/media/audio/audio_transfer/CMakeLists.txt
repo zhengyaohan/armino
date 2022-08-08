@@ -11,7 +11,7 @@ set(srcs
 
 if (NOT CONFIG_SLAVE_CORE)
 	list(APPEND srcs
-		core/audio_transfer_demo.c
+		core/audio_transfer.c
 	)
 endif()
 

@@ -15,6 +15,7 @@
 #pragma once
 
 #include "driver/lcd_disp_types.h"
+#include "driver/lcd_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -64,7 +65,7 @@ bk_err_t bk_lcd_driver_init(lcd_clk_t clk);
  *     - BK_OK: succeed
  *     - others: other errors.
  */
-bk_err_t bk_lcd_8080_init(uint16_t x_pixel, uint16_t y_pixel);
+	bk_err_t bk_lcd_8080_init(uint16_t x_pixel, uint16_t y_pixel,rgb_input_data_format_t input_data_format);
 
 
 /**
@@ -365,6 +366,15 @@ bk_err_t bk_lcd_set_yuv_mode(rgb_input_data_format_t input_data_format);
  *     - others: other errors.
  */
 bk_err_t bk_lcd_set_pixel_reverse(bool reverse_en);
+
+
+bk_err_t lcd_driver_init(const lcd_config_t *config);
+const lcd_device_t *get_lcd_device_by_id(lcd_device_id_t id);
+bk_err_t lcd_driver_set_backlight(uint8_t percent);
+bk_err_t lcd_driver_display_enable(bool enable);
+bk_err_t lcd_driver_set_display_base_addr(uint32_t disp_base_addr);
+bk_err_t lcd_driver_deinit(void);
+
 
 /**
   * @}

@@ -37,7 +37,9 @@ extern "C" {
 
 typedef enum
 {
+	PPI_DEFAULT     = 0,
 	PPI_320X240     = (PIXEL_320 << 16) | PIXEL_240,
+	PPI_320X480     = (PIXEL_320 << 16) | PIXEL_480,
 	PPI_480X272     = (PIXEL_480 << 16) | PIXEL_272,
 	PPI_640X480     = (PIXEL_640 << 16) | PIXEL_480,
 	PPI_800X600     = (PIXEL_800 << 16) | PIXEL_640,
@@ -48,13 +50,16 @@ typedef enum
 
 typedef enum
 {
-	PPI_SUPPORT_320X240     = (1 << 0), /**< 320 * 240 */
-	PPI_SUPPORT_480X272     = (1 << 1), /**< 480 * 272 */
-	PPI_SUPPORT_640X480     = (1 << 2), /**< 640 * 480 */
-	PPI_SUPPORT_800X600     = (1 << 3), /**< 800 * 600 */
-	PPI_SUPPORT_1280X720    = (1 << 4), /**< 1280 * 720 */
-	PPI_SUPPORT_1600X1200    = (1 << 5), /**< 1600 * 1200 */
-} media_ppi_support_t;
+	PPI_CAP_UNKNOW 		= 0,
+	PPI_CAP_320X240     = (1 << 0), /**< 320 * 240 */
+	PPI_CAP_320X480     = (1 << 1), /**< 320 * 480 */
+	PPI_CAP_480X272     = (1 << 2), /**< 480 * 272 */
+	PPI_CAP_640X480     = (1 << 3), /**< 640 * 480 */
+	PPI_CAP_800X600     = (1 << 4), /**< 800 * 600 */
+	PPI_CAP_1024X600    = (1 << 5), /**< 1024 * 600 */
+	PPI_CAP_1280X720    = (1 << 6), /**< 1280 * 720 */
+	PPI_CAP_1600X1200    = (1 << 7), /**< 1600 * 1200 */
+} media_ppi_cap_t;
 
 
 typedef enum
@@ -91,6 +96,52 @@ static inline uint16_t ppi_to_pixel_x(media_ppi_t ppi)
 static inline uint16_t ppi_to_pixel_y(media_ppi_t ppi)
 {
 	return ppi & 0xFFFF;
+}
+
+static inline media_ppi_cap_t pixel_ppi_to_cap(media_ppi_t ppi)
+{
+	media_ppi_cap_t cap = PPI_CAP_UNKNOW;
+
+	switch (ppi)
+	{
+		case PPI_320X240:
+			cap = PPI_CAP_320X240;
+			break;
+
+		case PPI_320X480:
+			cap = PPI_CAP_320X480;
+			break;
+
+		case PPI_480X272:
+			cap = PPI_CAP_480X272;
+			break;
+
+		case PPI_640X480:
+			cap = PPI_CAP_640X480;
+			break;
+
+		case PPI_800X600:
+			cap = PPI_CAP_800X600;
+			break;
+
+		case PPI_1024X600:
+			cap = PPI_CAP_1024X600;
+			break;
+
+		case PPI_1280X720:
+			cap = PPI_CAP_1024X600;
+			break;
+
+		case PPI_1600X1200:
+			cap = PPI_CAP_1600X1200;
+			break;
+
+		case PPI_DEFAULT:
+		default:
+			break;
+	}
+
+	return cap;
 }
 
 

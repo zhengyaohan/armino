@@ -61,20 +61,6 @@ typedef enum {
 }lcd_types_t;
 
 
-typedef enum {
-	LCD_320M = 0,
-	LCD_96M,//1
-	LCD_80M,
-	LCD_60M,
-	LCD_40M,
-	LCD_32M,
-	LCD_30M,
-	LCD_26M,
-	LCD_20M,
-	LCD_12M,
-	LCD_10M,
-	LCD_8M   //11
-}lcd_clk_t;
 
 /**< rgb lcd clk select*/
 typedef enum {

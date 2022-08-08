@@ -183,14 +183,9 @@ static JRESULT create_qt_tbl(JDEC* jd, const uint8_t* data, uint16_t ndata)
 			z = ZIG(i);							/* Zigzag-order to raster-order conversion */
 
 
-#ifndef CONFIG_BK7256XX_MP
-			REG_JPEG_PIPO_REG0 = z;
-			REG_JPEG_PIPO_REG1 = *data;
-#endif
+
 			pb[z] = (int32_t)((uint32_t)*data++ * IPSF(z));	/* Apply scale factor of Arai algorithm to the de-quantizers */
-#ifndef CONFIG_BK7256XX_MP
-			REG_JPEG_PIPO_REG1 = pb[z];		
-#endif	
+
 		}
 	}
 

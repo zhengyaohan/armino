@@ -30,9 +30,6 @@
 #include "bk_general_dma.h"
 #endif
 
-
-
-
 #define EJPEG_DELAY_HTIMER_CHANNEL     5
 #define EJPEG_I2C_DEFAULT_BAUD_RATE    I2C_BAUD_RATE_100KHZ
 #define EJPEG_DELAY_HTIMER_VAL         (2)  // 2ms
@@ -162,6 +159,12 @@ static void camera_intf_set_sener_cfg(uint32_t cfg)
 		case 480:
 			CMPARAM_SET_PPI(ejpeg_cfg.sener_cfg, VGA_640_480);
 			break;
+		case 481:
+			CMPARAM_SET_PPI(ejpeg_cfg.sener_cfg, VGA_320_480);
+			break;
+		case 482:
+			CMPARAM_SET_PPI(ejpeg_cfg.sener_cfg, VGA_480_320);
+			break;
 		case 600:
 			CMPARAM_SET_PPI(ejpeg_cfg.sener_cfg, VGA_800_600);
 			break;
@@ -255,23 +258,10 @@ bk_err_t bk_camera_init(void *data)
 
 	bk_jpeg_enc_init(&jpeg_config);
 	bk_jpeg_enc_register_isr(END_OF_FRAME, camera_intf_ejpeg_end_handler, NULL);
-#if USE_JTAG_FOR_DEBUG
-	//set i2c2 mode master/slave
-	uint32_t i2c2_trans_mode = (0 & (~I2C2_MSG_WORK_MODE_MS_BIT)// master
-							  & (~I2C2_MSG_WORK_MODE_AL_BIT))// 7bit address
-							 | (I2C2_MSG_WORK_MODE_IA_BIT); // with inner address
-	i2c_hdl = ddev_open(DD_DEV_TYPE_I2C2, &status, i2c2_trans_mode);
-	bk_printf("open I2C2\r\n");
-	{
-		extern void uart_hw_uninit(uint8_t uport);
-		// disable uart temporarily
-		uart_hw_uninit(1);
-	}
-#else
+
 	i2c_config.baud_rate = EJPEG_I2C_DEFAULT_BAUD_RATE;
 	i2c_config.addr_mode = I2C_ADDR_MODE_7BIT;
 	bk_i2c_init(CONFIG_CAMERA_I2C_ID, &i2c_config);
-#endif
 
 	bk_camera_sensor_config();
 	return err;

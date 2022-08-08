@@ -344,10 +344,7 @@ menu "Driver"
 			config PSRAM
 				bool "Enable PSRAM"
 				default n
-			config PSRAM_AS_SYS_MEMORY
-				depends on PSRAM
-				bool "Use partion of psram as system memory"
-				default n
+
 	endmenu
 	
 	menu "CALENDAR"
@@ -515,7 +512,7 @@ menu "Driver"
 		default n
 		
 	config DMA2D
-		bool "Enable DMA2D "
+		bool "Enable DMA2D"
 		default n
 
 	config JPEG_DEC
@@ -536,5 +533,9 @@ menu "Driver"
 
 	config AUDIO_DSP_IP_V1_0
 		bool "Enable audio dsp driver"
+		default n
+
+	config CHANGE_JTAG_GPIO
+		bool "Enable change jtag group"
 		default n
 endmenu

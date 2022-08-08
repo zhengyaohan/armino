@@ -144,6 +144,13 @@ typedef struct {
 } aec_dump_t;
 #endif
 
+#if CONFIG_AUD_TRAS_LOST_COUNT_DEBUG
+typedef struct {
+	uint32_t lost_size;
+	uint32_t complete_size;
+} lost_count_debug_t;
+#endif
+
 typedef struct {
 	//audio_tras_drv_mode_t mode;			//AUD_TRAS_DRV_MODE_CPU0: audio transfer work in cpu0, AUD_TRAS_DRV_MODE_CPU1:audio transfer work in cpu1
 	bool aec_enable;
@@ -171,6 +178,10 @@ typedef struct {
 
 #if CONFIG_AUD_TRAS_AEC_DUMP_DEBUG
 	aec_dump_t aec_dump;
+#endif
+
+#if CONFIG_AUD_TRAS_LOST_COUNT_DEBUG
+	lost_count_debug_t lost_count;
 #endif
 
 	audio_tras_encode_temp_t encoder_temp;

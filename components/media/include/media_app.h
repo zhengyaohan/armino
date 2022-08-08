@@ -34,7 +34,7 @@ typedef enum
 	APP_LCD_MCU,
 } app_lcd_type_t;
 
-bk_err_t media_app_camera_open(app_camera_type_t type);
+bk_err_t media_app_camera_open(app_camera_type_t type, media_ppi_t ppi);
 bk_err_t media_app_camera_close(app_camera_type_t type);
 bk_err_t media_app_transfer_video_open(void *setup_cfg);
 bk_err_t media_app_transfer_video_close(void);
@@ -44,6 +44,8 @@ bk_err_t media_app_capture(char *name);
 bk_err_t media_app_uvc_start(void);
 bk_err_t media_app_uvc_stop(void);
 bk_err_t media_app_uvc_param_set(uvc_camera_device_t *param);
+bk_err_t media_app_lcd_set_backlight(uint8_t level);
+bk_err_t media_app_mailbox_test(void);
 
 #ifdef __cplusplus
 }

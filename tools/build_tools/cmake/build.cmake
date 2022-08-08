@@ -668,7 +668,7 @@ function(armino_build_parse_config_file_list)
 
         if(NOT str_index EQUAL -1)
             if("$ENV{PROJECT}" STREQUAL "")
-                set(PROJECT "legacy_app")
+                set(PROJECT "app")
                 STRING(REPLACE "properties_libs" ${PROJECT} CMAKE_SOURCE_DIR_TMP ${CMAKE_SOURCE_DIR})
             else()
                 STRING(REPLACE "properties_libs" $ENV{PROJECT} CMAKE_SOURCE_DIR_TMP ${CMAKE_SOURCE_DIR})

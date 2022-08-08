@@ -177,6 +177,9 @@ int legacy_init1(void)
 	return 0;
 }
 
+#if CONFIG_ENABLE_WIFI_DEFAULT_CONNECT
+extern void demo_wifi_fast_connect(void);
+#endif
 int legacy_init(void)
 {
 	BK_LOGI(TAG, "armino app init: %s\n", build_version);
@@ -254,6 +257,9 @@ int legacy_init(void)
 
 #if CONFIG_UDISK_MP3
 	um_init();
+#endif
+#if CONFIG_ENABLE_WIFI_DEFAULT_CONNECT
+	demo_wifi_fast_connect();
 #endif
 	return 0;
 }

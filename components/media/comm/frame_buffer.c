@@ -55,7 +55,7 @@ void dvp_dump(void)
 
 	for (i = 0; i < FRAME_BUFFER_DISPLAY_COUNT + FRAME_BUFFER_JPEG_COUNT; i++)
 	{
-		os_printf("DUMP, frame[i]: %p id: %d, state: %d, lock: %d\n", i, &psram_frame[i], psram_frame[i].id, psram_frame[i].state, psram_frame[i].lock);
+		os_printf("DUMP, frame[%d]: %p id: %d, state: %d, lock: %d\n", i, &psram_frame[i], psram_frame[i].id, psram_frame[i].state, psram_frame[i].lock);
 	}
 }
 
@@ -482,6 +482,9 @@ void frame_buffer_enable(bool enable)
 			psram_frame[i].size = sizeof(psram_map->display[i]);
 			psram_frame[i].id = i;
 			psram_frame[i].type = FRAME_DISPLAY;
+			psram_frame[i].length = 0;
+			psram_frame[i].sequence = 0;
+			psram_frame[i].lock = 0;
 
 			LOGI("display frame[%d]: ptr: %p, size: %u\n", i, psram_frame[i].frame, psram_frame[i].size);
 		}
@@ -493,6 +496,9 @@ void frame_buffer_enable(bool enable)
 			psram_frame[i].size = sizeof(psram_map->jpeg_enc[i]);
 			psram_frame[i].id = i;
 			psram_frame[i].type = FRAME_JPEG;
+			psram_frame[i].length = 0;
+			psram_frame[i].sequence = 0;
+			psram_frame[i].lock = 0;
 
 			LOGI("jpeg frame[%d]: ptr: %p, size: %u\n", i, psram_frame[i].frame, psram_frame[i].size);
 		}
@@ -502,8 +508,35 @@ void frame_buffer_enable(bool enable)
 	}
 }
 
+void frame_buffer_display_reset(void)
+{
+#if (CONFIG_PSRAM)
+	int i;
+
+	for (i = 0; i < FRAME_BUFFER_DISPLAY_COUNT; i++)
+	{
+		psram_frame[i].state = STATE_INVALID;
+		psram_frame[i].frame = psram_map->display[i];
+		psram_frame[i].size = sizeof(psram_map->display[i]);
+		psram_frame[i].id = i;
+		psram_frame[i].type = FRAME_DISPLAY;
+		psram_frame[i].length = 0;
+		psram_frame[i].sequence = 0;
+		psram_frame[i].lock = 0;
+
+		LOGI("display frame[%d]: ptr: %p, size: %u\n", i, psram_frame[i].frame, psram_frame[i].size);
+	}
+#endif
+}
+
 
 void frame_buffer_deinit(void)
 {
 	os_memset((void *)psram_frame, 0, sizeof(frame_buffer_t) * 3);
+
+	if (frame_buffer_info)
+	{
+		os_free(frame_buffer_info);
+		frame_buffer_info = NULL;
+	}
 }

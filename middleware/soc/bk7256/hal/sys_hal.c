@@ -146,7 +146,7 @@ __attribute__((section(".itcm_sec_code"))) void sys_hal_enter_deep_sleep(void * 
 	clock_value |= (1 << SYS_ANA_REG6_EN_SLEEP_POS);
 	clock_value &= ~((1 << SYS_ANA_REG6_EN_DPLL_POS)|(1 << SYS_ANA_REG6_EN_AUDPLL_POS)|(1 << SYS_ANA_REG6_EN_PSRAM_LDO_POS)|(1 << SYS_ANA_REG6_EN_DCO_POS)|(1 << SYS_ANA_REG6_EN_USB_POS));
 
-	clock_value &= ~((1 << SYS_ANA_REG6_EN_SYSLDO_POS)|(1 << SYS_ANA_REG6_PWD_GADC_BUF_POS));//0:vddaon drop enable
+	clock_value &= ~((1 << SYS_ANA_REG6_EN_SYSLDO_POS)|(1 << SYS_ANA_REG6_PWD_GADC_BUF_POS)|(1 << SYS_ANA_REG6_EN_TEMPDET_POS));//0:vddaon drop enable
 
 	sys_ll_set_ana_reg6_value(clock_value);
 
@@ -240,7 +240,7 @@ __attribute__((section(".itcm_sec_code"))) void sys_hal_enter_low_voltage(void)
 	uint32_t  analog_clk = 0;
 	uint32_t  center_bias = 0;
 	uint32_t  en_bias_5u = 0;
-	uint32_t  count = 0;
+	//uint32_t  count = 0;
 
 #if CONFIG_LOW_VOLTAGE_DEBUG
 	uint64_t start_tick = riscv_get_mtimer();
@@ -311,7 +311,7 @@ __attribute__((section(".itcm_sec_code"))) void sys_hal_enter_low_voltage(void)
 	//clock_value &= ~((1 << SYS_ANA_REG6_XTAL_LPMODE_CTRL_POS)|(1 << SYS_ANA_REG6_EN_DPLL_POS)|(1 << SYS_ANA_REG6_EN_AUDPLL_POS)|(1 << SYS_ANA_REG6_EN_PSRAM_LDO_POS)|(1 << SYS_ANA_REG6_EN_DCO_POS)|(1 << SYS_ANA_REG6_EN_XTALL_POS)|(1 << SYS_ANA_REG6_EN_USB_POS));
 	clock_value &= ~((1 << SYS_ANA_REG6_EN_DPLL_POS)|(1 << SYS_ANA_REG6_EN_USB_POS)|(1 << SYS_ANA_REG6_EN_AUDPLL_POS)|(1 << SYS_ANA_REG6_EN_PSRAM_LDO_POS)|(1 << SYS_ANA_REG6_EN_DCO_POS));
 
-	clock_value &= ~((1 << SYS_ANA_REG6_PWD_GADC_BUF_POS)|(1 << SYS_ANA_REG6_EN_TEMPDET_POS));
+	clock_value &= ~((1 << SYS_ANA_REG6_EN_SYSLDO_POS)|(1 << SYS_ANA_REG6_PWD_GADC_BUF_POS)|(1 << SYS_ANA_REG6_EN_TEMPDET_POS));
 
 	sys_ll_set_ana_reg6_value(clock_value);
 
@@ -362,6 +362,17 @@ __attribute__((section(".itcm_sec_code"))) void sys_hal_enter_low_voltage(void)
 #endif
 
 	/*6.WFI*/
+	while(1)
+	{
+		/*6.WFI*/
+		__asm volatile( "wfi" );
+		extern u32 arch_get_int_status(void);
+		if(arch_get_int_status() != 0)
+		{
+			break;
+		}
+	}
+#if 0
 	__asm volatile( "wfi" );
 	__asm volatile( "nop" );
 	__asm volatile( "nop" );
@@ -376,7 +387,7 @@ __attribute__((section(".itcm_sec_code"))) void sys_hal_enter_low_voltage(void)
 	__asm volatile( "nop" );
 	__asm volatile( "nop" );
 	for(count = PM_EXIT_WFI_FROM_LOWVOL_WAIT_COUNT; count > 0; count--);//for protect stability when exit wfi or halt cpu
-
+#endif
 	s_pm_wakeup_from_lowvol_consume_time = 0;
 	s_pm_wakeup_from_lowvol_consume_time = bk_aon_rtc_get_current_tick(AON_RTC_ID_1);
 	sys_ll_set_ana_reg2_spi_latchb(0x1);
@@ -1764,10 +1775,7 @@ void sys_hal_set_dpll_reset(uint32_t value)
 
 void sys_hal_set_gadc_ten(uint32_t value)
 {
-#ifndef CONFIG_BK7256XX_MP
-		sys_ll_set_ana_reg7_gadc_ten(value);
-#endif
-
+// 		sys_ll_set_ana_reg7_gadc_ten(value);
 }
 /**  WIFI End **/
 

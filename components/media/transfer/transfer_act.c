@@ -125,13 +125,13 @@ int dvp_frame_send(uint8_t *data, uint32_t size, uint32_t retry_max, uint32_t ms
 		{
 			//LOGI("size: %d\n", size);
 			complete_size += size;
+			rtos_delay_milliseconds(3);
 			break;
 		}
 
 		//LOGI("retry\n");
 		lost_size += size;
 		rtos_delay_milliseconds(ms_time);
-
 	}
 	while (retry_max--);
 
@@ -200,7 +200,6 @@ static void dvp_frame_handle(frame_buffer_t *buffer)
 	}
 }
 
-
 void transfer_dump(uint32_t ms)
 {
 	uint32_t lost = lost_size, complete = complete_size, speed;
@@ -213,7 +212,7 @@ void transfer_dump(uint32_t ms)
 	}
 
 	lost = lost / 1024 / (ms / 1000);
-	complete = complete / 1024;
+	complete = complete / 1024 / (ms / 1000);
 	speed = (complete * 8) / 1024;
 
 	LOGI("Lost: %uKB/s, Complete: %uKB/s, Speed: %uMb/s\n", lost, complete, speed);

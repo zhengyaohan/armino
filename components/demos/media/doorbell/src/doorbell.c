@@ -12,15 +12,14 @@
 #include "lwip/sockets.h"
 
 #include "doorbell.h"
-#include "doorbell_config.h"
 #include "bk_uart.h"
 #include <os/mem.h>
 #include <components/video_transfer.h>
 #include <driver/dma.h>
 #include <modules/audio_ring_buff.h>
-#include "audio_transfer_demo.h"
+#include <components/audio_transfer.h>
+#include <components/audio_transfer_types.h>
 #include "video_transfer_cpu0.h"
-#include "video_transfer_save.h"
 
 #include "media_app.h"
 
@@ -56,26 +55,11 @@ int demo_doorbell_udp_voice_fd = -1;
 
 #if AUDIO_TRANSFER_ENABLE
 uint16_t write_aud_data_err_count = 0;
-audio_tras_demo_setup_t aud_tras_setup;
+audio_tras_setup_t aud_tras_setup;
 #endif
 
 
-typedef enum
-{
-	CPU0 = 0,
-	CPU1,
-	CPU1_PLUS,
-	DOORBELL_PLUS,
-} doorbell_mode_t;
 
-typedef enum
-{
-	DVP = 0,
-	UVC,
-} camera_type_t;
-
-static doorbell_mode_t video_transfer_mode = CPU0;
-static camera_type_t video_camera_type = DVP;
 
 extern void delay(int num);
 
@@ -84,12 +68,15 @@ int demo_doorbell_udp_send_packet(uint8_t *data, uint32_t len)
 	int send_byte = 0;
 
 	if (!demo_doorbell_udp_romote_connected)
+	{
 		return 0;
+	}
 
 	send_byte = sendto(demo_doorbell_udp_img_fd, data, len, MSG_DONTWAIT | MSG_MORE,
-					   (struct sockaddr *)demo_doorbell_remote, sizeof(struct sockaddr_in));
+	                   (struct sockaddr *)demo_doorbell_remote, sizeof(struct sockaddr_in));
 
-	if (send_byte < 0) {
+	if (send_byte < 0)
+	{
 		/* err */
 		//DBD("send return fd:%d\r\n", send_byte);
 		send_byte = 0;
@@ -104,12 +91,15 @@ int demo_doorbell_udp_voice_send_packet(UINT8 *data, UINT32 len)
 	int send_byte = 0;
 
 	if (!demo_doorbell_udp_voice_romote_connected)
+	{
 		return 0;
+	}
 
 	send_byte = sendto(demo_doorbell_udp_voice_fd, data, len, MSG_DONTWAIT | MSG_MORE,
-					   (struct sockaddr *)demo_doorbell_voice_udp_remote, sizeof(struct sockaddr_in));
+	                   (struct sockaddr *)demo_doorbell_voice_udp_remote, sizeof(struct sockaddr_in));
 
-	if (send_byte < 0) {
+	if (send_byte < 0)
+	{
 		/* err */
 		//LWIP_UDP_PRT("send return fd:%d\r\n", send_byte);
 		send_byte = 0;
@@ -121,7 +111,7 @@ int demo_doorbell_udp_voice_send_packet(UINT8 *data, UINT32 len)
 
 void demo_doorbell_add_pkt_header(video_packet_t *param)
 {
-	media_hdr_t *elem_tvhdr = (media_hdr_t*)param->ptk_ptr;
+	media_hdr_t *elem_tvhdr = (media_hdr_t *)param->ptk_ptr;
 
 	elem_tvhdr->id = (UINT8)param->frame_id;
 	elem_tvhdr->is_eof = param->is_eof;
@@ -133,43 +123,44 @@ void demo_doorbell_add_pkt_header(video_packet_t *param)
 #endif
 }
 
-#if AUDIO_TRANSFER_ENABLE
-static void audio_transfer_cmd_handle(UINT32 cmd, UINT32 param)
-{
-	switch(cmd) {
-		case AUDIO_TRANSFER_CLOSE:
-			//audio_apk_status = false;
-			/* send masg to media task */
-			//TODO
-			audio_tras_demo_deinit();
-			break;
-
-		case AUDIO_TRANSFER_OPEN:
-			//aud_tras_setup.mode = AUD_TRAS_DRV_MODE_CPU0;
-			aud_tras_setup.aec_enable = true;
-			aud_tras_setup.audio_send_mic_data = demo_doorbell_udp_voice_send_packet;
-			audio_tras_demo_init(aud_tras_setup);
-
-		default:
-			break;
-	}
-}
-#endif
-
 static void demo_doorbell_udp_handle_cmd_data(UINT8 *data, UINT16 len)
 {
 	UINT32 param = 0;
 	UINT32 cmd = (UINT32)data[0] << 24 | (UINT32)data[1] << 16 | (UINT32)data[2] << 8 | data[3];
-	if (len >= 8) {
+	if (len >= 8)
+	{
 		param = (UINT32)data[4] << 24 | (UINT32)data[5] << 16 | (UINT32)data[6] << 8 | data[7];
 	}
 
 	DBD("doorbell cmd: %08X, param: %d, len: %d\n", cmd, param, len);
 
+	switch (cmd)
+	{
 #if AUDIO_TRANSFER_ENABLE
-	audio_transfer_cmd_handle(cmd, param);
+		case AUDIO_CLOSE:
+			//audio_apk_status = false;
+			/* send masg to media task */
+			//TODO
+			audio_tras_deinit();
+			break;
+	
+		case AUDIO_OPEN:
+			//aud_tras_setup.mode = AUD_TRAS_DRV_MODE_CPU0;
+			aud_tras_setup.aec_enable = true;
+			aud_tras_setup.audio_send_mic_data = demo_doorbell_udp_voice_send_packet;
+			audio_tras_init(aud_tras_setup);
+			break;
 #endif
 
+		case DISPLAY_CLOSE:
+			break;
+
+		case DISPLAY_OPEN:
+			break;
+
+		default:
+			break;
+	}
 }
 
 static void demo_doorbell_udp_app_connected(void)
@@ -182,24 +173,6 @@ static void demo_doorbell_udp_app_disconnected(void)
 	//app_demo_softap_send_msg(DAP_APP_DISCONECTED, 0);
 }
 
-#if CFG_SUPPORT_HTTP_OTA
-TV_OTA_ST ota_param = {
-	NULL,
-	0,
-	0
-};
-static void demo_doorbell_udp_http_ota_handle(char *rev_data)
-{
-	//if(app_demo_softap_is_ota_doing() == 0)
-	//{
-	// to do
-	//
-	//app_demo_softap_send_msg(DAP_START_OTA, (u32)&ota_param);
-
-	//os_memset(&ota_param, 0, sizeof(TV_OTA_ST));
-	//}
-}
-#endif
 
 static void demo_doorbell_udp_receiver(UINT8 *data, UINT32 len, struct sockaddr_in *demo_doorbell_remote)
 {
@@ -208,92 +181,95 @@ static void demo_doorbell_udp_receiver(UINT8 *data, UINT32 len, struct sockaddr_
 	GLOBAL_INT_DECLARATION();
 
 	if (len < 2)
+	{
 		return;
+	}
 
-	if (data[0] == DOORBELL_CMD_IMG_HEADER) {
-		if (data[1] == DOORBELL_CMD_START_IMG) {
+	if (data[0] == DOORBELL_CMD_IMG_HEADER)
+	{
 
-			UINT8 *src_ipaddr = (UINT8 *)&demo_doorbell_remote->sin_addr.s_addr;
-			DBD("src_ipaddr: %d.%d.%d.%d\r\n", src_ipaddr[0], src_ipaddr[1],
-							 src_ipaddr[2], src_ipaddr[3]);
-			DBD("udp connect to new port:%d\r\n", demo_doorbell_remote->sin_port);
-
-			GLOBAL_INT_DISABLE();
-			demo_doorbell_udp_romote_connected = 1;
-			GLOBAL_INT_RESTORE();
-
-#if (CONFIG_SPIDMA || CONFIG_CAMERA)
-			video_setup_t setup;
-
-			setup.open_type = TVIDEO_OPEN_SCCB;
-			setup.send_type = TVIDEO_SND_UDP;
-			setup.send_func = demo_doorbell_udp_send_packet;
-			setup.start_cb = demo_doorbell_udp_app_connected;
-			setup.end_cb = demo_doorbell_udp_app_disconnected;
-
-			setup.pkt_header_size = sizeof(media_hdr_t);
-			setup.add_pkt_header = demo_doorbell_add_pkt_header;
-
-			if (video_transfer_mode == CPU0)
+		switch (data[1])
+		{
+			case DOORBELL_DVP_START:
 			{
-				bk_video_transfer_init(&setup);
+				UINT8 *src_ipaddr = (UINT8 *)&demo_doorbell_remote->sin_addr.s_addr;
+				DBD("src_ipaddr: %d.%d.%d.%d\r\n", src_ipaddr[0], src_ipaddr[1],
+				    src_ipaddr[2], src_ipaddr[3]);
+				DBD("udp connect to new port:%d\r\n", demo_doorbell_remote->sin_port);
+
+				GLOBAL_INT_DISABLE();
+				demo_doorbell_udp_romote_connected = 1;
+				GLOBAL_INT_RESTORE();
+
+				video_setup_t setup;
+
+				setup.open_type = TVIDEO_OPEN_SCCB;
+				setup.send_type = TVIDEO_SND_UDP;
+				setup.send_func = demo_doorbell_udp_send_packet;
+				setup.start_cb = demo_doorbell_udp_app_connected;
+				setup.end_cb = demo_doorbell_udp_app_disconnected;
+
+				setup.pkt_header_size = sizeof(media_hdr_t);
+				setup.add_pkt_header = demo_doorbell_add_pkt_header;
+
+
+				media_app_camera_open(APP_CAMERA_DVP, PPI_DEFAULT);
+				media_app_transfer_video_open(&setup);
+
 			}
-			else if (video_transfer_mode == CPU1)
-			{
-#if CONFIG_DUAL_CORE
-				bk_video_transfer_cpu0_init(&setup);
-#endif
-			}
-			else if (video_transfer_mode == DOORBELL_PLUS)
-			{
-				if (video_camera_type == DVP)
-					media_app_camera_open(APP_CAMERA_DVP);
-				else
-					media_app_camera_open(APP_CAMERA_UVC);
+			break;
 
+			case DOORBELL_DVP_STOP:
+			{
+				GLOBAL_INT_DISABLE();
+				demo_doorbell_udp_romote_connected = 0;
+				GLOBAL_INT_RESTORE();
+
+				media_app_transfer_video_close();
+				media_app_camera_close(APP_CAMERA_DVP);
+			}
+			break;
+
+			case DOORBELL_UVC_START:
+			{
+				UINT8 *src_ipaddr = (UINT8 *)&demo_doorbell_remote->sin_addr.s_addr;
+				DBD("src_ipaddr: %d.%d.%d.%d\r\n", src_ipaddr[0], src_ipaddr[1],
+				    src_ipaddr[2], src_ipaddr[3]);
+				DBD("udp connect to new port:%d\r\n", demo_doorbell_remote->sin_port);
+
+				GLOBAL_INT_DISABLE();
+				demo_doorbell_udp_romote_connected = 1;
+				GLOBAL_INT_RESTORE();
+
+				video_setup_t setup;
+
+				setup.open_type = TVIDEO_OPEN_SCCB;
+				setup.send_type = TVIDEO_SND_UDP;
+				setup.send_func = demo_doorbell_udp_send_packet;
+				setup.start_cb = demo_doorbell_udp_app_connected;
+				setup.end_cb = demo_doorbell_udp_app_disconnected;
+
+				setup.pkt_header_size = sizeof(media_hdr_t);
+				setup.add_pkt_header = demo_doorbell_add_pkt_header;
+
+				media_app_camera_open(APP_CAMERA_UVC, PPI_DEFAULT);
 				media_app_transfer_video_open(&setup);
 			}
-			else if (video_transfer_mode == CPU1_PLUS)
-			{
+			break;
 
-			}
-#endif
-		} else if (data[1] == DOORBELL_CMD_STOP_IMG) {
-			DBD("udp close\r\n");
+			case DOORBELL_UVC_STOP:
+			{
+				GLOBAL_INT_DISABLE();
+				demo_doorbell_udp_romote_connected = 0;
+				GLOBAL_INT_RESTORE();
 
-#if (CONFIG_SPIDMA || CONFIG_CAMERA)
-			if (video_transfer_mode == CPU0)
-			{
-				bk_video_transfer_deinit();
-			}
-			else if (video_transfer_mode == CPU1)
-			{
-#if CONFIG_DUAL_CORE
-				//bk_video_transfer_cpu0_deinit();
-#endif
-			}
-			else if (video_transfer_mode == DOORBELL_PLUS)
-			{
 				media_app_transfer_video_close();
-				if (video_camera_type == DVP)
-					media_app_camera_close(APP_CAMERA_DVP);
-				else
-					media_app_camera_close(APP_CAMERA_UVC);
+				media_app_camera_close(APP_CAMERA_UVC);
 			}
-			else if (video_transfer_mode == CPU1_PLUS)
-			{
-
-			}
-#endif
-
-			GLOBAL_INT_DISABLE();
-			demo_doorbell_udp_romote_connected = 0;
-			GLOBAL_INT_RESTORE();
+			break;
 		}
-#if CFG_SUPPORT_HTTP_OTA
-		else if (data[1] == CMD_START_OTA)
-			demo_doorbell_udp_http_ota_handle(&data[2]);
-#endif
+
+
 	}
 
 }
@@ -306,14 +282,18 @@ static void demo_doorbell_udp_voice_receiver(UINT8 *data, UINT32 len, struct soc
 	bk_err_t ret = BK_OK;
 
 	if (len > 0)
+	{
 		demo_doorbell_udp_voice_romote_connected = 1;
+	}
 
 	//DBD("len: %d \r\n", len);
 
-	ret = audio_tras_demo_write_dac_data(data, len);
-	if (ret != BK_OK) {
+	ret = audio_tras_write_spk_data(data, len);
+	if (ret != BK_OK)
+	{
 		write_aud_data_err_count++;
-		if (write_aud_data_err_count == 50) {
+		if (write_aud_data_err_count == 50)
+		{
 			DBD("write audio data fial 50 times \r\n", len);
 			write_aud_data_err_count = 0;
 		}
@@ -338,20 +318,23 @@ static void demo_doorbell_udp_main(beken_thread_arg_t data)
 	(void)(data);
 
 	rcv_buf = (u8 *) os_malloc((APP_DEMO_UDP_RCV_BUF_LEN + 1) * sizeof(u8));
-	if (!rcv_buf) {
+	if (!rcv_buf)
+	{
 		DBD("udp os_malloc failed\r\n");
 		goto app_udp_exit;
 	}
 
 	demo_doorbell_remote = (struct sockaddr_in *)os_malloc(sizeof(struct sockaddr_in));
-	if (!demo_doorbell_remote) {
+	if (!demo_doorbell_remote)
+	{
 		DBD("udp os_malloc failed\r\n");
 		goto app_udp_exit;
 	}
 
 	// for data transfer
 	demo_doorbell_udp_img_fd = socket(AF_INET, SOCK_DGRAM, 0);
-	if (demo_doorbell_udp_img_fd == -1) {
+	if (demo_doorbell_udp_img_fd == -1)
+	{
 		DBD("socket failed\r\n");
 		goto app_udp_exit;
 	}
@@ -361,14 +344,16 @@ static void demo_doorbell_udp_main(beken_thread_arg_t data)
 	demo_doorbell_remote->sin_addr.s_addr = htonl(INADDR_ANY);
 
 	srvaddr_len = (socklen_t)sizeof(struct sockaddr_in);
-	if (bind(demo_doorbell_udp_img_fd, (struct sockaddr *)demo_doorbell_remote, srvaddr_len) == -1) {
+	if (bind(demo_doorbell_udp_img_fd, (struct sockaddr *)demo_doorbell_remote, srvaddr_len) == -1)
+	{
 		DBD("bind failed\r\n");
 		goto app_udp_exit;
 	}
 
 	//  for recv uart cmd
 	udp_cmd_fd = socket(AF_INET, SOCK_DGRAM, 0);
-	if (udp_cmd_fd == -1) {
+	if (udp_cmd_fd == -1)
+	{
 		DBD("socket failed\r\n");
 		goto app_udp_exit;
 	}
@@ -377,7 +362,8 @@ static void demo_doorbell_udp_main(beken_thread_arg_t data)
 	cmd_remote.sin_port = htons(DEMO_DOORBELL_UDP_CMD_PORT);
 	cmd_remote.sin_addr.s_addr = htonl(INADDR_ANY);
 
-	if (bind(udp_cmd_fd, (struct sockaddr *)&cmd_remote, srvaddr_len) == -1) {
+	if (bind(udp_cmd_fd, (struct sockaddr *)&cmd_remote, srvaddr_len) == -1)
+	{
 		DBD("bind failed\r\n");
 		goto app_udp_exit;
 	}
@@ -387,13 +373,15 @@ static void demo_doorbell_udp_main(beken_thread_arg_t data)
 	// for voice transfer
 #if DEMO_DOORBELL_EN_VOICE_TRANSFER
 	demo_doorbell_voice_udp_remote = (struct sockaddr_in *)os_malloc(sizeof(struct sockaddr_in));
-	if (!demo_doorbell_voice_udp_remote) {
+	if (!demo_doorbell_voice_udp_remote)
+	{
 		DBD("udp os_malloc failed\r\n");
 		goto app_udp_exit;
 	}
 
 	demo_doorbell_udp_voice_fd = socket(AF_INET, SOCK_DGRAM, 0);
-	if (demo_doorbell_udp_voice_fd == -1) {
+	if (demo_doorbell_udp_voice_fd == -1)
+	{
 		DBD("vo socket failed\r\n");
 		goto app_udp_exit;
 	}
@@ -403,7 +391,8 @@ static void demo_doorbell_udp_main(beken_thread_arg_t data)
 	demo_doorbell_voice_udp_remote->sin_addr.s_addr = htonl(INADDR_ANY);
 
 	srvaddr_len = (socklen_t)sizeof(struct sockaddr_in);
-	if (bind(demo_doorbell_udp_voice_fd, (struct sockaddr *)demo_doorbell_voice_udp_remote, srvaddr_len) == -1) {
+	if (bind(demo_doorbell_udp_voice_fd, (struct sockaddr *)demo_doorbell_voice_udp_remote, srvaddr_len) == -1)
+	{
 		DBD("bind failed\r\n");
 		goto app_udp_exit;
 	}
@@ -421,7 +410,8 @@ static void demo_doorbell_udp_main(beken_thread_arg_t data)
 #endif
 	GLOBAL_INT_RESTORE();
 
-	while (demo_doorbell_udp_run) {
+	while (demo_doorbell_udp_run)
+	{
 		FD_ZERO(&watchfd);
 		FD_SET(demo_doorbell_udp_img_fd, &watchfd);
 		FD_SET(udp_cmd_fd, &watchfd);
@@ -431,35 +421,47 @@ static void demo_doorbell_udp_main(beken_thread_arg_t data)
 
 		//DBD("wait for select\r\n");
 		ret = select(maxfd + 1, &watchfd, NULL, NULL, &timeout);
-		if (ret < 0) {
+		if (ret < 0)
+		{
 			DBD("select ret:%d\r\n", ret);
 			break;
-		} else {
+		}
+		else
+		{
 			// is img fd, data transfer
-			if (FD_ISSET(demo_doorbell_udp_img_fd, &watchfd)) {
+			if (FD_ISSET(demo_doorbell_udp_img_fd, &watchfd))
+			{
 				rcv_len = recvfrom(demo_doorbell_udp_img_fd, rcv_buf, APP_DEMO_UDP_RCV_BUF_LEN, 0,
-								   (struct sockaddr *)demo_doorbell_remote, &srvaddr_len);
+				                   (struct sockaddr *)demo_doorbell_remote, &srvaddr_len);
 
-				if (rcv_len <= 0) {
+				if (rcv_len <= 0)
+				{
 					// close this socket
 					DBD("recv close fd:%d\r\n", demo_doorbell_udp_img_fd);
 					break;
-				} else {
+				}
+				else
+				{
 					rcv_len = (rcv_len > APP_DEMO_UDP_RCV_BUF_LEN) ? APP_DEMO_UDP_RCV_BUF_LEN : rcv_len;
 					rcv_buf[rcv_len] = 0;
 
 					DBD("demo_doorbell_udp_receiver");
 					demo_doorbell_udp_receiver(rcv_buf, rcv_len, demo_doorbell_remote);
 				}
-			} else if (FD_ISSET(udp_cmd_fd, &watchfd)) {
+			}
+			else if (FD_ISSET(udp_cmd_fd, &watchfd))
+			{
 				rcv_len = recvfrom(udp_cmd_fd, rcv_buf, APP_DEMO_UDP_RCV_BUF_LEN, 0,
-								   (struct sockaddr *)&cmd_remote, &srvaddr_len);
+				                   (struct sockaddr *)&cmd_remote, &srvaddr_len);
 
-				if (rcv_len <= 0) {
+				if (rcv_len <= 0)
+				{
 					// close this socket
 					DBD("recv close fd:%d\r\n", udp_cmd_fd);
 					break;
-				} else {
+				}
+				else
+				{
 					rcv_len = (rcv_len > APP_DEMO_UDP_RCV_BUF_LEN) ? APP_DEMO_UDP_RCV_BUF_LEN : rcv_len;
 					rcv_buf[rcv_len] = 0;
 
@@ -467,15 +469,19 @@ static void demo_doorbell_udp_main(beken_thread_arg_t data)
 				}
 			}
 #if DEMO_DOORBELL_EN_VOICE_TRANSFER
-			if (FD_ISSET(demo_doorbell_udp_voice_fd, &watchfd)) {
+			if (FD_ISSET(demo_doorbell_udp_voice_fd, &watchfd))
+			{
 				rcv_len = recvfrom(demo_doorbell_udp_voice_fd, rcv_buf, APP_DEMO_UDP_RCV_BUF_LEN, 0,
-								   (struct sockaddr *)demo_doorbell_voice_udp_remote, &srvaddr_len);
+				                   (struct sockaddr *)demo_doorbell_voice_udp_remote, &srvaddr_len);
 
-				if (rcv_len <= 0) {
+				if (rcv_len <= 0)
+				{
 					// close this socket
 					DBD("recv close fd:%d\r\n", demo_doorbell_udp_voice_fd);
 					break;
-				} else {
+				}
+				else
+				{
 					rcv_len = (rcv_len > APP_DEMO_UDP_RCV_BUF_LEN) ? APP_DEMO_UDP_RCV_BUF_LEN : rcv_len;
 					rcv_buf[rcv_len] = 0;
 					demo_doorbell_udp_voice_receiver(rcv_buf, rcv_len, demo_doorbell_voice_udp_remote);
@@ -497,36 +503,42 @@ app_udp_exit:
 	/* deinit audio transfer driver */
 
 	//cp0_audio_transfer_deinit();
-	audio_tras_demo_deinit();
+	audio_tras_deinit();
 #endif
 
-	if (rcv_buf) {
+	if (rcv_buf)
+	{
 		os_free(rcv_buf);
 		rcv_buf = NULL;
 	}
 
 #if DEMO_DOORBELL_EN_VOICE_TRANSFER
-	if (demo_doorbell_udp_voice_fd != -1) {
+	if (demo_doorbell_udp_voice_fd != -1)
+	{
 		close(demo_doorbell_udp_voice_fd);
 		demo_doorbell_udp_voice_fd = -1;
 	}
 
-	if (demo_doorbell_voice_udp_remote) {
+	if (demo_doorbell_voice_udp_remote)
+	{
 		os_free(demo_doorbell_voice_udp_remote);
 		demo_doorbell_voice_udp_remote = NULL;
 	}
 #endif // DEMO_DOORBELL_EN_VOICE_TRANSFER
-	if (demo_doorbell_remote) {
+	if (demo_doorbell_remote)
+	{
 		os_free(demo_doorbell_remote);
 		demo_doorbell_remote = NULL;
 	}
 
-	if (demo_doorbell_udp_img_fd != -1) {
+	if (demo_doorbell_udp_img_fd != -1)
+	{
 		close(demo_doorbell_udp_img_fd);
 		demo_doorbell_udp_img_fd = -1;
 	}
 
-	if (udp_cmd_fd != -1) {
+	if (udp_cmd_fd != -1)
+	{
 		close(udp_cmd_fd);
 		udp_cmd_fd = -1;
 	}
@@ -548,14 +560,16 @@ UINT32 demo_doorbell_udp_init(void)
 	int ret;
 
 	DBD("app_demo_udp_init\r\n");
-	if (!demo_doorbell_udp_hdl) {
+	if (!demo_doorbell_udp_hdl)
+	{
 		ret = rtos_create_thread(&demo_doorbell_udp_hdl,
-								 4,
-								 "app_udp",
-								 (beken_thread_function_t)demo_doorbell_udp_main,
-								 1024,
-								 (beken_thread_arg_t)NULL);
-		if (ret != kNoErr) {
+		                         4,
+		                         "app_udp",
+		                         (beken_thread_function_t)demo_doorbell_udp_main,
+		                         1024,
+		                         (beken_thread_arg_t)NULL);
+		if (ret != kNoErr)
+		{
 			DBD("Error: Failed to create spidma_intfer: %d\r\n", ret);
 			return kGeneralErr;
 		}
@@ -570,57 +584,22 @@ void demo_doorbell_udp_deinit(void)
 
 	DBD("app_demo_udp_deinit\r\n");
 	if (demo_doorbell_udp_run == 0)
+	{
 		return;
+	}
 
 	GLOBAL_INT_DISABLE();
 	demo_doorbell_udp_run = 0;
 	GLOBAL_INT_RESTORE();
 
 	while (demo_doorbell_udp_hdl)
+	{
 		rtos_delay_milliseconds(10);
+	}
 }
 
 void cli_doorbell_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
-	if (argc > 0)
-	{
-		uint8_t mode = os_strtoul(argv[1], NULL, 10);
-		uint8_t camera_type = os_strtoul(argv[2], NULL, 10);
-
-		if (mode == CPU0)
-		{
-			video_transfer_mode = CPU0;
-		}
-		else if (mode == CPU1)
-		{
-			video_transfer_mode = CPU1;
-		}
-		else if (mode == CPU1_PLUS)
-		{
-			video_transfer_mode = CPU1_PLUS;
-		}
-		else if (mode == DOORBELL_PLUS)
-		{
-			video_transfer_mode = DOORBELL_PLUS;
-		}
-		else
-		{
-			video_transfer_mode = CPU0;
-		}
-
-		if (camera_type == DVP)
-		{
-			video_camera_type = DVP;
-		}
-		else
-		{
-			video_camera_type = UVC;
-		}
-	}
-
-	os_printf("cli_doorbell_test_cmd, mode: %d\n", video_transfer_mode);
-
-
 	demo_doorbell_udp_init();
 }
 

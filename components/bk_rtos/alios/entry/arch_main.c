@@ -14,7 +14,7 @@
 #include "bk_private/legacy_init.h"
 #include <os/mem.h>
 #include "bk_uart.h"
-#include "bk_private/bk_ate.h"
+#include <components/ate.h>
 #include "k_api.h"
 #include <os/os.h>
 #include <components/system.h>

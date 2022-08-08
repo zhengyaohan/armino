@@ -617,9 +617,6 @@ typedef API_RESULT (* GATT_DB_PL_EXT_HANDLER_CB)
 
 
 
-void bk_ble_bt_gatt_db_get_char_val_hndl(GATT_DB_HANDLE *gdbh, ATT_ATTR_HANDLE *attr_handle);
-
-
 #endif
 
 
@@ -750,8 +747,8 @@ typedef struct
 typedef struct
 {
     API_RESULT event_result;
-    ATT_HANDLE att_handle;
-
+    //ATT_HANDLE att_handle;
+    uint8_t conn_handle;
     GATT_SERVICE_PARAM *service;
     uint16_t count;
 } ble_discovery_primary_service_t;
@@ -760,8 +757,8 @@ typedef struct
 typedef struct
 {
     API_RESULT event_result;
-    ATT_HANDLE att_handle;
-
+//    ATT_HANDLE att_handle;
+    uint8_t conn_handle;
     //ble_gatt_characteristic_param_t *character;
     GATT_CHARACTERISTIC_PARAM *character;
     uint16_t count;
@@ -815,8 +812,8 @@ typedef struct
 typedef struct
 {
     API_RESULT event_result;
-    ATT_HANDLE att_handle;
-
+    //ATT_HANDLE att_handle;
+    uint8_t conn_handle;
     /// Peer address type
     uint8_t peer_addr_type;
     /// Peer BT address
@@ -826,14 +823,16 @@ typedef struct
 typedef struct
 {
     API_RESULT event_result;
-    ATT_HANDLE att_handle;
+//    ATT_HANDLE att_handle;
+    uint8_t conn_handle;
     ATT_ATTR_HANDLE attr_handle;
 } ble_att_tx_compl_t;
 
 typedef struct
 {
     API_RESULT event_result;
-    ATT_HANDLE att_handle;
+//    ATT_HANDLE att_handle;
+    uint8_t conn_handle;
     ATT_ATTR_HANDLE attr_handle;
 
     uint8_t *data;
@@ -877,7 +876,8 @@ typedef struct
 typedef struct
 {
     API_RESULT event_result;
-    ATT_HANDLE att_handle;
+    //ATT_HANDLE att_handle;
+    uint8_t conn_handle;
     ATT_ATTR_HANDLE attr_handle;
 
     uint8_t *data;

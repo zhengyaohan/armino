@@ -1,10 +1,10 @@
 #pragma once
 
+#include "audio_transfer_private.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "audio_transfer_types.h"
 
 bk_err_t bk_aud_tras_drv_init(aud_tras_drv_setup_t *setup_cfg);
 

@@ -185,10 +185,20 @@ endif()
 
 	if (CONFIG_LCD)
 	list(APPEND srcs
+		"lcd/lcd_driver.c"
+		"lcd/lcd_hx8282.c"
+		"lcd/lcd_st7282.c"
+		"lcd/lcd_st7796s.c"
+		)
+	endif()
+
+	if (CONFIG_LCD)
+	list(APPEND srcs
 		"lcd_display/lcd_disp_driver.c"
 		)
 	endif()
-	
+
+
 	if(CONFIG_DMA2D)
 	list(APPEND srcs
 		dma2d/dma2d_driver.c
@@ -424,6 +434,6 @@ endif()
 
 armino_component_register(SRCS "${srcs}"
 	INCLUDE_DIRS "${incs}"
-	REQUIRES arm9 riscv
+	REQUIRES arm9 riscv cm33
 	PRIV_REQUIRES bk_log bk_ate
 )

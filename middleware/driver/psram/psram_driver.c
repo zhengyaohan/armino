@@ -17,6 +17,7 @@
 #include "clock_driver.h"
 #include "sys_driver.h"
 #include "psram_hal.h"
+#include "aon_pmu_hal.h"
 
 extern int delay(INT32 num);
 #define addSYSTEM_Reg0xe                                        *((volatile unsigned long *) (0x44010000+0xe*4))
@@ -49,10 +50,13 @@ static void psram_init_common(void)
 	addSYSTEM_Reg0xe |= (0x1 << 25); // not set
 
 	//setf_SYSTEM_Reg0x9_cksel_psram;//480M
-	sys_drv_psram_clk_sel(0x0);//480M
+	sys_drv_psram_clk_sel(0x0);// 0/1:160M/240M
 
 	//set_SYSTEM_Reg0x9_ckdiv_psram(1);//120M
-	sys_drv_psram_set_clkdiv(0x0);
+	sys_drv_psram_set_clkdiv(0x0);//0/1:div
+
+	// when use psram 120M, need open this code
+	//aon_pmu_hal_psram_iodrv_set(0x2);
 
 	//setf_SYSTEM_Reg0xc_psram_cken;
 	sys_drv_dev_clk_pwr_up(CLK_PWR_ID_PSRAM, CLK_PWR_CTRL_PWR_UP);//psram_clk_enable bit19=1

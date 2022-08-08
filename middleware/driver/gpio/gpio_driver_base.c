@@ -440,6 +440,29 @@ static void gpio_config_wakeup_function(void)
 	GPIO_LOGD("%s[-]set wake src h=0x%0x, l=0x%0x\r\n", __func__, (uint32_t)(s_gpio_is_setted_wake_status>>32), (uint32_t)s_gpio_is_setted_wake_status) ;
 }
 
+static void gpio_config_low_power_wakeup_pin(void)
+{
+	uint32_t i = 0;
+
+	gpio_wakeup_t gpio_wakeup_map[] = GPIO_STATIC_WAKEUP_SOURCE_MAP;
+	for(i = 0; i < sizeof(gpio_wakeup_map)/sizeof(gpio_wakeup_t); i++)
+	{
+		bk_gpio_disable_output(gpio_wakeup_map[i].id);
+		bk_gpio_enable_input(gpio_wakeup_map[i].id);
+	}
+
+#ifdef CONFIG_GPIO_DYNAMIC_WAKEUP_SUPPORT
+	for(i = 0; i < CONFIG_GPIO_DYNAMIC_WAKEUP_SOURCE_MAX_CNT; i++)
+	{
+		if(s_gpio_dynamic_wakeup_source_map[i].id != GPIO_WAKE_SOURCE_IDLE_ID)
+		{
+			bk_gpio_disable_output(s_gpio_dynamic_wakeup_source_map[i].id);
+			bk_gpio_enable_input(s_gpio_dynamic_wakeup_source_map[i].id);
+		}
+	}
+#endif
+}
+
 static void gpio_clear_wakeup_function(void)
 {
 	s_gpio_is_setted_wake_status = 0;
@@ -511,9 +534,9 @@ bk_err_t bk_gpio_register_wakeup_source(gpio_id_t gpio_id,
 			s_gpio_dynamic_wakeup_source_map[i].id = gpio_id;
 			s_gpio_dynamic_wakeup_source_map[i].int_type = int_type;
 			//s_gpio_dynamic_wakeup_source_map[i].isr = isr;
+			s_gpio_is_setted_wake_status |= ((uint64_t)1 << s_gpio_dynamic_wakeup_source_map[i].id);
 
 			GPIO_LOGD("gpio=%d,int_type=%d register wake src\r\n", gpio_id, int_type);
-			gpio_config_wakeup_function();
 
 			return BK_OK;
 		}
@@ -541,6 +564,7 @@ bk_err_t bk_gpio_unregister_wakeup_source(gpio_id_t gpio_id)
 			s_gpio_dynamic_wakeup_source_map[i].id = GPIO_WAKE_SOURCE_IDLE_ID;
 			s_gpio_dynamic_wakeup_source_map[i].int_type = 0;
 			//s_gpio_dynamic_wakeup_source_map[i].isr = NULL;
+			s_gpio_is_setted_wake_status &= ~(((uint64_t)1 << s_gpio_dynamic_wakeup_source_map[i].id));
 
 			GPIO_LOGD("%s[-]gpioid=%d\r\n", __func__, gpio_id);
 
@@ -572,6 +596,7 @@ bk_err_t gpio_enter_low_power(void *param)
 	{
 		GPIO_LOGD("switch to low power tatus\r\n");
 		gpio_hal_switch_to_low_power_status();
+		gpio_config_low_power_wakeup_pin();
 		GPIO_LOGD("exit switch to low power tatus\r\n");
 		gpio_dump_regs(true, false);
 	}
@@ -717,5 +742,4 @@ void gpio_simulate_uart_write(unsigned char *buff, uint32_t len, gpio_id_t gpio_
 	}
 }
 #endif
-
 

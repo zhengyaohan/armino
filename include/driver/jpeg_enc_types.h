@@ -31,6 +31,7 @@ extern "C" {
  */
 
 #define Y_PIXEL_272     (34)  /**< image resolution for hight: Y * 8 = 272  */
+#define Y_PIXEL_320     (40)  /**< image resolution for hight: Y * 8 = 320  */
 #define X_PIXEL_480     (60)  /**< image resolution for width: X * 8 = 480  */
 #define Y_PIXEL_480     (60)  /**< image resolution for hight: Y * 8 = 480  */
 #define X_PIXEL_640     (80)  /**< image resolution for hight: X * 8 = 640  */

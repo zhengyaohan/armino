@@ -1830,6 +1830,43 @@ const uint8_t gc0328c_VGA_640_480_talbe[][2] = {
 	{0x57, 0x02},
 	{0x58, 0x80},
 };
+const uint8_t gc0328c_VGA_320_480_talbe[][2] = {
+#if (GC_QVGA_USE_SUBSAMPLE == 1)
+	{0xFE, 0x00},
+	{0x59, 0x11},
+#endif
+
+	{0xFE, 0x00},
+	{0x50, 0x01},
+	{0x51, 0x00},
+	{0x52, 0x00},
+	{0x53, 0x00},
+	{0x54, 0x00},
+
+	{0x55, 0x01},
+	{0x56, 0xe0},
+	{0x57, 0x01},
+	{0x58, 0x40},
+};
+
+const uint8_t gc0328c_VGA_480_320_talbe[][2] = {
+#if (GC_QVGA_USE_SUBSAMPLE == 1)
+	{0xFE, 0x00},
+	{0x59, 0x11},
+#endif
+
+	{0xFE, 0x00},
+	{0x50, 0x01},
+	{0x51, 0x00},
+	{0x52, 0x00},
+	{0x53, 0x00},
+	{0x54, 0x00},
+
+	{0x55, 0x01},
+	{0x56, 0x40},
+	{0x57, 0x01},
+	{0x58, 0xe0},
+};
 
 // BF_2013_DEV
 const uint8_t bf_2013_init_talbe[][2] = {
@@ -3579,6 +3616,14 @@ static void camera_inf_cfg_gc0328c_ppi(uint32_t ppi_type)
 	case QVGA_320_240:
 		size = sizeof(gc0328c_QVGA_320_240_talbe) / 2;
 		camera_inf_write_cfg_byte(gc0328c_QVGA_320_240_talbe, size);
+		break;
+	case VGA_320_480:
+		size = sizeof(gc0328c_VGA_320_480_talbe) / 2;
+		camera_inf_write_cfg_byte(gc0328c_VGA_320_480_talbe, size);
+		break;
+	case VGA_480_320:
+		size = sizeof(gc0328c_VGA_480_320_talbe) / 2;
+		camera_inf_write_cfg_byte(gc0328c_VGA_480_320_talbe, size);
 		break;
 	case VGA_640_480:
 		size = sizeof(gc0328c_VGA_640_480_talbe) / 2;

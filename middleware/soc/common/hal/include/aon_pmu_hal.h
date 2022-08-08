@@ -48,6 +48,7 @@ void aon_pmu_hal_wdt_rst_dev_enable(void);
 void aon_pmu_hal_lpo_src_set(uint32_t lpo_src);
 uint32_t aon_pmu_hal_lpo_src_get();
 uint32_t aon_pmu_hal_bias_cal_get();
+void aon_pmu_hal_psram_iodrv_set(uint32_t io_drv);
 
 #ifdef __cplusplus
 }

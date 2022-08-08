@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include <common/bk_include.h>
-#include "bk_api_ate.h"
+#include <components/ate.h>
 #include <os/mem.h>
 #include <driver/flash.h>
 #include <os/os.h>

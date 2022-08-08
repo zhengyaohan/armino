@@ -60,6 +60,7 @@ void frame_buffer_init(void);
 void frame_buffer_deinit(void);
 bool frame_buffer_get_state(void);
 void frame_buffer_enable(bool enable);
+void frame_buffer_display_reset(void);
 
 
 #ifdef __cplusplus

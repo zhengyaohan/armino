@@ -29,10 +29,10 @@ uint32_t param_display_on[1] = {0x0 };
 bk_err_t st7796s_init(void)
 {
 	delay_ms(131);
+	delay_ms(10);
 
 	bk_lcd_8080_send_cmd(0, SLEEP_OUT, param_sleep_out);
 	delay_ms(120);
-	//cpu_delay(6428571);  //ASIC code need wait 120ms
 
 	bk_lcd_8080_send_cmd(1, COMMAND_1, param_command1);
 	bk_lcd_8080_send_cmd(1, COMMAND_2, param_command2);

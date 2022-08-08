@@ -48,15 +48,15 @@ typedef struct _JPG_DECODER_ST
 #define HVGA_RD_LEN     (20480*4-1)  //80k
 
 /**<jpeg dec output size*/
-#define PIXEL_320_480    153600     
+#define PIXEL_320_480    (320 * 480 * 2)     
 #define PIXEL_480_272    261120
 #define PIXEL_640_480    614400
 #define PIXEL_1280_720   1843200
 #define PIXEL_1920_1080  4147200
 
 /**<jpeg dec block num*/
-#define X_PIXEL_320_BLOCK    4080
-#define X_PIXEL_480_BLOCK    4800
+#define X_PIXEL_320_BLOCK    4800
+#define X_PIXEL_480_BLOCK    4080
 #define X_PIXEL_640_BLOCK    9600
 #define X_PIXEL_1280_BLOCK   28800
 #define X_PIXEL_1920_BLOCK   64800

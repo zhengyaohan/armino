@@ -40,3 +40,6 @@ endif()
 endif()
 
 armino_component_register(SRCS "${srcs}" INCLUDE_DIRS "${incs}" PRIV_REQUIRES bk_common)
+if(CONFIG_ARCH_RISCV)
+target_compile_options(${COMPONENT_LIB} PRIVATE -mno-relax)
+endif()

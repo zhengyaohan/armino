@@ -12,14 +12,14 @@
 
 #include <components/spidma.h>
 #include <components/dvp_camera.h>
-#include "video_transfer_log.h"
-#include "video_transfer_save.h"
 #include <driver/timer.h>
+#include <driver/dma.h>
 
 #if CONFIG_GENERAL_DMA
 #include "bk_general_dma.h"
 #endif
 
+#define JPEG_EOF_CHECK              0
 #define TVIDEO_DEBUG                1
 #include "bk_uart.h"
 #if TVIDEO_DEBUG
@@ -32,47 +32,29 @@
 #define TVIDEO_FATAL                null_prf
 #endif
 
+#if (JPEG_EOF_CHECK)
 #define TVIDEO_TIMER_CHANNEL        TIMER_ID1
 #define TVIDEO_TIMER_VALUE          1000// 1 second
+#endif
 
 video_config_t tvideo_st;
 video_pool_t tvideo_pool;
 
-typedef struct {
-	uint32_t data;
-} video_msg_t;
-
 #define TV_QITEM_COUNT      (120)
 beken_thread_t  tvideo_thread_hdl = NULL;
 beken_queue_t tvideo_msg_que = NULL;
-static uint8_t tvideo_log_enable = 0;
-static uint8_t tvideo_image_save_enable = 0;
-static uint8_t tvideo_pkt_calc_enable = 0;
-static uint8_t tvideo_pkt_reset_enable = 0;
-static uint8_t g_frame_eof = 1;
-static uint32_t g_frame_len = 0;
-static uint32_t g_frame_max = 0;
-static uint32_t g_frame_min = 0;
-static uint32_t g_frame_id = 1;
-static uint32_t g_flag = 0;
-static uint32_t g_eof_flag = 0;
-static uint32_t g_lost_frame_id = 0;
-static uint32_t g_packet_count = 0;
-static uint32_t g_pkt_total = 0;
-static uint32_t g_pkt_lost = 0;
-extern uint32_t g_pkt_send_fail;
-extern uint32_t g_pkt_send;
-static uint32_t g_pkt_push = 0;
+static uint8_t  g_dma_id = 0;
 static uint32_t g_frame_total_num = 0;
-static uint32_t g_frame_lost_num = 0;
+static bool  tvideo_open = false;
 
-bk_err_t bk_video_send_msg(uint32_t new_msg)
+bk_err_t tvideo_send_msg(uint8_t type, uint32_t data)
 {
 	bk_err_t ret;
 	video_msg_t msg;
 
 	if (tvideo_msg_que) {
-		msg.data = new_msg;
+		msg.type = type;
+		msg.data = data;
 
 		ret = rtos_push_to_queue(&tvideo_msg_que, &msg, BEKEN_NO_WAIT);
 		if (kNoErr != ret) {
@@ -140,12 +122,20 @@ static bk_err_t tvideo_pool_init(void *data)
 	tvideo_pool.pkt_header_size = setup->pkt_header_size;
 #endif
 
+	g_dma_id = bk_dma_alloc(DMA_DEV_DTCM);
+	if ((g_dma_id < DMA_ID_0) || (g_dma_id >= DMA_ID_MAX))
+	{
+		TVIDEO_WPRT("dma alloc failed!\r\n");
+		g_dma_id = DMA_ID_MAX;
+	}
+
 	return ret;
 }
 
+#if (JPEG_EOF_CHECK)
 static void tvideo_timer_check_callback(timer_id_t timer_id)
 {
-	bk_video_send_msg(VIDEO_CPU0_EOF_CHECK);
+	tvideo_send_msg(VIDEO_CPU0_EOF_CHECK, 0);
 }
 
 static void tvideo_jpeg_eof_check_handler(void)
@@ -168,6 +158,7 @@ static void tvideo_jpeg_eof_check_handler(void)
 		g_frame_total_num = 0;
 	}
 }
+#endif
 
 static void tvideo_rx_handler(void *curptr, uint32_t newlen, uint32_t is_eof, uint32_t frame_len)
 {
@@ -175,26 +166,10 @@ static void tvideo_rx_handler(void *curptr, uint32_t newlen, uint32_t is_eof, ui
 	if (is_eof) {
 		g_frame_total_num++;
 	}
-	g_pkt_total++;
+
 	do {
 		if (!newlen)
 			break;
-
-		if (g_flag && is_eof == 0 && g_eof_flag == 1) {
-//			os_printf("frame_id_new = %d\r\n", tvideo_pool.frame_id);
-			g_flag = 0;
-		}
-
-		g_eof_flag = is_eof;
-
-		if (g_flag && is_eof == 0) {
-			g_pkt_lost++;
-			return;
-		}
-
-		if (g_flag && is_eof == 1) {
-			g_frame_lost_num++;
-		}
 
 #if TVIDEO_DROP_DATA_NONODE
 		// drop pkt has happened, so drop it, until spidma timeout handler.
@@ -214,14 +189,6 @@ static void tvideo_rx_handler(void *curptr, uint32_t newlen, uint32_t is_eof, ui
 				video_packet_t param;
 
 				if (is_eof) {
-					g_frame_len = frame_len;
-					if (g_frame_min == 0)
-						g_frame_min = g_frame_len;
-					if (g_frame_max < g_frame_len)
-						g_frame_max = g_frame_len;
-					if (g_frame_min > g_frame_len)
-						g_frame_min = g_frame_len;
-
 					pkt_cnt = frame_len / tvideo_st.node_len;
 					if (frame_len % tvideo_st.node_len)
 						pkt_cnt += 1;
@@ -235,8 +202,12 @@ static void tvideo_rx_handler(void *curptr, uint32_t newlen, uint32_t is_eof, ui
 
 				if (tvideo_pool.add_pkt_header)
 					tvideo_pool.add_pkt_header(&param);
-
-				dma_memcpy(param.ptk_ptr + tvideo_pool.pkt_header_size, curptr, newlen);
+				if (g_dma_id != DMA_ID_MAX) {
+					dma_memcpy_by_chnl(param.ptk_ptr + tvideo_pool.pkt_header_size, curptr, newlen, g_dma_id);
+				} else{
+					os_memcpy(param.ptk_ptr + tvideo_pool.pkt_header_size, curptr, newlen);
+				}
+				
 				if (tvideo_st.node_len > newlen) {
 					//uint32_t left = tvideo_st.node_len - newlen;
 					//os_memset((elem_tvhdr + 1 + newlen), 0, left);
@@ -248,7 +219,13 @@ static void tvideo_rx_handler(void *curptr, uint32_t newlen, uint32_t is_eof, ui
 #endif //#if (TVIDEO_USE_HDR && CONFIG_CAMERA)
 			{
 				// only copy data
-				dma_memcpy(elem->buf_start, curptr, newlen);
+				
+				if (g_dma_id != DMA_ID_MAX) {
+					dma_memcpy_by_chnl(elem->buf_start, curptr, newlen, g_dma_id);
+				} else{
+					os_memcpy(elem->buf_start, curptr, newlen);
+				}
+
 				if (tvideo_st.node_len > newlen) {
 					//uint32_t left = tvideo_st.node_len - newlen;
 					//os_memset(((uint8_t*)elem->buf_start + newlen), 0, left);
@@ -263,9 +240,10 @@ static void tvideo_rx_handler(void *curptr, uint32_t newlen, uint32_t is_eof, ui
 #else
 			co_list_push_back(&tvideo_pool.ready, (struct co_list_hdr *)&elem->hdr);
 #endif
-			g_packet_count++;
-			g_pkt_push++;
-		} else {
+
+		} 
+		else
+		{
 #if TVIDEO_DROP_DATA_NONODE
 			// not node for receive pkt, drop aready received, and also drop
 			// the new come.
@@ -276,30 +254,11 @@ static void tvideo_rx_handler(void *curptr, uint32_t newlen, uint32_t is_eof, ui
 				co_list_concat(&tvideo_pool.free, &tvideo_pool.receiving);
 #else
 			TVIDEO_WPRT("lost\r\n");
-			g_pkt_lost++;
-			g_lost_frame_id = tvideo_pool.frame_id;
-			g_flag = 1;
-			if (is_eof == 1) {
-//				g_frame_lost_num++;
-				bk_video_send_msg(VIDEO_CPU0_SEND);
-				g_packet_count = 0;
-				return;
-			}
 #endif
 		}
 	} while (0);
 
-	if ((g_packet_count > 0 && g_packet_count < 4) && is_eof == 1) {
-		bk_video_send_msg(VIDEO_CPU0_SEND);
-		g_packet_count = 0;
-		return;
-	}
-
-	if (g_packet_count == 4) {
-		bk_video_send_msg(VIDEO_CPU0_SEND);
-		g_packet_count = 0;
-	}
-
+	tvideo_send_msg(VIDEO_CPU0_SEND, 0);
 }
 
 static void tvideo_end_frame_handler(void)
@@ -316,11 +275,12 @@ static void tvideo_end_frame_handler(void)
 		tvideo_pool.frame_id++;
 #endif
 
-	bk_video_send_msg(VIDEO_CPU0_SEND);
+	tvideo_send_msg(VIDEO_CPU0_SEND, 0);
 }
 
-static void tvideo_config_desc(void)
+static bk_err_t tvideo_config_desc(void)
 {
+	bk_err_t ret = kNoErr;
 	uint32_t node_len = TVIDEO_RXNODE_SIZE_TCP;
 
 	if (tvideo_pool.send_type == TVIDEO_SND_UDP) {
@@ -341,14 +301,19 @@ static void tvideo_config_desc(void)
 #endif
 	} else if (tvideo_pool.send_type == TVIDEO_SND_BUFFER)
 		node_len = TVIDEO_RXNODE_SIZE_TCP;
-	else
+	else {
 		TVIDEO_WPRT("Err snd tpye in spidma\r\n");
+		ret = kParamErr;
+		return ret;
+	}
 
 	tvideo_st.rxbuf = os_malloc(sizeof(uint8_t) * TVIDEO_RXBUF_LEN);
 	if (tvideo_st.rxbuf == NULL) {
 		TVIDEO_WPRT("malloc rxbuf failed!\r\n");
-		BK_ASSERT(1);
+		ret = kNoMemoryErr;
+		return ret;
 	}
+
 	tvideo_st.rxbuf_len = node_len * 4;
 	tvideo_st.node_len = node_len;
 	tvideo_st.rx_read_len = 0;
@@ -363,6 +328,8 @@ static void tvideo_config_desc(void)
 
 	tvideo_st.node_full_handler = tvideo_rx_handler;
 	tvideo_st.data_end_handler = tvideo_end_frame_handler;
+
+	return ret;
 }
 
 static void tvideo_poll_handler(void)
@@ -374,34 +341,9 @@ static void tvideo_poll_handler(void)
 		elem = (video_elem_t *)co_list_pick(&tvideo_pool.ready);
 		if (elem) {
 			if (tvideo_pool.send_func) {
-				// enbale output log or save image enable
-				if (tvideo_log_enable || tvideo_image_save_enable) {
-					uint8_t is_eof = (uint8_t)*((uint8_t *)elem->buf_start + 1);
-
-					if (tvideo_log_enable) {
-						if (is_eof == 1) {
-							os_printf("current_frame: %d, max: %d, min: %d\r\n", g_frame_len, g_frame_max, g_frame_min);
-						}
-					}
-
-					if (tvideo_image_save_enable) {
-						if (g_frame_eof > is_eof) {
-							f_create_file_to_sdcard(g_frame_id++);
-						}
-						g_frame_eof = is_eof;
-
-						f_write_data_to_sdcard(elem->buf_start + 4, elem->buf_len - 4, is_eof);
-					}
-				}
-				
-				if (elem->frame_id == g_lost_frame_id) {
-//					os_printf("frame_id = %d\r\n", g_lost_frame_id);
-//					g_frame_lost_num++;
-				} else {
-					send_len = tvideo_pool.send_func(elem->buf_start, elem->buf_len);
-					if (send_len != elem->buf_len)
-						break;
-				}
+				send_len = tvideo_pool.send_func(elem->buf_start, elem->buf_len);
+				if (send_len != elem->buf_len)
+					break;
 			}
 
 			co_list_pop_front(&tvideo_pool.ready);
@@ -421,22 +363,29 @@ static void video_transfer_main(beken_thread_arg_t data)
 		goto tvideo_exit;
 	}
 
-	tvideo_config_desc();
+	err = tvideo_config_desc();
+	if (err != kNoErr) {
+		goto tvideo_exit;
+	}
 
-	{
+
 		if (tvideo_pool.open_type == TVIDEO_OPEN_SPIDMA) {
 #if CONFIG_SPIDMA
 			spidma_intfer_init(&tvideo_st);
 #endif
 		} else {//if(tvideo_pool.open_type == TVIDEO_OPEN_SCCB)
-			bk_camera_init(&tvideo_st);
-		}
+			err = bk_camera_init(&tvideo_st);
+			if (err != kNoErr) {
+				goto tvideo_exit;
+			}
+
+			tvideo_open = true;
 	}
 
 	if (tvideo_pool.start_cb != NULL)
 		tvideo_pool.start_cb();
 
-#if (CONFIG_SYSTEM_CTRL)
+#if (JPEG_EOF_CHECK)
 	bk_timer_start(TVIDEO_TIMER_CHANNEL, TVIDEO_TIMER_VALUE, tvideo_timer_check_callback);
 #endif
 
@@ -444,14 +393,16 @@ static void video_transfer_main(beken_thread_arg_t data)
 		video_msg_t msg;
 		err = rtos_pop_from_queue(&tvideo_msg_que, &msg, BEKEN_WAIT_FOREVER);
 		if (kNoErr == err) {
-			switch (msg.data) {
+			switch (msg.type) {
 			case VIDEO_CPU0_SEND:
 				tvideo_poll_handler();
 				break;
 
+#if (JPEG_EOF_CHECK)
 			case VIDEO_CPU0_EOF_CHECK:
 				tvideo_jpeg_eof_check_handler();
 				break;
+#endif
 
 			case VIDEO_CPU0_EXIT:
 				goto tvideo_exit;
@@ -469,10 +420,19 @@ static void video_transfer_main(beken_thread_arg_t data)
 tvideo_exit:
 	TVIDEO_PRT("video_transfer_main exit\r\n");
 
-#if (CONFIG_SYSTEM_CTRL)
+#if (JPEG_EOF_CHECK)
 	bk_timer_stop(TVIDEO_TIMER_CHANNEL);
-#endif
 	g_frame_total_num = 0;
+#endif
+
+	if (g_dma_id != DMA_ID_MAX)
+	{
+		bk_dma_stop(g_dma_id);
+
+		bk_dma_deinit(g_dma_id);
+
+		bk_dma_free(DMA_DEV_DTCM, g_dma_id);
+	}
 
 	if (tvideo_pool.pool) {
 		os_free(tvideo_pool.pool);
@@ -484,12 +444,9 @@ tvideo_exit:
 		spidma_intfer_deinit();
 #endif
 	} else {//if(tvideo_pool.open_type == TVIDEO_OPEN_SCCB)
-		bk_camera_deinit();
+		if (tvideo_open)
+			bk_camera_deinit();
 	}
-
-	//if (tvideo_image_save_enable)
-	f_close_write_to_sdcard();
-	g_frame_id = 1;
 
 	if (tvideo_st.rxbuf) {
 		os_free(tvideo_st.rxbuf);
@@ -544,55 +501,11 @@ bk_err_t bk_video_transfer_init(video_setup_t *setup_cfg)
 		return kInProgressErr;
 }
 
-
-void bk_video_transfer_log_enable(uint8_t enable)
-{
-	tvideo_log_enable = enable;
-}
-
-void bk_video_transfer_image_save_enable(uint8_t enable)
-{
-	tvideo_image_save_enable = enable;
-}
-
-void bk_video_transfer_pkt_calc_enable(uint8_t enable)
-{
-	tvideo_pkt_calc_enable = enable;
-	if (tvideo_pkt_calc_enable) {
-		os_printf("frame_count = %d\r\n", g_frame_total_num);
-		os_printf("frame_lost_count = %d\r\n", g_frame_lost_num);
-		os_printf("total = %d\r\n", g_pkt_total);
-		os_printf("lost = %d\r\n", g_pkt_lost);
-		os_printf("push = %d\r\n", g_pkt_push);
-		os_printf("send = %d\r\n", g_pkt_send);
-		os_printf("sendfail = %d\r\n", g_pkt_send_fail);
-	}
-}
-
-void bk_video_transfer_pkt_reset_enable(uint8_t enable)
-{
-	tvideo_pkt_reset_enable = enable;
-
-	if (tvideo_pkt_reset_enable) {
-		g_pkt_total = 0;
-		g_pkt_lost = 0;
-		g_pkt_push = 0;
-		g_pkt_send = 0;
-		g_pkt_send_fail =0;
-
-		os_printf("total = %d\r\n", g_pkt_total);
-		os_printf("lost = %d\r\n", g_pkt_lost);
-		os_printf("push = %d\r\n", g_pkt_push);
-		os_printf("send = %d\r\n", g_pkt_send);
-		os_printf("sendfail = %d\r\n", g_pkt_send_fail);
-	}
-}
-
 bk_err_t bk_video_transfer_deinit(void)
 {
 	TVIDEO_PRT("video_transfer_deinit\r\n");
 
-	bk_video_send_msg(VIDEO_CPU0_EXIT);
+	tvideo_send_msg(VIDEO_CPU0_EXIT, 0);
 
 	while (tvideo_thread_hdl)
 		rtos_delay_milliseconds(10);

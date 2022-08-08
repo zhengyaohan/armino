@@ -274,6 +274,7 @@ struct wlan_fast_connect_info
 	uint8_t ip_addr[4];
 	uint8_t netmask[4];
 	uint8_t gw[4];
+	uint8_t dns1[4];
 };
 
 typedef struct vif_addcfg_st {

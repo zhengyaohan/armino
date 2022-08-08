@@ -8,6 +8,7 @@ if (NOT CONFIG_SLAVE_CORE)
 		comm/comm_act.c
 		comm/frame_buffer.c
 		app/media_app.c
+		utils/mlist.c
 	)
 
 if (CONFIG_CAMERA)
@@ -43,6 +44,12 @@ if (CONFIG_USB_UVC)
 	list(APPEND srcs
 		camera/uvc_act.c
 		camera/uvc.c
+	)
+endif()
+
+if (CONFIG_DUAL_CORE)
+	list(APPEND srcs
+		mb/mailbox_act.c
 	)
 endif()
 
@@ -52,6 +59,7 @@ else()
 		cli/media_cli.c
 		comm/comm_act.c
 		comm/frame_buffer.c
+		utils/mlist.c
 	)
 
 
@@ -88,6 +96,12 @@ if (CONFIG_USB_UVC)
 	list(APPEND srcs
 		camera/uvc_act.c
 		camera/uvc.c
+	)
+endif()
+
+if (CONFIG_DUAL_CORE)
+	list(APPEND srcs
+		mb/mailbox_act.c
 	)
 endif()
 
