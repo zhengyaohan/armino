@@ -27,7 +27,7 @@ void osi_free(void *ptr);
 
 const allocator_t allocator_malloc = {osi_malloc, osi_free};
 
-static mlist_node_t *mlist_free_node_(mlist_t *mlist, mlist_node_t *node);
+static mlist_node_t *mlist_free_node(mlist_t *mlist, mlist_node_t *node);
 
 // Hidden constructor, only to be used by the hash map for the allocation
 // tracker.
@@ -197,7 +197,7 @@ bool mlist_remove(mlist_t *mlist, void *data)
 
 	if (mlist->head->data == data)
 	{
-		mlist_node_t *next = mlist_free_node_(mlist, mlist->head);
+		mlist_node_t *next = mlist_free_node(mlist, mlist->head);
 		if (mlist->tail == mlist->head)
 		{
 			mlist->tail = next;
@@ -210,7 +210,7 @@ bool mlist_remove(mlist_t *mlist, void *data)
 	     prev = node, node = node->next)
 		if (node->data == data)
 		{
-			prev->next = mlist_free_node_(mlist, node);
+			prev->next = mlist_free_node(mlist, node);
 			if (mlist->tail == node)
 			{
 				mlist->tail = prev;
@@ -226,7 +226,7 @@ void mlist_clear(mlist_t *mlist)
 	BK_ASSERT(mlist != NULL);
 	for (mlist_node_t *node = mlist->head; node;)
 	{
-		node = mlist_free_node_(mlist, node);
+		node = mlist_free_node(mlist, node);
 	}
 	mlist->head = NULL;
 	mlist->tail = NULL;
@@ -248,6 +248,49 @@ mlist_node_t *mlist_foreach(const mlist_t *mlist, mlist_iter_cb callback,
 		}
 		node = next;
 	}
+	return NULL;
+}
+
+
+void *mlist_foreach_pop(mlist_t *mlist, mlist_iter_cb callback,
+                        void *context)
+{
+	BK_ASSERT(mlist != NULL);
+	BK_ASSERT(callback != NULL);
+	void *data = NULL;
+
+	if (mlist_is_empty(mlist))
+	{
+		return false;
+	}
+
+	if (callback(mlist->head->data, context))
+	{
+		data = mlist->head->data;
+
+		mlist_node_t *next = mlist_free_node(mlist, mlist->head);
+		if (mlist->tail == mlist->head)
+		{
+			mlist->tail = next;
+		}
+		mlist->head = next;
+
+		return data;
+	}
+
+	for (mlist_node_t *prev = mlist->head, *node = mlist->head->next; node;
+	     prev = node, node = node->next)
+		if (callback(node->data, context))
+		{
+			data = node->data;
+			prev->next = mlist_free_node(mlist, node);
+			if (mlist->tail == node)
+			{
+				mlist->tail = prev;
+			}
+			return data;
+		}
+
 	return NULL;
 }
 
@@ -275,7 +318,7 @@ void *mlist_node(const mlist_node_t *node)
 	return node->data;
 }
 
-static mlist_node_t *mlist_free_node_(mlist_t *mlist, mlist_node_t *node)
+static mlist_node_t *mlist_free_node(mlist_t *mlist, mlist_node_t *node)
 {
 	BK_ASSERT(mlist != NULL);
 	BK_ASSERT(node != NULL);

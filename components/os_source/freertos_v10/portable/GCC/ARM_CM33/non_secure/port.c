@@ -1195,3 +1195,61 @@ BaseType_t xPortIsInsideInterrupt( void )
     return xReturn;
 }
 /*-----------------------------------------------------------*/
+
+void vApplicationIdleHook( void )
+{
+#if (CONFIG_TASK_WDT)
+	extern void bk_task_wdt_feed(void);
+	bk_task_wdt_feed();
+#endif
+}
+
+uint32_t platform_is_in_interrupt_context(void)
+{
+    //TODO
+    return 0;
+}
+
+uint32_t platform_cpsr_content( void )
+{
+    //TODO
+    return 0;
+}
+
+int port_disable_interrupts_flag(void)
+{
+    //TODO
+    return 0;
+}
+
+/*
+ * Enable Interrupts
+ */
+void port_enable_interrupts_flag(int val)
+{
+    //TODO
+}
+
+/*
+ * Disable mie Interrupts
+ */
+uint32_t port_disable_mie_flag(void)
+{
+    //TODO
+    return 0;
+}
+
+/*
+ * Enable mie Interrupts
+ */
+void port_enable_mie_flag(uint32_t val)
+{
+    //TODO
+}
+
+void port_check_isr_stack(void)
+{
+    //TODO
+}
+
+

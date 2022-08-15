@@ -23,6 +23,10 @@ menu "Driver"
 		config TASK_WDT_PERIOD_MS
 			int "Interrupt Watchdog Period(ms)"
 			default 60000
+
+		config NMI_WDT_EN
+			bool "Enable NMI Watchdog"
+			default n
 	endmenu
 
 	menu "UART"

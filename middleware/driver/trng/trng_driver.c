@@ -19,6 +19,7 @@
 #include <driver/trng.h>
 #include "trng_driver.h"
 #include "trng_hal.h"
+#include "sys_driver.h"
 
 typedef struct {
 	trng_hal_t hal;
@@ -50,7 +51,19 @@ static void trng_deinit_common(void)
 
 static uint32_t trng_get_random_number(void)
 {
-	return trng_hal_get_random_number(&s_trng.hal);
+	uint32_t number = 0;
+
+#if (CONFIG_SOC_BK7256XX)
+	sys_drv_trng_disckg_set(1);
+	extern void delay_us(UINT32 us);
+	delay_us(1);    //wait disckg take effect
+#endif
+	number = trng_hal_get_random_number(&s_trng.hal);
+#if (CONFIG_SOC_BK7256XX)
+	sys_drv_trng_disckg_set(0);
+#endif
+
+	return number;
 }
 
 bk_err_t bk_trng_driver_init(void)

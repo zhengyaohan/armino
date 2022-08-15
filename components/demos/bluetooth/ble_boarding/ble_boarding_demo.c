@@ -557,7 +557,7 @@ static int ble_boarding_ethermind_handle(char *pcWriteBuffer, int xWriteBufferLe
     GATT_DB_UUID_TYPE    desc_uuid;
     ATT_VALUE            desc_value;
 
-    UCHAR cccd_value[2U]    = { 0x00U, 0x00U };
+    uint8_t cccd_value[2U]    = { 0x00U, 0x00U };
 
     desc_uuid.uuid_format  = ATT_16_BIT_UUID_FORMAT;
     desc_uuid.uuid.uuid_16 = GATT_CLIENT_CONFIG;

@@ -6,7 +6,7 @@
 #include <driver/timer.h>
 #include <components/video_transfer.h>
 #include <components/dvp_camera.h>
-#include "video_transfer_cpu0.h"
+
 #if (CONFIG_SDCARD_HOST)
 #include "ff.h"
 #include "diskio.h"
@@ -388,30 +388,21 @@ error1:
 			os_printf("set camera ppi and fps error\n");
 			return;
 		}
-	}
+	} else if (os_strcmp(argv[1], "auto_encode") == 0) {
+		uint8_t auto_enable = 0;
+		uint32_t up_size = 0, low_size = 0;
 
-#if (CONFIG_DUAL_CORE && CONFIG_PSRAM)
-	else if (os_strcmp(argv[1], "video_transfer") == 0) {
-		uint32_t dev = 0;
-		uint32_t frame_rate = 0;
-		uint32_t resolution = 0;
-
-		if (argc != 6) {
-			os_printf("input param error\n");
-			return;
+		auto_enable = os_strtoul(argv[2], NULL, 10) & 0xF;
+		if (auto_enable)
+		{
+			up_size = os_strtoul(argv[3], NULL, 10) * 1024;
+			low_size = os_strtoul(argv[4], NULL, 10) * 1024;
 		}
 
-		dev = os_strtoul(argv[2], NULL, 10);
-		resolution = (os_strtoul(argv[3], NULL, 10) << 16) | os_strtoul(argv[4], NULL, 10);
-		frame_rate = os_strtoul(argv[5], NULL, 10);
+		bk_camera_set_config(auto_enable, up_size, low_size);
+		os_printf("set OK!\r\n");
 
-		video_transfer_set_camera_config(resolution, frame_rate, dev);
-	} else if (os_strcmp(argv[1], "cpu0_save_image") == 0) {
-		uint8_t enable = os_strtoul(argv[2], NULL, 10);
-		video_transfer_cpu0_set_save_image_enable(enable);
-	}
-#endif
-	else {
+	} else {
 		dvp_help();
 	}
 }

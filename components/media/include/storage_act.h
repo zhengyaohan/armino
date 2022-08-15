@@ -40,6 +40,7 @@ typedef struct
 storage_state_t get_storage_state(void);
 void set_storage_state(storage_state_t state);
 void storage_init(void);
+void storage_frame_buffer_dump(frame_buffer_t *frame, char *name);
 
 
 void storage_capture_frame_notify(frame_buffer_t *frame);

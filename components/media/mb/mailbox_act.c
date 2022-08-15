@@ -18,6 +18,7 @@
 #include "media_core.h"
 #include "media_evt.h"
 #include "mailbox_act.h"
+#include "lcd_act.h"
 
 #include <driver/int.h>
 #include <os/mem.h>
@@ -34,6 +35,7 @@
 #define TAG "mb_minor"
 #endif
 
+#include <driver/media_types.h>
 
 #define LOGI(...) BK_LOGI(TAG, ##__VA_ARGS__)
 #define LOGW(...) BK_LOGW(TAG, ##__VA_ARGS__)
@@ -42,6 +44,15 @@
 
 
 
+
+
+
+
+
+
+
+
+#if CONFIG_SLAVE_CORE
 void mailbox_cmd_handle(uint32_t event, uint32_t param)
 {
 	switch (event)
@@ -51,13 +62,17 @@ void mailbox_cmd_handle(uint32_t event, uint32_t param)
 			media_msg_t msg;
 			msg.event = EVENT_LCD_DEFAULT_EVT;
 			msg.param = param;
-
 			media_send_msg(&msg);
 
+		case EVENT_LCD_ROTATE_RIGHT_CMD:
+			//LOGI("EVENT_LCD_ROTATE_RIGHT_CMD \n");
+			lcd_act_rotate_degree90(param);
 			break;
 	}
 }
+#endif
 
+#if CONFIG_MASTER_CORE
 void mailbox_evt_handle(uint32_t event, uint32_t param)
 {
 	switch (event)
@@ -73,6 +88,14 @@ void mailbox_evt_handle(uint32_t event, uint32_t param)
 			MEDIA_EVT_RETURN(param_pak, 0);
 
 			break;
+
+#ifdef CONFIG_LCD
+		case EVENT_LCD_ROTATE_RIGHT_COMP_EVT:
+			//LOGI("EVENT_LCD_ROTATE_RIGHT_COMP_EVT\n");
+			lcd_act_rotate_complete((frame_buffer_t *)param);
+			break;
+#endif
+
 	}
 }
-
+#endif

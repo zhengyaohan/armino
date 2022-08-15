@@ -338,3 +338,24 @@ uint32_t sys_drv_i2s_disckg_set(uint32_t value)
 	return SYS_DRV_SUCCESS;
 }
 
+void sys_drv_nmi_wdt_set_clk_div(uint32_t value)
+{
+	uint32_t int_level = rtos_disable_int();
+
+	sys_hal_nmi_wdt_set_clk_div(value);
+
+	rtos_enable_int(int_level);
+}
+
+uint32_t sys_drv_nmi_wdt_get_clk_div(void)
+{
+	return sys_hal_nmi_wdt_get_clk_div();
+}
+
+void sys_drv_trng_disckg_set(uint32_t value)
+{
+	uint32_t int_level = rtos_disable_int();
+
+	sys_hal_trng_disckg_set(value);
+	rtos_enable_int(int_level);
+}

@@ -78,3 +78,7 @@ menu "NON_OS"
 		bool "non_os"
 		default n
 endmenu
+
+config CUSTOMIZE_HEAP_SIZE
+	int "Customize heap size, default 160k"
+	default 163840

@@ -31,10 +31,6 @@ void close_wdt(void)
 //volatile int g_debug_mode=1;
 void reset_handler(void)
 {
-#if CONFIG_SAVE_BOOT_TIME_POINT
-	save_mtime_point(CPU_BOOT_TIME);
-#endif
-
     /// TODO: DEBUG VERSION close the wdt
 	close_wdt();
 

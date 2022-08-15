@@ -152,6 +152,7 @@ bk_err_t bk_jpeg_enc_dvp_deinit(void);
  * This API will set jpegenc work enable/disable.
  *
  * @param enable: 0/1:jpegenc work disable/enable
+ * @param mode: 0/1:jpeg encode mode/yuv mode
  *
  * @attention 1: if work in jpegenc mode, this api can enable/disable jpegenc mode
  * @attention 2: if work in yuv mode, this api only can disable yuv_mode. The bk_jpeg_set_yuv_mode api also can set yuv mode enable/disable.
@@ -160,7 +161,7 @@ bk_err_t bk_jpeg_enc_dvp_deinit(void);
  *    - BK_OK: succeed
  *    - others: other errors.
  */
-bk_err_t bk_jpeg_enc_set_enable(uint8_t enable);
+bk_err_t bk_jpeg_enc_set_enable(uint8_t enable, uint8_t mode);
 
 /**
  * @brief     yuv format select
@@ -322,9 +323,6 @@ bk_err_t bk_jpeg_enc_partial_display_init(const jpeg_partial_offset_config_t *of
  *    - others: other errors.
  */
 bk_err_t bk_jpeg_enc_partial_display_deinit(const jpeg_partial_offset_config_t *offset_config);
-/**
- * @}
- */
 
 /**
  * @brief     jpeg em base set
@@ -337,6 +335,37 @@ bk_err_t bk_jpeg_enc_partial_display_deinit(const jpeg_partial_offset_config_t *
  *    - others: other errors.
  */
 bk_err_t bk_jpeg_set_em_base_addr(uint8_t *address);
+
+/**
+ * @brief     jpeg encode enable encode auto contrl
+ *
+ * This API will use for enable/disable for auto encode size. only valid in jpeh encode mode
+ *
+ * @param enable: 0/1:disable/enable
+ *
+ * @attenation: this api only called in jpeg_eof_isr function
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_jpeg_enc_enable_encode_auto_ctrl(uint8_t enable);
+
+/**
+ * @brief     jpeg encode enable encode auto contrl
+ *
+ * This API will use for enable/disable for auto encode size. only valid in jpeh encode mode
+ *
+ * @param up_size: the jpeg image upper limit, unit byte
+ * @param low_size: the jpeg image lower limit, unit byte
+ *
+ * @attenation: this api only called in jpeg_eof_isr function, and only bk_jpeg_enc_enable_encode_auto_ctrl have been set enable
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - others: other errors.
+ */
+bk_err_t bk_jpeg_enc_set_target_size(uint32_t up_size, uint32_t low_size);
 
 
 #ifdef __cplusplus

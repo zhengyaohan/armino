@@ -17,9 +17,16 @@
 #include <components/video_transfer.h>
 #include <driver/dma.h>
 #include <modules/audio_ring_buff.h>
+#if CONFIG_AUD_INTF_VER_OLD
 #include <components/audio_transfer.h>
 #include <components/audio_transfer_types.h>
-#include "video_transfer_cpu0.h"
+#endif
+
+#if CONFIG_AUD_INTF_VER_NEW
+#include <components/aud_intf.h>
+#include <components/aud_intf_types.h>
+#endif
+
 
 #include "media_app.h"
 
@@ -54,12 +61,18 @@ struct sockaddr_in *demo_doorbell_voice_udp_remote = NULL;
 int demo_doorbell_udp_voice_fd = -1;
 
 #if AUDIO_TRANSFER_ENABLE
-uint16_t write_aud_data_err_count = 0;
-audio_tras_setup_t aud_tras_setup;
+#if CONFIG_AUD_INTF_VER_OLD
+static audio_tras_setup_t aud_tras_setup;
+#endif
+#if CONFIG_AUD_INTF_VER_NEW
+static aud_intf_drv_setup_t aud_intf_drv_setup;
+static aud_intf_work_mode_t aud_work_mode = AUD_INTF_WORK_MODE_NULL;
+static aud_intf_voc_setup_t aud_voc_setup;
+#endif
 #endif
 
 
-
+static uint8_t camera_type = 0;
 
 extern void delay(int num);
 
@@ -138,19 +151,42 @@ static void demo_doorbell_udp_handle_cmd_data(UINT8 *data, UINT16 len)
 	{
 #if AUDIO_TRANSFER_ENABLE
 		case AUDIO_CLOSE:
-			//audio_apk_status = false;
-			/* send masg to media task */
-			//TODO
+#if CONFIG_AUD_INTF_VER_OLD
 			audio_tras_deinit();
+#endif
+#if CONFIG_AUD_INTF_VER_NEW
+			bk_aud_intf_voc_deinit();
+			aud_work_mode = AUD_INTF_WORK_MODE_NULL;
+			bk_aud_intf_set_mode(aud_work_mode);
+			bk_aud_intf_drv_deinit();
+#endif
 			break;
-	
+
 		case AUDIO_OPEN:
+#if CONFIG_AUD_INTF_VER_OLD
 			//aud_tras_setup.mode = AUD_TRAS_DRV_MODE_CPU0;
 			aud_tras_setup.aec_enable = true;
 			aud_tras_setup.audio_send_mic_data = demo_doorbell_udp_voice_send_packet;
 			audio_tras_init(aud_tras_setup);
-			break;
 #endif
+#if CONFIG_AUD_INTF_VER_NEW
+			aud_intf_drv_setup.work_mode = AUD_INTF_WORK_MODE_NULL;
+			aud_intf_drv_setup.task_config.priority = 3;
+			aud_intf_drv_setup.aud_intf_rx_spk_data = NULL;
+			aud_intf_drv_setup.aud_intf_tx_mic_data = demo_doorbell_udp_voice_send_packet;
+			bk_aud_intf_drv_init(&aud_intf_drv_setup);
+			aud_work_mode = AUD_INTF_WORK_MODE_VOICE;
+			bk_aud_intf_set_mode(aud_work_mode);
+			aud_voc_setup.aec_enable = true;
+			aud_voc_setup.samp_rate = AUD_INTF_VOC_SAMP_RATE_8K;
+			aud_voc_setup.data_type = AUD_INTF_VOC_DATA_TYPE_G711A;
+			//aud_voc_setup.data_type = AUD_INTF_VOC_DATA_TYPE_PCM;
+			aud_voc_setup.mic_gain = 0x2d;
+			aud_voc_setup.spk_gain = 0x2d;
+			bk_aud_intf_voc_init(aud_voc_setup);
+#endif
+			break;
+#endif	//AUDIO_TRANSFER_ENABLE
 
 		case DISPLAY_CLOSE:
 			break;
@@ -212,10 +248,11 @@ static void demo_doorbell_udp_receiver(UINT8 *data, UINT32 len, struct sockaddr_
 				setup.pkt_header_size = sizeof(media_hdr_t);
 				setup.add_pkt_header = demo_doorbell_add_pkt_header;
 
-
-				media_app_camera_open(APP_CAMERA_DVP, PPI_DEFAULT);
+				if (!camera_type)
+					media_app_camera_open(APP_CAMERA_DVP, PPI_DEFAULT);
+				else
+					media_app_camera_open(APP_CAMERA_UVC, PPI_DEFAULT);
 				media_app_transfer_video_open(&setup);
-
 			}
 			break;
 
@@ -226,10 +263,14 @@ static void demo_doorbell_udp_receiver(UINT8 *data, UINT32 len, struct sockaddr_
 				GLOBAL_INT_RESTORE();
 
 				media_app_transfer_video_close();
-				media_app_camera_close(APP_CAMERA_DVP);
+				if (!camera_type)
+					media_app_camera_close(APP_CAMERA_DVP);
+				else
+					media_app_camera_close(APP_CAMERA_UVC);
 			}
 			break;
 
+#if 0
 			case DOORBELL_UVC_START:
 			{
 				UINT8 *src_ipaddr = (UINT8 *)&demo_doorbell_remote->sin_addr.s_addr;
@@ -267,6 +308,7 @@ static void demo_doorbell_udp_receiver(UINT8 *data, UINT32 len, struct sockaddr_
 				media_app_camera_close(APP_CAMERA_UVC);
 			}
 			break;
+#endif
 		}
 
 
@@ -287,16 +329,15 @@ static void demo_doorbell_udp_voice_receiver(UINT8 *data, UINT32 len, struct soc
 	}
 
 	//DBD("len: %d \r\n", len);
-
+#if CONFIG_AUD_INTF_VER_OLD
 	ret = audio_tras_write_spk_data(data, len);
+#endif
+#if CONFIG_AUD_INTF_VER_NEW
+	ret = bk_aud_intf_write_spk_data(data, len);
+#endif
 	if (ret != BK_OK)
 	{
-		write_aud_data_err_count++;
-		if (write_aud_data_err_count == 50)
-		{
-			DBD("write audio data fial 50 times \r\n", len);
-			write_aud_data_err_count = 0;
-		}
+		DBD("write speaker data fial \r\n", len);
 	}
 #endif  //AUDIO_TRANSFER_ENABLE
 
@@ -494,16 +535,23 @@ static void demo_doorbell_udp_main(beken_thread_arg_t data)
 app_udp_exit:
 
 	DBE("demo_doorbell_udp_main exit %d\r\n", demo_doorbell_udp_run);
+	media_app_transfer_video_close();
 
-#if (CONFIG_SPIDMA || CONFIG_CAMERA)
-	bk_video_transfer_deinit();
-#endif
+	media_app_camera_close(APP_CAMERA_DVP);
+
+	media_app_camera_close(APP_CAMERA_UVC);
 
 #if AUDIO_TRANSFER_ENABLE
 	/* deinit audio transfer driver */
 
-	//cp0_audio_transfer_deinit();
+#if CONFIG_AUD_INTF_VER_OLD
 	audio_tras_deinit();
+#endif
+
+#if CONFIG_AUD_INTF_VER_NEW
+	bk_aud_intf_drv_deinit();
+#endif
+
 #endif
 
 	if (rcv_buf)
@@ -542,6 +590,8 @@ app_udp_exit:
 		close(udp_cmd_fd);
 		udp_cmd_fd = -1;
 	}
+
+	camera_type = 0;
 
 	GLOBAL_INT_DISABLE();
 	demo_doorbell_udp_romote_connected = 0;
@@ -600,6 +650,7 @@ void demo_doorbell_udp_deinit(void)
 
 void cli_doorbell_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
+	camera_type = os_strtoul(argv[2], NULL, 10) & 0xF;
 	demo_doorbell_udp_init();
 }
 

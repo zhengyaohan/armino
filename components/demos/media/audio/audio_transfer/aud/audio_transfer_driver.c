@@ -35,7 +35,9 @@
 #if CONFIG_AUD_TRAS_LOST_COUNT_DEBUG
 #include <driver/timer.h>
 #endif
-
+#if CONFIG_DOORBELL_DEMO1
+#include <driver/gpio.h>
+#endif
 
 #define  AUD_DEBUG  0
 
@@ -61,6 +63,11 @@
 static beken_thread_t  aud_trs_drv_thread_hdl = NULL;
 static beken_queue_t aud_trs_drv_int_msg_que = NULL;
 audio_transfer_context_t audio_transfer_context;
+
+#if CONFIG_DOORBELL_DEMO1
+static bool aud_pa_en = false;
+extern int delay_ms(INT32 ms_count);
+#endif
 
 #if CONFIG_AUD_TRAS_MODE_CPU1
 #define AUD_TRS_MAILBOX_CHECK_CONTROL    0
@@ -661,6 +668,19 @@ static bk_err_t audio_transfer_decoder_process(void)
 	uint32_t size = 0;
 	uint32_t i = 0;
 
+#if CONFIG_DOORBELL_DEMO1
+	if (aud_pa_en == false) {
+		bk_gpio_disable_input(39);
+		bk_gpio_enable_output(39);
+		// pull up gpio39, enable audio pa vol
+		bk_gpio_set_output_low(39);
+		delay_ms(15);
+		bk_gpio_set_output_high(39);
+		aud_pa_en = true;
+		os_printf("[yikang] open audio dac pa \r\n");
+	}
+#endif
+
 	/* check the frame number in decoder_ring_buffer */
 	if (ring_buffer_get_fill_size(audio_transfer_context.rx_context.decoder_rb) >= audio_transfer_context.speaker_samp_rate_points) {
 		//os_printf("decoder process \r\n", size);
@@ -976,6 +996,10 @@ static void audio_transfer_deinit_config(void)
 	audio_transfer_context.adc_config = NULL;
 	os_free(audio_transfer_context.dac_config);
 	audio_transfer_context.dac_config = NULL;
+
+#if CONFIG_DOORBELL_DEMO1
+	aud_pa_en = false;
+#endif
 
 	/* stop dma */
 	bk_dma_stop(audio_transfer_context.adc_dma_id);

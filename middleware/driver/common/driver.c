@@ -129,8 +129,10 @@ void power_clk_rf_init()
    /*cpu0:120m ,matrix:120m*/
    //sys_drv_core_bus_clock_ctrl(HIGH_FREQUECY_CLOCK_MODULE_CPU0, 3,0, HIGH_FREQUECY_CLOCK_MODULE_CPU0_MATRIX,0,0);
    /*cpu0:240m ,matrix:120m*/
-	sys_drv_core_bus_clock_ctrl(HIGH_FREQUECY_CLOCK_MODULE_CPU0, 0,0, HIGH_FREQUECY_CLOCK_MODULE_CPU0_MATRIX,0,0);
-
+	//sys_drv_core_bus_clock_ctrl(HIGH_FREQUECY_CLOCK_MODULE_CPU0, 0,0, HIGH_FREQUECY_CLOCK_MODULE_CPU0_MATRIX,0,0);
+	#if !CONFIG_SLAVE_CORE
+	bk_pm_module_vote_cpu_freq(PM_DEV_ID_DEFAULT,PM_CPU_FRQ_240M);
+	#endif
    /*5.config the analog*/
    //sys_drv_analog_set(ANALOG_REG0, param);
    //sys_drv_analog_set(ANALOG_REG0, param);
@@ -250,7 +252,7 @@ int driver_init(void)
 #endif
 
 	//Important notice!
-	//Before UART is initialized, any call of bk_printf/os_print/BK_LOGx may
+	//Before UART is initialized, any call of BK_LOG_RAW/os_print/BK_LOGx may
 	//cause problems, such as crash etc!
 	bk_uart_driver_init();
 

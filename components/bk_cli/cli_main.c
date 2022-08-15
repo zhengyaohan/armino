@@ -241,7 +241,7 @@ int handle_shell_input(char *inbuf, int in_buf_size, char * outbuf, int out_buf_
 					strcpy(&outbuf[0], "syntax error\r\n");
                 return 2;
             }
-            if(stat.inArg) {
+            if(!stat.inQuote && stat.inArg) {
                 stat.inArg = 0;
                 inbuf[i] = '\0';
                 stat.limQ = 1;
@@ -475,7 +475,7 @@ static int handle_input(char *inbuf)
                 os_printf("The data does not conform to the regulations %d\r\n",__LINE__);
                 return 2;
             }
-            if(stat.inArg) {
+            if(!stat.inQuote && stat.inArg) {
                 stat.inArg = 0;
                 inbuf[i] = '\0';
                 stat.limQ = 1;
@@ -1403,6 +1403,10 @@ int bk_cli_init(void)
 
 #if (CLI_CFG_AUD == 1)
 	cli_aud_init();
+#endif
+
+#if (CLI_CFG_AUD_INTF == 1)
+	cli_aud_intf_init();
 #endif
 
 #if (CLI_CFG_AUD_CP0 == 1)

@@ -37,7 +37,7 @@ static beken_queue_t media_minor_msg_queue = NULL;
 
 static void media_minor_mailbox_rx_isr(void *param, mb_chnl_cmd_t *cmd_buf)
 {
-	LOGI("%s, %08X\n", __func__, cmd_buf->param1);
+	LOGD("%s, %08X\n", __func__, cmd_buf->param1);
 	bk_err_t ret;
 
 	switch (cmd_buf->param1 >> MEDIA_EVT_BIT)
@@ -70,13 +70,13 @@ static void media_minor_mailbox_rx_isr(void *param, mb_chnl_cmd_t *cmd_buf)
 
 static void media_minor_mailbox_tx_isr(void *param)
 {
-	LOGI("%s\n", __func__);
+	LOGD("%s\n", __func__);
 
 }
 
 static void media_minor_mailbox_tx_cmpl_isr(void *param, mb_chnl_ack_t *ack_buf)
 {
-	LOGI("%s\n", __func__);
+	LOGD("%s\n", __func__);
 
 }
 

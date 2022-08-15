@@ -27,6 +27,7 @@
 #include "sys_driver.h"
 #include <driver/timer.h>
 #include "bk_wdt.h"
+#include "aon_pmu_driver.h"
 
 typedef struct {
 	wdt_hal_t hal;
@@ -60,7 +61,8 @@ typedef struct {
 	} while(0)
 
 
-#define WDT_BARK_TIME_MS    200
+#define WDT_BARK_TIME_MS    2000
+#define NMI_WDT_CLK_DIV_16  3
 
 static wdt_driver_t s_wdt = {0};
 static bool s_wdt_driver_is_init = false;
@@ -79,7 +81,7 @@ static uint32_t s_feed_watchdog_time = INT_WDG_FEED_PERIOD_TICK;
 
 static void wdt_init_common(void)
 {
-#if (CONFIG_SYSTEM_CTRL)
+#if (CONFIG_SOC_BK7256XX)
 	sys_drv_dev_clk_pwr_up(CLK_PWR_ID_WDG_CPU, CLK_PWR_CTRL_PWR_UP);
 #else
 	power_up_wdt();
@@ -90,7 +92,7 @@ static void wdt_deinit_common(void)
 {
 	s_wdt_period = CONFIG_INT_WDT_PERIOD_MS;
 	wdt_hal_reset_config_to_default(&s_wdt.hal);
-#if (CONFIG_SYSTEM_CTRL)
+#if (CONFIG_SOC_BK7256XX)
 	extern void close_wdt(void);
 	close_wdt();
 	sys_drv_dev_clk_pwr_up(CLK_PWR_ID_WDG_CPU, CLK_PWR_CTRL_PWR_DOWN);
@@ -98,10 +100,6 @@ static void wdt_deinit_common(void)
 	power_down_wdt();
 #endif
 }
-
-//addSYSTEM_Reg0xa
-#define addSYSTEM_Reg0xa                                        *((volatile unsigned long *) (0x44010000+0xa*4))
-#define set_SYSTEM_Reg0xa_ckdiv_wdt(val)                        addSYSTEM_Reg0xa = ((addSYSTEM_Reg0xa & (~0xc)) | ((val) << 2))
 
 bk_err_t bk_wdt_driver_init(void)
 {
@@ -111,11 +109,11 @@ bk_err_t bk_wdt_driver_init(void)
 
 	os_memset(&s_wdt, 0, sizeof(s_wdt));
 	wdt_hal_init(&s_wdt.hal);
-#if (CONFIG_SYSTEM_CTRL)
+#if ((CONFIG_SOC_BK7256XX) && (!CONFIG_SLAVE_CORE))
 	bk_timer_start(TIMER_ID2, WDT_BARK_TIME_MS, (timer_isr_t)bk_wdt_feed_handle);
+	sys_drv_nmi_wdt_set_clk_div(NMI_WDT_CLK_DIV_16);
+	aon_pmu_drv_wdt_rst_dev_enable();
 #endif
-	set_SYSTEM_Reg0xa_ckdiv_wdt(3);
-
 	s_wdt_driver_is_init = true;
 
 	return BK_OK;
@@ -127,7 +125,7 @@ bk_err_t bk_wdt_driver_deinit(void)
 		return BK_OK;
 	}
 	wdt_deinit_common();
-#if (CONFIG_SYSTEM_CTRL)
+#if ((CONFIG_SOC_BK7256XX) && (!CONFIG_SLAVE_CORE))
 	bk_timer_stop(TIMER_ID2);
 #endif
 	s_wdt_driver_is_init = false;
@@ -189,7 +187,7 @@ void bk_int_wdt_feed(void)
 	if ((current_tick - s_last_int_wdt_feed_tick) >= s_feed_watchdog_time) {
 		bk_wdt_feed();
 		s_last_int_wdt_feed_tick = current_tick;
-		// WDT_LOGD("feed interrupt watchdog\n");
+		//WDT_LOGD("feed interrupt watchdog, s_feed_watchdog_time = %u ms.\n", s_feed_watchdog_time);
 	}
 }
 

@@ -30,6 +30,12 @@ extern void trap_entry(void);
 #define BK_ASSERT_DUMP()
 #endif
 
+#if CONFIG_STDIO_PRINTF
+#define _OS_PRINTF printf
+#else
+#define _OS_PRINTF os_printf
+#endif
+
 #if CONFIG_SHELL_ASYNCLOG
 
 #define BK_DUMP_OUT(format, ... )           shell_assert_out(true, format, ##__VA_ARGS__)
@@ -37,7 +43,7 @@ extern void trap_entry(void);
 
 #else // #if CONFIG_SHELL_ASYNCLOG
 
-#define BK_DUMP_OUT                         os_printf
+#define BK_DUMP_OUT                         _OS_PRINTF
 #define BK_DUMP_RAW_OUT(buf, len)           uart_write_string(bk_get_printf_port(), buf)
 
 #endif // #if CONFIG_SHELL_ASYNCLOG

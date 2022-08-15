@@ -6,6 +6,7 @@
 #include <driver/spi.h>
 #include <driver/gpio.h>
 #include "bk_misc.h"
+#include <driver/gpio.h>
 
 #define LCD_SPI_ID        1
 #define LCD_SPI_CLK_GPIO  2
@@ -83,12 +84,12 @@ void lcd_set_spi_delay_time(uint32_t time)
 
 void lcd_init_gpio(void)
 {
-	BK_LOG_ON_ERR(bk_gpio_disable_input(34));
-	BK_LOG_ON_ERR(bk_gpio_enable_output(34));
-	// pull up gpio34, enable lcd backlight control
-	bk_gpio_set_output_low(34);
-	delay_ms(15);
-	bk_gpio_set_output_high(34);
+//	BK_LOG_ON_ERR(bk_gpio_disable_input(34));
+//	BK_LOG_ON_ERR(bk_gpio_enable_output(34));
+//	// pull up gpio34, enable lcd backlight control
+//	bk_gpio_set_output_low(34);
+//	delay_ms(15);
+//	bk_gpio_set_output_high(34);
 
 	BK_LOG_ON_ERR(bk_gpio_disable_input(37));
 	BK_LOG_ON_ERR(bk_gpio_enable_output(37));
@@ -104,16 +105,15 @@ void lcd_init_gpio(void)
 	delay_ms(15);
 	bk_gpio_set_output_low(8);
 
-	BK_LOG_ON_ERR(bk_gpio_disable_input(39));
-	BK_LOG_ON_ERR(bk_gpio_enable_output(39));
-	// pull up gpio39, enable audio pa vol
-	bk_gpio_set_output_low(39);
-	delay_ms(15);
-	bk_gpio_set_output_high(39);
+//	BK_LOG_ON_ERR(bk_gpio_disable_input(39));
+//	BK_LOG_ON_ERR(bk_gpio_enable_output(39));
+//	// pull up gpio39, enable audio pa vol
+//	bk_gpio_set_output_low(39);
+//	delay_ms(15);
+//	bk_gpio_set_output_high(39);
 
 	BK_LOG_ON_ERR(bk_gpio_disable_input(6));
 	BK_LOG_ON_ERR(bk_gpio_enable_output(6));
-	// pull down lcd rest(GPIO6) 10ms, for spi set
 	bk_gpio_set_output_low(6);
 	bk_gpio_set_output_high(6);
 	bk_gpio_set_output_low(6);

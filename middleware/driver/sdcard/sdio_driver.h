@@ -207,27 +207,39 @@ typedef enum {
 #define SDCARD_RX_FIFO_THRD      (0x01)
 
 #if (CONFIG_SOC_BK7256XX)	//Temp code, clock module should re-arch.
-//XTL 26M:divider 0:/1  1:/2  2:/4  3:/8  4:/16  5:/32  6:/64  7:/256
-#define	CLK_13M                  0
-#define	CLK_6_5M                 1
-#define	CLK_3_2_5M               2
-#define	CLK_1_6M	             3
-#define	CLK_800K	             4
-#define	CLK_400K	             5
-#define	CLK_100K	             7
+
+//320M:divider 0:/2  1:/4  2:/6  3:/8  4:/10  5:/12  6:/16  7:/256
+//The SDIO supports max clock is 80M, or data transfer is error
+#define CLK_80M					9	//(divider == 4,value == b[16-14]'001;clk_src == 320M,value == b[17]'1;together == b[17-14]'1001)
+//#define CLK_53M					10	//(divider == 6,value == b[16-14]'010;clk_src == 320M,value == b[17]'1;together == b[17-14]'1010)
+#define CLK_40M					11	//(divider == 8,value == b[16-14]'011;clk_src == 320M,value == b[17]'1;together == b[17-14]'1011)
+
+#define CLK_20M					14	//(divider == 16,value == b[16-14]'110;clk_src == 320M,value == b[17]'1;together == b[17-14]'1110)
+
+//XTL 26M:divider 0:/2  1:/4  2:/6  3:/8  4:/10  5:/12  6:/16  7:/256
+#define	CLK_13M                  0	//(divider == 2,value == b[16-14]'000;clk_src == 26M,value == b[17]'0;together == b[17-14]'0000)
+#define	CLK_6_5M                 1	//(divider == 4,value == b[16-14]'001;clk_src == 26M,value == b[17]'0;together == b[17-14]'0001)
+#define	CLK_100K	             7	//(divider == 256,value == b[16-14]'111;clk_src == 26M,value == b[17]'0;together == b[17-14]'0111)
 #define CLK_LOWEST				(CLK_100K)
 
 #define CMD_TIMEOUT_100K	2500
 #define DATA_TIMEOUT_100K	10000
 
-#define CMD_TIMEOUT_6_5_M	300000 //about 150ns per cycle (45ms)
-#define DATA_TIMEOUT_6_5_M  3000000 //450ms
+/* default 512*8=4096bits data needs 4096 clock cycles, almost multi-20 */
+#define CMD_TIMEOUT_6_5_M	8000
+#define DATA_TIMEOUT_6_5_M  80000
 
-#define CMD_TIMEOUT_13M		600000 //about 77ns pr cycle (45ms)
-#define DATA_TIMEOUT_13M	6000000 //450ms
+#define CMD_TIMEOUT_13M		8000
+#define DATA_TIMEOUT_13M	80000
 
-#define CMD_TIMEOUT_26M		1200000//about 38ns pr cycle (45ms)
-#define DATA_TIMEOUT_26M	12000000 //450ms
+#define CMD_TIMEOUT_20M		8000
+#define DATA_TIMEOUT_20M	80000
+
+#define CMD_TIMEOUT_40M		8000
+#define DATA_TIMEOUT_40M	80000
+
+#define CMD_TIMEOUT_80M		8000	//100us, read/write file 60000 times, the max wait is about 2.4ms(cmd retry max count==24)
+#define DATA_TIMEOUT_80M	80000
 
 #else
 #define	CLK_26M                  0

@@ -398,15 +398,6 @@ static void uvc_set_ppi_fps(uint32_t data)
 		status = kOptionErr;
 	}
 
-#ifdef UVC_DEMO_SUPPORT100
-	status = bk_uvc_set_parameter(U1_FRAME_640_480, FPS_30);
-	if (status != kNoErr)
-	{
-		os_printf("Set uvc param1 error!\r\n");
-		status = kOptionErr;
-	}
-#endif
-
 	if (status != kNoErr)
 	{
 		uvc_send_msg(UVC_EXIT, 0);
@@ -436,6 +427,8 @@ static bk_err_t uvc_camera_init(const uvc_camera_config_t *config)
 	uint32_t param;
 	void *parameter;
 	bk_err_t err = BK_OK;
+
+	uvc_camera_config->frame_set_ppi((uint32_t)(uvc_camera_config->device->width) << 16 | uvc_camera_config->device->height);
 
 	// step 1: init dma, fifo to sharemem
 	err = uvc_dma_config();
@@ -503,26 +496,11 @@ static bk_err_t uvc_camera_init(const uvc_camera_config_t *config)
 	bk_uvc_register_link(0);
 	param = uvc_process_ppi_fps(uvc_camera_config->device);
 
-	err = bk_uvc_set_parameter(UVC_FRAME_640_480, FPS_30);
-	if (err != BK_OK)
-	{
-		os_printf("uvc set fps and ppi error!\r\n");
-		//goto init_error;
-	}
-
 	err = bk_uvc_set_parameter((param >> 16), (param & 0xFFFF));
 	if (err != BK_OK)
 	{
 		UVC_LOGE("uvc set fps and ppi error!\r\n");
 	}
-
-#ifdef UVC_DEMO_SUPPORT100
-	bk_uvc_set_parameter((param >> 16), (param & 0xFFFF));
-	if (err != BK_OK)
-	{
-		UVC_LOGE("uvc set fps and ppi error!\r\n");
-	}
-#endif
 
 init_error:
 
@@ -544,7 +522,7 @@ static bk_err_t uvc_camera_deinit(void)
 
 		bk_dma_stop(uvc_camera_drv->psram_dma);
 		bk_dma_deinit(uvc_camera_drv->psram_dma);
-		bk_dma_free(DMA_DEV_USB, uvc_camera_drv->psram_dma);
+		bk_dma_free(DMA_DEV_DTCM, uvc_camera_drv->psram_dma);
 
 		if (uvc_camera_drv->buffer)
 		{
@@ -716,7 +694,7 @@ bk_err_t bk_uvc_camera_driver_init(const uvc_camera_config_t *config)
 		}
 
 		ret = rtos_create_thread(&uvc_thread_drv_handle,
-		                         4,
+		                         3,
 		                         "uvc_init",
 		                         (beken_thread_function_t)uvc_process_main,
 		                         4 * 1024,

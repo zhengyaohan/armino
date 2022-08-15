@@ -50,6 +50,8 @@
 
 #include "frame_buffer.h"
 
+#include "wlan_ui_pub.h"
+
 #define TAG "transfer"
 
 #define LOGI(...) BK_LOGI(TAG, ##__VA_ARGS__)
@@ -96,6 +98,7 @@ static beken_thread_t trs_task_thread = NULL;
 transfer_data_t *wifi_tranfer_data = NULL;
 
 uint8_t frame_id = 0;
+bool runing = false;
 
 
 frame_buffer_t *wifi_tranfer_frame = NULL;
@@ -106,7 +109,7 @@ video_setup_t vido_transfer_info = {0};
 uint32_t lost_size = 0;
 uint32_t complete_size = 0;
 
-
+extern void rwnxl_set_video_transfer_flag(uint32_t video_transfer_flag);
 
 int dvp_frame_send(uint8_t *data, uint32_t size, uint32_t retry_max, uint32_t ms_time)
 {
@@ -133,7 +136,7 @@ int dvp_frame_send(uint8_t *data, uint32_t size, uint32_t retry_max, uint32_t ms
 		lost_size += size;
 		rtos_delay_milliseconds(ms_time);
 	}
-	while (retry_max--);
+	while (retry_max-- && runing);
 
 
 	return ret == size ? kNoErr : kGeneralErr;
@@ -153,7 +156,7 @@ static void dvp_frame_handle(frame_buffer_t *buffer)
 	wifi_tranfer_data->eof = 0;
 	wifi_tranfer_data->cnt = 0;
 
-	for (i = 0; i < count; i++)
+	for (i = 0; i < count && runing; i++)
 	{
 		if ((tail == 0) && (i == count - 1))
 		{
@@ -233,7 +236,7 @@ static void trs_task_entry(beken_thread_arg_t data)
 			switch (msg.type)
 			{
 				case TRS_TRANSFER_DATA:
-					if (false == frame_buffer_get_state())
+					if (false == frame_buffer_get_state() && runing)
 					{
 						break;
 					}
@@ -271,7 +274,7 @@ int trs_task_start(video_setup_t *setup_cfg)
 
 	os_memcpy(&vido_transfer_info, setup_cfg, sizeof(video_setup_t));
 
-
+	runing = true;
 
 	if (wifi_tranfer_data == NULL)
 	{
@@ -311,6 +314,16 @@ int trs_task_start(video_setup_t *setup_cfg)
 
 error:
 
+	if (wifi_tranfer_frame)
+	{
+		media_msg_t msg;
+
+		msg.event = EVENT_COM_FRAME_WIFI_FREE_IND;
+		msg.param = (uint32_t)wifi_tranfer_frame;
+		media_send_msg(&msg);
+		wifi_tranfer_frame = NULL;
+	}
+
 	if (trs_task_queue)
 	{
 		rtos_deinit_queue(&trs_task_queue);
@@ -339,7 +352,7 @@ bk_err_t trs_task_send_msg(uint8_t msg_type, uint32_t data)
 		ret = rtos_push_to_queue(&trs_task_queue, &msg, BEKEN_NO_WAIT);
 		if (kNoErr != ret)
 		{
-			os_printf("video_transfer_cpu1_send_msg failed\r\n");
+			LOGE("video_transfer_cpu1_send_msg failed\r\n");
 			return kOverrunErr;
 		}
 
@@ -351,6 +364,7 @@ bk_err_t trs_task_send_msg(uint8_t msg_type, uint32_t data)
 
 void trs_task_stop(void)
 {
+	runing = false;
 	trs_task_send_msg(TRS_TRANSFER_EXIT, 0);
 	while (trs_task_thread)
 	{
@@ -399,6 +413,10 @@ void video_transfer_close_handle(param_pak_t *param)
 	set_trs_video_transfer_state(TRS_STATE_DISABLED);
 
 	frame_buffer_frame_deregister(MODULE_WIFI);
+
+	rwnxl_set_video_transfer_flag(false);
+
+	bk_wlan_ps_enable();
 
 	MEDIA_EVT_RETURN(param, kNoErr);
 }

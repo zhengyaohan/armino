@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include "sz.h"
+
 /* Flash layout on BK7236 with BL2 (multiple image boot):
  *
  * 0x0000_0000 BL2 - MCUBoot (0.5 MB)
@@ -28,25 +30,48 @@
  * 0x0030_B000 Unused (984 KB)
  *
  * Flash layout on BK7236 with BL2 (single image boot):
+ * 
+ * CPU address   Physical Address  Release Debug  Content
+ * 0x0000_0000   0x0000_0000       2K      2K     Reserved
+ * 0x0000_0800   0x0000_0800       2K      2K     BootROM Control
+ * 0x0000_1000   0x0000_1000       4K      4K     BootROM OTP Simulation
+ * 0x0000_2000   0x0000_2000       4K      4K     Recovery Manifest
+ * 0x0000_3000   0x0000_3000       4K      4K     Primary Manifest
+ * 0x0000_4000   0x0000_4400       32K     64K    Secondary BL2 Image
+ * 0x0000_C000   0x0000_CC00       32K     64K    Primary BL2 Image
+ * 0x0001_4000   0x0001_5400       384K    384K   TFM Primary Slot
+ * 0x0007_4000   0x0007_B400       256K    256K   Armino Primary Slot
+ * 0x000B_4000   0x000B_F400       384K    384K   TFM Secondary Slot
+ * 0x0011_4000   0x0012_5400       256K    256K   Armino Secondary Slot
+ * 0x0015_4000   0x0016_9400       640K    640K   Scratch area
+ * 0x001F_4000   0x001F_4000       32K     32K    Protected Storage Area
+ * 0x001F_C000   0x001F_C000       16K     16K    Internal Trusted Storage Area
+ * 0x0020_0000   0x0020_0000       8K      8K     OTP / NV counters area (8 KB)
  *
- * 0x0000_0000 BL2 - MCUBoot (0.5 MB)
- * 0x0008_0000 Primary image area (1 MB):
- *    0x0008_0000 Secure     image primary
- *    0x0010_0000 Non-secure image primary
- * 0x0018_0000 Secondary image area (1 MB):
- *    0x0018_0000 Secure     image secondary
- *    0x0020_0000 Non-secure image secondary
- * 0x0028_0000 Scratch area (1 MB)
- * 0x0038_0000 Protected Storage Area (20 KB)
- * 0x0038_5000 Internal Trusted Storage Area (16 KB)
- * 0x0038_9000 OTP / NV counters area (8 KB)
- * 0x0038_B000 Unused (984 KB)
- *
- * Flash layout on BK7236, if BL2 not defined:
- *
- * 0x0000_0000 Secure     image (1 MB)
- * 0x0010_0000 Non-secure image (1 MB)
  */
+
+#ifdef CONFIG_BK_HW_CRC
+// CPU offset address to physical address
+#define CPU2PHY(addr) ((addr) + ((addr) >> 4))
+#else
+#define CPU2PHY(addr) (addr)
+#endif
+
+//TODO peter - generate the BK specific configuration per armino Jason
+#if (CONFIG_BUILD_DEBUG)
+#define BK_FLASH_S_PARTITION_SIZE          SZ_384K
+#define BK_FLASH_NS_PARTITION_SIZE         SZ_256K
+#define BK_FLASH_AREA_BL2_OFFSET           SZ_16K
+#define BK_FLASH_AREA_BL2_SIZE             SZ_64K
+#else
+#define BK_FLASH_S_PARTITION_SIZE          SZ_384K
+#define BK_FLASH_NS_PARTITION_SIZE         SZ_256K
+#define BK_FLASH_AREA_BL2_OFFSET           SZ_16K
+#define BK_FLASH_AREA_BL2_SIZE             SZ_64K
+#endif
+
+#define BK_FLASH_PS_AREA_SIZE              SZ_32K
+#define BK_FLASH_ITS_AREA_SIZE             SZ_32K
 
 /* This header file is included from linker scatter file as well, where only a
  * limited C constructs are allowed. Therefore it is not possible to include
@@ -56,8 +81,8 @@
  */
 
 /* Size of a Secure and of a Non-secure image */
-#define FLASH_S_PARTITION_SIZE          (0x80000) /* S partition: 512 KB */
-#define FLASH_NS_PARTITION_SIZE         (0x80000) /* NS partition: 512 KB */
+#define FLASH_S_PARTITION_SIZE          (CPU2PHY(BK_FLASH_S_PARTITION_SIZE))
+#define FLASH_NS_PARTITION_SIZE         (CPU2PHY(BK_FLASH_NS_PARTITION_SIZE))
 #define FLASH_MAX_PARTITION_SIZE        ((FLASH_S_PARTITION_SIZE >   \
                                           FLASH_NS_PARTITION_SIZE) ? \
                                          FLASH_S_PARTITION_SIZE :    \
@@ -66,19 +91,19 @@
 /* Sector size of the flash hardware; same as FLASH0_SECTOR_SIZE */
 #define FLASH_AREA_IMAGE_SECTOR_SIZE    (0x1000)     /* 4 KB */
 /* Same as FLASH0_SIZE */
-#define FLASH_TOTAL_SIZE                (0x00400000) /* 4 MB */
+#define FLASH_TOTAL_SIZE                (0x00400000) /* 4 MB TODO peter*/
 
 /* Flash layout info for BL2 bootloader */
 /* Same as FLASH0_BASE_S */
-#define FLASH_BASE_ADDRESS              (0x10000000)
+#define FLASH_BASE_ADDRESS              (0x02000000)
 
 /* Offset and size definitions of the flash partitions that are handled by the
  * bootloader. The image swapping is done between IMAGE_PRIMARY and
  * IMAGE_SECONDARY, SCRATCH is used as a temporary storage during image
  * swapping.
  */
-#define FLASH_AREA_BL2_OFFSET      (0x0)
-#define FLASH_AREA_BL2_SIZE        (0x80000) /* 512 KB */
+#define FLASH_AREA_BL2_OFFSET      (CPU2PHY(BK_FLASH_AREA_BL2_OFFSET))
+#define FLASH_AREA_BL2_SIZE        (CPU2PHY(BK_FLASH_AREA_BL2_SIZE))
 
 #if !defined(MCUBOOT_IMAGE_NUMBER) || (MCUBOOT_IMAGE_NUMBER == 1)
 /* Secure + Non-secure image primary slot */
@@ -138,12 +163,12 @@
 /* Protected Storage (PS) Service definitions */
 #define FLASH_PS_AREA_OFFSET            (FLASH_AREA_SCRATCH_OFFSET + \
                                          FLASH_AREA_SCRATCH_SIZE)
-#define FLASH_PS_AREA_SIZE              (0x5000)   /* 20 KB */
+#define FLASH_PS_AREA_SIZE              (BK_FLASH_PS_AREA_SIZE)
 
 /* Internal Trusted Storage (ITS) Service definitions */
 #define FLASH_ITS_AREA_OFFSET           (FLASH_PS_AREA_OFFSET + \
                                          FLASH_PS_AREA_SIZE)
-#define FLASH_ITS_AREA_SIZE             (0x4000)   /* 16 KB */
+#define FLASH_ITS_AREA_SIZE             (BK_FLASH_ITS_AREA_SIZE)
 
 /* OTP_definitions */
 #define FLASH_OTP_NV_COUNTERS_AREA_OFFSET (FLASH_ITS_AREA_OFFSET + \
@@ -152,7 +177,7 @@
 #define FLASH_OTP_NV_COUNTERS_SECTOR_SIZE FLASH_AREA_IMAGE_SECTOR_SIZE
 
 /* Offset and size definition in flash area used by assemble.py */
-#define SECURE_IMAGE_OFFSET             (0x0)
+#define SECURE_IMAGE_OFFSET             0 //TODO peter FLASH_AREA_0_OFFSET
 #define SECURE_IMAGE_MAX_SIZE           FLASH_S_PARTITION_SIZE
 
 #define NON_SECURE_IMAGE_OFFSET         (SECURE_IMAGE_OFFSET + \
@@ -214,12 +239,11 @@
                                               TFM_OTP_NV_COUNTERS_AREA_SIZE)
 
 /* Use SRAM1 memory to store Code data */
-#define S_ROM_ALIAS_BASE  (0x10000000)
-#define NS_ROM_ALIAS_BASE (0x00000000)
+#define S_ROM_ALIAS_BASE  (0x02000000)
+#define NS_ROM_ALIAS_BASE (0x12000000)
 
-/* FIXME: Use SRAM2 memory to store RW data */
-#define S_RAM_ALIAS_BASE  (0x38000000)
-#define NS_RAM_ALIAS_BASE (0x28000000)
+#define S_RAM_ALIAS_BASE  (0x28000000)
+#define NS_RAM_ALIAS_BASE (0x38000000)
 
 #define TOTAL_ROM_SIZE FLASH_TOTAL_SIZE
-#define TOTAL_RAM_SIZE (0x200000)     /* 2 MB */
+#define TOTAL_RAM_SIZE    (SZ_512K)

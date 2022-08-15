@@ -21,7 +21,7 @@ extern "C" {
 #include <common/sys_config.h>
 
 
-#define  CPU_BOOT_TIME_ADDR   (0x20007FE0)
+#define  CPU_BOOT_TIME_ADDR   (0x20007FF0)
 
 typedef enum {
     CPU_BOOT_TIME = 0x0,

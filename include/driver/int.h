@@ -57,6 +57,11 @@ bk_err_t bk_icu_driver_init(void);
  */
 bk_err_t bk_icu_driver_deinit(void);
 
+#ifdef CONFIG_ISR_REG_DISABLE
+#define bk_int_isr_register(dev, isr, arg)
+#define bk_int_isr_unregister(src)
+#else
+
 /**
  * @brief     register interrupt service handler
  *
@@ -87,6 +92,7 @@ bk_err_t bk_int_isr_register(icu_int_src_t dev, int_group_isr_t isr, void*arg);
  *    - others: other errors.
  */
 bk_err_t bk_int_isr_unregister(icu_int_src_t src);
+#endif
 
 /**
  * @brief     set/change interrupt priority

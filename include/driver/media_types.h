@@ -15,6 +15,7 @@
 #pragma once
 
 #include <common/bk_err.h>
+#include <bk_list.h>
 
 
 #ifdef __cplusplus
@@ -41,7 +42,9 @@ typedef enum
 	PPI_320X240     = (PIXEL_320 << 16) | PIXEL_240,
 	PPI_320X480     = (PIXEL_320 << 16) | PIXEL_480,
 	PPI_480X272     = (PIXEL_480 << 16) | PIXEL_272,
+	PPI_480X320     = (PIXEL_480 << 16) | PIXEL_320,
 	PPI_640X480     = (PIXEL_640 << 16) | PIXEL_480,
+	PPI_480X800 	= (PIXEL_480 << 16) | PIXEL_800,
 	PPI_800X600     = (PIXEL_800 << 16) | PIXEL_640,
 	PPI_1024X600    = (PIXEL_1024 << 16) | PIXEL_600,
 	PPI_1280X720    = (PIXEL_1280 << 16) | PIXEL_720,
@@ -54,11 +57,13 @@ typedef enum
 	PPI_CAP_320X240     = (1 << 0), /**< 320 * 240 */
 	PPI_CAP_320X480     = (1 << 1), /**< 320 * 480 */
 	PPI_CAP_480X272     = (1 << 2), /**< 480 * 272 */
-	PPI_CAP_640X480     = (1 << 3), /**< 640 * 480 */
-	PPI_CAP_800X600     = (1 << 4), /**< 800 * 600 */
-	PPI_CAP_1024X600    = (1 << 5), /**< 1024 * 600 */
-	PPI_CAP_1280X720    = (1 << 6), /**< 1280 * 720 */
-	PPI_CAP_1600X1200    = (1 << 7), /**< 1600 * 1200 */
+	PPI_CAP_480X320     = (1 << 3), /**< 480 * 320 */
+	PPI_CAP_640X480     = (1 << 4), /**< 640 * 480 */
+	PPI_CAP_480X800     = (1 << 5), /**< 480 *800 */
+	PPI_CAP_800X600     = (1 << 6), /**< 800 * 600 */
+	PPI_CAP_1024X600    = (1 << 7), /**< 1024 * 600 */
+	PPI_CAP_1280X720    = (1 << 8), /**< 1280 * 720 */
+	PPI_CAP_1600X1200   = (1 << 9), /**< 1600 * 1200 */
 } media_ppi_cap_t;
 
 
@@ -77,6 +82,7 @@ typedef enum
 
 typedef struct
 {
+	LIST_HEADER_T list;
 	frame_state_t state;
 	frame_type_t type;
 	uint8_t id;
@@ -98,6 +104,17 @@ static inline uint16_t ppi_to_pixel_y(media_ppi_t ppi)
 	return ppi & 0xFFFF;
 }
 
+static inline uint16_t ppi_to_pixel_x_block(media_ppi_t ppi)
+{
+	return (ppi >> 16) / 8;
+}
+
+static inline uint16_t ppi_to_pixel_y_block(media_ppi_t ppi)
+{
+	return (ppi & 0xFFFF) / 8;
+}
+
+
 static inline media_ppi_cap_t pixel_ppi_to_cap(media_ppi_t ppi)
 {
 	media_ppi_cap_t cap = PPI_CAP_UNKNOW;
@@ -116,8 +133,16 @@ static inline media_ppi_cap_t pixel_ppi_to_cap(media_ppi_t ppi)
 			cap = PPI_CAP_480X272;
 			break;
 
+		case PPI_480X320:
+			cap = PPI_CAP_480X320;
+			break;
+
 		case PPI_640X480:
 			cap = PPI_CAP_640X480;
+			break;
+
+		case PPI_480X800:
+			cap = PPI_CAP_480X800;
 			break;
 
 		case PPI_800X600:
@@ -129,7 +154,7 @@ static inline media_ppi_cap_t pixel_ppi_to_cap(media_ppi_t ppi)
 			break;
 
 		case PPI_1280X720:
-			cap = PPI_CAP_1024X600;
+			cap = PPI_CAP_1280X720;
 			break;
 
 		case PPI_1600X1200:
@@ -142,6 +167,11 @@ static inline media_ppi_cap_t pixel_ppi_to_cap(media_ppi_t ppi)
 	}
 
 	return cap;
+}
+
+static inline uint32_t get_ppi_size(media_ppi_t ppi)
+{
+	return (ppi >> 16) * (ppi & 0xFFFF) * 2;
 }
 
 

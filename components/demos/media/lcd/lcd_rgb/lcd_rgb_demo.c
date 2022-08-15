@@ -90,7 +90,7 @@ static void jpeg_enc_end_of_frame_isr_480p(jpeg_unit_t id, void *param)
 	int err;
 	bk_dma_stop(jpeg_dma_id);
 	
-	bk_jpeg_dec_hw_init(JPEGDEC_X_PIXEL_480, jpeg_dec_input_buf, jpeg_dec_output_buf);
+	bk_jpeg_dec_hw_init(JPEGDEC_X_PIXEL_480, PIXEL_272, jpeg_dec_input_buf, jpeg_dec_output_buf);
 	err = bk_jpeg_dec_hw_start();
 		if (err != BK_OK) {
 			return;
@@ -102,7 +102,7 @@ static void jpeg_enc_end_of_frame_isr_720p(jpeg_unit_t id, void *param)
 	int err;
 
 	bk_dma_stop(jpeg_dma_id);
-	bk_jpeg_dec_hw_init(JPEGDEC_X_PIXEL_720, jpeg_dec_input_buf, jpeg_dec_output_buf);
+	bk_jpeg_dec_hw_init(JPEGDEC_X_PIXEL_720, PIXEL_272, jpeg_dec_input_buf, jpeg_dec_output_buf);
 	err = bk_jpeg_dec_hw_start();
 		if (err != BK_OK) {
 			return;
@@ -144,7 +144,7 @@ void lcd_jpeg_dec_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 			return;
 		os_printf("jpegdec driver init successful.\r\n");
 		bk_jpeg_dec_isr_register(DEC_END_OF_FRAME, jpeg_dec_end_of_frame_cb);
-		bk_jpeg_dec_hw_init(JPEGDEC_X_PIXEL_480, jpeg_dec_input_buf, jpeg_dec_output_buf);
+		bk_jpeg_dec_hw_init(JPEGDEC_X_PIXEL_480, PIXEL_272, jpeg_dec_input_buf, jpeg_dec_output_buf);
 		err= bk_jpeg_dec_hw_start();
 		if (err != BK_OK) {
 			os_printf("jpeg decode error .\r\n");
@@ -161,7 +161,7 @@ void lcd_jpeg_dec_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 		bk_jpeg_dec_line_int_en(32);
 		bk_jpeg_dec_isr_register(DEC_END_OF_FRAME, jpeg_dec_end_of_frame_cb);
 		bk_jpeg_dec_isr_register(DEC_END_OF_LINE_NUM, jpeg_dec_end_of_line_cb);
-		bk_jpeg_dec_hw_init(JPEGDEC_X_PIXEL_480, jpeg_dec_input_buf, jpeg_dec_output_buf);
+		bk_jpeg_dec_hw_init(JPEGDEC_X_PIXEL_480, PIXEL_272, jpeg_dec_input_buf, jpeg_dec_output_buf);
 		err= bk_jpeg_dec_hw_start();
 		if (err != BK_OK) {
 			os_printf("jpeg decode error .\r\n");
@@ -416,7 +416,7 @@ void lcd_rgb_display_yuv(char *pcWriteBuffer, int xWriteBufferLen, int argc, cha
 	int err = kNoErr;
 	jpeg_config_t jpeg_config = {0};
 	i2c_config_t i2c_config = {0};
-	uint32_t fps = 25;
+	uint32_t fps = 20;
 	uint32_t dev = 3; // gc0328c
 	uint32_t camera_cfg = 0;
 	uint16_t xpixel = 0;
@@ -493,6 +493,7 @@ void lcd_rgb_display_yuv(char *pcWriteBuffer, int xWriteBufferLen, int argc, cha
 		jpeg_config.mclk_div = 0;
 		jpeg_config.x_pixel = X_PIXEL_1280;
 		jpeg_config.y_pixel = Y_PIXEL_720;
+		bk_jpeg_enc_set_auxs(3, 0xF);
 		if (lcd_type == LCD_TYPE_480_272)	//480*272 lcd
 		{
 			if (os_strcmp(argv[3], "display_partical") == 0)

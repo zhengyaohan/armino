@@ -86,7 +86,6 @@ target_include_directories(platform_s
 target_sources(platform_s
     PRIVATE
         cmsis_drivers/Driver_Flash.c
-        cmsis_drivers/Driver_MPC.c
         cmsis_drivers/Driver_PPC.c
         cmsis_drivers/Driver_USART.c
         retarget/platform_retarget_dev.c
@@ -166,3 +165,5 @@ if(BL2)
             native_drivers
     )
 endif()
+
+add_subdirectory(armino)

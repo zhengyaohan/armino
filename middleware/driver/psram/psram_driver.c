@@ -69,6 +69,8 @@ bk_err_t bk_psram_driver_init(void)
 
 	sys_drv_psram_power_enable();
 
+	sys_drv_psram_psldo_vsel(1);
+
 	s_psram_driver_is_init = true;
 
 	return BK_OK;
@@ -96,7 +98,7 @@ bk_err_t bk_psram_init(void)
 		return BK_OK;
 	}
 
-	uint32_t mode = 0xd8054043;
+	uint32_t mode = 0xa8054043;
 	uint32_t val = 0;
 
 	psram_init_common();

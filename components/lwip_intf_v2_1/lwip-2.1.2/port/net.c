@@ -390,6 +390,12 @@ void sta_ip_down(void)
 		netifapi_netif_set_down(&g_mlan.netif);
 		netif_set_status_callback(&g_mlan.netif, NULL);
 		netifapi_dhcp_stop(&g_mlan.netif);
+#if LWIP_IPV6
+		for(u8_t addr_idx = 1; addr_idx < LWIP_IPV6_NUM_ADDRESSES; addr_idx++) {
+			netif_ip6_addr_set(&g_mlan.netif, addr_idx, (const ip6_addr_t *)IP6_ADDR_ANY);
+			g_mlan.netif.ip6_addr_state[addr_idx] = IP6_ADDR_INVALID;
+		}
+#endif
 	}
 }
 
@@ -792,8 +798,21 @@ int net_wlan_remove_netif(uint8_t *mac)
 	return ERR_OK;
 }
 #if CONFIG_WIFI6_CODE_STACK
-void net_begin_send_arp_reply(void)
+bool etharp_tmr_flag = false;
+void net_begin_send_arp_reply(bool is_send_arp, bool is_allow_send_req)
 {
+	//send reply
+	if(is_send_arp && !is_allow_send_req) {
+		etharp_tmr_flag = true;
+		LWIP_LOGI("send reply %s\n", __func__);
+	}
+	//stop send reply
+	if(!is_send_arp && is_allow_send_req) {
+		etharp_tmr_flag = false;
+		LWIP_LOGI("stop send reply %s\n", __func__);
+		return;
+	}
 	etharp_reply();
+
 }
 #endif

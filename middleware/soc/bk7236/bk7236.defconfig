@@ -33,8 +33,8 @@ CONFIG_ASSERT_IGNORE=y
 #
 # Features Configuration
 #
-CONFIG_LWIP_V2_0=y
-# CONFIG_LWIP_V2_1 is not set
+#CONFIG_LWIP_V2_0 is not set
+CONFIG_LWIP_V2_1=y
 CONFIG_NO_HOSTED=y
 # CONFIG_SEMI_HOSTED is not set
 # CONFIG_FULLY_HOSTED is not set
@@ -98,7 +98,7 @@ CONFIG_BKREG=y
 # CONFIG_SPI_TEST is not set
 # CONFIG_PERI_TEST is not set
 # CONFIG_RF_OTA_TEST is not set
-# CONFIG_SHELL_ASYNCLOG is not set
+CONFIG_SHELL_ASYNCLOG=y
 # end of Cli
 
 #
@@ -124,8 +124,8 @@ CONFIG_STA_PS=y
 #
 CONFIG_FREERTOS=y
 # CONFIG_LITEOS_M is not set
-CONFIG_FREERTOS_V9=y
-# CONFIG_FREERTOS_V10 is not set
+CONFIG_FREERTOS_V9=n
+CONFIG_FREERTOS_V10=y
 
 #
 # Memory Debug

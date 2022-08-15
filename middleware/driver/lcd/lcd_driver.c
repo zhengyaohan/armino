@@ -68,6 +68,7 @@ const lcd_device_t *lcd_devices[] =
 	&lcd_device_st7282,
 	&lcd_device_hx8282,
 	&lcd_device_st7796s,
+	&lcd_device_gc9503v,
 };
 
 static lcd_driver_t s_lcd = {0};
@@ -191,6 +192,9 @@ bk_err_t bk_lcd_clk_set(lcd_clk_t clk)
 		case LCD_160M:
 			ret = sys_drv_lcd_set(DISP_CLK_320M, DISP_DIV_L_1, DISP_DIV_H_0, DISP_INT_EN, DSIP_DISCLK_ALWAYS_ON);
 			break;
+		case LCD_120M:
+			ret = sys_drv_lcd_set(DISP_CLK_120M, DISP_DIV_L_0, DISP_DIV_H_0, DISP_INT_EN, DSIP_DISCLK_ALWAYS_ON);
+			break;
 		case LCD_40M:
 			ret = sys_drv_lcd_set(DISP_CLK_120M, DISP_DIV_L_0, DISP_DIV_H_1, DISP_INT_EN, DSIP_DISCLK_ALWAYS_ON);
 			//ret = sys_drv_lcd_set(DISP_CLK_320M, DISP_DIV_L_1, DISP_DIV_H_3, DISP_INT_EN, DSIP_DISCLK_ALWAYS_ON);
@@ -233,8 +237,8 @@ bk_err_t bk_lcd_clk_set(lcd_clk_t clk)
 bk_err_t lcd_driver_rgb_init(const lcd_config_t *config)
 {
 	const lcd_rgb_t *rgb = config->device->rgb;
-	uint16_t x = ppi_to_pixel_x(config->device->ppi);
-	uint16_t y = ppi_to_pixel_y(config->device->ppi);
+	uint16_t x = ppi_to_pixel_x(config->device->ppi);  //lcd size x
+	uint16_t y = ppi_to_pixel_y(config->device->ppi);  //lcd size y
 
 	LOGI("%s\n", __func__);
 
@@ -252,7 +256,7 @@ bk_err_t lcd_driver_rgb_init(const lcd_config_t *config)
 
 	lcd_hal_disconti_mode(DISCONTINUE_MODE);
 
-	bk_lcd_pixel_config(config->pixel_x, config->pixel_y);
+	bk_lcd_pixel_config(config->pixel_x, config->pixel_y); //image xpixel ypixel
 
 	lcd_hal_display_yuv_sel(config->fmt);
 	lcd_hal_set_data_fifo_thrd(DATA_FIFO_WR_THRD, DATA_FIFO_RD_THRD);

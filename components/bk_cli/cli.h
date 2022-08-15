@@ -95,6 +95,7 @@ int cli_at_init(void);
 int cli_vault_init(void);
 #endif
 int cli_aud_init(void);
+int cli_aud_intf_init(void);
 int cli_fft_init(void);
 int cli_sbc_init(void);
 int cli_touch_init(void);

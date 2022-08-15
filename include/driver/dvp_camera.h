@@ -25,6 +25,7 @@ typedef struct
 {
 	media_ppi_t ppi;
 	dvp_mode_t mode;
+	int (*frame_set_ppi)(media_ppi_t ppi);
 	void (*frame_complete)(frame_buffer_t* buffer);
 	frame_buffer_t* (*frame_alloc)(void);
 } dvp_camera_config_t;
@@ -64,6 +65,7 @@ typedef struct
 	uint16 id;
 	uint16 fps_cap;
 	uint16 ppi_cap;
+	uint32 pixel_size;
 	dvp_mode_t mode;
 } dvp_camera_device_t;
 
@@ -77,6 +79,7 @@ int dvp_camera_i2c_read_uint16(uint8_t addr, uint16_t reg, uint8_t *value);
 int dvp_camera_i2c_write_uint8(uint8_t addr, uint8_t reg, uint8_t value);
 int dvp_camera_i2c_write_uint16(uint8_t addr, uint16_t reg, uint8_t value);
 
+bk_err_t bk_dvp_camera_encode_config(uint8_t auto_ctrl, uint32_t up_size, uint32_t low_size);
 
 #ifdef __cplusplus
 }

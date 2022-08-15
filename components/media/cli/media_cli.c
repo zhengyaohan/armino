@@ -21,17 +21,25 @@
 #include "media_cli_comm.h"
 #include "media_app.h"
 
+#include <driver/dvp_camera.h>
+
 #define TAG "mcli"
 
 #define LOGI(...) BK_LOGI(TAG, ##__VA_ARGS__)
 #define LOGE(...) BK_LOGE(TAG, ##__VA_ARGS__)
 
 #define UNKNOW_ERROR (-686)
+#define CMD_CONTAIN(value) cmd_contain(argc, argv, value)
 
 
 uint32_t get_string_to_ppi(char *string, uint32_t pre)
 {
 	uint32_t value = pre;
+
+	if (os_strcmp(string, "1280X720") == 0)
+	{
+		value = PPI_1280X720;
+	}
 
 	if (os_strcmp(string, "1024X600") == 0)
 	{
@@ -43,6 +51,11 @@ uint32_t get_string_to_ppi(char *string, uint32_t pre)
 		value = PPI_640X480;
 	}
 
+	if (os_strcmp(string, "480X320") == 0)
+	{
+		value = PPI_480X320;
+	}
+
 	if (os_strcmp(string, "480X272") == 0)
 	{
 		value = PPI_480X272;
@@ -52,9 +65,31 @@ uint32_t get_string_to_ppi(char *string, uint32_t pre)
 	{
 		value = PPI_320X480;
 	}
+	if (os_strcmp(string, "480X800") == 0)
+	{
+		value = PPI_480X800;
+	}
 
 	return value;
 }
+
+bool cmd_contain(int argc, char **argv, char *string)
+{
+	int i;
+	bool ret = false;
+
+	for (i = 0; i < argc; i++)
+	{
+		if (os_strcmp(argv[i], string) == 0)
+		{
+			ret = true;
+		}
+	}
+
+	return ret;
+}
+
+
 
 void media_cli_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
@@ -91,6 +126,21 @@ void media_cli_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 				{
 					ret = media_app_camera_close(APP_CAMERA_DVP);
 				}
+			}
+
+			if (os_strcmp(argv[2], "auto_encode") == 0)
+			{
+				uint8_t auto_enable = 0;
+				uint32_t up_size = 0, low_size = 0;
+
+				auto_enable = os_strtoul(argv[3], NULL, 10) & 0xF;
+				if (auto_enable)
+				{
+					up_size = os_strtoul(argv[4], NULL, 10) * 1024;
+					low_size = os_strtoul(argv[5], NULL, 10) * 1024;
+				}
+
+				ret = bk_dvp_camera_encode_config(auto_enable, up_size, low_size);
 			}
 #endif
 		}
@@ -130,6 +180,11 @@ void media_cli_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 
 			ppi = get_string_to_ppi(argv[3], PPI_480X272);
 
+			if (CMD_CONTAIN("rotate"))
+			{
+				media_app_lcd_rotate(true);
+			}
+
 			if (os_strcmp(argv[2], "open") == 0)
 			{
 				ret = media_app_lcd_open(ppi);
@@ -145,12 +200,30 @@ void media_cli_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 				uint8_t level = os_strtoul(argv[3], NULL, 10) & 0xFF;
 				ret = media_app_lcd_set_backlight(level);
 			}
+
+			if (os_strcmp(argv[2], "step") == 0)
+			{
+				if (CMD_CONTAIN("enable"))
+				{
+					ret = media_app_lcd_step_mode(true);
+				}
+
+				if (CMD_CONTAIN("disable"))
+				{
+					ret = media_app_lcd_step_mode(false);
+				}
+
+				if (CMD_CONTAIN("trigger"))
+				{
+					ret = media_app_lcd_step_trigger();
+				}
+			}
 #endif
 		}
 		if (os_strcmp(argv[1], "uvc") == 0)
 		{
 #if defined(CONFIG_USB_UVC) && !defined(CONFIG_SLAVE_CORE)
-			media_ppi_t ppi = PPI_DEFAULT;
+			media_ppi_t ppi = get_string_to_ppi(argv[3], PPI_DEFAULT);
 
 			if (os_strcmp(argv[2], "open") == 0)
 			{
@@ -180,7 +253,7 @@ void media_cli_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 				config.width = os_strtoul(argv[3], NULL, 10);
 				config.height = os_strtoul(argv[4], NULL, 10);
 				config.fps = os_strtoul(argv[5], NULL, 10);
-				media_app_uvc_param_set(&config);
+				ret = media_app_uvc_param_set(&config);
 			}
 
 			if (os_strcmp(argv[2], "close") == 0)
@@ -193,10 +266,31 @@ void media_cli_test_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 #ifdef CONFIG_MASTER_CORE
 		if (os_strcmp(argv[1], "mb") == 0)
 		{
-			media_app_mailbox_test();
+			ret = media_app_mailbox_test();
 		}
 #endif
 
+		if (os_strcmp(argv[1], "dump") == 0)
+		{
+#if defined(CONFIG_LCD) && !defined(CONFIG_SLAVE_CORE)
+
+			if (CMD_CONTAIN("decoder"))
+			{
+				ret = media_app_dump_decoder_frame();
+			}
+
+			if (CMD_CONTAIN("jpeg"))
+			{
+				ret = media_app_dump_jpeg_frame();
+			}
+
+			if (CMD_CONTAIN("display"))
+			{
+				ret = media_app_dump_display_frame();
+			}
+#endif
+
+		}
 	}
 
 	if (ret == UNKNOW_ERROR)

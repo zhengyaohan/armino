@@ -125,9 +125,9 @@
 #define MPC_CODE_SRAM3_RANGE_LIMIT_S   0x383FFFFF
 
 /* Flash memory emulated over external SSRAM memory */
-#define FLASH0_BASE_S                  0x10000000
-#define FLASH0_BASE_NS                 0x00000000
-#define FLASH0_SIZE                    0x00400000  /* 4 MB */
+#define FLASH0_BASE_S                  0x02000000
+#define FLASH0_BASE_NS                 0x12000000
+#define FLASH0_SIZE                    0x01000000  /* Max flash size 16 MB, the actual flash size is initialized in Flash_Initialize() */
 #define FLASH0_SECTOR_SIZE             0x00001000  /* 4 kB */
 #define FLASH0_PAGE_SIZE               0x00001000  /* 4 kB */
 #define FLASH0_PROGRAM_UNIT            0x1         /* Minimum write size */

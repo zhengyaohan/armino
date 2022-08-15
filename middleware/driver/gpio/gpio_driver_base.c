@@ -303,13 +303,16 @@ static void gpio_isr(void)
 	for (gpio_id = 0; gpio_id < GPIO_NUM; gpio_id++) {
 		if (gpio_hal_is_interrupt_triggered(hal, gpio_id, &gpio_status)) {
 #if CONFIG_GPIO_WAKEUP_SUPPORT
-			//if many gpio wakeup at the same time, it will called many times
+			/* Get the ID of the first interrupt wake up,
+			 * which is not necessarily the registered ID.
+			 */
+			if(bk_gpio_get_aon_pmu_deepsleep_flag())
+				bk_gpio_set_wakeup_gpio_id(gpio_id);
+
+			/* if many gpio wakeup at the same time, it will called many times */
 			if(s_gpio_is_setted_wake_status & ((uint64_t)0x1 << gpio_id))
 			{
 				gpio_wakeup_default_isr(gpio_id);
-
-				if(bk_gpio_get_aon_pmu_deepsleep_flag())
-					bk_gpio_set_wakeup_gpio_id(gpio_id);
 			}
 #endif
 			if (s_gpio_isr[gpio_id]) {
@@ -556,15 +559,19 @@ bk_err_t bk_gpio_unregister_wakeup_source(gpio_id_t gpio_id)
 
 	GPIO_RETURN_ON_INVALID_ID(gpio_id);
 
-	//search the same id and replace it.
+	/* search the same id and replace it.*/
 	for(i = 0; i < CONFIG_GPIO_DYNAMIC_WAKEUP_SOURCE_MAX_CNT; i++)
 	{
 		if(s_gpio_dynamic_wakeup_source_map[i].id == gpio_id)
 		{
 			s_gpio_dynamic_wakeup_source_map[i].id = GPIO_WAKE_SOURCE_IDLE_ID;
-			s_gpio_dynamic_wakeup_source_map[i].int_type = 0;
+			s_gpio_dynamic_wakeup_source_map[i].int_type = GPIO_INT_TYPE_MAX;
 			//s_gpio_dynamic_wakeup_source_map[i].isr = NULL;
 			s_gpio_is_setted_wake_status &= ~(((uint64_t)1 << s_gpio_dynamic_wakeup_source_map[i].id));
+
+			/* Clear the hardware status during deregister */
+			bk_gpio_disable_input(gpio_id);
+			bk_gpio_disable_interrupt(gpio_id);
 
 			GPIO_LOGD("%s[-]gpioid=%d\r\n", __func__, gpio_id);
 

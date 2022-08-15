@@ -35,6 +35,8 @@
 
 #define DEBUG_INTERVAL (1000 * 2)
 
+extern bk_err_t pm_core_bus_clock_ctrl(uint32_t cksel_core, uint32_t ckdiv_core, uint32_t ckdiv_bus, uint32_t ckdiv_cpu0, uint32_t ckdiv_cpu1);
+
 extern void transfer_dump(uint32_t ms);
 #if CONFIG_LCD
 extern uint32_t media_jpg_isr_count;
@@ -65,9 +67,11 @@ void uvc_open_handle(param_pak_t *param)
 		goto out;
 	}
 
+	//pm_core_bus_clock_ctrl(2, 0, 1, 0, 0);
+
 	frame_buffer_enable(true);
 
-	ret = bk_uvc_camera_open();
+	ret = bk_uvc_camera_open(param->param);
 
 	if (ret != kNoErr)
 	{
@@ -199,6 +203,8 @@ void uvc_close_handle(param_pak_t *param)
 	set_uvc_camera_state(DVP_STATE_DISABLED);
 
 	frame_buffer_enable(false);
+
+	//pm_core_bus_clock_ctrl(3, 1, 1, 0, 0);
 
 out:
 	MEDIA_EVT_RETURN(param, ret);

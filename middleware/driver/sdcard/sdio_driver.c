@@ -22,11 +22,16 @@
 /******************************************************************************/
 /**************************** platform function *******************************/
 /******************************************************************************/
+
+/******************************************************************************/
+/**************************** interface function ******************************/
+/******************************************************************************/
 #if (CONFIG_SOC_BK7256XX)
-static void beken_sdcard_set_clk_div(UINT8 clkdiv)
+/* clk_index: includes clock src and clock divider info */
+void sdio_set_clock(UINT8 clk_index)
 {
-	//Temp code, clock module should be re-arch.
-	*((volatile unsigned long *) (0x44010000+0x9*4)) = (((*((volatile unsigned long *) (0x44010000+0x9*4))) & (~0x3C000)) | ((clkdiv) << 14));
+	//temp code, will be switch to sdcard_driver.c
+	*((volatile unsigned long *) (0x44010000+0x9*4)) = (((*((volatile unsigned long *) (0x44010000+0x9*4))) & (~0x3C000)) | ((clk_index) << 14));
 }
 #else
 static void beken_sdcard_set_clk_div(UINT8 clkdiv)
@@ -39,14 +44,12 @@ static void beken_sdcard_set_clk_div(UINT8 clkdiv)
 			<< SDCARD_FIFO_SD_RATE_SELECT_POSI);
 	REG_WRITE(REG_SDCARD_FIFO_THRESHOLD, reg);
 }
-#endif
-/******************************************************************************/
-/**************************** interface function ******************************/
-/******************************************************************************/
+
 void sdio_set_clock(UINT8 clk_index)
 {
 	beken_sdcard_set_clk_div(clk_index);
 }
+#endif
 
 #if (CONFIG_SOC_BK7256XX)
 #if (CONFIG_PIN_SDIO_GROUP_0)

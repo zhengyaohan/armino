@@ -20,9 +20,13 @@ if(CONFIG_FREERTOS)
 			freertos/mem_arch.c
 			platform_stub.c
 			freertos/str_arch.c
-			freertos/FreeRTOS_tick_config.c
 			freertos/blinky_demo/main_blinky.c
 		)
+		if(CONFIG_ARCH_RISCV)
+			list(APPEND srcs
+				freertos/FreeRTOS_tick_config.c
+			)
+		endif()
 	endif()
 	if(CONFIG_FULLY_HOSTED)
 		list(APPEND srcs freertos/mmgmt.c)

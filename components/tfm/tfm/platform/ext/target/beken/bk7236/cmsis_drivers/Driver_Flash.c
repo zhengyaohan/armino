@@ -17,6 +17,8 @@
 #include "Driver_Flash.h"
 #include "platform_retarget.h"
 #include "RTE_Device.h"
+#include "driver/flash.h"
+#include "common/bk_err.h"
 
 #ifndef ARG_UNUSED
 #define ARG_UNUSED(arg)  ((void)arg)
@@ -42,6 +44,8 @@ static const uint32_t data_width_byte[DATA_WIDTH_ENUM_SIZE] = {
     sizeof(uint16_t),
     sizeof(uint32_t),
 };
+
+static uint32_t s_flash_sector_count = 0;
 
 /*
  * ARM FLASH device structure
@@ -71,13 +75,23 @@ static const ARM_FLASH_CAPABILITIES DriverCapabilities = {
     1  /* erase_chip */
 };
 
+static bool is_access_from_code_bus(uint32_t absolute_addr)
+{
+    return true;
+}
+
+static uint32_t flash_sector_count(void)
+{
+    return s_flash_sector_count;
+}
+
 static int32_t is_range_valid(struct arm_flash_dev_t *flash_dev,
                               uint32_t offset)
 {
     uint32_t flash_limit = 0;
     int32_t rc = 0;
 
-    flash_limit = (flash_dev->data->sector_count * flash_dev->data->sector_size)
+    flash_limit = (flash_sector_count() * flash_dev->data->sector_size)
                    - 1;
 
     if (offset > flash_limit) {
@@ -146,51 +160,44 @@ struct arm_flash_dev_t *FLASH0_DEV = &ARM_FLASH0_DEV;
  * Functions
  */
 
-static ARM_DRIVER_VERSION ARM_Flash_GetVersion(void)
+static ARM_DRIVER_VERSION Flash_GetVersion(void)
 {
     return DriverVersion;
 }
 
-static ARM_FLASH_CAPABILITIES ARM_Flash_GetCapabilities(void)
+static ARM_FLASH_CAPABILITIES Flash_GetCapabilities(void)
 {
     return DriverCapabilities;
 }
 
-static int32_t ARM_Flash_Initialize(ARM_Flash_SignalEvent_t cb_event)
+static int32_t Flash_Initialize(ARM_Flash_SignalEvent_t cb_event)
 {
+    uint32_t flash_size = 0;
+    int ret = 0;
     ARG_UNUSED(cb_event);
 
-    if (FLASH0_PROGRAM_UNIT % data_width_byte[DriverCapabilities.data_width] ||
-        DriverCapabilities.data_width >= DATA_WIDTH_ENUM_SIZE) {
-        return ARM_DRIVER_ERROR;
-    }
-    /* Nothing to be done */
+    BK_LOG_ON_ERR(bk_flash_driver_init());
+    flash_size = bk_flash_get_current_total_size();
+
+    /* Optimze it if we support more than one flash */
+    s_flash_sector_count = flash_size / FLASH0_SECTOR_SIZE;
     return ARM_DRIVER_OK;
 }
 
-static int32_t ARM_Flash_Uninitialize(void)
+static int32_t Flash_Uninitialize(void)
 {
-    /* Nothing to be done */
+    BK_LOG_ON_ERR(bk_flash_driver_deinit());
     return ARM_DRIVER_OK;
 }
 
-static int32_t ARM_Flash_PowerControl(ARM_POWER_STATE state)
+static int32_t Flash_PowerControl(ARM_POWER_STATE state)
 {
-    switch (state) {
-    case ARM_POWER_FULL:
-        /* Nothing to be done */
-        return ARM_DRIVER_OK;
-        break;
-
-    case ARM_POWER_OFF:
-    case ARM_POWER_LOW:
-    default:
-        return ARM_DRIVER_ERROR_UNSUPPORTED;
-    }
+    return ARM_DRIVER_OK;
 }
 
-static int32_t ARM_Flash_ReadData(uint32_t addr, void *data, uint32_t cnt)
+static int32_t Flash_ReadData(uint32_t addr, void *data, uint32_t cnt)
 {
+    uint32_t offset = addr;
     uint32_t start_addr = FLASH0_DEV->memory_base + addr;
     int32_t rc = 0;
 
@@ -210,8 +217,11 @@ static int32_t ARM_Flash_ReadData(uint32_t addr, void *data, uint32_t cnt)
         return ARM_DRIVER_ERROR_PARAMETER;
     }
 
-    /* Flash interface just emulated over SRAM, use memcpy */
-    memcpy(data, (void *)start_addr, cnt);
+    if (is_access_from_code_bus(start_addr)) {
+        memcpy(data, (void *)start_addr, cnt);
+    } else {
+        BK_LOG_ON_ERR(bk_flash_read_bytes(offset, data, cnt));
+    }
 
     /* Conversion between bytes and data items */
     cnt /= data_width_byte[DriverCapabilities.data_width];
@@ -219,9 +229,10 @@ static int32_t ARM_Flash_ReadData(uint32_t addr, void *data, uint32_t cnt)
     return cnt;
 }
 
-static int32_t ARM_Flash_ProgramData(uint32_t addr, const void *data,
+static int32_t Flash_ProgramData(uint32_t addr, const void *data,
                                      uint32_t cnt)
 {
+    uint32_t offset = addr;
     uint32_t start_addr = FLASH0_DEV->memory_base + addr;
     int32_t rc = 0;
 
@@ -239,8 +250,11 @@ static int32_t ARM_Flash_ProgramData(uint32_t addr, const void *data,
     /* Check if the flash area to write the data was erased previously */
     rc = is_flash_ready_to_write((const uint8_t*)start_addr, cnt);
 
-    /* Flash interface just emulated over SRAM, use memcpy */
-    memcpy((void *)start_addr, data, cnt);
+    if (is_access_from_code_bus(start_addr)) {
+        memcpy((void *)start_addr, data, cnt);
+    } else {
+        BK_LOG_ON_ERR(bk_flash_write_bytes(offset, data, cnt));
+    }
 
     /* Conversion between bytes and data items */
     cnt /= data_width_byte[DriverCapabilities.data_width];
@@ -248,8 +262,9 @@ static int32_t ARM_Flash_ProgramData(uint32_t addr, const void *data,
     return cnt;
 }
 
-static int32_t ARM_Flash_EraseSector(uint32_t addr)
+static int32_t Flash_EraseSector(uint32_t addr)
 {
+    uint32_t offset = addr;
     uint32_t start_addr = FLASH0_DEV->memory_base + addr;
     uint32_t rc = 0;
 
@@ -259,26 +274,35 @@ static int32_t ARM_Flash_EraseSector(uint32_t addr)
         return ARM_DRIVER_ERROR_PARAMETER;
     }
 
-    /* Flash interface just emulated over SRAM, use memset */
-    memset((void *)start_addr,
-           FLASH0_DEV->data->erased_value,
-           FLASH0_DEV->data->sector_size);
+    if (is_access_from_code_bus(addr)) {
+        memset((void *)start_addr,
+               FLASH0_DEV->data->erased_value,
+               FLASH0_DEV->data->sector_size);
+    } else {
+        BK_LOG_ON_ERR(bk_flash_erase_sector(offset));
+    }
+
     return ARM_DRIVER_OK;
 }
 
-static int32_t ARM_Flash_EraseChip(void)
+static int32_t Flash_EraseChip(void)
 {
     uint32_t i;
     uint32_t addr = FLASH0_DEV->memory_base;
     int32_t rc = ARM_DRIVER_ERROR_UNSUPPORTED;
+    uint32_t offset = 0;
 
     /* Check driver capability erase_chip bit */
     if (DriverCapabilities.erase_chip == 1) {
-        for (i = 0; i < FLASH0_DEV->data->sector_count; i++) {
-            /* Flash interface just emulated over SRAM, use memset */
-            memset((void *)addr,
-                   FLASH0_DEV->data->erased_value,
-                   FLASH0_DEV->data->sector_size);
+        for (i = 0; i < flash_sector_count(); i++) {
+            if (is_access_from_code_bus(addr)) {
+                memset((void *)addr,
+                       FLASH0_DEV->data->erased_value,
+                       FLASH0_DEV->data->sector_size);
+            } else {
+                offset = addr - FLASH0_DEV->memory_base;
+                BK_LOG_ON_ERR(bk_flash_erase_sector(addr)); //TODO double check address offset
+            }
 
             addr += FLASH0_DEV->data->sector_size;
             rc = ARM_DRIVER_OK;
@@ -287,27 +311,27 @@ static int32_t ARM_Flash_EraseChip(void)
     return rc;
 }
 
-static ARM_FLASH_STATUS ARM_Flash_GetStatus(void)
+static ARM_FLASH_STATUS Flash_GetStatus(void)
 {
     return FlashStatus;
 }
 
-static ARM_FLASH_INFO * ARM_Flash_GetInfo(void)
+static ARM_FLASH_INFO * Flash_GetInfo(void)
 {
     return FLASH0_DEV->data;
 }
 
 ARM_DRIVER_FLASH Driver_FLASH0 = {
-    ARM_Flash_GetVersion,
-    ARM_Flash_GetCapabilities,
-    ARM_Flash_Initialize,
-    ARM_Flash_Uninitialize,
-    ARM_Flash_PowerControl,
-    ARM_Flash_ReadData,
-    ARM_Flash_ProgramData,
-    ARM_Flash_EraseSector,
-    ARM_Flash_EraseChip,
-    ARM_Flash_GetStatus,
-    ARM_Flash_GetInfo
+    Flash_GetVersion,
+    Flash_GetCapabilities,
+    Flash_Initialize,
+    Flash_Uninitialize,
+    Flash_PowerControl,
+    Flash_ReadData,
+    Flash_ProgramData,
+    Flash_EraseSector,
+    Flash_EraseChip,
+    Flash_GetStatus,
+    Flash_GetInfo
 };
 #endif /* RTE_FLASH0 */

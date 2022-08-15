@@ -1,1 +1,0 @@
-.. include:: ../../../../zh_CN/examples/video/camera/bk_dvp_capture.rst

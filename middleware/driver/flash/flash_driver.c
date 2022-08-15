@@ -393,7 +393,7 @@ bk_err_t bk_flash_driver_init(void)
 	bk_flash_set_line_mode(s_flash.flash_cfg->line_mode);
 	flash_hal_set_default_clk(&s_flash.hal);
 #if CONFIG_FLASH_SRC_CLK_60M
-	sys_drv_flash_set_clk_div(FLASH_DIV_VALUE_TWO);
+	sys_drv_flash_set_clk_div(FLASH_DIV_VALUE_EIGHT);
 	sys_drv_flash_set_dco();
 #endif
 

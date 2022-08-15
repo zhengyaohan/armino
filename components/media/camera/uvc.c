@@ -58,13 +58,20 @@ frame_buffer_t *frame_buffer_uvc_jpg_alloc(void)
 const uvc_camera_config_t uvc_camera_config =
 {
 	.device = &uvc_camera_device,
+	.frame_set_ppi = frame_buffer_set_ppi,
 	.frame_complete = frame_buffer_uvc_jpg_complete,
 	.frame_alloc = frame_buffer_uvc_jpg_alloc,
 };
 
 
-bk_err_t bk_uvc_camera_open(void)
+bk_err_t bk_uvc_camera_open(media_ppi_t ppi)
 {
+	if (ppi != 0)
+	{
+		uvc_camera_device.width = ppi >> 16;
+		uvc_camera_device.height = ppi & 0xFFFF;
+	}
+
 	return bk_uvc_camera_driver_init(&uvc_camera_config);
 }
 

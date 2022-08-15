@@ -84,6 +84,12 @@ void sys_drv_set_qspi_io_voltage(uint32_t param);
 
 void sys_drv_qspi_clk_sel(uint32_t param);
 
+void sys_drv_nmi_wdt_set_clk_div(uint32_t value);
+
+uint32_t sys_drv_nmi_wdt_get_clk_div(void);
+
+void sys_drv_trng_disckg_set(uint32_t value);
+
 #if CONFIG_SDIO_V2P0
 void sys_driver_set_sdio_clk_en(uint32_t value);
 
@@ -382,6 +388,7 @@ uint32_t sys_drv_psram_ldo_enable(uint32_t value);
 uint32_t sys_drv_psram_clk_sel(uint32_t value);
 uint32_t sys_drv_psram_set_clkdiv(uint32_t value);
 uint32_t sys_drv_psram_power_enable(void);
+uint32_t sys_drv_psram_psldo_vsel(uint32_t value);
 
 /**  psram End **/
 

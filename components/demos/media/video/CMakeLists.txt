@@ -6,7 +6,7 @@ set(incs
 	video_common
 	video_transfer
 	video_transfer_frame_buff
-	image_save
+	dvp_capture
 	"../lcd/common"
 	"../lcd/lcd_8080"
 	)
@@ -59,26 +59,4 @@ if (CONFIG_APP_DEMO_VIDEO_TRANSFER)
 endif()
 endif()
 
-if (CONFIG_DUAL_CORE AND CONFIG_PSRAM)
-	list(APPEND srcs
-		"video_common/video_mailbox.c"
-		"video_common/video_frame_buff.c"
-		)
-
-if (NOT CONFIG_SLAVE_CORE)
-	list(APPEND srcs
-		"video_transfer_frame_buff/video_transfer_cpu0.c"
-		)
-endif()
-
-if (CONFIG_SLAVE_CORE AND CONFIG_CAMERA)
-	list(APPEND srcs
-		"video_transfer_frame_buff/video_transfer_cpu1.c"
-		"video_transfer_frame_buff/video_transfer_camera_process.c"
-		)
-endif()
-
-endif()
-
-
-armino_component_register(SRCS "${srcs}" INCLUDE_DIRS "${incs}" PRIV_REQUIRES bk_common bk_log media_common)
+armino_component_register(SRCS "${srcs}" INCLUDE_DIRS "${incs}" PRIV_REQUIRES bk_common bk_log)

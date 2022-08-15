@@ -43,3 +43,6 @@ mlist_node_t *mlist_begin(const mlist_t *mlist);
 mlist_node_t *mlist_end(const mlist_t *mlist);
 mlist_node_t *mlist_next(const mlist_node_t *node);
 void *mlist_node(const mlist_node_t *node);
+void *mlist_foreach_pop(mlist_t *mlist, mlist_iter_cb callback,
+                        void *context);
+

@@ -77,7 +77,7 @@ static void flash_set_clk(UINT8 clk_conf)
 	UINT32 value;
 
 #if CONFIG_FLASH_SRC_CLK_60M
-	sys_drv_flash_set_clk_div(FLASH_DIV_VALUE_TWO);
+	sys_drv_flash_set_clk_div(FLASH_DIV_VALUE_EIGHT);
 	sys_drv_flash_set_dco();
 #endif
 
@@ -511,7 +511,7 @@ static void flash_erase_sector(UINT32 address)
 #endif
 
 	if (erase_addr >= flash_current_config->flash_size) {
-		bk_printf("Erase error:invalid address0x%x\r\n", erase_addr);
+		BK_LOGE("Erase error:invalid address0x%x\r\n", erase_addr);
 		return;
 	}
 
@@ -601,7 +601,7 @@ static void flash_write_data(UINT8 *buffer, UINT32 address, UINT32 len)
 	if ((addr >= flash_current_config->flash_size)
 		|| (len > flash_current_config->flash_size)
 		|| ((addr + len) > flash_current_config->flash_size)) {
-		bk_printf("Write error[addr:0x%x len:0x%x]\r\n", addr, len);
+		BK_LOGE("Write error[addr:0x%x len:0x%x]\r\n", addr, len);
 		return;
 	}
 

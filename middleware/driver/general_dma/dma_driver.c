@@ -44,7 +44,6 @@ static dma_isr_t s_dma_finish_isr[SOC_DMA_CHAN_NUM_PER_UNIT] = {NULL};
 static dma_isr_t s_dma_half_finish_isr[SOC_DMA_CHAN_NUM_PER_UNIT] = {NULL};
 static bool s_dma_driver_is_init = false;
 static dma_chnl_pool_t s_dma_chnl_pool = {0};
-static dma_id_t s_dma_memcpy_chnl = DMA_ID_MAX;
 
 #define DMA_RETURN_ON_NOT_INIT() do {\
         if (!s_dma_driver_is_init) {\
@@ -130,22 +129,6 @@ bk_err_t dma_chnl_free(u32 user_id, dma_id_t chnl_id)
 	return BK_OK;
 }
 
-/*
- * Request memcpy function channels during driver initialization to
- * prevent calls in interrupts.
- *
- */
-static void dma_memcpy_alloc_chnl(void)
-{
-	s_dma_memcpy_chnl = bk_dma_alloc(DMA_DEV_DTCM);
-	DMA_LOGD("dma_memcpy_alloc_chnl s_dma_memcpy_chnl: %d\r\n", s_dma_memcpy_chnl);
-}
-
-static void dma_memcpy_free_chnl(void)
-{
-	bk_dma_free(DMA_DEV_DTCM, s_dma_memcpy_chnl);
-}
-
 /* used internally. */
 u32 dma_chnl_user(dma_id_t chnl_id)
 {
@@ -180,8 +163,6 @@ bk_err_t bk_dma_driver_init(void)
 
     s_dma_driver_is_init = true;
 
-    dma_memcpy_alloc_chnl();
-
     return BK_OK;
 }
 
@@ -201,7 +182,6 @@ bk_err_t bk_dma_driver_deinit(void)
 #else
     icu_disable_dma_interrupt();
 #endif
-    dma_memcpy_free_chnl();
 
     s_dma_driver_is_init = false;
 
@@ -567,6 +547,9 @@ uint32_t dma_get_dest_write_addr(dma_id_t id)
 
 bk_err_t dma_memcpy_by_chnl(void *out, const void *in, uint32_t len, dma_id_t cpy_chnl)
 {
+    DMA_RETURN_ON_NOT_INIT();
+    DMA_RETURN_ON_INVALID_ID(cpy_chnl);
+
     dma_config_t dma_config;
 
     os_memset(&dma_config, 0, sizeof(dma_config_t));
@@ -588,9 +571,6 @@ bk_err_t dma_memcpy_by_chnl(void *out, const void *in, uint32_t len, dma_id_t cp
 
     DMA_LOGD("dma_memcpy cpy_chnl: %d\r\n", cpy_chnl);
 
-    if(cpy_chnl >= DMA_ID_MAX)
-        return BK_FAIL;
-
     GLOBAL_INT_DECLARATION();
     GLOBAL_INT_DISABLE();
 
@@ -606,7 +586,17 @@ bk_err_t dma_memcpy_by_chnl(void *out, const void *in, uint32_t len, dma_id_t cp
 
 bk_err_t dma_memcpy(void *out, const void *in, uint32_t len)
 {
-    return dma_memcpy_by_chnl(out, in, len, s_dma_memcpy_chnl);
+    DMA_RETURN_ON_NOT_INIT();
+
+    bk_err_t ret;
+    dma_id_t cpy_chnl = bk_dma_alloc(DMA_DEV_DTCM);
+    DMA_RETURN_ON_INVALID_ID(cpy_chnl);
+
+    ret = dma_memcpy_by_chnl(out, in, len, cpy_chnl);
+
+    bk_dma_free(DMA_DEV_DTCM, cpy_chnl);
+
+    return ret;
 }
 
 static void dma_isr(void)

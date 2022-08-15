@@ -27,147 +27,231 @@
 #include <driver/media_types.h>
 
 #include "frame_buffer.h"
+#include "mlist.h"
 
 #define TAG "frame_buffer"
+
+#include "bk_list.h"
 
 #define LOGI(...) BK_LOGI(TAG, ##__VA_ARGS__)
 #define LOGW(...) BK_LOGW(TAG, ##__VA_ARGS__)
 #define LOGE(...) BK_LOGE(TAG, ##__VA_ARGS__)
 #define LOGD(...) BK_LOGD(TAG, ##__VA_ARGS__)
 
-#ifdef CONFIG_PSRAM
-#define FRAME_BUFFER_DISPLAY_COUNT (DISPLAY_FRAME_COUNT)
-#define FRAME_BUFFER_JPEG_COUNT (JPEG_ENC_FRAME_COUNT)
-frame_buffer_t psram_frame[DISPLAY_FRAME_COUNT + JPEG_ENC_FRAME_COUNT] = {0};
-#else
-#define FRAME_BUFFER_DISPLAY_COUNT (0)
-#define FRAME_BUFFER_JPEG_COUNT (1)
-frame_buffer_t psram_frame[FRAME_BUFFER_JPEG_COUNT] = {0};
-#endif
 
 frame_buffer_info_t *frame_buffer_info = NULL;
 
+LIST_HEADER_T jpeg_free_node_list = {&jpeg_free_node_list, &jpeg_free_node_list};
+LIST_HEADER_T jpeg_ready_node_list = {&jpeg_ready_node_list, &jpeg_ready_node_list};
+
+LIST_HEADER_T display_free_node_list = {&display_free_node_list, &display_free_node_list};
+LIST_HEADER_T display_ready_node_list = {&display_ready_node_list, &display_ready_node_list};
 
 
-void dvp_dump(void)
+
+void frame_buffer_free_frame(frame_buffer_t *buffer)
 {
-	int i;
+	LIST_HEADER_T *list = NULL;
 
-	for (i = 0; i < FRAME_BUFFER_DISPLAY_COUNT + FRAME_BUFFER_JPEG_COUNT; i++)
+	if (buffer->type == FRAME_JPEG)
 	{
-		os_printf("DUMP, frame[%d]: %p id: %d, state: %d, lock: %d\n", i, &psram_frame[i], psram_frame[i].id, psram_frame[i].state, psram_frame[i].lock);
+		list = &jpeg_free_node_list;
 	}
-}
+	else if (buffer->type == FRAME_DISPLAY)
+	{
+		list = &display_free_node_list;
+	}
+	else
+	{
+		LOGE("%s unknow type: %d\n", __func__, buffer->type);
+		return;
+	}
 
-void frame_buffer_free(frame_buffer_t *buffer)
-{
-	buffer->state = STATE_FRAMED;
+	GLOBAL_INT_DECLARATION();
+	GLOBAL_INT_DISABLE();
+
+	if (buffer->lock)
+	{
+		buffer->lock--;
+	}
+	else
+	{
+		frame_buffer_t *tmp = NULL;
+		LIST_HEADER_T *pos, *n;
+
+		list_for_each_safe(pos, n, list)
+		{
+			tmp = list_entry(pos, frame_buffer_t, list);
+			if (tmp->frame == buffer->frame)
+			{
+				LOGW("%s refree\n", __func__);
+				GLOBAL_INT_RESTORE();
+				return;
+			}
+		}
+	}
+
+	LOGD("free: %p, lock: %d\n", buffer->frame, buffer->lock);
+
+	if (buffer->lock == 0)
+	{
+
+		LOGD("free: %p\n");
+		buffer->state = STATE_FRAMED;
+		list_add_tail(&buffer->list, list);
+	}
+
+	GLOBAL_INT_RESTORE();
 }
 
 
 frame_buffer_t *frame_buffer_alloc(frame_type_t type)
 {
-	frame_buffer_t *buffer = NULL;
-	uint32_t i, start = 0, end = 0;
+	frame_buffer_t *frame = NULL, *tmp = NULL;
+	LIST_HEADER_T *free_list = NULL, *ready_list = NULL;
+	LIST_HEADER_T *pos, *n;
 
-	if (type == FRAME_DISPLAY)
+	if (type == FRAME_JPEG)
 	{
-		start = 0;
-		end = FRAME_BUFFER_DISPLAY_COUNT;
+		free_list = &jpeg_free_node_list;
+		ready_list = &jpeg_ready_node_list;
 	}
-	else if (type == FRAME_JPEG)
+	else if (type == FRAME_DISPLAY)
 	{
-		start = FRAME_BUFFER_DISPLAY_COUNT;
-		end = FRAME_BUFFER_DISPLAY_COUNT + FRAME_BUFFER_JPEG_COUNT;
-	}
-
-	GLOBAL_INT_DECLARATION();
-
-	GLOBAL_INT_DISABLE();
-
-	for (i = start; i < end; i++)
-	{
-		if (psram_frame[i].state == STATE_ALLOCED)
-		{
-			continue;
-		}
-
-		if (buffer == NULL)
-		{
-			buffer = &psram_frame[i];
-			continue;
-		}
-
-		if (buffer->sequence > psram_frame[i].sequence)
-		{
-			buffer = &psram_frame[i];
-		}
-	}
-
-	GLOBAL_INT_RESTORE();
-
-	if (buffer != NULL)
-	{
-		buffer->state = STATE_ALLOCED;
+		free_list = &display_free_node_list;
+		ready_list = &display_ready_node_list;
 	}
 	else
 	{
-		LOGE("%s NULL\n");
-		dvp_dump();
-	}
-
-	//LOGI("id: %d\n", buffer->id);
-
-	return buffer;
-}
-
-frame_buffer_t *frame_buffer_get_available_frame(frame_type_t type)
-{
-	frame_buffer_t *buffer = NULL;
-	uint32_t i, start = 0, end = 0;
-
-	if (type == FRAME_DISPLAY)
-	{
-		start = 0;
-		end = FRAME_BUFFER_DISPLAY_COUNT;
-	}
-	else if (type == FRAME_JPEG)
-	{
-		start = FRAME_BUFFER_DISPLAY_COUNT;
-		end = FRAME_BUFFER_DISPLAY_COUNT + FRAME_BUFFER_JPEG_COUNT;
+		LOGE("%s unknow type: %d\n", __func__, type);
+		return NULL;
 	}
 
 	GLOBAL_INT_DECLARATION();
 
 	GLOBAL_INT_DISABLE();
 
-	for (i = start; i < end; i++)
+	list_for_each_safe(pos, n, free_list)
 	{
-		if (psram_frame[i].state != STATE_FRAMED)
+		tmp = list_entry(pos, frame_buffer_t, list);
+		if (tmp->state != STATE_ALLOCED)
 		{
-			continue;
-		}
-
-		if (buffer == NULL)
-		{
-			buffer = &psram_frame[i];
-			continue;
-		}
-
-		if (buffer->sequence < psram_frame[i].sequence)
-		{
-			buffer = &psram_frame[i];
+			frame = tmp;
+			list_del(pos);
+			break;
 		}
 	}
+
+	if (frame == NULL)
+	{
+		list_for_each_safe(pos, n, ready_list)
+		{
+			tmp = list_entry(pos, frame_buffer_t, list);
+			if (tmp->state != STATE_ALLOCED)
+			{
+				frame = tmp;
+				list_del(pos);
+				break;
+			}
+		}
+	}
+
+	if (frame != NULL)
+	{
+		frame->state = STATE_ALLOCED;
+		frame->lock++;
+	}
+
+	LOGD("alloc: %p\n", frame->frame);
 
 	GLOBAL_INT_RESTORE();
 
-	if (buffer != NULL)
+	return frame;
+}
+
+
+void frame_buffer_lock_frame(frame_buffer_t *frame)
+{
+	frame->lock++;
+}
+
+void frame_buffer_push_frame(frame_buffer_t *buffer)
+{
+	LIST_HEADER_T *list = NULL;
+
+	if (buffer->type == FRAME_JPEG)
 	{
-		buffer->state = STATE_ALLOCED;
+		list = &jpeg_ready_node_list;
+	}
+	else if (buffer->type == FRAME_DISPLAY)
+	{
+		list = &display_ready_node_list;
+	}
+	else
+	{
+		LOGE("%s unknow type: %d\n", __func__, buffer->type);
+		return;
 	}
 
-	return buffer;
+	GLOBAL_INT_DECLARATION();
+	GLOBAL_INT_DISABLE();
+
+	buffer->lock--;
+	buffer->state = STATE_FRAMED;
+	list_add_tail(&buffer->list, list);
+
+	GLOBAL_INT_RESTORE();
+
+}
+
+
+frame_buffer_t *frame_buffer_pop_frame(frame_type_t type)
+{
+	frame_buffer_t *frame = NULL, *tmp = NULL;
+	LIST_HEADER_T *list = NULL;
+	LIST_HEADER_T *pos, *n;
+
+	if (type == FRAME_JPEG)
+	{
+		list = &jpeg_ready_node_list;
+	}
+	else if (type == FRAME_DISPLAY)
+	{
+		list = &display_ready_node_list;
+	}
+	else
+	{
+		LOGE("%s unknow type: %d\n", __func__, type);
+		return NULL;
+	}
+
+	GLOBAL_INT_DECLARATION();
+
+	GLOBAL_INT_DISABLE();
+
+	list_for_each_safe(pos, n, list)
+	{
+		tmp = list_entry(pos, frame_buffer_t, list);
+		if (tmp->state == STATE_FRAMED)
+		{
+			frame = tmp;
+			list_del(pos);
+			break;
+		}
+	}
+
+	frame->state = STATE_ALLOCED;
+	frame->lock++;
+
+
+	GLOBAL_INT_RESTORE();
+
+	if (frame == NULL)
+	{
+		LOGE("%s get frame failed: %d\n", __func__, type);
+	}
+
+	return frame;
 }
 
 
@@ -179,7 +263,7 @@ void frame_buffer_complete_notify(frame_buffer_t *buffer)
 		    && (!frame_buffer_info->wifi_lock)
 		    && frame_buffer_info->wifi_comp_cb)
 		{
-			buffer->lock++;
+			frame_buffer_lock_frame(buffer);
 			frame_buffer_info->wifi_lock = true;
 			frame_buffer_info->wifi_comp_cb(buffer);
 		}
@@ -190,7 +274,7 @@ void frame_buffer_complete_notify(frame_buffer_t *buffer)
 		    && (!frame_buffer_info->decoder_lock)
 		    && frame_buffer_info->decoder_comp_cb)
 		{
-			buffer->lock++;
+			frame_buffer_lock_frame(buffer);
 			frame_buffer_info->decoder_lock = true;
 			frame_buffer_info->decoder_comp_cb(buffer);
 			//LOGD("lcd alloc %p %d:%d:%d\n", buffer, buffer->id, buffer->state, buffer->lock);
@@ -202,7 +286,7 @@ void frame_buffer_complete_notify(frame_buffer_t *buffer)
 		    && (!frame_buffer_info->capture_lock)
 		    && frame_buffer_info->capture_comp_cb)
 		{
-			buffer->lock++;
+			frame_buffer_lock_frame(buffer);
 			frame_buffer_info->capture_lock = true;
 			frame_buffer_info->capture_comp_cb(buffer);
 			//storage_capture_frame_notify(buffer);
@@ -217,7 +301,7 @@ void frame_buffer_complete_notify(frame_buffer_t *buffer)
 		    && (!frame_buffer_info->display_lock)
 		    && frame_buffer_info->display_comp_cb)
 		{
-			buffer->lock++;
+			frame_buffer_lock_frame(buffer);
 			//frame_buffer_info->display_lock = true;
 			frame_buffer_info->display_comp_cb(buffer);
 		}
@@ -225,10 +309,7 @@ void frame_buffer_complete_notify(frame_buffer_t *buffer)
 #endif
 	}
 
-	if (!buffer->lock)
-	{
-		frame_buffer_free(buffer);
-	}
+	frame_buffer_free_frame(buffer);
 }
 
 bool is_workflow_freezing(frame_type_t type)
@@ -281,13 +362,13 @@ void frame_buffer_generate_complete(frame_buffer_t *buffer, frame_type_t type)
 	GLOBAL_INT_DECLARATION();
 	GLOBAL_INT_DISABLE();
 
-	frame_buffer_free(buffer);
+	frame_buffer_push_frame(buffer);
 
 	if (!is_workflow_freezing(type))
 	{
 		LOGD("notify frame[%d]: %u complete, %d\n", buffer->id, buffer->sequence, type);
 
-		frame_buffer_t *frame = frame_buffer_get_available_frame(type);
+		frame_buffer_t *frame = frame_buffer_pop_frame(type);
 		frame_buffer_complete_notify(frame);
 	}
 	else
@@ -379,16 +460,9 @@ void frame_buffer_free_request(frame_buffer_t *buffer, frame_module_t module)
 		return;
 	}
 
+	frame_buffer_free_frame(buffer);
 
 	GLOBAL_INT_DISABLE();
-
-	buffer->lock--;
-
-	if (!buffer->lock)
-	{
-		LOGD("free frame[%d] %d\n", buffer->id, buffer->sequence);
-		frame_buffer_free(buffer);
-	}
 
 	switch (module)
 	{
@@ -414,6 +488,169 @@ void frame_buffer_free_request(frame_buffer_t *buffer, frame_module_t module)
 	GLOBAL_INT_RESTORE();
 }
 
+int frame_buffer_jpeg_frame_init(void)
+{
+#ifdef CONFIG_PSRAM
+	frame_buffer_t *tmp = NULL;
+	LIST_HEADER_T *pos, *n;
+
+	if (!list_empty(&jpeg_free_node_list))
+	{
+		list_for_each_safe(pos, n, &jpeg_free_node_list)
+		{
+			tmp = list_entry(pos, frame_buffer_t, list);
+			if (tmp != NULL)
+			{
+				list_del(pos);
+				os_free(tmp);
+				break;
+			}
+		}
+
+		INIT_LIST_HEAD(&jpeg_free_node_list);
+	}
+
+	if (!list_empty(&jpeg_ready_node_list))
+	{
+		list_for_each_safe(pos, n, &jpeg_ready_node_list)
+		{
+			tmp = list_entry(pos, frame_buffer_t, list);
+			if (tmp != NULL)
+			{
+				list_del(pos);
+				os_free(tmp);
+				break;
+			}
+		}
+
+		INIT_LIST_HEAD(&jpeg_ready_node_list);
+	}
+
+	if (frame_buffer_info->minimal_layout == true)
+	{
+		for (int i = 0; i < JPEG_ENC_FRAME_COUNT; i ++)
+		{
+			frame_buffer_t *frame = (frame_buffer_t *)os_malloc(sizeof(frame_buffer_t));
+
+			os_memset(frame, 0, sizeof(frame_buffer_t));
+
+			frame->state = STATE_INVALID;
+			frame->frame = psram_map->jpeg_enc[i];
+			frame->size = sizeof(psram_map->jpeg_enc[i]);
+			frame->id = i;
+			frame->type = FRAME_JPEG;
+			frame->length = 0;
+			frame->sequence = 0;
+			frame->lock = 0;
+			list_add_tail(&frame->list, &jpeg_free_node_list);
+		}
+	}
+	else
+	{
+		for (int i = 0; i < JPEG_ENC_FRAME_COUNT; i ++)
+		{
+			frame_buffer_t *frame = (frame_buffer_t *)os_malloc(sizeof(frame_buffer_t));
+
+			os_memset(frame, 0, sizeof(frame_buffer_t));
+
+			frame->state = STATE_INVALID;
+			frame->frame = psram_720p_map->jpeg_enc[i];
+			frame->size = sizeof(psram_720p_map->jpeg_enc[i]);
+			frame->id = i;
+			frame->type = FRAME_JPEG;
+			frame->length = 0;
+			frame->sequence = 0;
+			frame->lock = 0;
+			list_add_tail(&frame->list, &jpeg_free_node_list);
+		}
+	}
+
+#endif
+	return BK_OK;
+}
+
+int frame_buffer_display_frame_init(void)
+{
+#ifdef CONFIG_PSRAM
+
+	frame_buffer_t *tmp = NULL;
+	LIST_HEADER_T *pos, *n;
+
+	if (!list_empty(&display_free_node_list))
+	{
+		list_for_each_safe(pos, n, &display_free_node_list)
+		{
+			tmp = list_entry(pos, frame_buffer_t, list);
+			if (tmp != NULL)
+			{
+				list_del(pos);
+				os_free(tmp);
+				break;
+			}
+		}
+
+		INIT_LIST_HEAD(&display_free_node_list);
+	}
+
+	if (!list_empty(&display_ready_node_list))
+	{
+		list_for_each_safe(pos, n, &display_ready_node_list)
+		{
+			tmp = list_entry(pos, frame_buffer_t, list);
+			if (tmp != NULL)
+			{
+				list_del(pos);
+				os_free(tmp);
+				break;
+			}
+		}
+
+		INIT_LIST_HEAD(&display_ready_node_list);
+	}
+
+	if (frame_buffer_info->minimal_layout)
+	{
+		for (int i = 0; i < DISPLAY_FRAME_COUNT; i++)
+		{
+			frame_buffer_t *frame = (frame_buffer_t *)os_malloc(sizeof(frame_buffer_t));
+
+			os_memset(frame, 0, sizeof(frame_buffer_t));
+
+			frame->state = STATE_INVALID;
+			frame->frame = psram_map->display[i];
+			frame->size = sizeof(psram_map->display[i]);
+			frame->id = i;
+			frame->type = FRAME_DISPLAY;
+			frame->length = 0;
+			frame->sequence = 0;
+			frame->lock = 0;
+			list_add_tail(&frame->list, &display_free_node_list);
+		}
+	}
+	else
+	{
+		for (int i = 0; i < DISPLAY_720P_FRAME_COUNT; i ++)
+		{
+			frame_buffer_t *frame = (frame_buffer_t *)os_malloc(sizeof(frame_buffer_t));
+
+			os_memset(frame, 0, sizeof(frame_buffer_t));
+
+			frame->state = STATE_INVALID;
+			frame->frame = psram_720p_map->display[i];
+			frame->size = sizeof(psram_720p_map->display[i]);
+			frame->id = i;
+			frame->type = FRAME_DISPLAY;
+			frame->length = 0;
+			frame->sequence = 0;
+			frame->lock = 0;
+			list_add_tail(&frame->list, &display_free_node_list);
+		}
+	}
+
+#endif
+	return BK_OK;
+}
+
 
 void frame_buffer_init(void)
 {
@@ -423,35 +660,35 @@ void frame_buffer_init(void)
 		os_memset((void *)frame_buffer_info, 0, sizeof(frame_buffer_info_t));
 	}
 
-	os_memset((void *)psram_frame, 0, sizeof(psram_frame));
-
-#if (CONFIG_PSRAM)
-	int i;
-
-	for (i = 0; i < FRAME_BUFFER_DISPLAY_COUNT; i++)
-	{
-		psram_frame[i].state = STATE_INVALID;
-		psram_frame[i].frame = psram_map->display[i];
-		psram_frame[i].size = sizeof(psram_map->display[i]);
-		psram_frame[i].id = i;
-		psram_frame[i].type = FRAME_DISPLAY;
-	}
-
-	for (i = FRAME_BUFFER_DISPLAY_COUNT; i < FRAME_BUFFER_DISPLAY_COUNT + FRAME_BUFFER_JPEG_COUNT; i++)
-	{
-		psram_frame[i].state = STATE_INVALID;
-		psram_frame[i].frame = psram_map->jpeg_enc[i];
-		psram_frame[i].size = sizeof(psram_map->jpeg_enc[i]);
-		psram_frame[i].id = i;
-		psram_frame[i].type = FRAME_JPEG;
-	}
-
-#else
-
-#endif
-
+	frame_buffer_info->minimal_layout = true;
 }
 
+int frame_buffer_set_ppi(media_ppi_t ppi)
+{
+	uint16 width, heigth;
+
+	LOGI("%s, ppi %dX%d\n", __func__, ppi >> 16, ppi & 0xFFFF);
+
+
+	if (frame_buffer_info == NULL)
+	{
+		LOGE("%s frame_buffer_info is NULL\n", __func__);
+		return BK_FAIL;
+	}
+
+	width = ppi_to_pixel_x(ppi);
+	heigth = ppi_to_pixel_y(ppi);
+
+	if (width * heigth > PIXEL_800 * PIXEL_600)
+	{
+		LOGI("%s, 720P Memory Layout Set\n", __func__);
+		frame_buffer_info->minimal_layout = false;
+	}
+
+	frame_buffer_jpeg_frame_init();
+
+	return BK_OK;
+}
 bool frame_buffer_get_state(void)
 {
 	bool ret = false;
@@ -471,72 +708,16 @@ void frame_buffer_enable(bool enable)
 		os_memset((void *)frame_buffer_info, 0, sizeof(frame_buffer_info_t));
 
 		frame_buffer_info->enable = enable;
-
-#if (CONFIG_PSRAM)
-		int i;
-
-		for (i = 0; i < FRAME_BUFFER_DISPLAY_COUNT; i++)
-		{
-			psram_frame[i].state = STATE_INVALID;
-			psram_frame[i].frame = psram_map->display[i];
-			psram_frame[i].size = sizeof(psram_map->display[i]);
-			psram_frame[i].id = i;
-			psram_frame[i].type = FRAME_DISPLAY;
-			psram_frame[i].length = 0;
-			psram_frame[i].sequence = 0;
-			psram_frame[i].lock = 0;
-
-			LOGI("display frame[%d]: ptr: %p, size: %u\n", i, psram_frame[i].frame, psram_frame[i].size);
-		}
-
-		for (i = FRAME_BUFFER_DISPLAY_COUNT; i < FRAME_BUFFER_DISPLAY_COUNT + FRAME_BUFFER_JPEG_COUNT; i++)
-		{
-			psram_frame[i].state = STATE_INVALID;
-			psram_frame[i].frame = psram_map->jpeg_enc[i];
-			psram_frame[i].size = sizeof(psram_map->jpeg_enc[i]);
-			psram_frame[i].id = i;
-			psram_frame[i].type = FRAME_JPEG;
-			psram_frame[i].length = 0;
-			psram_frame[i].sequence = 0;
-			psram_frame[i].lock = 0;
-
-			LOGI("jpeg frame[%d]: ptr: %p, size: %u\n", i, psram_frame[i].frame, psram_frame[i].size);
-		}
-
-#endif
-
 	}
-}
-
-void frame_buffer_display_reset(void)
-{
-#if (CONFIG_PSRAM)
-	int i;
-
-	for (i = 0; i < FRAME_BUFFER_DISPLAY_COUNT; i++)
-	{
-		psram_frame[i].state = STATE_INVALID;
-		psram_frame[i].frame = psram_map->display[i];
-		psram_frame[i].size = sizeof(psram_map->display[i]);
-		psram_frame[i].id = i;
-		psram_frame[i].type = FRAME_DISPLAY;
-		psram_frame[i].length = 0;
-		psram_frame[i].sequence = 0;
-		psram_frame[i].lock = 0;
-
-		LOGI("display frame[%d]: ptr: %p, size: %u\n", i, psram_frame[i].frame, psram_frame[i].size);
-	}
-#endif
 }
 
 
 void frame_buffer_deinit(void)
 {
-	os_memset((void *)psram_frame, 0, sizeof(frame_buffer_t) * 3);
-
 	if (frame_buffer_info)
 	{
 		os_free(frame_buffer_info);
 		frame_buffer_info = NULL;
+		frame_buffer_info->minimal_layout = true;
 	}
 }

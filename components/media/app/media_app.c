@@ -30,6 +30,8 @@
 #include "camera_act.h"
 #include "lcd_act.h"
 
+#include "wlan_ui_pub.h"
+
 #define TAG "media_app"
 
 #define LOGI(...) BK_LOGI(TAG, ##__VA_ARGS__)
@@ -39,6 +41,8 @@
 
 static beken_thread_t media_app_th_hd = NULL;
 static beken_queue_t media_app_msg_queue = NULL;
+
+extern void rwnxl_set_video_transfer_flag(uint32_t video_transfer_flag);
 
 bk_err_t media_send_msg_sync(uint32_t event, uint32_t param)
 {
@@ -199,6 +203,10 @@ bk_err_t media_app_transfer_video_open(void *setup_cfg)
 
 	LOGI("%s, %p\n", __func__, ((video_setup_t *)setup_cfg)->send_func);
 
+	bk_wlan_ps_disable();
+
+	rwnxl_set_video_transfer_flag(true);
+
 	if (TRS_STATE_DISABLED != get_trs_video_transfer_state())
 	{
 		LOGI("%s already opened\n", __func__);
@@ -227,6 +235,12 @@ bk_err_t media_app_transfer_video_close(void)
 	return media_send_msg_sync(EVENT_TRS_VIDEO_TRANSFER_CLOSE_IND, 0);
 }
 
+bk_err_t media_app_lcd_rotate(bool enable)
+{
+	LOGI("%s\n", __func__);
+
+	return media_send_msg_sync(EVENT_LCD_ROTATE_ENABLE_IND, enable);
+}
 
 bk_err_t media_app_lcd_open(uint32_t lcd_ppi)
 {
@@ -325,7 +339,7 @@ bk_err_t media_app_capture(char *name)
 
 	if (name != NULL)
 	{
-		uint32_t len = os_strlen(name);
+		uint32_t len = os_strlen(name) + 1;
 
 		if (len > 31)
 		{
@@ -335,6 +349,7 @@ bk_err_t media_app_capture(char *name)
 		capture_name = (char *)os_malloc(len);
 		os_memset(capture_name, 0, len);
 		os_memcpy(capture_name, name, len);
+		capture_name[len - 1] = '\0';
 	}
 
 	ret = media_send_msg_sync(EVENT_STORAGE_CAPTURE_IND, (uint32_t)capture_name);
@@ -448,3 +463,29 @@ error:
 
 	return ret;
 }
+
+bk_err_t media_app_dump_display_frame(void)
+{
+	return media_send_msg_sync(EVENT_LCD_DUMP_DISPLAY_IND, 0);
+}
+
+bk_err_t media_app_dump_decoder_frame(void)
+{
+	return media_send_msg_sync(EVENT_LCD_DUMP_DECODER_IND, 0);
+}
+
+bk_err_t media_app_dump_jpeg_frame(void)
+{
+	return media_send_msg_sync(EVENT_LCD_DUMP_JPEG_IND, 0);
+}
+
+bk_err_t media_app_lcd_step_mode(bool enable)
+{
+	return media_send_msg_sync(EVENT_LCD_STEP_MODE_IND, enable);
+}
+
+bk_err_t media_app_lcd_step_trigger(void)
+{
+	return media_send_msg_sync(EVENT_LCD_STEP_TRIGGER_IND, 0);
+}
+

@@ -189,6 +189,8 @@ endif()
 		"lcd/lcd_hx8282.c"
 		"lcd/lcd_st7282.c"
 		"lcd/lcd_st7796s.c"
+		"lcd/lcd_gc9503v.c"
+		"lcd/lcd_spi.c"
 		)
 	endif()
 
@@ -198,13 +200,12 @@ endif()
 		)
 	endif()
 
-
 	if(CONFIG_DMA2D)
 	list(APPEND srcs
 		dma2d/dma2d_driver.c
 	)
 	endif()
-	
+
 	if (CONFIG_JPEG_DEC)
 	list(APPEND srcs
 		"jpeg_dec/jpeg_dec_driver.c"

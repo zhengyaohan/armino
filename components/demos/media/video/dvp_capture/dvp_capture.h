@@ -64,6 +64,8 @@ enum video_buff_state {
 	VIDEO_BUFF_FULL,
 };
 
+void bk_camera_set_config(uint8_t auto_ctrl, uint32_t up_size, uint32_t low_size);
+
 #ifdef __cplusplus
 }
 #endif

@@ -25,6 +25,7 @@
 #include <components/dvp_camera_types.h>
 #include "dvp_camera_config.h"
 #include "bk_drv_model.h"
+#include "dvp_capture.h"
 
 #if CONFIG_GENERAL_DMA
 #include "bk_general_dma.h"
@@ -38,10 +39,27 @@ static uint32_t s_camera_sensor = 0x01E00014;//(480 << 16) | 20;
 
 static jpegenc_desc_t ejpeg_cfg;
 static uint32_t frame_total_len = 0;
-
+static uint32_t upper_size = 50 * 1024;
+static uint32_t lower_size = 10 * 1024;
+static uint8_t jpeg_auto_encode = 0;
+static uint8_t jpeg_config_set = 0;
 
 static void camera_intf_delay_timer_hdl(timer_id_t timer_id)
 {
+	if (jpeg_config_set)
+	{
+		if (jpeg_auto_encode)
+		{
+			bk_jpeg_enc_enable_encode_auto_ctrl(jpeg_auto_encode);
+			bk_jpeg_enc_set_target_size(upper_size, lower_size);
+		}
+		else
+		{
+			bk_jpeg_enc_enable_encode_auto_ctrl(jpeg_auto_encode);
+		}
+
+		jpeg_config_set = 0;
+	}
 #if CONFIG_GENERAL_DMA
 	uint16_t already_len = ejpeg_cfg.rx_read_len;
 	GLOBAL_INT_DECLARATION();
@@ -296,5 +314,21 @@ bk_err_t bk_camera_set_param(uint32_t dev, uint32_t cfg)
 	s_camera_sensor = cfg;
 	camera_intf_set_sener_cfg(cfg);
 	return kNoErr;
+}
+
+void bk_camera_set_config(uint8_t auto_ctrl, uint32_t up_size, uint32_t low_size)
+{
+	jpeg_config_set = 1;
+
+	if (auto_ctrl)
+	{
+		if (up_size > low_size)
+		{
+			upper_size = up_size;
+			lower_size = low_size;
+		}
+	}
+
+	jpeg_auto_encode = auto_ctrl;
 }
 

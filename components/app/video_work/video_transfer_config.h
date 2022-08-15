@@ -73,7 +73,12 @@
 #define CMD_LEN                           8
 #define APP_DEMO_TCP_LISTEN_MAX           1
 
+#if (CONFIG_SOC_BK7237 || CONFIG_SOC_BK7256)
+#define APP_DEMO_EN_VOICE_TRANSFER        1
+#else
 #define APP_DEMO_EN_VOICE_TRANSFER        0
+#endif
+
 #endif  // SUPPORT_TIANZHIHENG_DRONE
 
 #endif  // CONFIG_APP_DEMO_VIDEO_TRANSFER

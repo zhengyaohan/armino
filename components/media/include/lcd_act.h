@@ -31,26 +31,33 @@ typedef enum
 typedef struct
 {
 	uint8_t debug : 1;
+	uint8_t rotate : 1;
+	uint8_t step_mode : 1;
+	uint8_t step_trigger : 1;
 	lcd_state_t state;
 	uint32_t param;
 	uint16_t src_pixel_x;
 	uint16_t src_pixel_y;
 	uint16_t lcd_pixel_x;
 	uint16_t lcd_pixel_y;
+	uint32_t pixel_size;
 	frame_buffer_t *jpeg_frame;
 	frame_buffer_t *decoder_frame;
+	frame_buffer_t *rotate_frame;
 	frame_buffer_t *ping_frame;
 	frame_buffer_t *pong_frame;
 	frame_buffer_t *display_frame;
 } lcd_info_t;
-
-
 
 void lcd_event_handle(uint32_t event, uint32_t param);
 lcd_state_t get_lcd_state(void);
 void set_lcd_state(lcd_state_t state);
 void lcd_init(void);
 void lcd_frame_complete_notify(frame_buffer_t *buffer);
+
+void lcd_act_rotate_degree90(uint32_t param);
+void lcd_act_rotate_complete(frame_buffer_t *frame);
+
 
 #ifdef __cplusplus
 }

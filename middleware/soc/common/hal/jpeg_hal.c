@@ -129,16 +129,21 @@ bk_err_t jpeg_hal_yuv_fmt_sel(jpeg_hal_t *hal, uint32_t value)
 	return BK_OK;
 }
 
-bk_err_t jpeg_hal_start_common(jpeg_hal_t *hal)
+bk_err_t jpeg_hal_start_common(jpeg_hal_t *hal, uint8_t mode)
 {
-	jpeg_ll_enable(hal->hw);
+	if (mode)
+		jpeg_ll_set_yuv_mode(hal->hw, 1);
+	else
+		jpeg_ll_enable(hal->hw);
 	return BK_OK;
 }
 
-bk_err_t jpeg_hal_stop_common(jpeg_hal_t *hal)
+bk_err_t jpeg_hal_stop_common(jpeg_hal_t *hal, uint8_t mode)
 {
-	jpeg_ll_set_yuv_mode(hal->hw, 0);
-	jpeg_ll_disable(hal->hw);
+	if (mode)
+		jpeg_ll_set_yuv_mode(hal->hw, 0);
+	else
+		jpeg_ll_disable(hal->hw);
 	return BK_OK;
 }
 
@@ -163,3 +168,24 @@ bk_err_t jpeg_hal_partial_display_offset_config(jpeg_hal_t *hal, const jpeg_part
 	return BK_OK;
 }
 
+bk_err_t jpeg_hal_enable_bitrate_ctrl(jpeg_hal_t *hal, uint8_t enable)
+{
+	if (enable)
+	{
+		jpeg_ll_enable_bitrate_ctrl(hal->hw, 1);
+	}
+	else
+	{
+		jpeg_ll_enable_bitrate_ctrl(hal->hw, 0);
+	}
+
+	return BK_OK;
+}
+
+bk_err_t jpeg_hal_set_target_size(jpeg_hal_t *hal, uint32_t up_size, uint32_t low_size)
+{
+	jpeg_ll_set_target_high_byte(hal->hw, up_size);
+	jpeg_ll_set_target_low_byte(hal->hw, low_size);
+
+	return BK_OK;
+}

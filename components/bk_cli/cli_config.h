@@ -208,6 +208,10 @@ extern "C" {
 #define CLI_CFG_AUD         1
 #endif
 
+#if CONFIG_AUD_INTF_TEST
+#define CLI_CFG_AUD_INTF    1
+#endif
+
 #if (CONFIG_SBC)
 #define CLI_CFG_SBC			1
 #endif

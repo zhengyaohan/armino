@@ -11,4 +11,4 @@ if (CONFIG_DOORBELL)
 	)
 endif()
 
-armino_component_register(SRCS "${srcs}" INCLUDE_DIRS "${incs}" PRIV_REQUIRES video media audio_transfer bk_common)
+armino_component_register(SRCS "${srcs}" INCLUDE_DIRS "${incs}" PRIV_REQUIRES media audio_transfer aud_intf bk_common)

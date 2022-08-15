@@ -25,6 +25,7 @@ extern "C" {
 extern const lcd_device_t lcd_device_st7282;
 extern const lcd_device_t lcd_device_hx8282;
 extern const lcd_device_t lcd_device_st7796s;
+extern const lcd_device_t lcd_device_gc9503v;
 
 
 

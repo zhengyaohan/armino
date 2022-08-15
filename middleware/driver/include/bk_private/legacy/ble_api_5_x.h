@@ -49,33 +49,9 @@ typedef ble_err_t (*ble_hci_raw_to_host_cb)(uint8_t *buf, uint16_t len);
 #include "ethermind_export/gatt_defines.h"
 
 
-/* 'signed' datatype of size '1 octet' */
-typedef char CHAR;
-/* 'signed' datatype of size '1 octet' */
-typedef signed char INT8;
-/* 'unsigned' datatype of size '1 octet' */
-typedef unsigned char UCHAR;
-/* 'unsigned' datatype of size '1 octet' */
-typedef unsigned char UINT8;
-/* 'signed' datatype of size '2 octet' */
-typedef short int INT16;
-/* 'unsigned' datatype of size '2 octet' */
-typedef unsigned short int UINT16;
 
-/* the following three are already defined by Windows */
-#ifndef FREERTOS_WIN_EMULATION
-    /* 'signed' datatype of size '4 octet' */
-    typedef int INT32;
-    /* 'unsigned' datatype of size '4 octet' */
-    typedef unsigned int  UINT32;
-    /* 'unsigned' datatype of size '8 octet' */
-    typedef unsigned long long UINT64;
-#endif /* FREERTOS_WIN_EMULATION */
 
-/* 'unsigned' datatype of size '1 octet' */
-typedef unsigned char BOOLEAN;
-
-typedef UINT16    API_RESULT;
+typedef uint16_t    API_RESULT;
 
 /** ATT Default MTU */
 //#define ATT_DEFAULT_MTU                   23U
@@ -123,15 +99,15 @@ typedef UINT16    API_RESULT;
 
 
 
-typedef UINT32 GATT_DB_SERVICE_DESC;
+typedef uint32_t GATT_DB_SERVICE_DESC;
 
 /** Abstracts 16 Bit UUID */
-typedef UINT16 ATT_UUID16;
+typedef uint16_t ATT_UUID16;
 
 /** Abstracts 128 Bit UUID */
 typedef struct
 {
-    UCHAR   value[ATT_128_BIT_UUID_SIZE];
+    uint8_t   value[ATT_128_BIT_UUID_SIZE];
 } ATT_UUID128;
 
 
@@ -145,13 +121,13 @@ typedef union
 typedef struct
 {
     /** Value to be packed */
-    UCHAR     *val;
+    uint8_t     *val;
 
     /** Length of Value */
-    UINT16   len;
+    uint16_t   len;
 
     /** Out Parameter Indicating Actual Length Packed */
-    UINT16   actual_len;
+    uint16_t   actual_len;
 
 } ATT_VALUE;
 
@@ -159,7 +135,7 @@ typedef struct
 typedef struct _GATT_DB_UUID_TYPE
 {
     /** Format indicating, 16 bit or 128 bit UUIDs */
-    UCHAR              uuid_format;
+    uint8_t              uuid_format;
 
     /** Attribute UUID */
     ATT_UUID           uuid;
@@ -173,7 +149,7 @@ typedef struct _GATT_DB_SERVICE_INFO
     GATT_DB_UUID_TYPE    uuid;
 
     /** If this service is primary or not */
-    UCHAR                is_primary;
+    uint8_t                is_primary;
 
     /**
      * Security Requrirements for the Service
@@ -519,8 +495,8 @@ typedef struct _GATT_DB_SERVICE_INFO
 #define    GATT_DB_PERM_WRITE_SIGNED_MITM       0x0100U
 
 
-typedef UCHAR DEVICE_HANDLE;
-typedef UCHAR ATT_CON_ID;
+typedef uint8_t DEVICE_HANDLE;
+typedef uint8_t ATT_CON_ID;
 
 typedef struct
 {
@@ -528,18 +504,18 @@ typedef struct
     DEVICE_HANDLE    device_id;
 
     /** Identifies the Service being Accessed */
-    UCHAR            service_id;
+    uint8_t            service_id;
 
     /** Identifies the Characteristic being Accessed */
-    UCHAR            char_id;
+    uint8_t            char_id;
 
 } GATT_DB_HANDLE;
 
-typedef UINT16 ATT_ATTR_HANDLE;
-typedef UCHAR GATT_DB_OPERATION;
+typedef uint16_t ATT_ATTR_HANDLE;
+typedef uint8_t GATT_DB_OPERATION;
 
 /* Abstracts Application Instance Identifier */
-typedef UCHAR APPL_HANDLE;
+typedef uint8_t APPL_HANDLE;
 
 typedef struct
 {
@@ -553,7 +529,7 @@ typedef struct
     GATT_DB_OPERATION    db_op;
 
 #if 1//def GATT_DB_HAVE_OFFSET_IN_PARAMS_SUPPORT
-    UINT16               offset;
+    uint16_t               offset;
 #endif /* GATT_DB_HAVE_OFFSET_IN_PARAMS_SUPPORT */
 
 } GATT_DB_PARAMS;
@@ -643,7 +619,7 @@ typedef struct
 
 #if 1//def ATT_128_BIT_UUID_FORMAT
     /* Service UUID Type */
-    UCHAR uuid_type;
+    uint8_t uuid_type;
 #endif /* ATT_128_BIT_UUID_FORMAT */
 
     /* Service Range */
@@ -662,7 +638,7 @@ typedef struct
 
 #if 1//def ATT_128_BIT_UUID_FORMAT
     /* Descriptor UUID Type */
-    UCHAR uuid_type;
+    uint8_t uuid_type;
 #endif /* ATT_128_BIT_UUID_FORMAT */
 
 } GATT_CHAR_DESC_PARAM;
@@ -676,7 +652,7 @@ typedef struct
     ATT_HANDLE_RANGE range;
 
     /* Characteristic Property */
-    UCHAR cproperty;
+    uint8_t cproperty;
 
     /* Characteristic Value Handle */
     ATT_ATTR_HANDLE value_handle;
@@ -686,17 +662,17 @@ typedef struct
 
 #if 1//def ATT_128_BIT_UUID_FORMAT
     /* Characteristic UUID Type */
-    UCHAR uuid_type;
+    uint8_t uuid_type;
 #endif /* ATT_128_BIT_UUID_FORMAT */
 
     /* Characteristic desciptor index*/
-    UCHAR desc_index;
+    uint8_t desc_index;
 
     /* Characteristics Value Offset */
-    UINT16 val_offset;
+    uint16_t val_offset;
 
     /* Characteristic Value Length */
-    UINT16 val_length;
+    uint16_t val_length;
 
     /* Characteristic descriptor array */
     GATT_CHAR_DESC_PARAM descriptor[GATT_MAX_CHAR_DESCRIPTORS];
@@ -714,7 +690,7 @@ typedef struct
     ATT_HANDLE_RANGE range;
 
     /* Characteristic Property */
-    UCHAR cproperty;
+    uint8_t cproperty;
 
     /* Characteristic Value Handle */
     ATT_ATTR_HANDLE value_handle;
@@ -724,17 +700,17 @@ typedef struct
 
 #if 1//def ATT_128_BIT_UUID_FORMAT
     /* Characteristic UUID Type */
-    UCHAR uuid_type;
+    uint8_t uuid_type;
 #endif /* ATT_128_BIT_UUID_FORMAT */
 
     /* Characteristic desciptor index*/
-    UCHAR desc_index;
+    uint8_t desc_index;
 
     /* Characteristics Value Offset */
-    UINT16 val_offset;
+    uint16_t val_offset;
 
     /* Characteristic Value Length */
-    UINT16 val_length;
+    uint16_t val_length;
 
     /* Characteristic descriptor array */
     GATT_CHAR_DESC_PARAM *descriptor; //GATT_MAX_CHAR_DESCRIPTORS

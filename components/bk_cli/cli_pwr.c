@@ -15,6 +15,7 @@
 #include <driver/hal/hal_aon_rtc_types.h>
 #include <driver/aon_rtc_types.h>
 #include <driver/aon_rtc.h>
+#include <modules/ble_types.h>
 
 #if CONFIG_MCU_PS
 static void cli_ps_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -150,6 +151,7 @@ void cli_pm_gpio_callback(gpio_id_t gpio_id)
 }
 #define PM_MANUAL_LOW_VOL_VOTE_ENABLE    (0)
 extern void stop_slave_core(void);
+extern ble_err_t bk_ble_deinit(void);
 static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 	UINT32 pm_sleep_mode = 0;
@@ -274,7 +276,7 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 	{
 		#if CONFIG_TOUCH
 		touch_wakeup_param.touch_channel = pm_param1;
-		bk_touch_register_touch_isr(touch_wakeup_param.touch_channel, cli_pm_touch_callback, NULL);
+		bk_touch_register_touch_isr((1<< touch_wakeup_param.touch_channel), cli_pm_touch_callback, NULL);
 		bk_pm_wakeup_source_set(PM_WAKEUP_SOURCE_INT_TOUCHED, &touch_wakeup_param);
 		#endif
 	}
@@ -292,12 +294,40 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 	{
 		if((pm_vote1 == PM_POWER_MODULE_NAME_BTSP)||(pm_vote1 == PM_POWER_MODULE_NAME_WIFIP_MAC))
 		{
-			bk_pm_module_vote_power_ctrl(pm_vote1,PM_POWER_MODULE_STATE_OFF);
+			if(pm_vote1 == PM_POWER_MODULE_NAME_WIFIP_MAC)
+			{
+#if CONFIG_WIFI_ENABLE
+#if CONFIG_WIFI6_CODE_STACK
+				bk_wifi_prepare_deepsleep();
+#endif
+				bk_wifi_sta_stop();
+#endif
+				bk_pm_module_vote_power_ctrl(pm_vote1,PM_POWER_MODULE_STATE_OFF);
+			}
+			else {
+#if CONFIG_BLE
+				bk_ble_deinit();
+#endif
+			}
 		}
-		
+
 		if((pm_vote2 == PM_POWER_MODULE_NAME_WIFIP_MAC)||(pm_vote2 == PM_POWER_MODULE_NAME_WIFIP_MAC))
 		{
-			bk_pm_module_vote_power_ctrl(pm_vote2,PM_POWER_MODULE_STATE_OFF);
+			if(pm_vote2 == PM_POWER_MODULE_NAME_WIFIP_MAC)
+			{
+#if CONFIG_WIFI_ENABLE
+#if CONFIG_WIFI6_CODE_STACK
+				bk_wifi_prepare_deepsleep();
+#endif
+				bk_wifi_sta_stop();
+#endif
+				bk_pm_module_vote_power_ctrl(pm_vote2,PM_POWER_MODULE_STATE_OFF);
+			}
+			else {
+#if CONFIG_BLE
+				bk_ble_deinit();
+#endif
+			}
 		}
 
 		if(pm_vote3 == PM_POWER_MODULE_NAME_CPU1)
@@ -428,6 +458,8 @@ static void cli_pm_freq(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 {
 	UINT32 pm_freq  = 0;
 	UINT32 pm_module_id  = 0;
+	pm_cpu_freq_e module_freq = 0;
+	pm_cpu_freq_e current_max_freq = 0;
 	if (argc != 3)
 	{
 		os_printf("set pm freq parameter invalid %d\r\n",argc);
@@ -436,13 +468,19 @@ static void cli_pm_freq(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 
 	pm_module_id = os_strtoul(argv[1], NULL, 10);
 	pm_freq = os_strtoul(argv[2], NULL, 10);
-	if ((pm_freq < 0) || (pm_freq > 3) || (pm_module_id < 0) || (pm_module_id > 31))
+	if ((pm_freq < 0) || (pm_freq > 3) || (pm_module_id < 0) || (pm_module_id > PM_DEV_ID_MAX))
 	{
 		os_printf("set pm freq value invalid %d %d \r\n",pm_freq,pm_module_id);
 		return;
 	}
 
 	bk_pm_module_vote_cpu_freq(pm_module_id,pm_freq);
+
+	module_freq =  bk_pm_module_current_cpu_freq_get(pm_module_id);
+
+	current_max_freq = bk_pm_current_max_cpu_freq_get();
+
+	os_printf("pm cpu freq test id: %d; freq: %d; current max cpu freq: %d;\r\n",pm_module_id,module_freq,current_max_freq);
 
 }
 static void cli_pm_lpo(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)

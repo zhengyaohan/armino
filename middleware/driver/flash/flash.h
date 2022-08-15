@@ -59,8 +59,7 @@
 
 #define LINE_MODE_TWO                        2
 #define LINE_MODE_FOUR                       4
-
-#define FLASH_DIV_VALUE_TWO		1
+#define FLASH_DIV_VALUE_EIGHT                2
 
 typedef enum {
 	FLASH_OPCODE_WREN    = 1,

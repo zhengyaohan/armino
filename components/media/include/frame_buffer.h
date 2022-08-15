@@ -43,6 +43,7 @@ typedef struct
 	uint8_t capture_lock : 1;
 	uint8_t display_register : 1;
 	uint8_t display_lock : 4;
+	uint8_t minimal_layout : 1;
 	void (*wifi_comp_cb)(frame_buffer_t *buffer);
 	void (*decoder_comp_cb)(frame_buffer_t *buffer);
 	void (*recoder_comp_cb)(frame_buffer_t *buffer);
@@ -60,7 +61,11 @@ void frame_buffer_init(void);
 void frame_buffer_deinit(void);
 bool frame_buffer_get_state(void);
 void frame_buffer_enable(bool enable);
-void frame_buffer_display_reset(void);
+int frame_buffer_set_ppi(media_ppi_t ppi);
+void frame_buffer_push_frame(frame_buffer_t *buffer);
+void frame_buffer_lock_frame(frame_buffer_t *frame);
+void frame_buffer_free_frame(frame_buffer_t *buffer);
+int frame_buffer_display_frame_init(void);
 
 
 #ifdef __cplusplus

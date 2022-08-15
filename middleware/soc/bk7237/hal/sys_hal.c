@@ -1288,6 +1288,20 @@ void sys_hal_mclk_div_set(uint32_t value)
 	sys_ll_set_cpu_clk_div_mode1_clkdiv_core(value);
 }
 
+uint32_t sys_hal_nmi_wdt_get_clk_div(void)
+{
+    return sys_ll_get_cpu_26m_wdt_clk_div_ckdiv_wdt();
+}
+
+void sys_hal_nmi_wdt_set_clk_div(uint32_t value)
+{
+    sys_ll_set_cpu_26m_wdt_clk_div_ckdiv_wdt(value);
+}
+
+void sys_hal_trng_disckg_set(uint32_t value)
+{
+	sys_ll_set_cpu_mode_disckg1_trng_disckg(value);
+}
 /**  Platform End **/
 
 
@@ -2110,8 +2124,14 @@ void sys_hal_psram_set_clkdiv(uint32_t value)
 void sys_hal_psram_power_enable(void)
 {
 	uint32_t value = sys_ll_get_ana_reg6_value();
-	value |= (0x1 << 12) | (0x1 << 7) | (0x1 << 5) | (0x1 << 8) | (0x1 << 9);
+	value |= (0x1 << 9);
+	//value &= ~(0x1 << 5);
 	sys_ll_set_ana_reg6_value(value);
+}
+
+void sys_hal_psram_psldo_vsel(uint32_t value)
+{
+	sys_ll_set_ana_reg9_psldo_vsel(value);
 }
 
 /**  psram End **/

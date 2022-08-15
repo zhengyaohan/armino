@@ -64,14 +64,16 @@ typedef struct {
 bk_err_t jpeg_hal_init(jpeg_hal_t *hal);
 bk_err_t jpeg_hal_configure(jpeg_hal_t *hal, const jpeg_config_t *config);
 bk_err_t jpeg_hal_yuv_fmt_sel(jpeg_hal_t *hal, uint32_t value);
-bk_err_t jpeg_hal_start_common(jpeg_hal_t *hal);
-bk_err_t jpeg_hal_stop_common(jpeg_hal_t *hal);
+bk_err_t jpeg_hal_start_common(jpeg_hal_t *hal, uint8_t mode);
+bk_err_t jpeg_hal_stop_common(jpeg_hal_t *hal, uint8_t mode);
 bk_err_t jpeg_hal_enable_clk(jpeg_hal_t *hal, uint32_t value);
 bk_err_t jpeg_hal_enable_partial_display(jpeg_hal_t *hal, uint32_t enable);
 bk_err_t jpeg_hal_partial_display_offset_config(jpeg_hal_t *hal, const jpeg_partial_offset_config_t *offset_config);
 bk_err_t jpeg_hal_set_em_base_addr(jpeg_hal_t *hal, uint8_t *address);
 bk_err_t jpeg_hal_set_yuv_config(jpeg_hal_t *hal, const jpeg_config_t *config);
 bk_err_t jpeg_hal_set_encode_config(jpeg_hal_t *hal, const jpeg_config_t *config);
+bk_err_t jpeg_hal_enable_bitrate_ctrl(jpeg_hal_t *hal, uint8_t enable);
+bk_err_t jpeg_hal_set_target_size(jpeg_hal_t *hal, uint32_t up_size, uint32_t low_size);
 
 
 #if CFG_HAL_DEBUG_JPEG

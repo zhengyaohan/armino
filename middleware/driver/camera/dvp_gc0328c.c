@@ -589,6 +589,24 @@ const uint8_t sensor_gc0328c_VGA_320_480_talbe[][2] =
 	{0x58, 0x40},
 };
 
+const uint8_t sensor_gc0328c_VGA_480_320_talbe[][2] = {
+#if (GC_QVGA_USE_SUBSAMPLE == 1)
+	{0xFE, 0x00},
+	{0x59, 0x11},
+#endif
+
+	{0xFE, 0x00},
+	{0x50, 0x01},
+	{0x51, 0x00},
+	{0x52, 0x00},
+	{0x53, 0x00},
+	{0x54, 0x00},
+
+	{0x55, 0x01},
+	{0x56, 0x40},
+	{0x57, 0x01},
+	{0x58, 0xe0},
+};
 
 
 const uint8_t sensor_gc0328c_VGA_640_480_talbe[][2] =
@@ -694,6 +712,21 @@ int gc0328c_set_ppi(const dvp_camera_i2c_callback_t *cb, media_ppi_t ppi)
 			ret = 0;
 		}
 		break;
+
+		case PPI_480X320:
+		{
+			size = sizeof(sensor_gc0328c_VGA_480_320_talbe) / 2;
+
+			for (i = 0; i < size; i++)
+			{
+				SENSOR_I2C_WRITE(sensor_gc0328c_VGA_480_320_talbe[i][0],
+					sensor_gc0328c_VGA_480_320_talbe[i][1]);
+			}
+
+			ret = 0;
+		}
+		break;
+
 		case PPI_640X480:
 		{
 			size = sizeof(sensor_gc0328c_VGA_640_480_talbe) / 2;
@@ -809,7 +842,7 @@ const dvp_sensor_config_t dvp_sensor_gc0328c =
 	.def_fps = FPS20,
 	/* capability config */
 	.fps_cap = FPS5 | FPS10 | FPS20 | FPS25 | FPS30,
-	.ppi_cap = PPI_CAP_320X240 | PPI_CAP_320X480 | PPI_CAP_480X272 | PPI_CAP_640X480,
+	.ppi_cap = PPI_CAP_320X240 | PPI_CAP_320X480 | PPI_CAP_480X272 | PPI_CAP_640X480 | PPI_CAP_480X320,
 	.id = ID_GC0328C,
 	.address = (GC0328C_WRITE_ADDRESS >> 1),
 	.init = gc0328c_init,

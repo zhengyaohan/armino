@@ -72,6 +72,14 @@ typedef struct
 	frame_buffer_t *frame;
 } dvp_camera_drv_t;
 
+typedef struct
+{
+	uint8_t  enable_set;
+	uint8_t  auto_encode;
+	uint32_t up;
+	uint32_t low;
+} dvp_camera_encode_t;
+
 dvp_camera_drv_t *dvp_camera_drv = NULL;
 
 
@@ -102,6 +110,7 @@ static uint8_t dvp_diag_debug = 0;
 
 uint32_t sequence = 0;
 uint32_t media_jpg_isr_count = 0;
+dvp_camera_encode_t dvp_camera_encode = {0, 0, 50 * 1024, 30 * 1024};
 
 
 frame_buffer_t *curr_frame_buffer = NULL;
@@ -233,6 +242,21 @@ static void dvp_camera_eof_handler(jpeg_unit_t id, void *param)
 		bk_gpio_pull_up(GPIO_8);
 	}
 
+	if (dvp_camera_encode.enable_set)
+	{
+		if (dvp_camera_encode.auto_encode)
+		{
+			bk_jpeg_enc_enable_encode_auto_ctrl(dvp_camera_encode.auto_encode);
+			bk_jpeg_enc_set_target_size(dvp_camera_encode.up, dvp_camera_encode.low);
+		}
+		else
+		{
+			bk_jpeg_enc_enable_encode_auto_ctrl(dvp_camera_encode.auto_encode);
+		}
+
+		dvp_camera_encode.enable_set = 0;
+	}
+
 	if (curr_frame_buffer == NULL
 	    || curr_frame_buffer->frame == NULL)
 	{
@@ -280,7 +304,7 @@ static void dvp_camera_eof_handler(jpeg_unit_t id, void *param)
 
 error:
 	bk_dma_stop(dvp_camera_dma_channel);
-	bk_jpeg_enc_set_enable(0);
+	bk_jpeg_enc_set_enable(0, JPEG_ENC_MODE);
 }
 
 static void dvp_camera_dma_finish_callback(dma_id_t id)
@@ -364,6 +388,11 @@ static void dvp_camera_yuv_eof_handler(jpeg_unit_t id, void *param)
 	media_jpg_isr_count++;
 
 	curr_frame_buffer->sequence = ++sequence;
+
+	if (dvp_camera_device)
+	{
+		curr_frame_buffer->length = dvp_camera_device->pixel_size;
+	}
 
 	dvp_camera_config.frame_complete(curr_frame_buffer);
 
@@ -541,6 +570,8 @@ bk_err_t bk_dvp_camera_driver_init(dvp_camera_config_t *config)
 
 	bk_jpeg_enc_mclk_enable();
 
+	rtos_delay_milliseconds(5);
+
 	if (config->mode == DVP_MODE_JPG)
 	{
 		jpeg_config.yuv_mode = 0;
@@ -576,6 +607,12 @@ bk_err_t bk_dvp_camera_driver_init(dvp_camera_config_t *config)
 		dvp_camera_device->ppi = config->ppi;
 		LOGI("%s switch ppi to %dX%d\n", __func__, config->ppi >> 16, config->ppi & 0xFFFF);
 	}
+
+	config->frame_set_ppi(dvp_camera_device->ppi);
+
+	dvp_camera_device->pixel_size = get_ppi_size(dvp_camera_device->ppi);
+
+	LOGI("Pixel size: %d\n", dvp_camera_device->pixel_size);
 
 	if (config->mode == DVP_MODE_JPG)
 	{
@@ -625,6 +662,7 @@ bk_err_t bk_dvp_camera_driver_init(dvp_camera_config_t *config)
 		case PPI_320X240:
 		case PPI_320X480:
 		case PPI_480X272:
+		case PPI_480X320:
 		case PPI_640X480:
 		case PPI_800X600:
 		case PPI_1280X720:
@@ -766,6 +804,24 @@ bk_err_t bk_dvp_camera_driver_deinit(void)
 	curr_frame_buffer = NULL;
 
 	LOGI("dvp camera deinit complete\n");
+	return kNoErr;
+}
+
+bk_err_t bk_dvp_camera_encode_config(uint8_t auto_ctrl, uint32_t up_size, uint32_t low_size)
+{
+	dvp_camera_encode.enable_set = 1;
+
+	dvp_camera_encode.auto_encode = auto_ctrl;
+
+	if (dvp_camera_encode.auto_encode)
+	{
+		if (up_size > low_size)
+		{
+			dvp_camera_encode.up = up_size;
+			dvp_camera_encode.low = low_size;
+		}
+	}
+
 	return kNoErr;
 }
 

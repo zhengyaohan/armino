@@ -179,6 +179,13 @@ static bool sdcard_check_inserted(void)
 /******************************************************************************/
 /***************************** public function ********************************/
 /******************************************************************************/
+#if (CONFIG_SOC_BK7256XX)	//temp code, will be switch to sdcard_driver.c
+static void sdcard_clock_set(uint8 clk_index)
+{
+	sdio_set_clock(clk_index);
+	sdcard.clk_cfg = clk_index;
+}
+#else
 static void sdcard_clock_set(uint8 clk_index)
 {
 	if (clk_index <= CLK_LOWEST)
@@ -187,6 +194,7 @@ static void sdcard_clock_set(uint8 clk_index)
 		sdcard.clk_cfg = clk_index;
 	}
 }
+#endif
 
 static void sdio_hw_init(void)
 {
@@ -275,16 +283,38 @@ uint32 get_timeout_param(uint8 cmd_or_data)
 		break;
 
 #if CONFIG_SOC_BK7256XX
-	//Hasn't 26M
+	case CLK_20M:
+		if (cmd_or_data)
+			timeout_param = CMD_TIMEOUT_20M;
+		else
+			timeout_param = DATA_TIMEOUT_20M;
+		break;
+		
+	//hasn't 26M
+	case CLK_40M:
+		if (cmd_or_data)
+			timeout_param = CMD_TIMEOUT_40M;
+		else
+			timeout_param = DATA_TIMEOUT_40M;
+		break;
+
+	case CLK_80M:
+	default:
+		if (cmd_or_data)
+			timeout_param = CMD_TIMEOUT_80M;
+		else
+			timeout_param = DATA_TIMEOUT_80M;
+		break;
 #else
 	case CLK_26M:
-#endif
 	default:
 		if (cmd_or_data)
 			timeout_param = CMD_TIMEOUT_26M;
 		else
 			timeout_param = DATA_TIMEOUT_26M;
 		break;
+#endif
+
 	}
 	return timeout_param;
 }
@@ -827,8 +857,12 @@ SDIO_Error sdcard_initialize(void)
 		goto err_return;
 	}
 
+#if (CONFIG_SOC_BK7256XX)	//temp code, will be switch to sdcard_driver.c
+	sdcard_clock_set(CLK_80M);
+#else
 	// change to default speed clk
 	sdcard_clock_set(CLK_13M);
+#endif
 
 	rtos_delay_milliseconds(2);
 	// get CSD
@@ -864,7 +898,12 @@ MMC_init:
 		goto err_return;
 	err = sdcard_mmc_cmd3_process();
 	os_printf("cmd 3 :%x\r\n", err);
+
+#if (CONFIG_SOC_BK7256XX)	//temp code, will be switch to sdcard_driver.c
+	sdcard_clock_set(CLK_80M);
+#else
 	sdcard_clock_set(CLK_13M);
+#endif
 
 	err = sdcard_cmd9_process(MMC_CARD);
 	os_printf("cmd 9 :%x\r\n", err);
@@ -1579,7 +1618,7 @@ static SDIO_Error sdcard_send_write_stop(int err)
 	}
 	ret += sdcard_cmd12_process(0);
 	if (ret != SD_OK)
-		SDCARD_FATAL("===write err:%x====\r\n", ret);
+		SDCARD_FATAL("write stop err:%x\r\n", ret);
 	ret += err;
 	return ret;
 }
@@ -1630,7 +1669,7 @@ SDIO_Error sdcard_write_multi_block(UINT8 *write_buff, UINT32 first_block, UINT3
 		if(ret == SD_OK)
 		{
 			//CMD25:notify sdcard,will write multi-block data
-			while(retry_cnt < 16)	//add retry count,maybe the card is busy after CMD12.
+			while(retry_cnt < 64)	//reduce wait time and add retry count,maybe the card is busy after CMD12.
 			{
 				retry_cnt++;
 
@@ -1647,8 +1686,8 @@ SDIO_Error sdcard_write_multi_block(UINT8 *write_buff, UINT32 first_block, UINT3
 						SDCARD_FATAL("sdcard write data fail \r\n");
 				}
 			}
-			if(retry_cnt >= 16)
-				SDCARD_FATAL("cmd25 retry_cnt=%d fail:ret=%d\r\n", retry_cnt);
+			if(retry_cnt >= 24)	//80M clock:test 60000 times, the max wait cnt is 24, each timeout is 100us
+				SDCARD_FATAL("cmd25 retry_cnt=%d ret=%d\r\n", retry_cnt, ret2);
 
 			ret += ret2;
 		}

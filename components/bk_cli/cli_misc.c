@@ -41,8 +41,8 @@ static void cli_misc_help(void)
 	CLI_LOGI("bootcore1 boot slave core,1:start,0:stop,others:start and stop many times\r\n");
 #endif
 	CLI_LOGI("jtagmode get jtag mode\r\n");
-	CLI_LOGI("setjtagmode set jtag mode [cpu0|cpu1] [group1|group2]");
-	CLI_LOGI("[cksel] [ckdiv_core] [ckdiv_bus] [ckdiv_cpu0] [ckdiv_cpu1]\r\n");
+	CLI_LOGI("setjtagmode set jtag mode [cpu0|cpu1] [group1|group2]\r\n");
+	CLI_LOGI("[cksel] [ckdiv_core] [ckdiv_bus] [ckdiv_cpu]\r\n");
 #if CONFIG_COMMON_IO
 	CLI_LOGI("testcommonio test common io\r\n");
 #endif
@@ -205,39 +205,61 @@ static void get_jtag_mode(char *pcWriteBuffer, int xWriteBufferLen, int argc, ch
 
 static void set_jtag_mode(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv) 
 {
-	if (argc < 7) {
+	if (argc < 3) {
 		cli_misc_help();
 		return;
 	}
+
+	uint32_t cksel_core = 3;
+	uint32_t ckdiv_core = 3;
+	uint32_t ckdiv_bus  = 0;
+	uint32_t ckdiv_cpu0 = 0;
+	uint32_t ckdiv_cpu1 = 0;
+
+	if (argc > 3)
+		cksel_core = os_strtoul(argv[3], NULL, 10);
+	if (argc > 4)
+		ckdiv_core = os_strtoul(argv[4], NULL, 10);
+	if (argc > 5)
+		ckdiv_bus  = os_strtoul(argv[5], NULL, 10);
 
 	if (os_strcmp(argv[1], "cpu0") == 0) {
 		(void)sys_drv_set_jtag_mode(0);
 		CLI_LOGI("gpio Jtag CPU0\r\n");
+		if (argc > 6) {
+			ckdiv_cpu0 = os_strtoul(argv[6], NULL, 10);
+			if((ckdiv_bus != ckdiv_cpu0)) {
+				CLI_LOGI("Please set [ckdiv_bus == ckdiv_cpu0]\r\n");
+				return;
+			}
+		}
 	} else if (os_strcmp(argv[1], "cpu1") == 0) {
 		(void)sys_drv_set_jtag_mode(1);
 		CLI_LOGI("gpio Jtag CPU1\r\n");
+		if (argc > 6) {
+			ckdiv_cpu1 = os_strtoul(argv[6], NULL, 10);
+			if((ckdiv_bus != ckdiv_cpu1)) {
+				CLI_LOGI("Please set [ckdiv_bus == ckdiv_cpu1]\r\n");
+				return;
+			}
+		}
 	} else {
 		cli_misc_help();
 	}
 
-	uint32_t cksel_core = os_strtoul(argv[3], NULL, 10);
-	uint32_t ckdiv_core = os_strtoul(argv[4], NULL, 10);
-	uint32_t ckdiv_bus  = os_strtoul(argv[5], NULL, 10);
-	uint32_t ckdiv_cpu0 = os_strtoul(argv[6], NULL, 10);
-	uint32_t ckdiv_cpu1 = os_strtoul(argv[7], NULL, 10);
-
-	if((ckdiv_bus != ckdiv_cpu0) || (ckdiv_bus != ckdiv_cpu1)) {
-		CLI_LOGI("Please set [ckdiv_bus == ckdiv_cpu0] and [ckdiv_bus == ckdiv_cpu1]\r\n");
-		return;
-	}
-
+	CLI_LOGI("[cksel:%d] [ckdiv_core:%d] [ckdiv_bus:%d] [ckdiv_cpu0:%d] [ckdiv_cpu1:%d]\r\n",
+			cksel_core, ckdiv_core, ckdiv_bus, ckdiv_cpu0, ckdiv_cpu1);
 	pm_core_bus_clock_ctrl(cksel_core, ckdiv_core, ckdiv_bus, ckdiv_cpu0, ckdiv_cpu1);
 
 	/*close watchdog*/
 	extern void wdt_debug_disable(void);
 	wdt_debug_disable();
+#if CONFIG_INT_WDT
 	bk_wdt_stop();
+#endif
+#if CONFIG_TASK_WDT
 	bk_task_wdt_stop();
+#endif
 
 #if CONFIG_CHANGE_JTAG_GPIO
 

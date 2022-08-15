@@ -51,25 +51,10 @@ static void stack_mem_dump(uint32_t stack_top, uint32_t stack_bottom)
 }
 #endif
 
-#if !((CONFIG_SOC_BK7231U) || (CONFIG_SOC_BK7251))
-static bool addr_is_in_itcm(uint32_t addr)
-{
-	return ((addr > (uint32_t)&_itcmcode_ram_begin) && (addr < (uint32_t)&_itcmcode_ram_end));
-}
-#endif
-
-static bool addr_is_in_flash_txt(uint32_t addr)
-{
-	return ((addr > (uint32_t)fiq_handler) && (addr < (uint32_t)&__flash_txt_end));
-}
-
 static bool code_addr_is_valid(uint32_t addr)
 {
-#if ((CONFIG_SOC_BK7231U) || (CONFIG_SOC_BK7251))
-	return (addr_is_in_flash_txt(addr));
-#else
-	return (addr_is_in_itcm(addr) || addr_is_in_flash_txt(addr));
-#endif
+	//TODO
+	return false;
 }
 
 /* The stack is grow from bottom to top

@@ -63,7 +63,7 @@ bk_err_t media_mailbox_send_msg(uint32_t cmd, uint32_t param1, uint32_t param2)
 
 static void media_major_mailbox_rx_isr(void *param, mb_chnl_cmd_t *cmd_buf)
 {
-	LOGI("%s, %08X\n", __func__, cmd_buf->param1);
+	LOGD("%s, %08X\n", __func__, cmd_buf->param1);
 
 	switch (cmd_buf->param1 >> MEDIA_EVT_BIT)
 	{
@@ -96,13 +96,13 @@ static void media_major_mailbox_rx_isr(void *param, mb_chnl_cmd_t *cmd_buf)
 
 static void media_major_mailbox_tx_isr(void *param)
 {
-	LOGI("%s\n", __func__);
+	LOGD("%s\n", __func__);
 
 }
 
 static void media_major_mailbox_tx_cmpl_isr(void *param, mb_chnl_ack_t *ack_buf)
 {
-	LOGI("%s\n", __func__);
+	LOGD("%s\n", __func__);
 
 }
 #endif
@@ -121,10 +121,12 @@ bk_err_t media_send_msg(media_msg_t *msg)
 
 	if (msg->event >> MEDIA_EVT_BIT == MAILBOX_CMD)
 	{
+#if 0
 		if (platform_is_in_interrupt_context())
 		{
-			LOGW("%s should not call form isr\n", __func__);
+			//LOGW("%s should not call form isr\n", __func__);
 		}
+#endif
 
 		ret = media_mailbox_send_msg(msg->event, msg->param, 0);
 		return ret;

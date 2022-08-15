@@ -73,6 +73,7 @@ bk_err_t bk_dvp_camera_open(media_ppi_t ppi, dvp_mode_t mode)
 	{
 		config.ppi = ppi;
 		config.mode = DVP_MODE_JPG;
+		config.frame_set_ppi = frame_buffer_set_ppi;
 		config.frame_complete = frame_buffer_jpg_complete;
 		config.frame_alloc = frame_buffer_jpg_alloc;
 
@@ -82,6 +83,7 @@ bk_err_t bk_dvp_camera_open(media_ppi_t ppi, dvp_mode_t mode)
 	{
 		config.ppi = ppi;
 		config.mode = DVP_MODE_YUV;
+		config.frame_set_ppi = frame_buffer_set_ppi;
 		config.frame_complete = frame_buffer_yuv_complete;
 		config.frame_alloc = frame_buffer_yuv_alloc;
 

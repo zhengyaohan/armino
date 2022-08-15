@@ -55,6 +55,7 @@
 #include "netif/ethernet.h"
 
 #include <string.h>
+#include "net.h"
 
 #ifdef LWIP_HOOK_FILENAME
 #include LWIP_HOOK_FILENAME
@@ -210,7 +211,12 @@ etharp_tmr(void)
 #endif /* ETHARP_SUPPORT_STATIC_ENTRIES */
       ) {
       arp_table[i].ctime++;
+#if CONFIG_WIFI6_CODE_STACK
+      if ((etharp_tmr_flag && (arp_table[i].ctime >= 3600)) ||
+          (!etharp_tmr_flag && (arp_table[i].ctime >= ARP_MAXAGE)) ||
+#else
       if ((arp_table[i].ctime >= ARP_MAXAGE) ||
+#endif
           ((arp_table[i].state == ETHARP_STATE_PENDING)  &&
            (arp_table[i].ctime >= ARP_MAXPENDING))) {
         /* pending or stable entry has become old! */

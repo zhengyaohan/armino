@@ -283,6 +283,13 @@ bk_err_t bk_aud_set_adc_samp_rate(aud_adc_samp_rate_t samp_rate)
 	return BK_OK;
 }
 
+bk_err_t bk_aud_set_adc_gain(uint32_t value)
+{
+	AUD_RETURN_ON_NOT_INIT();
+	aud_hal_set_adc_config0_adc_set_gain(value);
+	return BK_OK;
+}
+
 /* get adc fifo port address */
 bk_err_t bk_aud_get_adc_fifo_addr(uint32_t *adc_fifo_addr)
 {
@@ -532,6 +539,13 @@ bk_err_t bk_aud_set_dac_samp_rate(aud_dac_samp_rate_t samp_rate)
 	AUD_RETURN_ON_NOT_INIT();
 	aud_hal_dac_set_sample_rate(samp_rate);
 
+	return BK_OK;
+}
+
+bk_err_t bk_aud_set_dac_gain(uint32_t value)
+{
+	AUD_RETURN_ON_NOT_INIT();
+	aud_hal_set_dac_config0_dac_set_gain(value);
 	return BK_OK;
 }
 

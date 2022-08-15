@@ -25,8 +25,6 @@
 #include "sys_driver.h"
 #include <modules/pm.h>
 
-//#include "BK7256_RegList.h"
-
 typedef struct {
 	jpeg_isr_t isr_handler;
 	void *param;
@@ -136,7 +134,7 @@ static void jpeg_init_common(const jpeg_config_t *config)
 
 static void jpeg_deinit_common(void)
 {
-	jpeg_hal_stop_common(&s_jpeg.hal);
+	jpeg_hal_stop_common(&s_jpeg.hal, JPEG_ENC_MODE);
 	jpeg_hal_reset_config_to_default(&s_jpeg.hal);
 #if (CONFIG_SYSTEM_CTRL)
 	bk_pm_clock_ctrl(PM_CLK_ID_JPEG, CLK_PWR_CTRL_PWR_DOWN);
@@ -246,7 +244,8 @@ bk_err_t bk_jpeg_enc_dvp_init(const jpeg_config_t *config)
 
 bk_err_t bk_jpeg_enc_dvp_deinit(void)
 {
-	jpeg_hal_stop_common(&s_jpeg.hal);
+	jpeg_hal_stop_common(&s_jpeg.hal, JPEG_ENC_MODE);
+	jpeg_hal_stop_common(&s_jpeg.hal, JPEG_YUV_MODE);
 	jpeg_hal_reset_config_to_default(&s_jpeg.hal);
 
 	bk_pm_clock_ctrl(PM_CLK_ID_JPEG, CLK_PWR_CTRL_PWR_DOWN);
@@ -260,14 +259,14 @@ bk_err_t bk_jpeg_enc_dvp_deinit(void)
 	return BK_OK;
 }
 
-bk_err_t bk_jpeg_enc_set_enable(uint8_t enable)
+bk_err_t bk_jpeg_enc_set_enable(uint8_t enable, uint8_t mode)
 {
 	JPEG_RETURN_ON_NOT_INIT();
 
 	if (enable) {
-		jpeg_hal_start_common(&s_jpeg.hal);
+		jpeg_hal_start_common(&s_jpeg.hal, mode);
 	} else {
-		jpeg_hal_stop_common(&s_jpeg.hal);
+		jpeg_hal_stop_common(&s_jpeg.hal, mode);
 	}
 
 	return BK_OK;
@@ -401,6 +400,24 @@ bk_err_t bk_jpeg_enc_mclk_enable(void)
 	return BK_OK;
 }
 
+bk_err_t bk_jpeg_enc_enable_encode_auto_ctrl(uint8_t enable)
+{
+	JPEG_RETURN_ON_NOT_INIT();
+
+	jpeg_hal_enable_bitrate_ctrl(&s_jpeg.hal, enable);
+
+	return BK_OK;
+}
+
+bk_err_t bk_jpeg_enc_set_target_size(uint32_t up_size, uint32_t low_size)
+{
+	JPEG_RETURN_ON_NOT_INIT();
+
+	jpeg_hal_set_target_size(&s_jpeg.hal, up_size, low_size);
+
+	return BK_OK;
+}
+
 static void jpeg_isr(void)
 {
 	jpeg_hal_t *hal = &s_jpeg.hal;
@@ -414,11 +431,9 @@ static void jpeg_isr(void)
 	}
 
 	if (jpeg_hal_is_frame_end_int_triggered(hal, int_status)) {
-		//addAON_GPIO_Reg0x8 = 2;
 		if (s_jpeg.jpeg_isr_handler[END_OF_FRAME].isr_handler) {
 			s_jpeg.jpeg_isr_handler[END_OF_FRAME].isr_handler(0, s_jpeg.jpeg_isr_handler[END_OF_FRAME].param);
 		}
-		//addAON_GPIO_Reg0x8 = 0;
 	}
 
 	if (jpeg_hal_is_yuv_end_int_triggered(hal, int_status)) {

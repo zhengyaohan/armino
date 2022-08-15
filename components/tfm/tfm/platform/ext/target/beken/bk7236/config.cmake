@@ -21,3 +21,7 @@ else()
 endif()
 
 include(platform/ext/target/beken/bk7236/repo_fetch.cmake)
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions(-DCONFIG_BUILD_DEBUG)
+endif()

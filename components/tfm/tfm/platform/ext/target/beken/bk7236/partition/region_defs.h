@@ -102,7 +102,7 @@
 #define S_CODE_VECTOR_TABLE_SIZE    (0x230)
 
 #define S_DATA_START    (S_RAM_ALIAS(0x0))
-#define S_DATA_SIZE     (TOTAL_RAM_SIZE / 2)
+#define S_DATA_SIZE     (TOTAL_RAM_SIZE / 2) //TODO peter
 #define S_DATA_LIMIT    (S_DATA_START + S_DATA_SIZE - 1)
 
 /* Non-secure regions */
@@ -117,7 +117,7 @@
 #define DEV_APIS_TEST_NVMEM_REGION_SIZE  0x400
 #define NS_DATA_SIZE    (TOTAL_RAM_SIZE / 2 - DEV_APIS_TEST_NVMEM_REGION_SIZE)
 #else
-#define NS_DATA_SIZE    (TOTAL_RAM_SIZE / 2)
+#define NS_DATA_SIZE    (TOTAL_RAM_SIZE / 2) //TODO peter
 #endif
 #define NS_DATA_LIMIT   (NS_DATA_START + NS_DATA_SIZE - 1)
 

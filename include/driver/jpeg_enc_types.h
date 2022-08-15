@@ -44,6 +44,11 @@ extern "C" {
 #define X_PIXEL_1600    (200) /**< image resolution for hight: X * 8 = 1600 */
 #define Y_PIXEL_1200    (150) /**< image resolution for hight: Y * 8 = 1200 */
 
+typedef enum {
+	JPEG_ENC_MODE = 0,
+	JPEG_YUV_MODE,
+}jpeg_mode_t;
+
 /**
  * @brief jpeg_yuv_format_t when jpeg encode at yuv mode, the output yuv format type
  */

@@ -47,7 +47,7 @@ bk_err_t bk_jpeg_dec_driver_deinit(void);
 
 * @return 
 */
-bk_err_t bk_jpeg_dec_hw_init(jpeg_dec_xpixel_t xpixel, unsigned char *input_buf, unsigned char * output_buf);
+bk_err_t bk_jpeg_dec_hw_init(uint16_t xpixel, uint16_t ypixel, unsigned char *input_buf, unsigned char * output_buf);
 
 /**
 * @brief	 this api used for jpeg decode line interrupt config

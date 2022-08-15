@@ -16,11 +16,11 @@
 
 #include "cmsis.h"
 #include "target_cfg.h"
-#include "Driver_MPC.h"
 #include "platform_retarget_dev.h"
 #include "region_defs.h"
 #include "tfm_plat_defs.h"
 #include "region.h"
+#include "bk_mpc.h"
 
 #ifdef PSA_API_TEST_IPC
 #define PSA_FF_TEST_SECURE_UART2
@@ -64,9 +64,6 @@ const struct memory_region_limits memory_regions = {
 
 /* Allows software, via SAU, to define the code region as a NSC */
 #define NSCCFG_CODENSC  1
-
-/* Import MPC driver */
-extern ARM_DRIVER_MPC Driver_SRAM1_MPC, Driver_SRAM2_MPC;
 
 /* Define Peripherals NS address range for the platform */
 #define PERIPHERALS_BASE_NS_START (0x40000000)
@@ -252,7 +249,7 @@ enum tfm_plat_err_t nvic_interrupt_target_state_cfg(void)
     }
 
     /* Make sure that MPC and PPC are targeted to S state */
-    NVIC_ClearTargetState(MPC_IRQn);
+    NVIC_ClearTargetState(MPC_IRQn); //TODO peter
     NVIC_ClearTargetState(PPC_IRQn);
 
 #ifdef SECURE_UART1
@@ -269,18 +266,13 @@ enum tfm_plat_err_t nvic_interrupt_target_state_cfg(void)
 enum tfm_plat_err_t nvic_interrupt_enable(void)
 {
     struct spctrl_def* spctrl = CMSDK_SPCTRL;
-    int32_t ret = ARM_DRIVER_OK;
+    int32_t ret;
 
-    /* MPC interrupt enabling */
-    ret = Driver_SRAM1_MPC.EnableInterrupt();
-    if (ret != ARM_DRIVER_OK) {
+    ret = bk_mpc_enable_interrupt();
+    if (ret != BK_OK) {
         return TFM_PLAT_ERR_SYSTEM_ERR;
     }
-    ret = Driver_SRAM2_MPC.EnableInterrupt();
-    if (ret != ARM_DRIVER_OK) {
-        return TFM_PLAT_ERR_SYSTEM_ERR;
-    }
-    NVIC_EnableIRQ(MPC_IRQn);
+    NVIC_EnableIRQ(MPC_IRQn); //TODO peter
 
     /* PPC interrupt enabling */
     /* Clear pending PPC interrupts */
@@ -402,73 +394,13 @@ void sau_and_idau_cfg(void)
 }
 
 /*------------------- Memory configuration functions -------------------------*/
-#ifdef BL2
-#define NR_MPC_INIT_STEP                 7
-#else
-#define NR_MPC_INIT_STEP                 6
-#endif
 
 int32_t mpc_init_cfg(void)
 {
-    int32_t ret = ARM_DRIVER_OK;
+    if (BK_OK != bk_mpc_cfg())
+        return TFM_PLAT_ERR_SYSTEM_ERR;
 
-    ret = Driver_SRAM1_MPC.Initialize();
-    if (ret != ARM_DRIVER_OK) {
-        return ret;
-    }
-
-    ret = Driver_SRAM1_MPC.ConfigRegion(
-                                      memory_regions.non_secure_partition_base,
-                                      memory_regions.non_secure_partition_limit,
-                                      ARM_MPC_ATTR_NONSECURE);
-    if (ret != ARM_DRIVER_OK) {
-        return ret;
-    }
-
-#ifdef BL2
-    /* Secondary image region */
-    ret = Driver_SRAM1_MPC.ConfigRegion(memory_regions.secondary_partition_base,
-                                  memory_regions.secondary_partition_limit,
-                                  ARM_MPC_ATTR_NONSECURE);
-    if (ret != ARM_DRIVER_OK) {
-        return ret;
-    }
-#endif /* BL2 */
-
-    ret = Driver_SRAM2_MPC.Initialize();
-    if (ret != ARM_DRIVER_OK) {
-        return ret;
-    }
-
-    ret = Driver_SRAM2_MPC.ConfigRegion(NS_DATA_START, NS_DATA_LIMIT,
-                                        ARM_MPC_ATTR_NONSECURE);
-#if defined(PSA_API_TEST_NS) && !defined(PSA_API_TEST_IPC)
-    ret = Driver_SRAM2_MPC.ConfigRegion(DEV_APIS_TEST_NVMEM_REGION_START,
-                                        DEV_APIS_TEST_NVMEM_REGION_LIMIT,
-                                        ARM_MPC_ATTR_NONSECURE);
-#endif
-    if (ret != ARM_DRIVER_OK) {
-        return ret;
-    }
-
-    /* Lock down the MPC configuration */
-    ret = Driver_SRAM1_MPC.LockDown();
-    if (ret != ARM_DRIVER_OK) {
-        return ret;
-    }
-
-    ret = Driver_SRAM2_MPC.LockDown();
-    if (ret != ARM_DRIVER_OK) {
-        return ret;
-    }
-
-    /* Add barriers to assure the MPC configuration is done before continue
-     * the execution.
-     */
-    __DSB();
-    __ISB();
-
-    return ARM_DRIVER_OK;
+    return TFM_PLAT_ERR_SUCCESS;
 }
 
 /*---------------------- PPC configuration functions -------------------------*/

@@ -101,6 +101,39 @@ void storage_task_stop(void)
 	}
 }
 
+void storage_frame_buffer_dump(frame_buffer_t *frame, char *name)
+{
+	LOGI("%s dump frame: %d, %p, %u, size: %d\n", __func__, frame->id, frame->frame, frame->sequence, frame->length);
+
+#if (CONFIG_SDCARD_HOST)
+	FIL fp1;
+	unsigned int uiTemp = 0;
+	char file_name[50] = {0};
+
+	sprintf(file_name, "%d:/No.%d_%s", DISK_NUMBER_SDIO_SD, frame->sequence, name);
+
+	FRESULT fr = f_open(&fp1, file_name, FA_CREATE_ALWAYS | FA_WRITE);
+	if (fr != FR_OK)
+	{
+		LOGE("can not open file: %s, error: %d\n", file_name, fr);
+		return;
+	}
+
+	LOGI("open file:%s!\n", file_name);
+
+	fr = f_write(&fp1, (char *)frame->frame, frame->length, &uiTemp);
+	if (fr != FR_OK)
+	{
+		LOGE("f_write failed 1 fr = %d\r\n", fr);
+	}
+
+	f_close(&fp1);
+
+	LOGI("%s, complete\n", __func__);
+#endif
+}
+
+
 static void storage_capture_save(frame_buffer_t *frame)
 {
 	media_msg_t msg;
@@ -112,7 +145,7 @@ static void storage_capture_save(frame_buffer_t *frame)
 	unsigned int uiTemp = 0;
 	char file_name[50] = {0};
 
-	sprintf(file_name, "%d:/%d_%s", DISK_NUMBER_SDIO_SD, frame->id, capture_name);
+	sprintf(file_name, "%d:/%s", DISK_NUMBER_SDIO_SD, capture_name);
 
 	FRESULT fr = f_open(&fp1, file_name, FA_CREATE_ALWAYS | FA_WRITE);
 	if (fr != FR_OK)

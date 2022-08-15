@@ -19,7 +19,7 @@ if("${CONFIG_SOC_ARCH}" STREQUAL ${COMPONENT_NAME})
 
 if(CONFIG_FREERTOS)
 	list(APPEND incs os/freertos)
-	list(APPEND srcs os/freertos/boot_handlers.S os/freertos/cpu.c)
+	list(APPEND srcs os/freertos/cpu.c)
 elseif(CONFIG_LITEOS_M)
 	list(APPEND incs os/liteos_m)
 	list(APPEND srcs os/liteos_m/boot_handlers.S os/liteos_m/cpu.c)

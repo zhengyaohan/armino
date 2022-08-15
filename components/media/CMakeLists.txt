@@ -89,6 +89,7 @@ endif()
 if (CONFIG_LCD)
 	list(APPEND srcs
 		lcd/lcd_act.c
+		lcd/lcd_calc.c
 	)
 endif()
 

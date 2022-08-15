@@ -48,6 +48,8 @@
 
 #define DEBUG_INTERVAL (1000 * 2)
 
+extern bk_err_t pm_core_bus_clock_ctrl(uint32_t cksel_core, uint32_t ckdiv_core, uint32_t ckdiv_bus, uint32_t ckdiv_cpu0, uint32_t ckdiv_cpu1);
+
 extern void transfer_dump(uint32_t ms);
 #if CONFIG_LCD
 extern uint32_t media_jpg_isr_count;
@@ -78,6 +80,8 @@ void dvp_open_handle(param_pak_t *param, dvp_mode_t mode)
 		ret = kNoErr;
 		goto out;
 	}
+
+	//pm_core_bus_clock_ctrl(2, 0, 1, 0, 0);
 
 	frame_buffer_enable(true);
 
@@ -125,6 +129,8 @@ void dvp_close_handle(param_pak_t *param)
 
 
 	frame_buffer_enable(false);
+
+	//pm_core_bus_clock_ctrl(3, 1, 1, 0, 0);
 
 out:
 	MEDIA_EVT_RETURN(param, ret);

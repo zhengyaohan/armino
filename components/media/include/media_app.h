@@ -46,6 +46,13 @@ bk_err_t media_app_uvc_stop(void);
 bk_err_t media_app_uvc_param_set(uvc_camera_device_t *param);
 bk_err_t media_app_lcd_set_backlight(uint8_t level);
 bk_err_t media_app_mailbox_test(void);
+bk_err_t media_app_lcd_rotate(bool enable);
+bk_err_t media_app_dump_display_frame(void);
+bk_err_t media_app_dump_decoder_frame(void);
+bk_err_t media_app_dump_jpeg_frame(void);
+bk_err_t media_app_lcd_step_mode(bool enable);
+bk_err_t media_app_lcd_step_trigger(void);
+
 
 #ifdef __cplusplus
 }

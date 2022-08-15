@@ -54,6 +54,11 @@ if(CONFIG_FREERTOS)
 			list(APPEND srcs
 				freertos_v10/portable/GCC/ARM_CM33/non_secure/port.c
 				freertos_v10/portable/GCC/ARM_CM33/non_secure/portasm.c
+				#TODO Enable secure source files
+				#freertos_v10/portable/GCC/ARM_CM33/secure/secure_context.c
+				#freertos_v10/portable/GCC/ARM_CM33/secure/secure_context_port.c
+				#freertos_v10/portable/GCC/ARM_CM33/secure/secure_heap.c
+				#freertos_v10/portable/GCC/ARM_CM33/secure/secure_init.c
 				)
 		else()
 			list(APPEND incs
@@ -237,5 +242,5 @@ endif()
 
 armino_component_register(SRCS "${srcs}"
 		INCLUDE_DIRS "${incs}"
-		PRIV_REQUIRES bk_common)
+		PRIV_REQUIRES bk_common bk_rtos)
 

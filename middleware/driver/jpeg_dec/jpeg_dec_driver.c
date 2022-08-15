@@ -69,9 +69,9 @@ bk_err_t bk_jpeg_dec_driver_deinit(void)
 	return BK_OK;
 }
 
-bk_err_t bk_jpeg_dec_hw_init(jpeg_dec_xpixel_t xpixel, unsigned char *input_buf, unsigned char * output_buf)
+bk_err_t bk_jpeg_dec_hw_init(uint16_t xpixel, uint16_t ypixel, unsigned char *input_buf, unsigned char * output_buf)
 {
-	jpg_dec_config(xpixel, input_buf, output_buf);
+	jpg_dec_config(xpixel, ypixel, input_buf, output_buf);
 	jpeg_dec_auto_frame_end_int_en(1);
 	return BK_OK;
 }

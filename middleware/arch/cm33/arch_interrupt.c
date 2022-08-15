@@ -41,14 +41,7 @@ void intc_fiq(void)
 
 bk_err_t arch_isr_entry_init(void)
 {
-	*((volatile uint32_t *)0x400000) = (uint32_t)&do_irq;
-	*((volatile uint32_t *)0x400004) = (uint32_t)&do_fiq;
-	*((volatile uint32_t *)0x400008) = (uint32_t)&do_swi;
-	*((volatile uint32_t *)0x40000c) = (uint32_t)&do_undefined;
-	*((volatile uint32_t *)0x400010) = (uint32_t)&do_pabort;
-	*((volatile uint32_t *)0x400014) = (uint32_t)&do_dabort;
-	*((volatile uint32_t *)0x400018) = (uint32_t)&do_reserved;
-
+	//TODO
 	return BK_OK;
 }
 

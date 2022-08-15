@@ -76,6 +76,7 @@
 
 #include "bk_uart.h"
 #include "bk_wifi_netif.h"
+#include "bk_private/bk_wifi.h"
 
 //TODO should use registered callback here!!!
 extern int ke_l2_packet_tx(unsigned char *buf, int len, int flag);
@@ -222,6 +223,7 @@ ethernetif_input(int iface, struct pbuf *p)
     case ETHTYPE_ARP:
 #ifdef CONFIG_IPV6
     case ETHTYPE_IPV6:
+	wlan_set_multicast_flag();
 #endif
 #if PPPOE_SUPPORT
         /* PPPoE packet? */

@@ -6,6 +6,7 @@ set(srcs
 	"../common/lcd_dma2d_config.c"
 	"../common/lcd_spi_config.c"
 	"../lcd_dev_init/lcd_device_init.c"
+	"../common/lcd_sdcard_config.c"
 	)
 endif()
 

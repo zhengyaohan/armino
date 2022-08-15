@@ -555,7 +555,6 @@ static const struct cli_command s_dma_commands[] = {
 
 int cli_dma_init(void)
 {
-    BK_LOG_ON_ERR(bk_dma_driver_deinit());
     BK_LOG_ON_ERR(bk_dma_driver_init());
     return cli_register_commands(s_dma_commands, DMA_CMD_CNT);
 }

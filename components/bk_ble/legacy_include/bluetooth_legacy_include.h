@@ -169,7 +169,7 @@ ble_err_t bk_ble_set_gatt_mtu(uint8_t conn_handle, uint16_t mtu);
 ble_err_t bk_ble_gatt_read_resp(uint8_t conn_handle, void *rsp_param);
 ble_err_t bk_ble_gatt_get_char_val(GATT_DB_HANDLE    * handle, ATT_VALUE        * attr_value);
 ble_err_t bk_ble_att_read(uint8_t conn_handle, ATT_ATTR_HANDLE hdl);
-
+ATT_ATTR_HANDLE bk_ble_get_current_gatt_db_attr_handle(void);
 
 #ifdef __cplusplus
 }

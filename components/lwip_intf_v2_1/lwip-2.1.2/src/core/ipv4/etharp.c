@@ -212,15 +212,20 @@ etharp_tmr(void)
 #endif /* ETHARP_SUPPORT_STATIC_ENTRIES */
        ) {
       arp_table[i].ctime++;
+#if CONFIG_WIFI6_CODE_STACK
+      if ((etharp_tmr_flag && (arp_table[i].ctime >= 3600)) ||
+          (!etharp_tmr_flag && (arp_table[i].ctime >= ARP_MAXAGE)) ||
+#else
       if ((arp_table[i].ctime >= ARP_MAXAGE) ||
+#endif
           ((arp_table[i].state == ETHARP_STATE_PENDING)  &&
            (arp_table[i].ctime >= ARP_MAXPENDING))) {
         /* pending or stable entry has become old! */
-        LWIP_DEBUGF(ETHARP_DEBUG, ("etharp_timer: expired %s entry %d.\n",
+        LWIP_DEBUGF(ETHARP_DEBUG, ("etharp_timer 1hour: expired %s entry %d.\n",
                                    arp_table[i].state >= ETHARP_STATE_STABLE ? "stable" : "pending", i));
         /* clean up entries that have just been expired */
         etharp_free_entry(i);
-      } else if (arp_table[i].state == ETHARP_STATE_STABLE_REREQUESTING_1) {
+      }else if (arp_table[i].state == ETHARP_STATE_STABLE_REREQUESTING_1) {
         /* Don't send more than one request every 2 seconds. */
         arp_table[i].state = ETHARP_STATE_STABLE_REREQUESTING_2;
       } else if (arp_table[i].state == ETHARP_STATE_STABLE_REREQUESTING_2) {

@@ -24,6 +24,7 @@ typedef enum {
 	LCD_DEVICE_UNKNOW,
 	LCD_DEVICE_ST7282, /* 480X270  RGB */
 	LCD_DEVICE_HX8282, /* 1024X600 RGB  */
+	LCD_DEVICE_GC9503V, /* 480X800 RGB  */
 	LCD_DEVICE_ST7796S, /* 320X480 MCU  */
 } lcd_device_id_t;
 
@@ -35,16 +36,17 @@ typedef enum {
 typedef enum {
 	LCD_320M = 0,
 	LCD_160M,
+	LCD_120M,
 	LCD_80M,
 	LCD_60M,
-	LCD_54M,  //4
+	LCD_54M,  //5
 	LCD_40M,
 	LCD_32M,
 	LCD_26M,
 	LCD_20M,
-	LCD_12M,//9
+	LCD_12M,//10
 	LCD_10M,
-	LCD_8M   //11
+	LCD_8M   //12
 }lcd_clk_t;
 
 typedef enum {

@@ -33,6 +33,19 @@
         extern "C" {
     #endif
 
+#ifndef configENABLE_FPU
+#define configENABLE_FPU                   0
+#endif
+#ifndef configENABLE_MPU
+#define configENABLE_MPU                   0
+#endif
+#ifndef configENABLE_TRUSTZONE
+#define configENABLE_TRUSTZONE             1
+#endif
+#ifndef configMINIMAL_SECURE_STACK_SIZE
+#define configMINIMAL_SECURE_STACK_SIZE    (1024)
+#endif
+
 /*------------------------------------------------------------------------------
  * Port specific definitions.
  *
@@ -302,6 +315,12 @@
  */
     #define portMEMORY_BARRIER()    __asm volatile ( "" ::: "memory" )
 /*-----------------------------------------------------------*/
+
+uint32_t platform_is_in_interrupt_context(void);
+int port_disable_interrupts_flag(void);
+void port_enable_interrupts_flag(int val);
+uint32_t port_disable_mie_flag(void);
+void port_enable_mie_flag(uint32_t val);
 
     #ifdef __cplusplus
         }

@@ -286,6 +286,10 @@ if (CONFIG_PSRAM)
 	list(APPEND srcs cli_psram.c)
 endif()
 
+if (CONFIG_AUD_INTF_TEST)
+	list(APPEND srcs cli_aud_intf.c)
+endif()
+
 armino_component_register(SRCS "${srcs}"
 	INCLUDE_DIRS "${incs}"
 	REQUIRES utf8 temp_detect app driver user_driver bk_system iperf fatfs user_driver http

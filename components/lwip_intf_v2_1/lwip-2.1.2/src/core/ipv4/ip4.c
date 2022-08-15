@@ -726,10 +726,11 @@ ip4_input(struct pbuf *p, struct netif *inp)
 
 #if LWIP_IGMP
   /* there is an extra "router alert" option in IGMP messages which we allow for but do not police */
-  if ((iphdr_hlen > IP_HLEN) &&  (IPH_PROTO(iphdr) != IP_PROTO_IGMP)) {
+  if ((iphdr_hlen > IP_HLEN) &&  (IPH_PROTO(iphdr) != IP_PROTO_IGMP))
 #else
-  if (iphdr_hlen > IP_HLEN) {
+  if (iphdr_hlen > IP_HLEN)
 #endif /* LWIP_IGMP */
+  {
     LWIP_DEBUGF(IP_DEBUG | LWIP_DBG_LEVEL_SERIOUS, ("IP packet dropped since there were IP options (while IP_OPTIONS_ALLOWED == 0).\n"));
     pbuf_free(p);
     IP_STATS_INC(ip.opterr);
@@ -997,6 +998,10 @@ ip4_output_if_opt_src(struct pbuf *p, const ip4_addr_t *src, const ip4_addr_t *d
     chk_sum += iphdr->_id;
 #endif /* CHECKSUM_GEN_IP_INLINE */
     ++ip_id;
+
+    #if PBUF_LIFETIME_DBG
+    p->tx_tick_id = lwip_ntohs(IPH_ID(iphdr));
+    #endif
 
     if (src == NULL) {
       ip4_addr_copy(iphdr->src, *IP4_ADDR_ANY4);

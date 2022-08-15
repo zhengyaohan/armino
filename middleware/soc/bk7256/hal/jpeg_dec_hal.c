@@ -30,6 +30,7 @@
 #include <driver/hal/hal_jpeg_dec_types.h>
 #include "driver/jpeg_dec_types.h"
 #include "sys_ll_op_if.h"
+#include <driver/media_types.h>
 
 
 #define	LDB_WORD(ptr)		(uint16_t)(((uint16_t)*((uint8_t*)(ptr))<<8)|(uint16_t)*(uint8_t*)((ptr)+1))
@@ -567,44 +568,33 @@ JRESULT jd_prepare (JDEC* jd, uint16_t (*infunc)(JDEC*, uint8_t*, uint16_t), voi
 	}
 }
 
-int jpg_dec_config(jpeg_dec_xpixel_t xpixel, unsigned char *input_buf, unsigned char * output_buf)
+int jpg_dec_config(uint16_t xpixel, uint16_t ypixel,unsigned char *input_buf, unsigned char * output_buf)
 {
 	jpeg_dec_ll_set_reg0x58_value((uint32_t)input_buf);
 	jpeg_dec_ll_set_reg0x59_value((uint32_t)output_buf);
 	jpg_dec_st.inputbuf = input_buf;
 
+	jpeg_dec_ll_set_reg0x5b_value(xpixel*ypixel*2);
+	jpeg_dec_ll_set_reg0xf_value(xpixel*ypixel*2/64 - 1);
 	switch(xpixel)
 	{
-		case JPEGDEC_X_PIXEL_320:
-			jpeg_dec_ll_set_reg0x5b_value(PIXEL_320_480);
+		case PIXEL_320:
 			jpeg_dec_ll_set_reg0x5a_value(HVGA_RD_LEN);
-			jpeg_dec_ll_set_reg0xf_value(X_PIXEL_320_BLOCK - 1);
 			break;
-		case JPEGDEC_X_PIXEL_480:
-			jpeg_dec_ll_set_reg0x5b_value(PIXEL_480_272);
+		case PIXEL_480:
 			jpeg_dec_ll_set_reg0x5a_value(HVGA_RD_LEN);
-			jpeg_dec_ll_set_reg0xf_value(X_PIXEL_480_BLOCK - 1);
 			break;
-		case JPEGDEC_X_PIXEL_640:
-			jpeg_dec_ll_set_reg0x5b_value(PIXEL_640_480);
+		case PIXEL_640:
 			jpeg_dec_ll_set_reg0x5a_value(VGA_RD_LEN);
-			//jpeg_dec_ll_set_reg0xf_mcu_blk(X_PIXEL_640_BLOCK - 1);
-			jpeg_dec_ll_set_reg0xf_value(X_PIXEL_640_BLOCK - 1);
 			break;
-		case JPEGDEC_X_PIXEL_1280:
-			jpeg_dec_ll_set_reg0x5b_value(PIXEL_1280_720);
+		case PIXEL_1280:
 			jpeg_dec_ll_set_reg0x5a_value(V720P_RD_LEN);
-			jpeg_dec_ll_set_reg0xf_value(X_PIXEL_1280_BLOCK - 1);
 			break;
 		case JPEGDEC_X_PIXEL_1920:
-			jpeg_dec_ll_set_reg0x5b_value(PIXEL_1920_1080);
 			jpeg_dec_ll_set_reg0x5a_value(V1080P_RD_LEN);
-			jpeg_dec_ll_set_reg0xf_value(X_PIXEL_1920_BLOCK - 1);
 			break;
 		default:
-			jpeg_dec_ll_set_reg0x5b_value(PIXEL_480_272);
 			jpeg_dec_ll_set_reg0x5a_value(HVGA_RD_LEN);
-			jpeg_dec_ll_set_reg0xf_value(X_PIXEL_480_BLOCK - 1);
 			break;
 	}
 	return 0;

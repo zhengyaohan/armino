@@ -62,6 +62,7 @@ static uint16_t s_ethermind_send_char_test_handle = 0;
 static uint16_t s_ethermind_send_size_handle = 0;
 static uint16_t s_ethermind_send_intv_handle = 0;
 
+
 static uint8_t s_ethermind_send_test_value = 0xa;
 static uint16_t s_ethermind_send_size_value = 20;
 static uint16_t s_ethermind_send_intv_value = 1000;
@@ -163,7 +164,9 @@ static void ble_tx_test_active_timer_callback(void *param);
 static void ble_ethermind_performance_tx_timer_hdl(void *param);
 static void ble_ethermind_performance_rx_timer_hdl(void *param);
 int ble_enable_packet_loss_ratio_test_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
+#ifdef CONFIG_ALI_MQTT
 int ble_mqtt_loop_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
+#endif
 int ble_power_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
 
 static int ble_att_read_handle(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
@@ -232,7 +235,9 @@ const at_command_t ble_at_cmd_table[] = {
     {32, "STOPPERIODICSYNC", 1, "set periodic sync stop", ble_stop_periodic_sync_handle},
     {33, "ATTWRITE", 1, "att write <ATT_CON_ID> <ATT_ATTR_HANDLE> <value>", ble_att_write_handle},
     {34, "ENABLEPLRTEST", 0, "enable packet loss ratio test", ble_enable_packet_loss_ratio_test_handle},
+#ifdef CONFIG_ALI_MQTT
     {35, "MQTTLOOPBACK", 0, "enable mqtt loopback test", ble_mqtt_loop_handle},
+#endif
     {36, "POWER", 0, "power on/off", ble_power_handle},
     {37, "ATTREAD", 1, "att read <DEVICE_HANDLE> <ATT_CON_ID> <ATT_ATTR_HANDLE>", ble_att_read_handle},
 //#endif
@@ -398,7 +403,7 @@ static int8_t ethermind_find_index_by_info(uint8_t *index, uint8_t att_con_id)
     return -1;
 }
 
-static int8_t ethermind_find_index_by_att_con_id(uint8_t *index, ATT_CON_ID att_id)
+int8_t ethermind_find_index_by_att_con_id(uint8_t *index, ATT_CON_ID att_id)
 {
 
     for (uint8_t i = 0; i < sizeof(s_ethermind_nordic_used) / sizeof(s_ethermind_nordic_used[0]); ++i)
@@ -661,16 +666,22 @@ void ble_at_notice_cb(ble_notice_t notice, void *param)
         break;
     }
     case BLE_5_CREATE_DB: {
-        ble_create_db_t *cd_ind = (ble_create_db_t *)param;
-        os_printf("cd_ind:prf_id:%d, status:%d\r\n", cd_ind->prf_id, cd_ind->status);
+
 //#if (CONFIG_BTDM_5_2)
         if(bk_ble_get_controller_stack_type() == BK_BLE_CONTROLLER_STACK_TYPE_BTDM_5_2)
         {
+            ble_create_db_t *cd_ind = (ble_create_db_t *)param;
+            os_printf("cd_ind:prf_id:%d, status:%d\r\n", cd_ind->prf_id, cd_ind->status);
+
             at_cmd_status = cd_ind->status;
             if (ble_at_cmd_sema != NULL)
                 rtos_set_semaphore( &ble_at_cmd_sema );
         }
 //#endif
+        else
+        {
+            os_printf("%s BLE_5_CREATE_DB ok\n", __func__);
+        }
         break;
     }
     case BLE_5_INIT_CONNECT_EVENT: {
@@ -761,6 +772,7 @@ void ble_at_notice_cb(ble_notice_t notice, void *param)
 
         s_ethermind_performance_rx_bytes += tmp->len;
 
+#ifdef CONFIG_ALI_MQTT
         if (loop_type == LT_COEX)
         {
             os_printf("ATT_CON_ID %d data %s len %d sendto mqtt\n",
@@ -770,6 +782,7 @@ void ble_at_notice_cb(ble_notice_t notice, void *param)
             ble_send_data_2_mqtt(tmp->conn_handle, tmp->len, tmp->data);
         }
         else
+#endif
         {
             uint8_t index = 0;
             if(0 == ethermind_find_index_by_info(&index, tmp->conn_handle))
@@ -3572,7 +3585,7 @@ static int ble_register_service_handle(char *pcWriteBuffer, int xWriteBufferLen,
 
             char_value.val          = (uint8_t *)"";//(UCHAR *)s_ethermind_send_test_value;
             char_value.len          = 0;//strlen((char *)char_value.val);
-            char_value.actual_len   = 0;//char_value.len;
+            char_value.actual_len   = char_value.len;
 
 
             retval = bk_ble_gatt_db_add_characteristic
@@ -3597,7 +3610,7 @@ static int ble_register_service_handle(char *pcWriteBuffer, int xWriteBufferLen,
                 UINT16               perm;
                 ATT_VALUE            desc_value;
 
-                UCHAR cccd_value[2U]    = { 0x00U, 0x00U };
+                uint8_t cccd_value[2U]    = { 0x00U, 0x00U };
 
                 desc_uuid.uuid_format  = ATT_16_BIT_UUID_FORMAT;
                 desc_uuid.uuid.uuid_16 = GATT_CLIENT_CONFIG;

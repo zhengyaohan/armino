@@ -95,8 +95,12 @@ typedef enum
 	PM_POWER_SUB_MODULE_NAME_VIDP_LCD ,     // 20
 	PM_POWER_SUB_MODULE_NAME_PHY_BT ,       // 21
 	PM_POWER_SUB_MODULE_NAME_PHY_WIFI ,     // 22
+	PM_POWER_SUB_MODULE_NAME_AHBP_CAN ,     // 23
+	PM_POWER_SUB_MODULE_NAME_AHBP_QSPI ,    // 24
+	PM_POWER_SUB_MODULE_NAME_AHBP_USB ,     // 25
+	PM_POWER_SUB_MODULE_NAME_AHBP_PSRAM ,   // 26
 
-	PM_POWER_MODULE_NAME_NONE               // 23
+	PM_POWER_MODULE_NAME_NONE               // 27
 }pm_power_module_name_e;
 typedef enum
 {
@@ -225,7 +229,9 @@ typedef enum
 	PM_DEV_ID_JPEG,     // 28
 	PM_DEV_ID_DISP,     // 29
 	PM_DEV_ID_AUDIO,    // 30
-	PM_DEV_ID_WDG_CPU,  // 31
+	PM_DEV_ID_WDG,      // 31
+
+	PM_DEV_ID_DEFAULT,  // 32  it is used by pm module set default cpu frequency
 
 	PM_DEV_ID_MAX
 }pm_dev_id_e;
@@ -234,7 +240,8 @@ typedef enum
 	PM_CPU_FRQ_26M = 0,  // 0:CPU:26M,BUS:26M
 	PM_CPU_FRQ_120M,     // 1:CPU:120M,BUS:120M
 	PM_CPU_FRQ_240M,     // 2:CPU:240M,BUS:120M
-	PM_CPU_FRQ_320M      // 3:CPU:320M,BUS:160M
+	PM_CPU_FRQ_320M,     // 3:CPU:320M,BUS:160M
+	PM_CPU_FRQ_DEFAULT   // default cpu frequency which control by pm module
 }pm_cpu_freq_e;
 
 typedef int (*pm_cb)(uint64_t sleep_time, void *args);
@@ -256,6 +263,34 @@ typedef struct {
  *  - the state of phy calibration(0x1:have calibration;0x0:not calibration)
  */
 uint32_t bk_pm_phy_cali_state_get();
+/**
+ * @brief get the flag of phy reinit part1
+ *
+ * get the flag of phy reinit part1
+ *
+ * @attention
+ * - This API is used to get the flag of phy reinit part1
+ *
+ * @param
+ * -void
+ * @return
+ *  - the flag of phy reinit part1 (True:have part1;false:not do it)
+ */
+bool bk_pm_phy_reinit_flag_get();
+/**
+ * @brief clear the flag of phy reinit part1
+ *
+ * clear the flag of phy reinit part1
+ *
+ * @attention
+ * - This API is used to clear the flag of phy reinit part1
+ *
+ * @param
+ * -void
+ * @return
+ * -void
+ */
+void bk_pm_phy_reinit_flag_clear();
 /**
  * @brief get the consume time from lowvol wakeup
  *
@@ -318,6 +353,36 @@ bk_err_t bk_pm_light_sleep_unregister_cb(bool enter_cb, bool exit_cb);
  *
  */
 int32 bk_pm_module_power_state_get(pm_power_module_name_e module);
+/**
+ * @brief get the cpu frequency of the module vote
+ *
+ * get the module voting cpu frequency
+ *
+ * @attention
+ * - This API is used to get the module voting cpu frequency
+ *
+ * @param
+ * -module:module id
+ * @return
+ *  - the cpu frequency of the module vote
+ *
+ */
+pm_cpu_freq_e bk_pm_module_current_cpu_freq_get(pm_dev_id_e module);
+/**
+ * @brief get the current max and used cpu frequency
+ *
+ * select the cpu frequency
+ *
+ * @attention
+ * - This API is used to get the current max and used cpu frequency
+ *
+ * @param
+ * -void
+ * @return
+ *  - get the current max and used cpu frequency
+ *
+ */
+pm_cpu_freq_e bk_pm_current_max_cpu_freq_get();
 /**
  * @brief vote cpu frequency
  *

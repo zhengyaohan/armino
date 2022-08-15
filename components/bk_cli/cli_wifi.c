@@ -77,12 +77,18 @@ static int fast_connect_cb(void *arg, event_module_t event_module,
 	bk_flash_read_bytes(pt->partition_start_addr + pt->partition_length -4096,
 						(uint8_t *)&info_tmp, sizeof(BK_FAST_CONNECT_T));
 
-	if ((info_t.flag & 0x73l) == 0x71l) {
-		info_tmp.flag |= 0x1l;
+	if (info_t.flag == 0x71l) {
+		if ((info_tmp.flag & 0xf8l) == 0x70l)
+			info_tmp.flag |= 0x1l;
+		else
+			info_tmp.flag = 0x71l;
 		os_strcpy((char *)info_tmp.sta_ssid, (char *)info_t.sta_ssid);
 		os_strcpy((char *)info_tmp.sta_pwd, (char *)info_t.sta_pwd);
-	} else if ((info_t.flag & 0x73l) == 0x72l) {
-		info_tmp.flag |= 0x2l;
+	} else if (info_t.flag == 0x72l) {
+		if ((info_tmp.flag & 0xf8l) == 0x70l)
+			info_tmp.flag |= 0x2l;
+		else
+			info_tmp.flag = 0x72l;
 		os_strcpy((char *)info_tmp.ap_ssid, (char *)info_t.ap_ssid);
 		os_strcpy((char *)info_tmp.ap_pwd, (char *)info_t.ap_pwd);
 	} else
@@ -152,16 +158,16 @@ void demo_wifi_fast_connect(void)
 
 	bk_flash_read_bytes(pt->partition_start_addr + pt->partition_length -4096,
 						(uint8_t *)&info, sizeof(BK_FAST_CONNECT_T));
-	CLI_LOGI("%s, flag:%x\r\n", __func__, info.flag);
-	if ((info.flag & 0x73l) == 0x71l) {
+	CLI_LOGD("%s, flag:%x\r\n", __func__, info.flag);
+	if (info.flag == 0x71l) {
 		demo_sta_app_init((char *)info.sta_ssid, (char *)info.sta_pwd);
 #if 0
 		bk_event_register_cb(EVENT_MOD_NETIF, EVENT_NETIF_GOT_IP4,
 								demo_tcp_send, &info_t);
 #endif
-	} else if ((info.flag & 0x73l) == 0x72l) {
+	} else if (info.flag == 0x72l) {
 		demo_softap_app_init((char *)info.ap_ssid, (char *)info.ap_pwd, NULL);
-	} else if ((info.flag & 0x73l) == 0x73l) {
+	} else if (info.flag == 0x73l) {
 		demo_sta_app_init((char *)info.sta_ssid, (char *)info.sta_pwd);
 		demo_softap_app_init((char *)info.ap_ssid, (char *)info.ap_pwd, NULL);
 	}
@@ -228,13 +234,14 @@ void cli_wifi_ap_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **
 		bk_event_unregister_cb(EVENT_MOD_WIFI, EVENT_WIFI_STA_CONNECTED,
 								fast_connect_cb);
 		if (wifi_cli_find_id(argc, argv, "-w") > 0) {
-			os_memset(&info_t, 0x0, sizeof(BK_FAST_CONNECT_T));
+			bk_logic_partition_t *pt = bk_flash_partition_get_info(BK_PARTITION_USR_CONFIG);
+
+			bk_flash_read_bytes(pt->partition_start_addr + pt->partition_length -4096,
+						(uint8_t *)&info_t, sizeof(BK_FAST_CONNECT_T));
 			if ((info_t.flag & 0xf0l) == 0x70l)
 				info_t.flag |= 0x2l;
-			else {
-				info_t.flag &= 0x1l;
-				info_t.flag |= 0x72l;
-			}
+			else
+				info_t.flag = 0x72l;
 			os_strcpy((char *)info_t.ap_ssid, (char *)ap_ssid);
 			os_strcpy((char *)info_t.ap_pwd, ap_key);
 			fast_connect_cb(NULL, 0, 0, NULL);
@@ -243,9 +250,10 @@ void cli_wifi_ap_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **
 
 			bk_flash_read_bytes(pt->partition_start_addr + pt->partition_length -4096,
 						(uint8_t *)&info_t, sizeof(BK_FAST_CONNECT_T));
-			if ((info_t.flag & 0xf0l) == 0x70l) {
+			if (info_t.flag == 0x72l || info_t.flag == 0x73l) {
 				info_t.flag &= ~0x2l;
 				bk_flash_set_protect_type(FLASH_PROTECT_NONE);
+				bk_flash_erase_sector(pt->partition_start_addr + pt->partition_length -4096);
 				bk_flash_write_bytes(pt->partition_start_addr + pt->partition_length -4096,
 									(uint8_t *)&info_t, sizeof(BK_FAST_CONNECT_T));
 				bk_flash_set_protect_type(FLASH_UNPROTECT_LAST_BLOCK);
@@ -479,13 +487,13 @@ void cli_wifi_sta_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 		demo_sta_app_init((char *)oob_ssid_tp, password);
 #if CONFIG_ENABLE_WIFI_DEFAULT_CONNECT
 		if (wifi_cli_find_id(argc, argv, "-w") > 0) {
-			os_memset(&info_t, 0x0, sizeof(BK_FAST_CONNECT_T));
+			bk_logic_partition_t *pt = bk_flash_partition_get_info(BK_PARTITION_USR_CONFIG);
+			bk_flash_read_bytes(pt->partition_start_addr + pt->partition_length -4096,
+						(uint8_t *)&info_t, sizeof(BK_FAST_CONNECT_T));
 			if ((info_t.flag & 0xf0l) == 0x70l)
 				info_t.flag |= 0x1l;
-			else {
-				info_t.flag &= 0x2l;
-				info_t.flag |= 0x71l;
-			}
+			else
+				info_t.flag = 0x71l;
 			os_strcpy((char *)info_t.sta_ssid, (char *)oob_ssid_tp);
 			os_strcpy((char *)info_t.sta_pwd, password);
 			bk_event_register_cb(EVENT_MOD_WIFI, EVENT_WIFI_STA_CONNECTED,
@@ -495,7 +503,7 @@ void cli_wifi_sta_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char *
 
 			bk_flash_read_bytes(pt->partition_start_addr + pt->partition_length -4096,
 						(uint8_t *)&info_t, sizeof(BK_FAST_CONNECT_T));
-			if ((info_t.flag & 0xf0l) == 0x70l) {
+			if (info_t.flag == 0x71l || info_t.flag == 0x73l) {
 				info_t.flag &= ~0x1l;
 				bk_flash_set_protect_type(FLASH_PROTECT_NONE);
 				bk_flash_write_bytes(pt->partition_start_addr + pt->partition_length -4096,

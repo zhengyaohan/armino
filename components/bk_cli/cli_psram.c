@@ -107,7 +107,7 @@ static void psram_test(void)
 			error_num++;
 	}
 
-	CLI_LOGI("finish cpmpare, error_num: %ld, corr_rate: %ld.\r\n", error_num, ((test_len * 4 - error_num) * 100 / (test_len * 4)));
+	CLI_LOGI("finish cpmpare, error_num: %ld, corr_rate: %ld.\r\n", error_num, ((test_len - error_num) * 100 / test_len));
 
 	rtos_delay_milliseconds(1000);
 	psram_send_msg(PSRAM_START, 0);
@@ -188,7 +188,7 @@ static bk_err_t psram_task_init(void)
 		}
 
 		ret = rtos_create_thread(&psram_thread_hdl,
-								 6,
+								 4,
 								 "video_intf",
 								 (beken_thread_function_t)psram_test_main,
 								 4 * 1024,
