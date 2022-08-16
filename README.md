@@ -17,9 +17,9 @@ SoC is already supported.
 
 |Chip                                                                                |          v1.X.X             |
 |:---------------------------------------------------------------------------------- | :-------------------------: |
-|[BK7235](http://docs.bekencorp.com:8191/spec/BK7235/BK7235%C2%A0Datasheet_V0.1.pdf) | ![alt text][developing]     |
-|[BK7237](http://docs.bekencorp.com:8191/spec/BK7237/BK7237%C2%A0Datasheet_V0.3.pdf) | ![alt text][developing]     |
-|[BK7256](http://docs.bekencorp.com:8191/spec/BK7256/BK7256%C2%A0Datasheet_V0.1.pdf) | ![alt text][developing]     |
+|[BK7235](http://docs.bekencorp.com/spec/BK7235/BK7235%C2%A0Datasheet_V0.1.pdf) | ![alt text][developing]     |
+|[BK7237](http://docs.bekencorp.com/spec/BK7237/BK7237%C2%A0Datasheet_V0.3.pdf) | ![alt text][developing]     |
+|[BK7256](http://docs.bekencorp.com/spec/BK7256/BK7256%C2%A0Datasheet_V0.1.pdf) | ![alt text][developing]     |
 
 [supported]: https://img.shields.io/badge/-supported-green "supported"
 [developing]: https://img.shields.io/badge/-developing-orange "developing"
