@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include <common/bk_include.h>
-#include "compiler.h"
+#include <common/bk_compiler.h>
 #include <os/mem.h>
 #include "bk_arm_arch.h"
 #include "arch_interrupt.h"

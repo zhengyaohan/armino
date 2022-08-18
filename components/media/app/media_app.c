@@ -196,7 +196,7 @@ bk_err_t media_app_mailbox_test(void)
 	return ret;
 }
 
-bk_err_t media_app_transfer_video_open(void *setup_cfg)
+bk_err_t media_app_transfer_open(void *setup_cfg)
 {
 	int ret = kNoErr;
 	video_setup_t *ptr = NULL;
@@ -207,7 +207,7 @@ bk_err_t media_app_transfer_video_open(void *setup_cfg)
 
 	rwnxl_set_video_transfer_flag(true);
 
-	if (TRS_STATE_DISABLED != get_trs_video_transfer_state())
+	if (TRS_STATE_DISABLED != get_transfer_state())
 	{
 		LOGI("%s already opened\n", __func__);
 		return ret;
@@ -216,23 +216,27 @@ bk_err_t media_app_transfer_video_open(void *setup_cfg)
 	ptr = (video_setup_t *)os_malloc(sizeof(video_setup_t));
 	os_memcpy(ptr, (video_setup_t *)setup_cfg, sizeof(video_setup_t));
 
-	ret = media_send_msg_sync(EVENT_TRS_VIDEO_TRANSFER_OPEN_IND, (uint32_t)ptr);
+	ret = media_send_msg_sync(EVENT_TRANSFER_OPEN_IND, (uint32_t)ptr);
 
 	os_free(ptr);
 
 	return ret;
 }
 
-
-bk_err_t media_app_transfer_video_close(void)
+bk_err_t media_app_transfer_pause(bool pause)
 {
-	if (TRS_STATE_ENABLED != get_trs_video_transfer_state())
+	return media_send_msg_sync(EVENT_TRANSFER_PAUSE_IND, pause);
+}
+
+bk_err_t media_app_transfer_close(void)
+{
+	if (TRS_STATE_ENABLED != get_transfer_state())
 	{
 		LOGI("%s already closed\n", __func__);
 		return kNoErr;
 	}
 
-	return media_send_msg_sync(EVENT_TRS_VIDEO_TRANSFER_CLOSE_IND, 0);
+	return media_send_msg_sync(EVENT_TRANSFER_CLOSE_IND, 0);
 }
 
 bk_err_t media_app_lcd_rotate(bool enable)

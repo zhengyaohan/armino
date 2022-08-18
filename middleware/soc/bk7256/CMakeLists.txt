@@ -49,6 +49,8 @@ list(APPEND srcs
 	"hal/jpeg_dec_hal.c"
 	"hal/flash_hal_debug.c"
 	"hal/flash_ll.c"
+	"hal/qspi_hal_debug.c"
+	"hal/qspi_ll.c"
 )
 
 if(CONFIG_SECURITYIP)

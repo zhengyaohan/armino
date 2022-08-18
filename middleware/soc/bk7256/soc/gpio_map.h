@@ -182,6 +182,11 @@ extern "C" {
 }
 #endif
 
+#if CONFIG_DOORBELL_DEMO2
+#define CONFIG_PIN_SDIO_GROUP_0 1
+#define CONFIG_SDCARD_BUSWIDTH_4LINE 1
+#endif
+
 #define SDIO_HOST_GPIO_PIN_NUMBER    6
 #define SDIO_HOST_GPIO_CLK_INDEX     0
 #define SDIO_HOST_GPIO_CMD_INDEX     1

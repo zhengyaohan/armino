@@ -205,6 +205,7 @@ void uvc_close_handle(param_pak_t *param)
 	frame_buffer_enable(false);
 
 	//pm_core_bus_clock_ctrl(3, 1, 1, 0, 0);
+	LOGI("uvc close success!\n");
 
 out:
 	MEDIA_EVT_RETURN(param, ret);

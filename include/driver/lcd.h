@@ -14,7 +14,6 @@
 
 #pragma once
 
-#include "driver/lcd_disp_types.h"
 #include "driver/lcd_types.h"
 
 #ifdef __cplusplus
@@ -55,17 +54,13 @@ bk_err_t bk_lcd_driver_init(lcd_clk_t clk);
  * @param
  *     - x_pixel defult by 320, user can set by any value.
  *     - y_pixel defult by 480, user can set by any value.
- *
- * @attention 1. int the next version, the xpixel and ypixel deside the transfer number of lcd display
- *               will config with another two register x offset and y offset.
- * @attention 2. in this sdk version x_pixel/y_pixel only set once in 8080_init,if you want set twice,should
- *               set bk_lcd_8080_display_enable(0).
+ *     - input_data_format
  *
  * @return
  *     - BK_OK: succeed
  *     - others: other errors.
  */
-	bk_err_t bk_lcd_8080_init(uint16_t x_pixel, uint16_t y_pixel,rgb_input_data_format_t input_data_format);
+bk_err_t bk_lcd_8080_init(uint16_t x_pixel, uint16_t y_pixel,rgb_input_data_format_t input_data_format);
 
 
 /**
@@ -88,40 +83,12 @@ bk_err_t bk_lcd_8080_deinit(void);
  *     - width lcd display width
  *     - height lcd display height
  *
- * @attention 1. int the next version, the width and height deside the transfer number of lcd display.
- *              will config with another two register x offset and y offset.
- * @attention 2. in this sdk version width/height only set once in 8080_init,if you want set twice,should 
- *               set bk_lcd_8080_display_enable(0).
- *
  * @return
  *     - BK_OK: succeed
  *     - others: other errors.
  */
 bk_err_t bk_lcd_pixel_config(uint16_t x_pixel, uint16_t y_pixel);
 
-
-/**
- * @brief write 8080 lcd cmd
- *
- * @param lcd cmd date, rang bit[15:0]
- *
- * @return
- *     - BK_OK: succeed
- *     - others: other errors.
- */
-bk_err_t  bk_lcd_8080_write_cmd(uint32_t cmd);
-
-
-/**
- * @brief write 8080 lcd data 
- *
- * @param lcd date, rang bit[15:0]
- *
- * @return
- *     - BK_OK: succeed
- *     - others: other errors.
- */
-bk_err_t bk_lcd_8080_write_data(uint32_t data);
 
 /**
  * @brief This API config 8080 lcd interrupt
@@ -150,19 +117,6 @@ bk_err_t bk_lcd_8080_int_enable(bool is_sof_en, bool is_eof_en);
  *     - others: other errors.
  */
 bk_err_t bk_lcd_8080_start_transfer(bool start);
-
-
-/**
- * @brief  8080 lcd display enable
- *
- * @param   1 enable 8080 interface display
- *        - 0 disable 8080 interface display
- *
- * @return
- *     - BK_OK: succeed
- *     - others: other errors.
- */
-bk_err_t bk_lcd_8080_display_enable(bool en);
 
 
 /**
@@ -206,6 +160,7 @@ bk_err_t bk_lcd_rgb_display_en(bool en);
  */
 bk_err_t bk_lcd_rgb_int_enable(bool is_sof_en, bool is_eof_en);
 
+#if	(USE_LCD_REGISTER_CALLBACKS == 1) 
 
 /**
  * @brief This API register  8080/rgb lcd int isr
@@ -223,6 +178,45 @@ bk_err_t bk_lcd_rgb_int_enable(bool is_sof_en, bool is_eof_en);
  *     - others: other errors.
  */
 bk_err_t bk_lcd_isr_register(lcd_int_type_t int_type, lcd_isr_t isr);
+#else
+
+/**
+ * @brief This API register  8080/rgb lcd int isr
+ * 
+ * @param
+ *     - isr: isr function
+ *
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
+ */
+bk_err_t bk_lcd_isr_register(lcd_isr_t lcd_isr);
+
+/**
+ * @brief This API used to get lcd int status
+ * 
+ * @return
+ *     - status value.
+ *
+ * 8080 Usage example:
+ *     if (bk_lcd_int_status_get()&I8080_OUTPUT_EOF == 1), present 8080 eof int triggerd
+ *     if (bk_lcd_int_status_get()&RGB_OUTPUT_EOF == 1), present rgb eof int triggerd
+ *
+ */
+uint32_t bk_lcd_int_status_get(void);
+
+/**
+ * @brief This API used to clr lcd int status
+ * 
+ * @param
+ *     - int_type value.
+ * 
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
+ */
+bk_err_t bk_lcd_int_status_clear(lcd_int_type_t int_type);
+#endif
 
 
 /**
@@ -233,29 +227,17 @@ bk_err_t bk_lcd_isr_register(lcd_int_type_t int_type, lcd_isr_t isr);
  *    - enable rgb end of frame interrupt
  *
  * @param
- *     - clk_div: value rang bit[0~4]: 0~0x1f
- *     - x_pixel: defult by 320, user can set by any value
- *     - y_pixel: defult by 480, user can set by any value
- *     - input_data_format: select from RGB_DATA_FORMAT enum:rgb565, yuyv etc.
- *
- * Usage example:
- *
- *            if rgb_clk_div = 5,the rgb lcd clk is 96/(div+1)=16Mhz
+ *     - lcd_device_id_t: lcd type
+ *     - x_pixel
+ *     - y_pixel
+ *     - input_data_format:  input_data_format select rgb565 data, yuyv, yyuv or other yuv *        mode from struct rgb_input_data_format_t
  *
  * @return
  *     - BK_OK: succeed
  *     - others: other errors.
  */
-bk_err_t bk_lcd_rgb_init(lcd_types_t lcd_type, uint16_t x_pixel, uint16_t y_pixel, rgb_input_data_format_t input_data_format);
+bk_err_t bk_lcd_rgb_init(lcd_device_id_t id, uint16_t x_pixel, uint16_t y_pixel, rgb_input_data_format_t input_data_format);
 
-/**
- * @brief This API set lcd sy
- * *
- * @return
- *     - BK_OK: succeed
- *     - others: other errors.
- */
-bk_err_t bk_lcd_sync_config(uint16_t rgb_hsync_back_porch, uint16_t rgb_hsync_front_porch, uint16_t rgb_vsync_back_porch, uint16_t rgb_vsync_front_porch);
 
 /**
  * @brief This API set display read mem addr
@@ -267,15 +249,6 @@ bk_err_t bk_lcd_sync_config(uint16_t rgb_hsync_back_porch, uint16_t rgb_hsync_fr
  *     - others: other errors.
  */
 bk_err_t bk_lcd_set_display_base_addr(uint32_t disp_base_addr);
-
-/**
- * @brief  uart3 io unmap, and map to lcd
- * 
- * @return
- *     - BK_OK: succeed
- *     - others: other errors.
- */
-bk_err_t bk_lcd_unmap_uart3_io_to_lcd_func(void);
 
 /**
  * @brief This API used send 8080 lcd init cmd
@@ -326,16 +299,8 @@ uint32_t bk_lcd_get_display_base_addr(void);
  *     - BK_OK: succeed
  *     - others: other errors.
  */
-bk_err_t bk_lcd_set_partical_display(uint16_t partial_clum_l, uint16_t partial_clum_r, uint16_t partial_line_l, uint16_t partial_line_r);
+bk_err_t bk_lcd_set_partical_display(bool en, uint16_t partial_clum_l, uint16_t partial_clum_r, uint16_t partial_line_l, uint16_t partial_line_r);
 
-/**
- * @brief This API used for close display partical area
- * 
- * @return
- *     - BK_OK: succeed
- *     - others: other errors.
- */
-bk_err_t bk_lcd_partical_display_dis(void);
 
 /**
  * @brief This API used for 8080 mcu lcd 0x2c/0x3c. ram write cmd send
@@ -346,33 +311,84 @@ bk_err_t bk_lcd_partical_display_dis(void);
  */
 bk_err_t bk_lcd_8080_ram_write(uint32_t cmd);
 
+
+/****************************next API exampel please refer to ./complent/media/lcd demo*****************/
 /**
- * @brief This API set lcd input data format
+ * @brief This API used for init lcd 
  * 
- * @param input_data_format select rgb565 data, yuyv, yyuv or other yuv mode from struct rgb_input_data_format_t
+ *
+ * @param lcd_config_t
+ *
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
+ *
+ *  Usage example:
+ *    lcd_config_t lcd_config;
+ *    lcd_config.device = get_lcd_device_by_id(LCD_DEVICE_ST7282);
+ *    lcd_config.complete_callback = lcd_complete_callback;
+ *    lcd_config.fmt = VUYY_DATA;
+ *    lcd_config.pixel_x = 640;
+ *    lcd_config.pixel_y = 480;
+ *    lcd_driver_init(&lcd_config);
+ *
+ */
+bk_err_t lcd_driver_init(const lcd_config_t *config);
+
+/**
+ * @brief this api used to get lcd device interface
+ * 
+ * @param lcd_device_id_t
+ * @return lcd_device_id_t
+ */
+const lcd_device_t *get_lcd_device_by_id(lcd_device_id_t id);
+
+/**
+ * @brief this api used to set lcd backlight
+ * 
+ * @param percent rang from 0~100
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
+ */
+bk_err_t lcd_driver_set_backlight(uint8_t percent);
+
+/**
+ * @brief this api used to enable lcd display
+ * 
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
+ */
+bk_err_t lcd_driver_display_enable(void);
+
+/**
+ * @brief this api used to clear eof int and diaplay continue
+ * 
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
+ */
+bk_err_t lcd_driver_display_continue(void);
+
+/**
+ * @brief this api used to set lcd display addr
+ * 
+ * @param disp_base_addr sram or psram
  *
  * @return
  *     - BK_OK: succeed
  *     - others: other errors.
  */
-bk_err_t bk_lcd_set_yuv_mode(rgb_input_data_format_t input_data_format);
+bk_err_t lcd_driver_set_display_base_addr(uint32_t disp_base_addr);
 
 /**
- * @brief This API use for input date revert pixel by pixel(16bit)
- * 
- * @param reverse_en 1:enable pixel revert pixel by pixel
+ * @brief this api used to close lcd
+ *
  * @return
  *     - BK_OK: succeed
  *     - others: other errors.
  */
-bk_err_t bk_lcd_set_pixel_reverse(bool reverse_en);
-
-
-bk_err_t lcd_driver_init(const lcd_config_t *config);
-const lcd_device_t *get_lcd_device_by_id(lcd_device_id_t id);
-bk_err_t lcd_driver_set_backlight(uint8_t percent);
-bk_err_t lcd_driver_display_enable(bool enable);
-bk_err_t lcd_driver_set_display_base_addr(uint32_t disp_base_addr);
 bk_err_t lcd_driver_deinit(void);
 
 

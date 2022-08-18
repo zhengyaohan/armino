@@ -48,7 +48,7 @@
 
 #define FRAME_BUFFER_DMA_TH (1024 * 10)
 #define JPEG_CRC_SIZE (5)
-
+#define DROP_FRAME_COUNT (3)
 
 #define FRAME_BUFFER_CACHE (1024 * 10)
 
@@ -69,6 +69,7 @@ typedef struct
 	uint8 psram_dma_busy;
 	uint16 psram_dma_left;
 	uint8 *buffer;
+	uint8 drop_count;
 	frame_buffer_t *frame;
 } dvp_camera_drv_t;
 
@@ -242,6 +243,14 @@ static void dvp_camera_eof_handler(jpeg_unit_t id, void *param)
 		bk_gpio_pull_up(GPIO_8);
 	}
 
+	if (dvp_camera_drv->drop_count)
+	{
+		dvp_camera_drv->drop_count--;
+		bk_dma_stop(dvp_camera_dma_channel);
+		bk_dma_start(dvp_camera_dma_channel);
+		return;
+	}
+
 	if (dvp_camera_encode.enable_set)
 	{
 		if (dvp_camera_encode.auto_encode)
@@ -321,10 +330,13 @@ static void dvp_camera_dma_finish_callback(dma_id_t id)
 		return;
 	}
 
-	dvp_memcpy_by_chnl(curr_frame_buffer->frame + curr_frame_buffer->length,
+	if (dvp_camera_drv->drop_count == 0)
+	{
+		dvp_memcpy_by_chnl(curr_frame_buffer->frame + curr_frame_buffer->length,
 	                   dvp_camera_drv->index ? (dvp_camera_drv->buffer + FRAME_BUFFER_CACHE) : dvp_camera_drv->buffer,
 	                   FRAME_BUFFER_CACHE, dvp_camera_drv->psram_dma);
-	curr_frame_buffer->length += FRAME_BUFFER_CACHE;
+		curr_frame_buffer->length += FRAME_BUFFER_CACHE;
+	}
 
 	if (dvp_diag_debug)
 	{
@@ -608,14 +620,13 @@ bk_err_t bk_dvp_camera_driver_init(dvp_camera_config_t *config)
 		LOGI("%s switch ppi to %dX%d\n", __func__, config->ppi >> 16, config->ppi & 0xFFFF);
 	}
 
-	config->frame_set_ppi(dvp_camera_device->ppi);
-
 	dvp_camera_device->pixel_size = get_ppi_size(dvp_camera_device->ppi);
 
 	LOGI("Pixel size: %d\n", dvp_camera_device->pixel_size);
 
 	if (config->mode == DVP_MODE_JPG)
 	{
+		config->frame_set_ppi(dvp_camera_device->ppi, FRAME_JPEG);
 
 		if (dvp_camera_drv == NULL)
 		{
@@ -655,6 +666,8 @@ bk_err_t bk_dvp_camera_driver_init(dvp_camera_config_t *config)
 			goto error;
 		}
 
+
+		dvp_camera_drv->drop_count = DROP_FRAME_COUNT;
 	}
 
 	switch (dvp_camera_device->ppi)
@@ -711,6 +724,8 @@ bk_err_t bk_dvp_camera_driver_init(dvp_camera_config_t *config)
 	}
 	else if (config->mode == DVP_MODE_YUV)
 	{
+		config->frame_set_ppi(dvp_camera_device->ppi, FRAME_DISPLAY);
+
 		curr_frame_buffer = dvp_camera_config.frame_alloc();
 
 		if (curr_frame_buffer == NULL)

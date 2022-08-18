@@ -4,7 +4,6 @@
 #include <os/os.h>
 #include <stdlib.h>
 #include <components/system.h>
-#include "driver/lcd_disp_types.h"
 #include <driver/lcd.h>
 #include <driver/dma.h>
 #include <driver/gpio.h>
@@ -13,7 +12,7 @@
 #include "stdio.h"
 #include <lcd_dma2d_config.h>
 #include <st7796s.h>
-//#include <BK7256_RegList.h>
+#include <BK7256_RegList.h>
 #include "modules/image_scale.h"
 #include <driver/dma2d.h>
 #include <driver/media_types.h>
@@ -26,8 +25,17 @@
 
 extern const uint8_t fg_blend_image1[];
 
-#define LCD_FRAMEADDR   0x60000000 /**<define frame base addr */
-#define LCD_FRAMEADDR2   0x60200000 /**<define frame base addr */
+#define JPEGDEC_FRAME_SIZE  0x200000 
+#define DISPLAY_FRAME_COUNTS (2)
+
+#define PSRAM_BASEADDR (0x60000000UL)
+
+typedef struct
+{
+	uint8_t display[DISPLAY_FRAME_COUNTS][JPEGDEC_FRAME_SIZE];
+} psram_lcd_t;
+
+#define psram_lcd ((psram_lcd_t*)PSRAM_BASEADDR)
 
 #define LCD_SIZE_X 320
 #define LCD_SIZE_Y 480
@@ -68,10 +76,11 @@ extern void delay(INT32 num);
 
 static void lcd_i8080_isr(void)
 {
+	os_printf("8080 int \n");
 	if(lcd_status == JPEGDED)
 	{
 		display_address = psram_lcd->display[(!jpeg_frame_id)];
-		bk_lcd_set_display_base_addr((uint32_t)display_address);
+		lcd_driver_set_display_base_addr((uint32_t)display_address);
 	}
 	lcd_status = READY;
 	bk_lcd_8080_ram_write(RAM_WRITE);
@@ -114,14 +123,37 @@ static void cpu_lcd_fill_test(uint32_t *addr, uint32_t color)
 	}
 }
 
+static volatile uint8_t lcd_cnt;
 
 static void lcd_i8080_isr_test(void)
-{}
+{
+	addAON_GPIO_Reg0x8 = 2;
+		lcd_cnt ++;
+		if(lcd_cnt == 1) 
+		{
+			lcd_driver_set_display_base_addr(0x60200000);
+			bk_lcd_8080_ram_write(RAM_WRITE);
+		}
+		else if (lcd_cnt == 2)
+		{
+			lcd_driver_set_display_base_addr(0x60400000);
+			bk_lcd_8080_ram_write(RAM_WRITE);
+		}
+		else
+		{
+			//bk_lcd_8080_start_transfer(0);
+//			st7796s_set_display_mem_area(LCD_POINT_DISPLAY_XS, LCD_POINT_DISPLAY_XE, LCD_POINT_DISPLAY_YS,LCD_POINT_DISPLAY_YE);
+//			bk_lcd_8080_send_cmd(9, 0x2c, ARR_DISP_partial_3x3);
+			lcd_cnt = 0;
+		}
+	addAON_GPIO_Reg0x8 = 0;		
+}
 
 void lcd_8080_display_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 	bk_err_t ret = BK_OK;
 	uint32_t ARR_DISP_partial_3x3[9] = {0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800};
+	lcd_cnt = 0;
 
 	if (os_strcmp(argv[1], "dma2d_fill") == 0)
 	{
@@ -201,6 +233,7 @@ void lcd_8080_display_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, c
 			return;
 		}
 		ret = bk_lcd_isr_register(I8080_OUTPUT_EOF, lcd_i8080_isr_test);
+
 		if (ret != BK_OK) {
 			os_printf("bk_lcd_isr_register failed\r\n");
 			return;
@@ -213,7 +246,7 @@ void lcd_8080_display_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, c
 		os_printf("st7796 init ok. \r\n");
 	} else if (os_strcmp(argv[1], "frame_disp") == 0) {
 		uint32_t frameaddr = os_strtoul(argv[2], NULL, 16) & 0xFFFFFFFF;
-		bk_lcd_set_display_base_addr(frameaddr);
+		lcd_driver_set_display_base_addr(frameaddr);
 		os_printf("bk_lcd_8080_start_transfer \r\n");
 		bk_lcd_8080_start_transfer(1);
 		os_printf("bk_lcd_8080_ram_write \r\n");
@@ -229,7 +262,7 @@ void lcd_8080_display_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, c
 		bk_lcd_8080_send_cmd((sizeof(ARR_DISP_partial_3x3)/sizeof(ARR_DISP_partial_3x3[0])), 0x2c, ARR_DISP_partial_3x3);
 		os_printf(" bk_lcd_8080_send_cmd OK \r\n");
 	} else if (os_strcmp(argv[1], "partical_display") == 0) {
-		bk_lcd_set_partical_display(PARTICAL_XS, PARTICAL_XE, PARTICAL_YS, PARTICAL_YE);
+		//bk_lcd_set_partical_display(1, PARTICAL_XS, PARTICAL_XE, PARTICAL_YS, PARTICAL_YE);
 		st7796s_set_display_mem_area(PARTICAL_XS, PARTICAL_XE, PARTICAL_YS, PARTICAL_YE);
 		bk_lcd_8080_start_transfer(1);
 		bk_lcd_8080_ram_write(RAM_WRITE);
@@ -261,6 +294,7 @@ void lcd_8080_display_yuv(char *pcWriteBuffer, int xWriteBufferLen, int argc, ch
 	jpeg_config.x_pixel = X_PIXEL_320;
 	jpeg_config.y_pixel = Y_PIXEL_480;
 	bk_lcd_8080_init(PIXEL_320, PIXEL_480, ORGINAL_YUYV_DATA);
+	bk_lcd_8080_int_enable(0,1);
 	err = st7796s_init();
 	if (err != BK_OK) {
 		os_printf("st7796s init failed\r\n");
@@ -271,7 +305,7 @@ void lcd_8080_display_yuv(char *pcWriteBuffer, int xWriteBufferLen, int argc, ch
 	bk_jpeg_enc_register_isr(END_OF_YUV, jpeg_enc_end_of_yuv, NULL);
 	jpeg_config.yuv_mode = 1;
 	camera_cfg = (ppi << 16) | fps;
-	bk_lcd_set_display_base_addr((uint32_t)psram_lcd->display[0]);
+	lcd_driver_set_display_base_addr((uint32_t)psram_lcd->display[0]);
 	err = bk_jpeg_enc_dvp_init(&jpeg_config);
 	if (err != kNoErr) {
 		os_printf("jpeg init error\n");
@@ -317,8 +351,9 @@ void lcd_8080_display_480p_yuv(char *pcWriteBuffer, int xWriteBufferLen, int arg
 	jpeg_config.x_pixel = X_PIXEL_640;
 	jpeg_config.y_pixel = Y_PIXEL_480;
 	bk_lcd_8080_init(PIXEL_640, PIXEL_480, ORGINAL_YUYV_DATA);
-	bk_lcd_set_display_base_addr((uint32_t)psram_lcd->display[0]);
-	bk_lcd_set_partical_display(I8080_PARTICAL_XS, I8080_PARTICAL_XE, I8080_PARTICAL_YS, I8080_PARTICAL_YE);
+	bk_lcd_8080_int_enable(0,1);
+	lcd_driver_set_display_base_addr((uint32_t)psram_lcd->display[0]);
+	bk_lcd_set_partical_display(1, I8080_PARTICAL_XS, I8080_PARTICAL_XE, I8080_PARTICAL_YS, I8080_PARTICAL_YE);
 	err = st7796s_init();
 	if (err != BK_OK) {
 		os_printf("st7796s init failed\r\n");

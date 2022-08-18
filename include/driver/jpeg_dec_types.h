@@ -23,12 +23,12 @@ extern "C" {
 
 #define USE_JPEG_DEC_COMPLETE_CALLBACKS 1 /**< set 1, register jpeg decode complete callback, set 0, register jpeg dec cpu isr*/
 
-#if (USE_JPEG_DEC_COMPLETE_CALLBACKS == 1)
-typedef void (*jpeg_dec_isr_cb_t)(void);               /**< jpegdec int isr register func type */
-typedef void (*jpeg_dec_isr_t)(void *param);           /**< for complier err, mp delect*/
-#else
-typedef void (*jpeg_dec_isr_t)(void);               /**< jpegdec int isr register func type */
-#endif
+typedef struct
+{
+	uint16_t pixel_x;
+	uint16_t pixel_y;
+	uint32_t size;
+} jpeg_dec_res_t;
 
 /* Error code */
 typedef enum {
@@ -58,6 +58,13 @@ typedef enum {
 	DEC_END_OF_LINE_NUM,  /**<  select jpeg decode line num enter isr callback, used with api line_en*/
 	DEC_ISR_MAX
 }jpeg_dec_isr_type_t;
+
+#if (USE_JPEG_DEC_COMPLETE_CALLBACKS == 1)
+typedef void (*jpeg_dec_isr_cb_t)(jpeg_dec_res_t *result);               /**< jpegdec int isr register func type */
+typedef void (*jpeg_dec_isr_t)(void *param);           /**< for complier err, mp delect*/
+#else
+typedef void (*jpeg_dec_isr_t)(void);               /**< jpegdec int isr register func type */
+#endif
 
 /*
  * @}

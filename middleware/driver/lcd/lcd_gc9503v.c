@@ -23,6 +23,7 @@
 static const lcd_rgb_t lcd_rgb =
 {
 	.clk = LCD_26M,
+	.data_out_clk_edge = NEGEDGE_OUTPUT,
 
 	.hsync_back_porch = 40,  //3
 	.hsync_front_porch = 5,  //2

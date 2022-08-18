@@ -406,6 +406,12 @@ typedef enum
 
 typedef enum
 {
+    QSPI_CLK_320M = 0,
+    QSPI_CLK_480M,
+} sys_qspi_clk_src_t;
+
+typedef enum
+{
     PWM_CLK_SRC_32K = 0,
     PWM_CLK_SRC_XTAL,
     PWM_CLK_SRC_UNKNOW = 0xff

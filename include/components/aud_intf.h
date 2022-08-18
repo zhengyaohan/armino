@@ -98,15 +98,28 @@ bk_err_t bk_aud_intf_set_mic_gain(uint8_t value);
 bk_err_t bk_aud_intf_set_spk_gain(uint8_t value);
 
 /**
- * @brief     Get the AUD INTF information
+ * @brief     Set the aec parameter
  *
- * @param info save audio interface information
+ * @param aec_para the parameter
+ * @param value the parameter value
+ *
+ * This API should be called when voice has been initialized
+ *
+ * @return
+ *    - BK_OK: succeed
+ *    - BK_ERR_AUD_NOT_INIT: audio driver is not init
+ *    - others: other errors.
+ */
+bk_err_t bk_aud_intf_set_aec_para(aud_intf_voc_aec_para_t aec_para, uint32_t value);
+
+/**
+ * @brief     Get the aec parameter
  *
  * @return
  *    - BK_OK: succeed
  *    - others: other errors.
  */
-//bk_err_t bk_aud_intf_get_info(aud_intf_info_t *info);
+bk_err_t bk_aud_intf_get_aec_para(void);
 
 /*************************************** mic api *********************************************/
 /**

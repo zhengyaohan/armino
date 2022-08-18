@@ -302,7 +302,6 @@ void frame_buffer_complete_notify(frame_buffer_t *buffer)
 		    && frame_buffer_info->display_comp_cb)
 		{
 			frame_buffer_lock_frame(buffer);
-			//frame_buffer_info->display_lock = true;
 			frame_buffer_info->display_comp_cb(buffer);
 		}
 
@@ -405,6 +404,7 @@ void frame_buffer_frame_register(frame_module_t module, void *callback)
 			break;
 		case MODULE_DISPLAY:
 			frame_buffer_info->display_register = true;
+			frame_buffer_info->display_lock = false;
 			frame_buffer_info->display_comp_cb = callback;
 			break;
 	}
@@ -416,6 +416,8 @@ void frame_buffer_frame_deregister(frame_module_t module)
 {
 	GLOBAL_INT_DECLARATION();
 	GLOBAL_INT_DISABLE();
+
+	LOGI("dereg: %d\n", module);
 
 	switch (module)
 	{
@@ -440,9 +442,9 @@ void frame_buffer_frame_deregister(frame_module_t module)
 			frame_buffer_info->capture_comp_cb = NULL;
 			break;
 		case MODULE_DISPLAY:
-			frame_buffer_info->capture_register = false;
-			frame_buffer_info->capture_lock = false;
-			frame_buffer_info->capture_comp_cb = NULL;
+			frame_buffer_info->display_register = false;
+			frame_buffer_info->display_lock = false;
+			frame_buffer_info->display_comp_cb = NULL;
 			break;
 	}
 
@@ -490,6 +492,8 @@ void frame_buffer_free_request(frame_buffer_t *buffer, frame_module_t module)
 
 int frame_buffer_jpeg_frame_init(void)
 {
+	LOGI("frame_buffer_jpeg_frame_init, %d\n", frame_buffer_info->minimal_layout);
+
 #ifdef CONFIG_PSRAM
 	frame_buffer_t *tmp = NULL;
 	LIST_HEADER_T *pos, *n;
@@ -528,6 +532,9 @@ int frame_buffer_jpeg_frame_init(void)
 
 	if (frame_buffer_info->minimal_layout == true)
 	{
+#define SRAM_ADDRESS (0x30000000)
+#define BUFFER_SIZE (1024 * 42)
+
 		for (int i = 0; i < JPEG_ENC_FRAME_COUNT; i ++)
 		{
 			frame_buffer_t *frame = (frame_buffer_t *)os_malloc(sizeof(frame_buffer_t));
@@ -535,14 +542,21 @@ int frame_buffer_jpeg_frame_init(void)
 			os_memset(frame, 0, sizeof(frame_buffer_t));
 
 			frame->state = STATE_INVALID;
+#if 0
+			frame->frame = (uint8_t *)(SRAM_ADDRESS + (BUFFER_SIZE * i));
+			frame->size = BUFFER_SIZE;
+#else
 			frame->frame = psram_map->jpeg_enc[i];
 			frame->size = sizeof(psram_map->jpeg_enc[i]);
+#endif
 			frame->id = i;
 			frame->type = FRAME_JPEG;
 			frame->length = 0;
 			frame->sequence = 0;
 			frame->lock = 0;
 			list_add_tail(&frame->list, &jpeg_free_node_list);
+
+			LOGI("init: %p\n", frame->frame);
 		}
 	}
 	else
@@ -659,11 +673,12 @@ void frame_buffer_init(void)
 		frame_buffer_info = (frame_buffer_info_t *)os_malloc(sizeof(frame_buffer_info_t));
 		os_memset((void *)frame_buffer_info, 0, sizeof(frame_buffer_info_t));
 	}
-
 	frame_buffer_info->minimal_layout = true;
+
+	LOGI("frame_buffer_init, %d\n", frame_buffer_info->minimal_layout);
 }
 
-int frame_buffer_set_ppi(media_ppi_t ppi)
+int frame_buffer_set_ppi(media_ppi_t ppi, frame_type_t type)
 {
 	uint16 width, heigth;
 
@@ -684,8 +699,21 @@ int frame_buffer_set_ppi(media_ppi_t ppi)
 		LOGI("%s, 720P Memory Layout Set\n", __func__);
 		frame_buffer_info->minimal_layout = false;
 	}
+	else
+	{
+		frame_buffer_info->minimal_layout = true;
+	}
 
-	frame_buffer_jpeg_frame_init();
+
+	if (type == FRAME_JPEG)
+	{
+		frame_buffer_jpeg_frame_init();
+	}
+
+	if (type == FRAME_DISPLAY)
+	{
+		frame_buffer_display_frame_init();
+	}
 
 	return BK_OK;
 }
@@ -709,6 +737,7 @@ void frame_buffer_enable(bool enable)
 
 		frame_buffer_info->enable = enable;
 	}
+	frame_buffer_info->minimal_layout = true;
 }
 
 

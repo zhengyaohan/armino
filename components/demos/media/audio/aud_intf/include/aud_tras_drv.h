@@ -49,6 +49,8 @@ typedef enum {
 	AUD_TRAS_DRV_VOC_STOP,		/**< stop voc */
 	AUD_TRAS_DRV_VOC_SET_MIC_GAIN,		/**< set audio adc gain */
 	AUD_TRAS_DRV_VOC_SET_SPK_GAIN,		/**< set audio dac gain */
+	AUD_TRAS_DRV_VOC_SET_AEC_PARA,		/**< set AEC parameters */
+	AUD_TRAS_DRV_VOC_GET_AEC_PARA,		/**< get AEC parameters */
 	/* voc int op */
 	AUD_TRAS_DRV_AEC,			/**< aec process mic data */
 	AUD_TRAS_DRV_ENCODER,		/**< encoder mic data processed by aec */
@@ -156,7 +158,6 @@ typedef struct {
 	rx_info_t rx_info;			//rx_context shared by cpu0 and cpu1, cpu0 malloc
 
 	/* audio transfer callback */
-//	aud_cb_t aud_cb;
 	void (*aud_tras_drv_voc_event_cb)(aud_tras_drv_voc_event_t event, void *param);
 
 #if CONFIG_AUD_TRAS_AEC_DUMP_DEBUG
@@ -198,6 +199,8 @@ typedef struct {
 	RingBufferContext mic_rb;
 	int32_t *mic_ring_buff;									//save mic data
 	int32_t *temp_mic_addr;									//save temporary one frame mic data readed from mic_ring_buff
+
+	void (*aud_tras_drv_mic_event_cb)(aud_tras_drv_mic_event_t event, void *param);
 } aud_tras_drv_mic_info_t;
 
 

@@ -28,6 +28,14 @@ extern "C" {
 
 
 /**************** audio interface mic ****************/
+typedef enum {
+	EVENT_AUD_TRAS_MIC_INIT,
+	EVENT_AUD_TRAS_MIC_DEINIT,
+	EVENT_AUD_TRAS_MIC_START,
+	EVENT_AUD_TRAS_MIC_PAUSE,
+	EVENT_AUD_TRAS_MIC_STOP,
+	EVENT_AUD_TRAS_MIC_MAX,
+} aud_tras_drv_mic_event_t;
 
 /* audio interface mic setup configuration */
 typedef struct {
@@ -35,6 +43,8 @@ typedef struct {
 	aud_adc_samp_rate_t samp_rate;		/**< mic sample rate */
 	uint16_t frame_size;				/**< size: a frame packet mic data size(byte) */
 	uint8_t mic_gain;					/**< audio adc gain: value range:0x0 ~ 0x3f */
+
+	void (*aud_tras_drv_mic_event_cb)(aud_tras_drv_mic_event_t event, void *param);
 } aud_intf_mic_config_t;
 
 
@@ -82,12 +92,12 @@ typedef struct {
 	/* default value */
 	uint16_t init_flags;
 	/* aec */
-	uint16_t mic_delay;		//set delay points of ref data according to dump data
-	uint8_t ec_depth;		//recommended value range: 1~50, the greater the echo, the greater the value setting
+	uint32_t mic_delay;		//set delay points of ref data according to dump data
+	uint32_t ec_depth;		//recommended value range: 1~50, the greater the echo, the greater the value setting
 	uint8_t ref_scale;		//value range:0,1,2, the greater the signal amplitude, the greater the setting
 	uint8_t voice_vol;		//the voice volume level
-	uint8_t TxRxThr;		//the max amplitude of rx audio data
-	uint8_t TxRxFlr;		//the min amplitude of rx audio data
+	uint32_t TxRxThr;		//the max amplitude of rx audio data
+	uint32_t TxRxFlr;		//the min amplitude of rx audio data
 	/* ns */
 	uint8_t ns_level;		//recommended value range: 1~8, the lower the noise, the lower the level
 	uint8_t ns_para;		//value range:0,1,2, the lower the noise, the lower the level, the default valude is recommended
@@ -95,6 +105,11 @@ typedef struct {
 	uint8_t drc;			//recommended value range:0x10~0x1f, the greater the value, the greater the volume
 } aec_config_t;
 
+/* audio aec parameters control msg */
+typedef struct {
+	aud_intf_voc_aec_para_t op;
+	uint32_t value;
+} aud_intf_voc_aec_ctl_t;
 
 /* audio config */
 typedef struct {

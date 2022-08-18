@@ -85,48 +85,7 @@ lcd_info_t *lcd_info_ptr = NULL;
 MINOOR_DTCM uint8_t rx_block[BLOCK_SIZE];
 MINOOR_DTCM uint8_t tx_block[BLOCK_SIZE];
 
-MINOOR_ITCM int vuyy_rotate_degree902(unsigned char *vuyy, unsigned char *rotatedVuyy, int width, int height)
-{
-	int lineDataSize = width * 2;
-	int rotatedLineDataSize = height * 2;
-	int rotatedVuyyIndex = 0;
-	int finalLineStartIndex = (height - 2) * lineDataSize;
-	for (int w = 0; w < lineDataSize; w += 4)
-	{
-		int vuyyStartIndex = finalLineStartIndex + w;
-		int offset = 0;
-		for (int h = 0; h < height; h += 2)
-		{
-			/**
-			* y1 y2 u1 v1   y3 y4  u2 v2
-			*                               ->
-			*y5 y6 u3 v3    y7 y8  u4 v4
-			*/
-			//v1
-			*(rotatedVuyy + rotatedVuyyIndex) = *(vuyy + vuyyStartIndex - offset + 3);
-			//y1
-			*(rotatedVuyy + rotatedVuyyIndex + 1) = *(vuyy + vuyyStartIndex - offset);
-			//u3
-			*(rotatedVuyy + rotatedVuyyIndex + 2) = *(vuyy + vuyyStartIndex - offset + lineDataSize + 2);
-			//y5
-			*(rotatedVuyy + rotatedVuyyIndex + 3) = *(vuyy + vuyyStartIndex - offset + lineDataSize);
 
-			//v1
-			*(rotatedVuyy + rotatedVuyyIndex + rotatedLineDataSize) = *(vuyy + vuyyStartIndex - offset + 3);
-			//y2
-			*(rotatedVuyy + rotatedVuyyIndex + rotatedLineDataSize + 1) =  *(vuyy + vuyyStartIndex - offset + 1);
-			//u3
-			*(rotatedVuyy + rotatedVuyyIndex + rotatedLineDataSize + 2) = *(vuyy + vuyyStartIndex - offset + lineDataSize + 2);
-			//y6
-			*(rotatedVuyy + rotatedVuyyIndex + rotatedLineDataSize + 3) = *(vuyy + vuyyStartIndex - offset + lineDataSize + 1);
-
-			rotatedVuyyIndex += 4;
-			offset += lineDataSize * 2;
-		}
-		rotatedVuyyIndex += rotatedLineDataSize;
-	}
-	return 0;
-}
 
 void rotate_complete(frame_buffer_t *frame)
 {
@@ -189,7 +148,7 @@ MINOOR_ITCM void lcd_act_rotate_degree90(uint32_t param)
 				memcpy_word((uint32_t *)(rx_block + BLOCK_WIDTH * 2 * k), (uint32_t *)cp_ptr, BLOCK_WIDTH * 2 / 4);
 			}
 
-			vuyy_rotate_degree902(rx_block, tx_block, BLOCK_WIDTH, BLOCK_HEIGHT);
+			vuyy_rotate_degree90(rx_block, tx_block, BLOCK_WIDTH, BLOCK_HEIGHT);
 
 			for (k = 0; k < BLOCK_WIDTH; k++)
 			{

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <common/bk_include.h>
+#include <common/bk_compiler.h>
 #include <os/mem.h>
 #include "icu_driver.h"
 #include "dma_driver.h"
@@ -32,7 +33,7 @@
 #define DMA_CPU_MASTER		0
 #define DMA_CPU_SLAVE1		1
 
-static void dma_isr(void) __SECTION(".itcm");
+static void dma_isr(void) __BK_SECTION(".itcm");
 
 typedef struct {
     dma_hal_t hal;

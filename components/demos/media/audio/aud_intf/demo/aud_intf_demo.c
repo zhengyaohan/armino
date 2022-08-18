@@ -54,6 +54,9 @@ static void cli_aud_intf_help(void)
 	os_printf("aud_intf_record_test {start|pause|stop xxx.pcm} \r\n");
 	os_printf("aud_intf_play_test {start|pause|stop xxx.pcm} \r\n");
 	os_printf("aud_intf_sd_voc_test {start|stop xx.pcm, xx.pcm} \r\n");
+	os_printf("aud_intf_set_voc_param_test {param value} \r\n");
+	os_printf("aud_intf_set_aec_param_test {param value} \r\n");
+	os_printf("aud_intf_get_aec_param_test \r\n");
 }
 
 static int send_mic_data_to_sd(uint8_t *data, unsigned int len)
@@ -381,17 +384,14 @@ void cli_aud_intf_set_voc_param_cmd(char *pcWriteBuffer, int xWriteBufferLen, in
 		return;
 	}
 
+	value = strtoul(argv[2], NULL, 0);
 	if (os_strcmp(argv[1], "mic_gain") == 0) {
-		value = strtoul(argv[2], NULL, 0);
 		bk_aud_intf_set_mic_gain(value);
 		os_printf("set voc mic gain:%d \r\n", value);
 	} else if (os_strcmp(argv[1], "spk_gain") == 0) {
-		value = strtoul(argv[2], NULL, 0);
 		bk_aud_intf_set_spk_gain(value);
 		os_printf("set voc spk gain:%d \r\n", value);
 	} else if (os_strcmp(argv[1], "gain") == 0) {
-
-
 		os_printf("stop play \r\n");
 	} else {
 		cli_aud_intf_help();
@@ -400,4 +400,72 @@ void cli_aud_intf_set_voc_param_cmd(char *pcWriteBuffer, int xWriteBufferLen, in
 
 }
 
+void cli_aud_intf_set_aec_param_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	bk_err_t ret = BK_OK;
+	uint8_t value = 0;
+	aud_intf_voc_aec_para_t op;
+
+	if (argc != 3) {
+		cli_aud_intf_help();
+		return;
+	}
+
+	value = strtoul(argv[2], NULL, 0);
+	if (os_strcmp(argv[1], "init_flags") == 0) {
+		op = AUD_INTF_VOC_AEC_INIT_FLAG;
+		os_printf("set aec init_flags:%d \r\n", value);
+	} else if (os_strcmp(argv[1], "mic_delay") == 0) {
+		op = AUD_INTF_VOC_AEC_MIC_DELAY;
+		os_printf("set aec mic_delay:%d \r\n", value);
+	} else if (os_strcmp(argv[1], "ec_depth") == 0) {
+		op = AUD_INTF_VOC_AEC_EC_DEPTH;
+		os_printf("set aec ec_depth:%d \r\n", value);
+	} else if (os_strcmp(argv[1], "ref_scale") == 0) {
+		op = AUD_INTF_VOC_AEC_REF_SCALE;
+		os_printf("set aec ref_scale:%d \r\n", value);
+	} else if (os_strcmp(argv[1], "voice_vol") == 0) {
+		op = AUD_INTF_VOC_AEC_VOICE_VOL;
+		os_printf("set aec voice_vol:%d \r\n", value);
+	} else if (os_strcmp(argv[1], "TxRxThr") == 0) {
+		op = AUD_INTF_VOC_AEC_TXRX_THR;
+		os_printf("set aec TxRxThr:%d \r\n", value);
+	} else if (os_strcmp(argv[1], "TxRxFlr") == 0) {
+		op = AUD_INTF_VOC_AEC_TXRX_FLR;
+		os_printf("set aec TxRxFlr:%d \r\n", value);
+	} else if (os_strcmp(argv[1], "ns_level") == 0) {
+		op = AUD_INTF_VOC_AEC_NS_LEVEL;
+		os_printf("set aec ns_level:%d \r\n", value);
+	} else if (os_strcmp(argv[1], "ns_para") == 0) {
+		op = AUD_INTF_VOC_AEC_NS_PARA;
+		os_printf("set aec ns_para:%d \r\n", value);
+	} else if (os_strcmp(argv[1], "drc") == 0) {
+		op = AUD_INTF_VOC_AEC_DRC;
+		os_printf("set aec drc:%d \r\n", value);
+	} else {
+		cli_aud_intf_help();
+		return;
+	}
+	ret = bk_aud_intf_set_aec_para(op, value);
+	if (ret != BK_OK)
+		os_printf("test fail \r\n");
+
+	os_printf("set aec parameters complete \r\n");
+}
+
+void cli_aud_intf_get_aec_param_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+	bk_err_t ret = BK_OK;
+
+	if (argc != 1) {
+		cli_aud_intf_help();
+		return;
+	}
+
+	ret = bk_aud_intf_get_aec_para();
+	if (ret != BK_OK)
+		os_printf("test fail \r\n");
+
+	os_printf("get aec parameters complete \r\n");
+}
 

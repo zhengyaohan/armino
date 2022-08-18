@@ -78,6 +78,7 @@ _invalid_ps_arg:
 #endif
 #if CONFIG_SYSTEM_CTRL
 #define PM_MANUAL_LOW_VOL_VOTE_ENABLE    (0)
+#define PM_DEEP_SLEEP_REGISTER_CALLBACK_ENABLE (0x1)
 
 static UINT32 s_cli_sleep_mode = 0;
 static UINT32 s_pm_vote1       = 0;
@@ -149,9 +150,10 @@ void cli_pm_gpio_callback(gpio_id_t gpio_id)
 	}
 	os_printf("cli_pm_gpio_callback\r\n");
 }
+
 #define PM_MANUAL_LOW_VOL_VOTE_ENABLE    (0)
 extern void stop_slave_core(void);
-extern ble_err_t bk_ble_deinit(void);
+
 static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 	UINT32 pm_sleep_mode = 0;
@@ -219,8 +221,11 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 	s_pm_vote2 = pm_vote2;
 	s_pm_vote3 = pm_vote3;
 
+
+
+
 	/*set sleep mode*/
-	bk_pm_sleep_mode_set(pm_sleep_mode);
+	//bk_pm_sleep_mode_set(pm_sleep_mode);
 
 	/*set wakeup source*/
 	if(pm_wake_source == PM_WAKEUP_SOURCE_INT_RTC)
@@ -292,44 +297,6 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 	/*vote*/
 	if(pm_sleep_mode == PM_MODE_DEEP_SLEEP)
 	{
-		if((pm_vote1 == PM_POWER_MODULE_NAME_BTSP)||(pm_vote1 == PM_POWER_MODULE_NAME_WIFIP_MAC))
-		{
-			if(pm_vote1 == PM_POWER_MODULE_NAME_WIFIP_MAC)
-			{
-#if CONFIG_WIFI_ENABLE
-#if CONFIG_WIFI6_CODE_STACK
-				bk_wifi_prepare_deepsleep();
-#endif
-				bk_wifi_sta_stop();
-#endif
-				bk_pm_module_vote_power_ctrl(pm_vote1,PM_POWER_MODULE_STATE_OFF);
-			}
-			else {
-#if CONFIG_BLE
-				bk_ble_deinit();
-#endif
-			}
-		}
-
-		if((pm_vote2 == PM_POWER_MODULE_NAME_WIFIP_MAC)||(pm_vote2 == PM_POWER_MODULE_NAME_WIFIP_MAC))
-		{
-			if(pm_vote2 == PM_POWER_MODULE_NAME_WIFIP_MAC)
-			{
-#if CONFIG_WIFI_ENABLE
-#if CONFIG_WIFI6_CODE_STACK
-				bk_wifi_prepare_deepsleep();
-#endif
-				bk_wifi_sta_stop();
-#endif
-				bk_pm_module_vote_power_ctrl(pm_vote2,PM_POWER_MODULE_STATE_OFF);
-			}
-			else {
-#if CONFIG_BLE
-				bk_ble_deinit();
-#endif
-			}
-		}
-
 		if(pm_vote3 == PM_POWER_MODULE_NAME_CPU1)
 		{
 			#if (CONFIG_SLAVE_CORE_OFFSET && CONFIG_SLAVE_CORE_RESET_VALUE)
@@ -378,6 +345,8 @@ static void cli_pm_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
 	{
 		;//do something
 	}
+
+	bk_pm_sleep_mode_set(pm_sleep_mode);
 
 }
 static void cli_pm_debug(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)

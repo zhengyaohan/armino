@@ -1,20 +1,20 @@
-/**
- ****************************************************************************************
- *
- * @file gnuarm/compiler.h
- *
- * @brief Definitions of compiler specific directives.
- *
- * Copyright (C) RivieraWaves 2011-2016
- *
- ****************************************************************************************
- */
+// Copyright 2020-2022 Beken
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#ifndef _COMPILER_H_
-#define _COMPILER_H_
+#pragma once
 
-/// define the force inlining attribute for this compiler  gcc: __attribute__((always_inline))
-#define __INLINE                     static inline
+#define __BK_INLINE                     static inline
 
 /// function returns struct in registers (4 words max, var with gnuarm)
 #if !defined(__VIR)
@@ -51,9 +51,7 @@
 #define __packed                     __attribute__((packed))
 #endif
 
-#if !defined(__SECTION)
-#define __SECTION(x)                 __attribute__((section(x)))
-#endif
+#define __BK_SECTION(x)                 __attribute__((section(x)))
 
 #ifndef likely
 #define likely(x)                    __builtin_expect(!!(x), 1)
@@ -71,28 +69,9 @@
 #define __hpacked
 #endif
 
-#ifndef __deprecated
-#define __deprecated                 __attribute__((deprecated))
-#endif
-#define __weak                       __attribute__((weak))
-#define __must_check                 __attribute__((warn_unused_result))
-
-#define __SHAREDRAM
-#define __MIB
-
-#define __MAYBE_UNUSED               __attribute__((unused))
-
-#ifndef BUILD_BUG_ON
-#define BUILD_BUG_ON(condition) ((void)sizeof(char[1 - 2*!!(condition)]))
-#endif
-
-/* Force a compilation error if condition is true, but also produce a
-   result (of value 0 and type size_t), so the expression can be used
-   e.g. in a structure initializer (or where-ever else comma expressions
-   aren't permitted). */
-#define BUILD_BUG_ON_ZERO(e) (sizeof(struct { int:-!!(e); }))
-#define BUILD_BUG_ON_NULL(e) ((void *)sizeof(struct { int:-!!(e); }))
-
+#define __bk_deprecated                 __attribute__((deprecated))
+#define __bk_weak                       __attribute__((weak))
+#define __bk_must_check                 __attribute__((warn_unused_result))
 
 /* Are two types/vars the same type (ignoring qualifiers)? */
 #ifndef __same_type
@@ -101,7 +80,4 @@
 
 /* &a[0] degrades to a pointer: a different type from an array */
 #define __must_be_array(a) BUILD_BUG_ON_ZERO(__same_type((a), &(a)[0]))
-
-
-#endif // _COMPILER_H_
 

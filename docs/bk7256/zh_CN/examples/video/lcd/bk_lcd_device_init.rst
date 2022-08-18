@@ -1,4 +1,4 @@
-LCD 移康屏幕初始化
+LCD GC9503V屏幕初始化
 =================================
 
 :link_to_translation:`en:[English]`
@@ -53,7 +53,6 @@ LCD 移康屏幕初始化
 
 	2.如果使用的是ST7701S，则初始化ST7701S
 
-		lcd_dev gc9503v 5
+		lcd_dev st7701s 5
 
-.. note::
- - 1.该case只支持在移康项目的板子，其他LCD屏幕不需要这些操作
+

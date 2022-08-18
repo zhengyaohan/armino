@@ -231,6 +231,7 @@ if (CONFIG_QSPI)
 		"qspi/qspi_driver.c"
 		"qspi/qspi_statis.c"
 		"qspi/qspi_psram.c"
+		"qspi/qspi_flash.c"
 		)
 endif() #if (CONFIG_QSPI)
 

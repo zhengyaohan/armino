@@ -64,6 +64,9 @@ void sys_hal_set_qspi_vddram_voltage(uint32_t param);
 void sys_hal_set_qspi_io_voltage(uint32_t param);
 
 void sys_hal_qspi_clk_sel(uint32_t param);
+
+void sys_hal_qspi_set_src_clk_div(uint32_t value);
+
 /** Platform qspi End **/
 
 /** Platform SDIO Start **/
@@ -381,6 +384,7 @@ void sys_hal_psram_clk_sel(uint32_t value);
 void sys_hal_psram_set_clkdiv(uint32_t value);
 void sys_hal_psram_power_enable(void);
 void sys_hal_psram_psldo_vsel(uint32_t value);
+void sys_hal_psram_psldo_vset(uint32_t output_voltage, bool is_add_200mv);
 
 /**  psram End **/
 

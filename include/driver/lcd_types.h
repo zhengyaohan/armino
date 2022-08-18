@@ -20,6 +20,9 @@ extern "C" {
 
 #include <driver/media_types.h>
 
+#define  USE_LCD_REGISTER_CALLBACKS  1
+typedef void (*lcd_isr_t)(void);
+
 typedef enum {
 	LCD_DEVICE_UNKNOW,
 	LCD_DEVICE_ST7282, /* 480X270  RGB */
@@ -32,6 +35,14 @@ typedef enum {
 	LCD_TYPE_RGB565,
 	LCD_TYPE_MCU8080,
 } lcd_type_t;
+
+/**< rgb lcd clk select*/
+typedef enum {
+	RGB_OUTPUT_EOF =1 << 5 ,	/**< reg end of frame int,*/
+	RGB_OUTPUT_SOF =1 << 4, 	 /**< reg display output start of frame  */
+	I8080_OUTPUT_SOF =1 << 6,	/**< 8080 display output start of frame  */
+	I8080_OUTPUT_EOF = 1 << 7,	 /**< 8080 display output end of frame	  */
+}lcd_int_type_t;
 
 typedef enum {
 	LCD_320M = 0,
@@ -58,10 +69,16 @@ typedef enum {
 	LCD_FMT_VUYY,
 }lcd_format_t;
 
+/** rgb data output in clk rising or falling */
+typedef enum {
+	POSEDGE_OUTPUT = 0,    /**< output in clk falling*/
+	NEGEDGE_OUTPUT, 	   /**< output in clk rising*/
+}rgb_out_clk_edge_t;
 
 typedef struct
 {
 	lcd_clk_t clk;
+	rgb_out_clk_edge_t data_out_clk_edge;
 
 	uint16_t hsync_back_porch;
 	uint16_t hsync_front_porch;
@@ -69,13 +86,26 @@ typedef struct
 	uint16_t vsync_front_porch;
 } lcd_rgb_t;
 
+/** rgb lcd input data format */
+typedef enum {
+	RGB565_DATA = 0,        /**< input data format is rgb 565,support data width is 16bits, this is to say
+		                       input data is low 16 bit valid*/
+	ORGINAL_YUYV_DATA,    /**< input data is yuyv format, data width is 32bits*/
+	UYVY_DATA,
+	YYUV_DATA,            /**< input data is yyuv format, data width is 32bits*/
+	UVYY_DATA,            /**< input data is uvyy format,data width is 32bits*/
+	VUYY_DATA,            /**< input data is uvyy format,data width is 32bits*/
+	YVYU_DATA,
+	VYUY_DATA,
+	YYVU_DATA
+}rgb_input_data_format_t;
+
 typedef struct
 {
 	lcd_clk_t clk;
 
 	void (*set_display_area)(uint16 xs, uint16 xe, uint16 ys, uint16 ye);
 } lcd_mcu_t;
-
 
 
 
@@ -98,7 +128,9 @@ typedef struct
 	lcd_format_t fmt;
 	uint16_t pixel_x;
 	uint16_t pixel_y;
+#if	(USE_LCD_REGISTER_CALLBACKS == 1) 
 	void (*complete_callback)(void);
+#endif
 } lcd_config_t;
 
 

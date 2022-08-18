@@ -51,10 +51,12 @@
 
 typedef struct
 {
+#if (USE_LCD_REGISTER_CALLBACKS == 1)  //register callback
 	lcd_isr_t lcd_8080_frame_start_handler;
 	lcd_isr_t lcd_8080_frame_end_handler;
 	lcd_isr_t lcd_rgb_frame_end_handler;
 	lcd_isr_t lcd_rgb_frame_start_handler;
+#endif
 #if CONFIG_PWM
 	pwm_id_t backlight;
 #endif
@@ -141,44 +143,95 @@ static bk_err_t lcd_rgb_gpio_init(const lcd_rgb_t *rgb)
 }
 
 
+#if (USE_LCD_REGISTER_CALLBACKS == 1) 
 static void lcd_isr(void)
 {
 	uint32_t int_status = lcd_hal_int_status_get();
 
 	if (int_status & RGB_OUTPUT_SOF)
 	{
-		lcd_hal_rgb_sof_int_status_clear();
 		if (s_lcd.lcd_rgb_frame_start_handler)
 		{
 			s_lcd.lcd_rgb_frame_start_handler();
 		}
+		lcd_hal_rgb_sof_int_status_clear();
 	}
 	if (int_status & RGB_OUTPUT_EOF)
 	{
-		lcd_hal_rgb_eof_int_status_clear();
 		if (s_lcd.lcd_rgb_frame_end_handler)
 		{
 			s_lcd.lcd_rgb_frame_end_handler();
 		}
+		lcd_hal_rgb_eof_int_status_clear();
 	}
 	if (int_status & I8080_OUTPUT_SOF)
 	{
-		lcd_hal_eof_int_status_clear();
 		if (s_lcd.lcd_8080_frame_start_handler)
 		{
 			s_lcd.lcd_8080_frame_start_handler();
 		}
+		lcd_hal_eof_int_status_clear();
 	}
 
 	if (int_status & I8080_OUTPUT_EOF)
 	{
-		lcd_hal_eof_int_status_clear();
 		if (s_lcd.lcd_8080_frame_end_handler)
 		{
 			s_lcd.lcd_8080_frame_end_handler();
 		}
+		lcd_hal_eof_int_status_clear();
 	}
 }
+#else
+bk_err_t bk_lcd_isr_register(lcd_isr_t lcd_isr)
+{
+	bk_int_isr_register(INT_SRC_LCD, lcd_isr, NULL);
+	return BK_OK;
+}
+
+
+uint32_t bk_lcd_int_status_get(void)
+{
+	return reg_DISP_INT_CONFIG;
+}
+
+
+bk_err_t bk_lcd_int_status_clear(lcd_int_type_t int_type)
+{
+	switch (int_type)
+	{
+		case RGB_OUTPUT_SOF:
+			lcd_hal_rgb_sof_int_status_clear(); 
+			break;
+		case RGB_OUTPUT_EOF:
+			lcd_hal_rgb_eof_int_status_clear(); 
+			break;
+		case I8080_OUTPUT_SOF:
+			lcd_hal_eof_int_status_clear(); 
+			break;
+		case I8080_OUTPUT_EOF:
+			lcd_hal_eof_int_status_clear(); 
+			break;
+		default:
+			reg_DISP_INT_CONFIG = 0;
+			break;
+	}
+	return BK_OK;
+}
+#endif
+
+bk_err_t bk_lcd_8080_int_enable(bool is_sof_en, bool is_eof_en) 
+{
+	lcd_hal_8080_int_enable(is_sof_en, is_eof_en);
+	return BK_OK;
+}
+
+bk_err_t  bk_lcd_rgb_int_enable(bool is_sof_en, bool is_eof_en)
+{
+	lcd_hal_rgb_int_enable(is_sof_en, is_eof_en);
+	return BK_OK;
+}
+
 
 bk_err_t bk_lcd_clk_set(lcd_clk_t clk)
 {
@@ -233,6 +286,24 @@ bk_err_t bk_lcd_clk_set(lcd_clk_t clk)
 
 	return ret;
 }
+/**
+ * @brief This API config lcd display x size and y size
+ 
+ * @param
+ *     - width lcd display width
+ *     - height lcd display height
+ *
+ * attention 1. int the next version, the width and height deside the transfer number of lcd display.
+ *              will config with another two register x offset and y offset
+ *
+ * attention 2. in this sdk version width/height only set once in 8080_init,if you want set twice,should 
+                set bk_lcd_8080_display_enable(0)
+ */
+bk_err_t bk_lcd_pixel_config(uint16_t x_pixel, uint16_t y_pixel)
+{
+	lcd_hal_pixel_config(x_pixel, y_pixel);
+	return BK_OK;
+}
 
 bk_err_t lcd_driver_rgb_init(const lcd_config_t *config)
 {
@@ -243,8 +314,6 @@ bk_err_t lcd_driver_rgb_init(const lcd_config_t *config)
 	LOGI("%s\n", __func__);
 
 	lcd_hal_set_rgb_clk_rev_edge(0);  //output data is in clk doen edge or up adge
-	bk_lcd_set_pixel_reverse(0);
-	lcd_hal_rgb_int_enable(0, 1);
 	lcd_hal_rgb_display_sel(1);  //RGB display enable, and select rgb module
 	lcd_hal_set_sync_low(HSYNC_BACK_LOW, VSYNC_BACK_LOW);
 
@@ -253,6 +322,7 @@ bk_err_t lcd_driver_rgb_init(const lcd_config_t *config)
 	                        rgb->vsync_back_porch,
 	                        rgb->vsync_front_porch);
 
+	lcd_hal_set_rgb_clk_rev_edge(rgb->data_out_clk_edge);
 
 	lcd_hal_disconti_mode(DISCONTINUE_MODE);
 
@@ -273,11 +343,18 @@ bk_err_t lcd_driver_rgb_init(const lcd_config_t *config)
 
 		LOGI("%s, offset %d, %d, %d, %d\n", __func__, start_x, end_x, start_y, end_y);
 
-		bk_lcd_set_partical_display(start_x, end_x, start_y, end_y);
+		bk_lcd_set_partical_display(1, start_x, end_x, start_y, end_y);
 	}
 
 	return BK_OK;
 }
+
+bk_err_t bk_lcd_set_partical_display(bool en, uint16_t partial_clum_l, uint16_t partial_clum_r, uint16_t partial_line_l, uint16_t partial_line_r)
+{
+	lcd_hal_set_partical_display(en, partial_clum_l, partial_clum_r, partial_line_l, partial_line_r);
+	return BK_OK;
+}
+
 
 bk_err_t lcd_driver_mcu_init(const lcd_config_t *config)
 {
@@ -310,7 +387,7 @@ bk_err_t lcd_driver_mcu_init(const lcd_config_t *config)
 
 		LOGI("%s, offset %d, %d, %d, %d\n", __func__, start_x, end_x, start_y, end_y);
 
-		bk_lcd_set_partical_display(start_x, end_x, start_y, end_y);
+		bk_lcd_set_partical_display(1,start_x, end_x, start_y, end_y);
 	}
 
 	return BK_OK;
@@ -360,7 +437,7 @@ bk_err_t lcd_driver_set_backlight(uint8_t percent)
 }
 #endif
 
-bk_err_t lcd_driver_display_enable(bool enable)
+bk_err_t lcd_driver_display_enable(void)
 {
 	lcd_type_t type;
 
@@ -368,16 +445,31 @@ bk_err_t lcd_driver_display_enable(bool enable)
 
 	if (type == LCD_TYPE_RGB565)
 	{
-		lcd_hal_rgb_display_en(enable);
+		lcd_hal_rgb_display_en(1);
 	}
 	else if (type == LCD_TYPE_MCU8080)
 	{
-		lcd_hal_8080_start_transfer(enable);
+		lcd_hal_8080_start_transfer(1);
 		lcd_hal_8080_cmd_param_count(1);
 		lcd_hal_8080_write_cmd(0x2c);
-
 	}
 
+	return BK_OK;
+}
+bk_err_t lcd_driver_display_continue(void)
+{
+	lcd_type_t type;
+	type = s_lcd.config.device->type;
+	if (type == LCD_TYPE_RGB565)
+	{
+//		lcd_hal_rgb_eof_int_status_clear();
+	}
+
+	if (type == LCD_TYPE_MCU8080)
+	{
+		lcd_hal_8080_write_cmd(0x3c);
+//		lcd_hal_eof_int_status_clear();
+	}
 	return BK_OK;
 }
 
@@ -386,6 +478,10 @@ bk_err_t lcd_driver_set_display_base_addr(uint32_t disp_base_addr)
 	lcd_hal_set_display_read_base_addr(disp_base_addr);
 
 	return BK_OK;
+}
+uint32_t bk_lcd_get_display_base_addr(void)
+{
+	return lcd_disp_ll_get_mater_rd_base_addr();
 }
 
 
@@ -434,27 +530,35 @@ bk_err_t lcd_driver_init(const lcd_config_t *config)
 		LOGE("%s, device clk set error\n", __func__);
 		goto error;
 	}
-
+#if	(USE_LCD_REGISTER_CALLBACKS == 1) 
 	bk_int_isr_register(INT_SRC_LCD, lcd_isr, NULL);
-
+#endif
 	if (device->type == LCD_TYPE_RGB565)
 	{
+	
+#if	(USE_LCD_REGISTER_CALLBACKS == 1)
+		lcd_hal_rgb_int_enable(0, 1);
 		if (config->complete_callback)
 		{
 			LOGI("%s, rgb eof register\n", __func__);
 			s_lcd.lcd_rgb_frame_end_handler = config->complete_callback;
 		}
+#endif
 
 		lcd_rgb_gpio_init(device->rgb);
 		lcd_driver_rgb_init(config);
 	}
 	else if (device->type == LCD_TYPE_MCU8080)
 	{
+	
+#if	(USE_LCD_REGISTER_CALLBACKS == 1)
+		lcd_hal_8080_int_enable(0, 1);
 		if (config->complete_callback)
 		{
 			LOGI("%s, mcu eof register\n", __func__);
 			s_lcd.lcd_8080_frame_end_handler = config->complete_callback;
 		}
+#endif
 
 		lcd_mcu_gpio_init(device->mcu);
 		lcd_driver_mcu_init(config);
@@ -506,7 +610,6 @@ bk_err_t lcd_driver_deinit(void)
 			LOGE("lcd system deinit reg config error \r\n");
 			return BK_FAIL;
 		}
-
 	}
 
 	lcd_hal_soft_reset(1);

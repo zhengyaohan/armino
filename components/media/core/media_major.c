@@ -162,7 +162,7 @@ static void media_major_message_handle(void)
 #endif
 
 #ifdef CONFIG_WIFI_TRANSFER
-	trs_video_transfer_init();
+	transfer_init();
 #endif
 
 #ifdef CONFIG_LCD
@@ -210,7 +210,7 @@ static void media_major_message_handle(void)
 
 #ifdef CONFIG_WIFI_TRANSFER
 				case TRS_EVENT:
-					wifi_transfer_event_handle(msg.event, msg.param);
+					transfer_event_handle(msg.event, msg.param);
 					break;
 #endif
 
