@@ -5,7 +5,7 @@ LCD GC9503V屏幕初始化
 
 1、功能概述
 --------------------------
-	针对移康提供的屏幕GC9503V和ST7701S两种屏幕上电初始化操作
+	针对屏幕GC9503V和ST7701S两种屏幕上电初始化操作
 
 2、代码路径
 --------------------------
@@ -45,14 +45,15 @@ LCD GC9503V屏幕初始化
 
 	1.打开多媒体功能GPIO
 
-		lcd_dev init
+		lcd_device_init_handler=init
 
 	2.如果使用的是GC9503V，则初始化GC9503V
 
-		lcd_dev gc9503v 5
+		lcd_device_init_handler=gc9503v
 
 	2.如果使用的是ST7701S，则初始化ST7701S
 
-		lcd_dev st7701s 5
+		lcd_device_init_handler=st7701s
 
-
+	3. 显示纯色
+	lcd_device_init_handler=display

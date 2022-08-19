@@ -46,5 +46,5 @@ typedef struct
 	uint8_t aud_dac[AUDIO_FRAME_SIZE];
 } psram_720p_map_t;
 
-#define psram_map ((psram_map_t*)PSRAM_CACHEABLE)
-#define psram_720p_map ((psram_720p_map_t*)PSRAM_CACHEABLE)
+#define psram_map ((psram_map_t*)PSRAM_NONCACHEABLE)
+#define psram_720p_map ((psram_720p_map_t*)PSRAM_NONCACHEABLE)

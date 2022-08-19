@@ -140,6 +140,12 @@ static void uvc_process_data_packet(void *curptr, uint32_t newlen, uint8_t is_eo
 		return;
 	}
 
+	if (frame_len & 0x3)
+	{
+		fack_len = ((frame_len >> 2) + 1) << 2;
+		//UVC_LOGI("eof %d-%d\r\n", frame_len, fack_len);
+	}
+
 	if (bmhead_info & 0x02)   // bit1 = 1, end frame
 	{
 		/*uint8_t *eof;
@@ -149,11 +155,6 @@ static void uvc_process_data_packet(void *curptr, uint32_t newlen, uint8_t is_eo
 		uvc_camera_drv->frame_flag = true;
 		uvc_camera_drv->frame = curr_frame_buffer;
 		curr_frame_buffer->sequence = ++uvc_frame_id;
-		if ((frame_len & 0x3) && (frame_len > 0))
-		{
-			fack_len = ((frame_len >> 2) + 1) << 2;
-			//UVC_LOGI("eof frame_len:%d\r\n", frame_len);
-		}
 	}
 	else
 	{
@@ -175,6 +176,28 @@ static void uvc_process_data_packet(void *curptr, uint32_t newlen, uint8_t is_eo
 	{
 		uvc_memcpy_by_chnl(curr_frame_buffer->frame + curr_frame_buffer->length, data, fack_len ? fack_len : frame_len, uvc_camera_drv->psram_dma);
 		curr_frame_buffer->length += frame_len;
+	}
+	else if (frame_len == 0)
+	{
+		if (uvc_camera_drv->eof == true)
+		{
+			frame_buffer_t *frame = uvc_camera_drv->frame;
+
+			uvc_camera_config->frame_complete(frame);
+			uvc_camera_drv->frame = NULL;
+			uvc_camera_drv->eof = false;
+
+			curr_frame_buffer = uvc_camera_config->frame_alloc();
+
+			if (curr_frame_buffer == NULL
+				|| curr_frame_buffer->frame == NULL)
+			{
+				UVC_LOGE("alloc frame error\n");
+				return;
+			}
+
+			curr_frame_buffer->length = 0;
+		}
 	}
 }
 

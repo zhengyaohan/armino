@@ -5,7 +5,7 @@ LCD RGB Display JPEG
 
 1、功能概述
 --------------------------
-	lcd rgb display jpeg demo 实现了RGB屏幕实时显示dvp camera jpeg 数据的功能。
+	显示一张JPEG图片到mcu/rgb LCD屏幕。
 
 2、代码路径
 --------------------------
@@ -29,39 +29,12 @@ demo运行依赖的库和驱动:
  - LCD LCD模块驱动
  - JPEG JPEG模块驱动
 
-3、演示介绍
---------------------------
-demo执行的步骤如下:
 
-	1、Demo运行硬件环境:
-	 1) BK7256开发板以及下载固件的环境
-	 2) 配套RGB接口的LCD屏幕
-	 3) 需要提供稳压电源供23V电压给RGB LCD
-	 4) 可以接收串口命令的串口工具，波特率为115200.
+3、cli命令简介
+--------------------
 
-	1.执行测试
-	 - Uart发送AT指令 `` lcd_rgb_jpeg=480p ,25`` 执行测试
-
-	3.停止测试
-	 - Uart发送AT指令 ``lcd_rgb_close=jpeg`` 停止测试
-
-
-
-5、LCD 代码实现
---------------------------
-
-LCD显示JPEG图像软件实现流程大致可以分为6个步骤：
-
-	1)	配置RGB LCD
-
-	2)	配置JPEG_ENC和camera
-
-	3)	配置JPEG_DEC
-
-	4)	处理JPEG_ENC完成一帧压缩的中断回调
-
-	5)	处理JPEG_DEC完成一帧解压的中断回调
-
-	6)	配置LCD 刷屏的数据地址，并使能传输
+	 从SD卡读取一张jpeg图片显示到屏幕上
+	 - `` fatfstest M 1``
+	 -  `` lcd=file_display,filename``
 
 

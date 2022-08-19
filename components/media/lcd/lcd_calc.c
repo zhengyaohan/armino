@@ -78,7 +78,7 @@ uint32_t lcd_height = 0;
 lcd_info_t *lcd_info_ptr = NULL;
 
 
-#define BLOCK_WIDTH     (60)
+#define BLOCK_WIDTH     (40)
 #define BLOCK_HEIGHT    (80)
 #define BLOCK_SIZE      (BLOCK_WIDTH * BLOCK_HEIGHT * 2)
 
