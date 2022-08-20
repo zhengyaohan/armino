@@ -532,9 +532,6 @@ int frame_buffer_jpeg_frame_init(void)
 
 	if (frame_buffer_info->minimal_layout == true)
 	{
-#define SRAM_ADDRESS (0x30000000)
-#define BUFFER_SIZE (1024 * 42)
-
 		for (int i = 0; i < JPEG_ENC_FRAME_COUNT; i ++)
 		{
 			frame_buffer_t *frame = (frame_buffer_t *)os_malloc(sizeof(frame_buffer_t));
@@ -542,13 +539,10 @@ int frame_buffer_jpeg_frame_init(void)
 			os_memset(frame, 0, sizeof(frame_buffer_t));
 
 			frame->state = STATE_INVALID;
-#if 0
-			frame->frame = (uint8_t *)(SRAM_ADDRESS + (BUFFER_SIZE * i));
-			frame->size = BUFFER_SIZE;
-#else
+
 			frame->frame = psram_map->jpeg_enc[i];
 			frame->size = sizeof(psram_map->jpeg_enc[i]);
-#endif
+
 			frame->id = i;
 			frame->type = FRAME_JPEG;
 			frame->length = 0;
@@ -731,6 +725,8 @@ bool frame_buffer_get_state(void)
 
 void frame_buffer_enable(bool enable)
 {
+	LOGI("%s, %d\n", __func__, enable);
+
 	if (frame_buffer_info)
 	{
 		os_memset((void *)frame_buffer_info, 0, sizeof(frame_buffer_info_t));
@@ -739,7 +735,6 @@ void frame_buffer_enable(bool enable)
 	}
 	frame_buffer_info->minimal_layout = true;
 }
-
 
 void frame_buffer_deinit(void)
 {

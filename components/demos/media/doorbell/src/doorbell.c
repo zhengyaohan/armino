@@ -221,9 +221,13 @@ static void demo_doorbell_udp_handle_cmd_data(UINT8 *data, UINT16 len)
 #endif	//AUDIO_TRANSFER_ENABLE
 
 			case DISPLAY_CLOSE:
+				DBD("LCD CLOSE\n");
+				media_app_lcd_close();
 				break;
 
 			case DISPLAY_OPEN:
+				DBD("LCD OPEN: %dX%d\n", param >> 16, param & 0xFFFF);
+				media_app_lcd_open(param);
 				break;
 
 			default:
@@ -269,6 +273,16 @@ static void demo_doorbell_udp_receiver(UINT8 *data, UINT32 len, struct sockaddr_
 		{
 			case DOORBELL_DVP_START:
 			{
+				uint32_t ppi = PPI_DEFAULT;
+
+				if (len >= 6)
+				{
+					ppi = data[2] << 24 | data[3] << 16 | data[4] << 8 | data[5];
+				}
+
+				DBD("DVP START: %dX%d\n", ppi >> 16, ppi & 0xFFFF);
+
+
 				UINT8 *src_ipaddr = (UINT8 *)&demo_doorbell_remote->sin_addr.s_addr;
 				DBD("src_ipaddr: %d.%d.%d.%d\r\n", src_ipaddr[0], src_ipaddr[1],
 				    src_ipaddr[2], src_ipaddr[3]);
@@ -290,9 +304,9 @@ static void demo_doorbell_udp_receiver(UINT8 *data, UINT32 len, struct sockaddr_
 				setup.add_pkt_header = demo_doorbell_add_pkt_header;
 
 				if (!camera_type)
-					media_app_camera_open(APP_CAMERA_DVP, PPI_DEFAULT);
+					media_app_camera_open(APP_CAMERA_DVP, ppi);
 				else
-					media_app_camera_open(APP_CAMERA_UVC, PPI_DEFAULT);
+					media_app_camera_open(APP_CAMERA_UVC, ppi);
 				media_app_transfer_open(&setup);
 			}
 			break;
@@ -311,9 +325,17 @@ static void demo_doorbell_udp_receiver(UINT8 *data, UINT32 len, struct sockaddr_
 			}
 			break;
 
-#if 0
 			case DOORBELL_UVC_START:
 			{
+				uint32_t ppi = PPI_DEFAULT;
+
+				if (len >= 6)
+				{
+					ppi = data[2] << 24 | data[3] << 16 | data[4] << 8 | data[5];
+				}
+
+				DBD("UVC START: %dX%d\n", ppi >> 16, ppi & 0xFFFF);
+
 				UINT8 *src_ipaddr = (UINT8 *)&demo_doorbell_remote->sin_addr.s_addr;
 				DBD("src_ipaddr: %d.%d.%d.%d\r\n", src_ipaddr[0], src_ipaddr[1],
 				    src_ipaddr[2], src_ipaddr[3]);
@@ -334,8 +356,8 @@ static void demo_doorbell_udp_receiver(UINT8 *data, UINT32 len, struct sockaddr_
 				setup.pkt_header_size = sizeof(media_hdr_t);
 				setup.add_pkt_header = demo_doorbell_add_pkt_header;
 
-				media_app_camera_open(APP_CAMERA_UVC, PPI_DEFAULT);
-				media_app_transfer_video_open(&setup);
+				media_app_camera_open(APP_CAMERA_UVC, ppi);
+				media_app_transfer_open(&setup);
 			}
 			break;
 
@@ -345,11 +367,10 @@ static void demo_doorbell_udp_receiver(UINT8 *data, UINT32 len, struct sockaddr_
 				demo_doorbell_udp_romote_connected = 0;
 				GLOBAL_INT_RESTORE();
 
-				media_app_transfer_video_close();
+				media_app_transfer_close();
 				media_app_camera_close(APP_CAMERA_UVC);
 			}
 			break;
-#endif
 		}
 
 

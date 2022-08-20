@@ -35,8 +35,20 @@ typedef enum
 	LCD_STATE_CLOSE,
 	LCD_STATE_OPEN,
 } lcd_state_t;
-	
-static lcd_state_t lcd_status = LCD_STATE_CLOSE;
+
+typedef struct
+{
+	lcd_state_t state;
+	uint16_t lcd_size_x;
+	uint16_t lcd_size_y;
+	uint16_t partical_xs;
+	uint16_t partical_xe;
+	uint16_t partical_ys;
+	uint16_t partical_ye;
+} lcd_jpeg_display_t;
+
+lcd_jpeg_display_t lcd_jpeg_display = {0};
+
 
 #if (CONFIG_SDCARD_HOST)
 static  __attribute__((section(".itcm_sec_code "))) void memcpy_word(uint32_t *dst, uint32_t *src, uint32_t size)
@@ -189,9 +201,19 @@ static void lcd_complete_callback(void)
 	lcd_driver_display_continue();
 }
 
+
 static void jpeg_dec_complete_callback(jpeg_dec_res_t *result)
 {
-	//bk_lcd_pixel_config(result->pixel_x, result->pixel_y);
+	bk_lcd_pixel_config(result->pixel_x, result->pixel_y);
+
+	if (lcd_jpeg_display.lcd_size_x < result->pixel_x  || lcd_jpeg_display.lcd_size_y < result->pixel_y)
+	{
+		lcd_jpeg_display.partical_xs = (result->pixel_x - lcd_jpeg_display.lcd_size_x) / 2 + 1;
+		lcd_jpeg_display.partical_xe = lcd_jpeg_display.partical_xs  +	lcd_jpeg_display.lcd_size_x - 1;
+		lcd_jpeg_display.partical_ys = (result->pixel_y - lcd_jpeg_display.lcd_size_y) / 2 + 1;
+		lcd_jpeg_display.partical_ye = lcd_jpeg_display.partical_ys + lcd_jpeg_display.lcd_size_y - 1;
+	}
+	bk_lcd_set_partical_display(1, lcd_jpeg_display.partical_xs, lcd_jpeg_display.partical_xe, lcd_jpeg_display.partical_ys, lcd_jpeg_display.partical_ye);
 	lcd_driver_set_display_base_addr(0x60200000);
 	lcd_driver_display_enable();
 }
@@ -201,7 +223,7 @@ void jpeg_dec_display_demo(char *pcWriteBuffer, int xWriteBufferLen, int argc, c
 	bk_err_t ret = BK_OK;
 	char *filename = NULL;
 	unsigned char *jpeg_psram = (unsigned char *)0x60000000;
-	lcd_config_t lcd_config;
+	lcd_config_t lcd_config = {0};
 	uint32_t jpeg_len = 0;
 	unsigned char *dec_buf = (unsigned char *) 0x60200000;
 
@@ -214,7 +236,7 @@ void jpeg_dec_display_demo(char *pcWriteBuffer, int xWriteBufferLen, int argc, c
 
 		lcd_sdcard_read_to_mem(filename, (uint32_t *)jpeg_psram, &jpeg_len);
 
-		if (LCD_STATE_CLOSE == lcd_status)
+		if (LCD_STATE_CLOSE == lcd_jpeg_display.state)
 		{
 			//step 2 jpeg dec driver init
 			ret = bk_jpeg_dec_driver_init();
@@ -240,15 +262,17 @@ void jpeg_dec_display_demo(char *pcWriteBuffer, int xWriteBufferLen, int argc, c
 			}
 
 			lcd_config.complete_callback = lcd_complete_callback;
-			lcd_config.fmt = VUYY_DATA;
-			lcd_config.pixel_x = 640;
-			lcd_config.pixel_y = 480;
+			lcd_config.fmt = LCD_FMT_VUYY;
+//			lcd_config.pixel_x = 0;  //jpeg pixelx
+//			lcd_config.pixel_y = 0;  //jpeg pixelx
 			lcd_driver_init(&lcd_config);
+			lcd_jpeg_display.lcd_size_x =  ppi_to_pixel_x(lcd_config.device->ppi);
+			lcd_jpeg_display.lcd_size_y =  ppi_to_pixel_y(lcd_config.device->ppi);
 
 #if CONFIG_PWM
 			lcd_driver_set_backlight(100);
 #endif
-			lcd_status = LCD_STATE_OPEN;
+			lcd_jpeg_display.state = LCD_STATE_OPEN;
 		}
 
 		//jpeg decode process
@@ -263,7 +287,7 @@ void jpeg_dec_display_demo(char *pcWriteBuffer, int xWriteBufferLen, int argc, c
 	{
 		bk_jpeg_dec_driver_deinit();
 		lcd_driver_deinit();
-		lcd_status = LCD_STATE_CLOSE;
+		lcd_jpeg_display.state = LCD_STATE_CLOSE;
 	}
 	else
 	{

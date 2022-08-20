@@ -222,7 +222,7 @@ bk_err_t bk_timer_start_without_callback(timer_id_t timer_id, uint32_t time_ms)
 
     en_status = timer_hal_get_enable_status(&s_timer.hal);
     if (en_status & BIT(timer_id)) {
-        TIMER_LOGD("timer(%d) is running, stop it\r\n", timer_id);
+        TIMER_LOGI("timer(%d) is running, stop it\r\n", timer_id);
         timer_hal_disable(&s_timer.hal, timer_id);
         /* Delay to fix the bug that timer counter becomes bigger than
          * timer period. Once timer counter becomes bigger than timer period,
@@ -377,7 +377,7 @@ uint64_t bk_timer_get_time(timer_id_t timer_id, uint32_t div, uint32_t last_coun
     uint16_t unit_factor = 1;
 
     uint32_t current_count = timer_hal_get_count(&s_timer.hal, timer_id) + last_count;
-    
+
     if (div == 0) {
         div = 1;
     }

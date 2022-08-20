@@ -33,19 +33,6 @@
         extern "C" {
     #endif
 
-#ifndef configENABLE_FPU
-#define configENABLE_FPU                   0
-#endif
-#ifndef configENABLE_MPU
-#define configENABLE_MPU                   0
-#endif
-#ifndef configENABLE_TRUSTZONE
-#define configENABLE_TRUSTZONE             1
-#endif
-#ifndef configMINIMAL_SECURE_STACK_SIZE
-#define configMINIMAL_SECURE_STACK_SIZE    (1024)
-#endif
-
 /*------------------------------------------------------------------------------
  * Port specific definitions.
  *
@@ -135,6 +122,8 @@
     #if ( configENABLE_MPU == 1 )
         extern BaseType_t xIsPrivileged( void ) /* __attribute__ (( naked )) */;
         extern void vResetPrivilege( void ) /* __attribute__ (( naked )) */;
+    #else
+        extern BaseType_t xIsPrivileged( void ) /* __attribute__ (( naked )) */;
     #endif /* configENABLE_MPU */
 /*-----------------------------------------------------------*/
 
@@ -304,7 +293,7 @@
  */
         #define portRESET_PRIVILEGE()    vResetPrivilege()
     #else
-        #define portIS_PRIVILEGED()
+        #define portIS_PRIVILEGED()      xIsPrivileged()
         #define portRAISE_PRIVILEGE()
         #define portRESET_PRIVILEGE()
     #endif /* configENABLE_MPU */

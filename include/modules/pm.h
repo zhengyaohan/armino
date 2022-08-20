@@ -249,6 +249,22 @@ typedef struct {
     pm_cb cb;
     void *args;
 } pm_cb_conf_t;
+
+/**
+ * @brief using the gpio to control the external ldo
+ *
+ * control the external ldo
+ *
+ * @attention
+ * - This API is used to use the specific gpio(define in  GPIO_CTRL_LDO_OUTPUT_HIGH_MAP or GPIO_CTRL_LDO_OUTPUT_LOW_MAP in gpio_map.h) control the external ldo
+ *
+ * @param
+ * -value:0x1:output high; 0x0:output low
+ * @return
+ *  - BK_OK: succeed
+ *  - others: other errors.
+ */
+bk_err_t bk_pm_external_ldo_ctrl(uint32_t value);
 /**
  * @brief get the state of phy calibration
  *

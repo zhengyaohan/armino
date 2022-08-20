@@ -16,6 +16,8 @@
 #include <driver/aon_rtc_types.h>
 #include <driver/aon_rtc.h>
 #include <modules/ble_types.h>
+#include <driver/timer.h>
+
 
 #if CONFIG_MCU_PS
 static void cli_ps_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -670,6 +672,33 @@ static void cli_dvfs_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, cha
 	GLOBAL_INT_RESTORE();
 	os_printf("switch cpu frequency ok 0x%x 0x%x 0x%x\r\n",sys_drv_all_modules_clk_div_get(CLK_DIV_REG0),sys_drv_cpu_clk_div_get(0),sys_drv_cpu_clk_div_get(1));
 }
+#if CONFIG_AON_RTC
+static UINT32 s_pre_tick;
+static void cli_pm_timer_isr(timer_id_t chan)
+{
+	UINT32 current_tick = 0;
+	current_tick = bk_aon_rtc_get_current_tick(AON_RTC_ID_1);
+
+    os_printf("rosc accuracy count %d %d %d \r\n",current_tick - s_pre_tick,current_tick,s_pre_tick);
+	s_pre_tick = current_tick;
+}
+#endif
+static void cli_pm_rosc_accuracy(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+#if CONFIG_AON_RTC
+	UINT32 timer_count_interval = 0;
+
+	if (argc != 2)
+	{
+		os_printf("set osc_accurac parameter invalid %d\r\n",argc);
+		return;
+	}
+
+	timer_count_interval   = os_strtoul(argv[1], NULL, 10);
+	bk_timer_start(0, timer_count_interval, cli_pm_timer_isr);
+#endif
+}
+
 #endif
 #if CONFIG_MCU_PS
 static void cli_deep_sleep_cmd(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
@@ -841,6 +870,7 @@ static const struct cli_command s_pwr_commands[] = {
 	{"pm_ctrl", "pm_ctrl [ctrl_value]", cli_pm_ctrl},
 	{"pm_pwr_state", "pm_pwr_state [pwr_state]", cli_pm_pwr_state},
 	{"pm_auto_vote", "pm_auto_vote [auto_vote_value]", cli_pm_auto_vote},
+	{"pm_rosc", "pm_rosc [rosc_accuracy_count_interval]", cli_pm_rosc_accuracy},
 #endif
 #if CONFIG_TPC_PA_MAP
 	{"pwr", "pwr {sta|ap} pwr", cli_pwr_cmd },

@@ -1618,7 +1618,7 @@ static SDIO_Error sdcard_send_write_stop(int err)
 	}
 	ret += sdcard_cmd12_process(0);
 	if (ret != SD_OK)
-		SDCARD_FATAL("write stop err:%x\r\n", ret);
+		SDCARD_FATAL("===write err:%x====\r\n", ret);
 	ret += err;
 	return ret;
 }
@@ -1669,7 +1669,7 @@ SDIO_Error sdcard_write_multi_block(UINT8 *write_buff, UINT32 first_block, UINT3
 		if(ret == SD_OK)
 		{
 			//CMD25:notify sdcard,will write multi-block data
-			while(retry_cnt < 64)	//reduce wait time and add retry count,maybe the card is busy after CMD12.
+			while(retry_cnt < 16)	//add retry count,maybe the card is busy after CMD12.
 			{
 				retry_cnt++;
 
@@ -1686,8 +1686,8 @@ SDIO_Error sdcard_write_multi_block(UINT8 *write_buff, UINT32 first_block, UINT3
 						SDCARD_FATAL("sdcard write data fail \r\n");
 				}
 			}
-			if(retry_cnt >= 24)	//80M clock:test 60000 times, the max wait cnt is 24, each timeout is 100us
-				SDCARD_FATAL("cmd25 retry_cnt=%d ret=%d\r\n", retry_cnt, ret2);
+			if(retry_cnt >= 16)
+				SDCARD_FATAL("cmd25 retry_cnt=%d fail:ret=%d\r\n", retry_cnt);
 
 			ret += ret2;
 		}

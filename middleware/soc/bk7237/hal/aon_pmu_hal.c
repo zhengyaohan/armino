@@ -169,7 +169,12 @@ uint32_t aon_pmu_hal_reg_get(pmu_reg_e reg)
 
 void aon_pmu_hal_wdt_rst_dev_enable()
 {
-	aon_pmu_ll_set_reg2_value(AON_PMU_REG2_WDT_RST_MASK);
+	uint32_t aon_pmu_reg2 = 0;
+	aon_pmu_reg2 = aon_pmu_ll_get_reg2_value();
+	aon_pmu_reg2 |= AON_PMU_REG2_WDT_RST_MASK;
+
+	aon_pmu_ll_set_reg2_value(aon_pmu_reg2);
+
 }
 
 #define PM_LP_SRC_X32K   (0x1)  //external32k

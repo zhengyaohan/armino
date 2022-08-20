@@ -25,6 +25,8 @@
 
 #include <driver/timer.h>
 
+#include <modules/ble.h>
+
 
 #define TAG "uvc_act"
 
@@ -66,6 +68,18 @@ void uvc_open_handle(param_pak_t *param)
 		ret = kNoErr;
 		goto out;
 	}
+
+	if (bk_ble_get_env_state())
+	{
+		LOGI("bluetooth is enabled, shutdown bluetooth\n");
+		bk_ble_deinit();
+		rtos_delay_milliseconds(900);
+	}
+	else
+	{
+		LOGI("bluetooth state: %d\n", bk_ble_get_env_state());
+	}
+
 
 	//pm_core_bus_clock_ctrl(2, 0, 1, 0, 0);
 

@@ -113,32 +113,26 @@ static void lcd_act_complete_callback(void)
 	lcd_driver_display_continue();
 }
 
+#if 0
+static void lcd_act_jpeg_dec_dump(uint8_t *src, uint32_t size)
+{
+	uint32_t i;
+
+	LOGE("dump: ");
+
+	for (i = 0; i < size; i++)
+	{
+		os_printf("%02X ", src[i]);
+	}
+	os_printf("\n");
+}
+#endif
+
 static void jpeg_dec_eof_cb(jpeg_dec_res_t *result)
 {
 	media_decoder_isr_count++;
 
 	//bk_gpio_pull_up(GPIO_8);
-	//LOGI("size %u: %u, left:%d\n", result->size, lcd_info.jpeg_frame->length, lcd_info.jpeg_frame->length - result->size);
-
-	decoder_size = result->size;
-
-	if (result->size != lcd_info.jpeg_frame->length)
-	{
-#if 0
-		LOGE("size %u: %u, left:%d\n", result->size, lcd_info.jpeg_frame->length, lcd_info.jpeg_frame->length - result->size);
-		media_msg_t msg;
-
-		LOGE("decoder error\n");
-		LOGE("size %u: %u, left:%d\n", result->size, lcd_info.jpeg_frame->length, lcd_info.jpeg_frame->length - result->size);
-		frame_buffer_free_request(lcd_info.decoder_frame, MODULE_DISPLAY);
-		msg.event = EVENT_COM_FRAME_DECODER_FREE_IND;
-		msg.param = (uint32_t)lcd_info.jpeg_frame;
-		media_send_msg(&msg);
-		lcd_info.jpeg_frame = NULL;
-
-		return;
-#endif
-	}
 
 	if (lcd_info.step_mode == false)
 	{
@@ -152,6 +146,25 @@ static void jpeg_dec_eof_cb(jpeg_dec_res_t *result)
 			lcd_info.step_trigger = false;
 		}
 		lcd_frame_pingpong_insert(lcd_info.decoder_frame);
+		return;
+	}
+
+	decoder_size = result->size;
+
+	if (result->ok == false)
+	{
+		media_msg_t msg;
+
+		//LOGE("decoder failed, %u %u\n", result->size, lcd_info.jpeg_frame->length);
+
+		//lcd_act_jpeg_dec_dump(lcd_info.jpeg_frame->frame + lcd_info.jpeg_frame->length - 15, 15);
+
+		frame_buffer_free_request(lcd_info.decoder_frame, MODULE_DISPLAY);
+		msg.event = EVENT_COM_FRAME_DECODER_FREE_IND;
+		msg.param = (uint32_t)lcd_info.jpeg_frame;
+		media_send_msg(&msg);
+		lcd_info.jpeg_frame = NULL;
+
 		return;
 	}
 
@@ -297,6 +310,7 @@ int lcd_act_driver_init(uint32_t lcd_ppi)
 
 		lcd_info.src_pixel_x = uvc_device->width;
 		lcd_info.src_pixel_y = uvc_device->height;
+		lcd_info.camera = UVC_CAMERA;
 #else
 		return BK_FAIL;
 #endif
@@ -310,6 +324,8 @@ int lcd_act_driver_init(uint32_t lcd_ppi)
 		{
 			yuv_mode = true;
 		}
+
+		lcd_info.camera = DVP_CAMERA;
 	}
 
 	ret = bk_jpeg_dec_driver_init();
@@ -371,7 +387,7 @@ int lcd_act_driver_init(uint32_t lcd_ppi)
 
 	if (yuv_mode)
 	{
-		lcd_config.fmt = ORGINAL_YUYV_DATA;
+		lcd_config.fmt = LCD_FMT_ORGINAL_YUYV;
 	}
 	else
 	{
@@ -379,11 +395,11 @@ int lcd_act_driver_init(uint32_t lcd_ppi)
 
 		if (lcd_info.rotate)
 		{
-			lcd_config.fmt = ORGINAL_YUYV_DATA;
+			lcd_config.fmt = LCD_FMT_ORGINAL_YUYV;
 		}
 		else
 		{
-			lcd_config.fmt = VUYY_DATA;
+			lcd_config.fmt = LCD_FMT_VUYY;
 		}
 		bk_jpeg_dec_isr_register(DEC_END_OF_FRAME, jpeg_dec_eof_cb);
 	}
@@ -573,7 +589,14 @@ bk_err_t lcd_frame_decoder(frame_buffer_t *buffer)
 		LOGD("decoder frame: %u, %p, %p\n", lcd_info.jpeg_frame->sequence, lcd_info.jpeg_frame->frame, frame->frame);
 		LOGD("frame: %u, %u, %u\n", lcd_info.jpeg_frame->sequence, lcd_info.jpeg_frame->length, lcd_info.jpeg_frame->length % 4);
 
-		ret = bk_jpeg_dec_hw_start(lcd_info.jpeg_frame->length, lcd_info.jpeg_frame->frame, frame->frame);
+		if (lcd_info.camera == UVC_CAMERA)
+		{
+			ret = bk_jpeg_dec_dma_start(lcd_info.jpeg_frame->length, lcd_info.jpeg_frame->frame, frame->frame);
+		}
+		else
+		{
+			ret = bk_jpeg_dec_hw_start(lcd_info.jpeg_frame->length, lcd_info.jpeg_frame->frame, frame->frame);
+		}
 
 		if (lcd_info.step_mode == false)
 		{

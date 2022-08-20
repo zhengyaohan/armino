@@ -69,7 +69,7 @@ void lcd_rgb_gc9503v_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, ch
 
 		lcd_config.device = get_lcd_device_by_id(LCD_DEVICE_GC9503V);
 		lcd_config.complete_callback = lcd_display_frame_isr;
-		lcd_config.fmt = RGB565_DATA;
+		lcd_config.fmt = LCD_FMT_RGB565;
 		lcd_config.pixel_x = 480;
 		lcd_config.pixel_y = 800;
 		lcd_driver_init(&lcd_config);

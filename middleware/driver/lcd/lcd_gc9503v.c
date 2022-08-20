@@ -628,6 +628,13 @@ static void lcd_gc9503v_config(void)
 
 static void lcd_gc9503v_reset(void)
 {
+	BK_LOG_ON_ERR(bk_gpio_disable_input(34));
+	BK_LOG_ON_ERR(bk_gpio_enable_output(34));
+	// pull up gpio34, enable lcd backlight control
+	bk_gpio_set_output_low(34);
+	delay_ms(15);
+	bk_gpio_set_output_high(34);
+
 	BK_LOG_ON_ERR(bk_gpio_enable_output(8));
 	bk_gpio_set_output_high(8);
 	delay_ms(15);

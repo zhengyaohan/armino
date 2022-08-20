@@ -180,6 +180,18 @@ extern "C" {
 	{GPIO_10, GPIO_INT_TYPE_LOW_LEVEL},\
 	/*{GPIO_40, GPIO_INT_LEVEL_LOW},*/ \
 }
+
+#define GPIO_CTRL_LDO_OUTPUT_HIGH_MAP  \
+{\
+	/* GPIO_2, */\
+	/* GPIO_28, */\
+}
+
+#define GPIO_CTRL_LDO_OUTPUT_LOW_MAP  \
+{\
+	/* GPIO_4, */\
+	/* GPIO_26, */\
+}
 #endif
 
 #if CONFIG_DOORBELL_DEMO2

@@ -33,9 +33,8 @@ extern "C" {
 
  /**
  * @brief    This API select LCD module clk source
- *          - config lcd freq div
  *          - config video power
- *          - open lcd sys interrupt enable
+ *          - open lcd sys interrupt/clk enable
  * @return
  *     - BK_OK: succeed
  *     - others: other errors.
@@ -52,21 +51,21 @@ bk_err_t bk_lcd_driver_init(lcd_clk_t clk);
  *    - if you want enable start of frame interrupt, please use API bk_lcd_8080_int_enable
  *
  * @param
- *     - x_pixel defult by 320, user can set by any value.
- *     - y_pixel defult by 480, user can set by any value.
- *     - input_data_format
+ *     - x_pixel  user can set by any value, can be lcd size x or picture size x
+ *     - y_pixel  user can set by any value, can be lcd size y or picture size y
+ *     - input_data_format, lcd module input data format, can be rgb565, yuyv, uvyy or other lcd_data_format_t member
  *
  * @return
  *     - BK_OK: succeed
  *     - others: other errors.
  */
-bk_err_t bk_lcd_8080_init(uint16_t x_pixel, uint16_t y_pixel,rgb_input_data_format_t input_data_format);
+bk_err_t bk_lcd_8080_init(uint16_t x_pixel, uint16_t y_pixel, lcd_data_format_t input_data_format);
 
 
 /**
 * @brief 8080 lcd interface reg deinit
 *     - This API reset all lcd reg include power 
-*     - close 8080/rgb lcd enable and display
+*     - close 8080 lcd enable and display
 *     - reset x pixel and y pixel zero
 *     - unregister lcd isr
 *
@@ -80,8 +79,8 @@ bk_err_t bk_lcd_8080_deinit(void);
  * @brief This API config lcd display x size and y size
  *
  * @param
- *     - width lcd display width
- *     - height lcd display height
+ *     - x_pixel  user can set by any value, can be lcd size x or picture size x
+ *     - y_pixel  user can set by any value, can be lcd size y or picture size y
  *
  * @return
  *     - BK_OK: succeed
@@ -107,7 +106,7 @@ bk_err_t bk_lcd_8080_int_enable(bool is_sof_en, bool is_eof_en);
 
 
 /**
- * @brief This API start 8080 lcd transfer data to display
+ * @brief This API start mcu 8080 lcd transfer data to display
  *
  * @param start_transfer 
  *      - 1:data start transfer to lcd display on; 
@@ -122,7 +121,7 @@ bk_err_t bk_lcd_8080_start_transfer(bool start);
 /**
  * @brief     rgb lcd interface reg deinit
  *           - This API reset all lcd reg include power 
- *           - close 8080/rgb lcd enable and display
+ *           - close rgb lcd enable and display
  *           - reset x pixel and y pixel zero
  *           - unregister lcd isr
  *
@@ -181,7 +180,7 @@ bk_err_t bk_lcd_isr_register(lcd_int_type_t int_type, lcd_isr_t isr);
 #else
 
 /**
- * @brief This API register  8080/rgb lcd int isr
+ * @brief This API register  lcd isr, user should check int status in isr function, and clear status
  * 
  * @param
  *     - isr: isr function
@@ -227,28 +226,17 @@ bk_err_t bk_lcd_int_status_clear(lcd_int_type_t int_type);
  *    - enable rgb end of frame interrupt
  *
  * @param
- *     - lcd_device_id_t: lcd type
+ *     - lcd_device_id_t: lcd type select from lcd_device_id_t
  *     - x_pixel
  *     - y_pixel
- *     - input_data_format:  input_data_format select rgb565 data, yuyv, yyuv or other yuv *        mode from struct rgb_input_data_format_t
+ *     - input_data_format:  input_data_format select rgb565 data, yuyv, yyuv or other yuv *        mode from struct lcd_data_format_t
  *
  * @return
  *     - BK_OK: succeed
  *     - others: other errors.
  */
-bk_err_t bk_lcd_rgb_init(lcd_device_id_t id, uint16_t x_pixel, uint16_t y_pixel, rgb_input_data_format_t input_data_format);
+bk_err_t bk_lcd_rgb_init(lcd_device_id_t id, uint16_t x_pixel, uint16_t y_pixel, lcd_data_format_t input_data_format);
 
-
-/**
- * @brief This API set display read mem addr
- * 
- * @param disp_base_addr lcd display base addr
- *
- * @return
- *     - BK_OK: succeed
- *     - others: other errors.
- */
-bk_err_t bk_lcd_set_display_base_addr(uint32_t disp_base_addr);
 
 /**
  * @brief This API used send 8080 lcd init cmd
@@ -338,8 +326,14 @@ bk_err_t lcd_driver_init(const lcd_config_t *config);
 /**
  * @brief this api used to get lcd device interface
  * 
- * @param lcd_device_id_t
- * @return lcd_device_id_t
+ * @param select lcd_device_id_t member
+ * @return lcd device infermation, include:
+ *	.id = LCD_DEVICE_HX8282,
+ *	.name = "hx8282",
+ *	.type = LCD_TYPE_RGB565,
+ *	.ppi = PPI_1024X600,
+ *	.rgb = &lcd_rgb
+ *	.init = NULL,
  */
 const lcd_device_t *get_lcd_device_by_id(lcd_device_id_t id);
 
@@ -390,6 +384,41 @@ bk_err_t lcd_driver_set_display_base_addr(uint32_t disp_base_addr);
  *     - others: other errors.
  */
 bk_err_t lcd_driver_deinit(void);
+
+/**
+ * @brief lcd fill color
+ *
+ * @param lcd_disp
+ *
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
+ */
+	bk_err_t bk_lcd_fill_color(lcd_device_id_t id, lcd_disp_framebuf_t *lcd_disp, uint32_t color);
+
+/**
+ * @brief lcd fill data,  adapt large amount of data transfer
+ *
+ * @param lcd_disp
+ *
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
+ */
+bk_err_t bk_lcd_fill_data(lcd_device_id_t id, lcd_disp_framebuf_t *lcd_disp);
+
+
+/**
+ * @brief this api used to draw point or adapt small amount of data 
+ *
+ *
+ * @param disp_base_addr sram or psram
+ *
+ * @return
+ *     - BK_OK: succeed
+ *     - others: other errors.
+ */
+bk_err_t bk_lcd_draw_point(lcd_device_id_t id, lcd_rect_t *rect, uint32_t *buf);
 
 
 /**

@@ -68,6 +68,15 @@ set(srcs
 	security/hal_sha.c
 	spinlock/amp_res_lock.c
 	)
+if (CONFIG_AON_WDT)
+	list(APPEND incs
+		aon_wdt
+	)
+
+	list(APPEND srcs
+		aon_wdt/aon_wdt_driver.c
+	)
+endif()
 
 if (CONFIG_MPC)
 	list(APPEND incs

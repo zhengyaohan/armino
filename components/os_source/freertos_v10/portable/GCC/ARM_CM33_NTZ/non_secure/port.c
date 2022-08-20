@@ -1199,8 +1199,8 @@ BaseType_t xPortIsInsideInterrupt( void )
 void vApplicationIdleHook( void )
 {
 #if (CONFIG_TASK_WDT)
-	extern void bk_task_wdt_feed(void);
-	bk_task_wdt_feed();
+    extern void bk_task_wdt_feed(void);
+    bk_task_wdt_feed();
 #endif
 }
 
@@ -1213,8 +1213,7 @@ uint32_t platform_is_in_interrupt_context(void)
 uint32_t platform_cpsr_content( void )
 {
     //TODO
-    return 0;
-}
+    return 0;}
 
 int port_disable_interrupts_flag(void)
 {
@@ -1227,7 +1226,7 @@ int port_disable_interrupts_flag(void)
  */
 void port_enable_interrupts_flag(int val)
 {
-    //TODO
+   //TODO
 }
 
 /*
@@ -1251,5 +1250,4 @@ void port_check_isr_stack(void)
 {
     //TODO
 }
-
 

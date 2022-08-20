@@ -577,7 +577,7 @@ static int jpg_dec_config(uint16_t xpixel, uint16_t ypixel, uint32_t length, uns
 	jpeg_dec_ll_set_reg0xf_value(xpixel*ypixel*2/64 - 1);
 
 #if(1)
-	jpeg_dec_ll_set_reg0x5a_value(length);
+	jpeg_dec_ll_set_reg0x5a_value(length + 2048);
 #else
 		switch(xpixel)
 	{

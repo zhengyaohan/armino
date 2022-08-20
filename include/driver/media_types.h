@@ -95,6 +95,12 @@ typedef struct
 	uint32_t sequence;
 } frame_buffer_t;
 
+typedef enum
+{
+	UNKNOW_CAMERA,
+	DVP_CAMERA,
+	UVC_CAMERA,
+} camera_type_t;
 
 static inline uint16_t ppi_to_pixel_x(media_ppi_t ppi)
 {

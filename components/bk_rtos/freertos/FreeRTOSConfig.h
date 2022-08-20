@@ -255,7 +255,7 @@ Members except log buffer in uncached buffer used at most 6 cache line space. */
 #if (CONFIG_ARCH_CM33 == 1)
 #define configENABLE_FPU                   0
 #define configENABLE_MPU                   0
-#define configENABLE_TRUSTZONE             1
+#define configENABLE_TRUSTZONE             0
 #define configMINIMAL_SECURE_STACK_SIZE    (1024)
 #endif
 

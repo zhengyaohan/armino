@@ -92,6 +92,17 @@ extern "C" {
 }
 #endif
 
+#define GPIO_CTRL_LDO_OUTPUT_HIGH_MAP  \
+{\
+	/* GPIO_2, */\
+	/* GPIO_28, */\
+}
+
+#define GPIO_CTRL_LDO_OUTPUT_LOW_MAP  \
+{\
+	/* GPIO_4, */\
+	/* GPIO_26, */\
+}
 /*
 * Camera DVP GPIO MAP
 */

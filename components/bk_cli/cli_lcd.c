@@ -17,6 +17,7 @@ static const struct cli_command s_lcd_commands[] = {
 	{"lcd_8080", "init|fram_disp", lcd_8080_display_test},
 	{"lcd_8080_yuv", "lcd_8080_yuv=4", lcd_8080_display_yuv},
 	{"lcd_8080_yuv_partical", "lcd_8080_yuv_partical=4", lcd_8080_display_480p_yuv},
+	{"lcd_rgb", "lcd_rgb=rgb565_display,1,display_partical", lcd_rgb_display_test},
 	{"lcd_rgb_yuv", "lcd_rgb=480p,1,display_partical", lcd_rgb_display_yuv},
 	{"lcd_rgb_jpeg", "lcd_rgb_jpeg =480p ,25", lcd_rgb_display_jpeg},
 	{"lcd_close", "lcd_close=yuv|jpeg,", lcd_rgb_close},

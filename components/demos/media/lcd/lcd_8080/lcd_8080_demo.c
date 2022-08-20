@@ -98,6 +98,7 @@ static void jpeg_enc_end_of_yuv(jpeg_unit_t id, void *param)
 	bk_lcd_8080_start_transfer(1);
 	bk_lcd_8080_ram_write(RAM_WRITE);
 }
+
 static void dma2d_lcd_fill_test(uint32_t frameaddr, uint16_t width, uint16_t height, uint32_t color)
 {
 	dma2d_config_t dma2d_config = {0};
@@ -108,6 +109,18 @@ static void dma2d_lcd_fill_test(uint32_t frameaddr, uint16_t width, uint16_t hei
 	dma2d_config.init.red_blue_swap   = DMA2D_RB_REGULAR;       /**< No R&B swap for the output image */
 	dma2d_config.init.alpha_inverted = DMA2D_REGULAR_ALPHA;     /**< No alpha inversion for the output image */
 	bk_dma2d_driver_init(&dma2d_config);
+	if (width == 0)
+	{
+		height = height/2;
+	} 
+	else if(height == 0)
+	{
+		width = width/2;
+	}
+	else
+	{
+		width = width/2;
+	}
 	bk_dma2d_start_transfer(&dma2d_config, color, (uint32_t)frameaddr, width, height);
 	while (bk_dma2d_is_transfer_busy()) {
 	}
@@ -128,31 +141,34 @@ static volatile uint8_t lcd_cnt;
 static void lcd_i8080_isr_test(void)
 {
 	addAON_GPIO_Reg0x8 = 2;
-		lcd_cnt ++;
-		if(lcd_cnt == 1) 
-		{
-			lcd_driver_set_display_base_addr(0x60200000);
-			bk_lcd_8080_ram_write(RAM_WRITE);
-		}
-		else if (lcd_cnt == 2)
-		{
-			lcd_driver_set_display_base_addr(0x60400000);
-			bk_lcd_8080_ram_write(RAM_WRITE);
-		}
-		else
-		{
-			//bk_lcd_8080_start_transfer(0);
-//			st7796s_set_display_mem_area(LCD_POINT_DISPLAY_XS, LCD_POINT_DISPLAY_XE, LCD_POINT_DISPLAY_YS,LCD_POINT_DISPLAY_YE);
-//			bk_lcd_8080_send_cmd(9, 0x2c, ARR_DISP_partial_3x3);
-			lcd_cnt = 0;
-		}
-	addAON_GPIO_Reg0x8 = 0;		
+//		lcd_cnt ++;
+//		if(lcd_cnt == 1) 
+//		{
+//			lcd_driver_set_display_base_addr(0x60200000);
+//			bk_lcd_8080_ram_write(RAM_WRITE);
+//		}
+//		else if (lcd_cnt == 2)
+//		{
+//			lcd_driver_set_display_base_addr(0x60400000);
+//			bk_lcd_8080_ram_write(CONTINUE_WRITE);
+//		}
+//		else
+//		{
+//			//bk_lcd_8080_start_transfer(0);
+////			st7796s_set_display_mem_area(LCD_POINT_DISPLAY_XS, LCD_POINT_DISPLAY_XE, LCD_POINT_DISPLAY_YS,LCD_POINT_DISPLAY_YE);
+////			bk_lcd_8080_send_cmd(9, 0x2c, ARR_DISP_partial_3x3);
+//			lcd_cnt = 0;
+//		}
+	bk_lcd_8080_start_transfer(0);
+
+	addAON_GPIO_Reg0x8 = 0;
 }
+
 
 void lcd_8080_display_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
 	bk_err_t ret = BK_OK;
-	uint32_t ARR_DISP_partial_3x3[9] = {0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800};
+	uint32_t ARR_DISP_partial_3x3[9] = {0xf800f800, 0xf800f800, 0xf800f800, 0xf800f800, 0xf800f800, 0xf800f800, 0xf800f800, 0xf800f800, 0xf800f800};
 	lcd_cnt = 0;
 
 	if (os_strcmp(argv[1], "dma2d_fill") == 0)
@@ -255,21 +271,51 @@ void lcd_8080_display_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, c
 		os_printf("bk_lcd_8080_ram_write \r\n");
 		bk_lcd_8080_ram_write(CONTINUE_WRITE);
 	} else if (os_strcmp(argv[1], "point_display") == 0) {
-		os_printf("close 8080 transfer \r\n");
-		bk_lcd_8080_start_transfer(0);
-		st7796s_set_display_mem_area(LCD_POINT_DISPLAY_XS, LCD_POINT_DISPLAY_XE, LCD_POINT_DISPLAY_YS,LCD_POINT_DISPLAY_YE);
-		os_printf("size = %x %p\r\n", (sizeof(ARR_DISP_partial_3x3)/sizeof(ARR_DISP_partial_3x3[0])), ARR_DISP_partial_3x3);
-		bk_lcd_8080_send_cmd((sizeof(ARR_DISP_partial_3x3)/sizeof(ARR_DISP_partial_3x3[0])), 0x2c, ARR_DISP_partial_3x3);
-		os_printf(" bk_lcd_8080_send_cmd OK \r\n");
-	} else if (os_strcmp(argv[1], "partical_display") == 0) {
-		//bk_lcd_set_partical_display(1, PARTICAL_XS, PARTICAL_XE, PARTICAL_YS, PARTICAL_YE);
-		st7796s_set_display_mem_area(PARTICAL_XS, PARTICAL_XE, PARTICAL_YS, PARTICAL_YE);
+		lcd_rect_t rect = {0};
+		rect.x = 2;
+		rect.y = 2;
+		rect.width = 3;
+		rect.height = 3;
+		bk_lcd_draw_point(LCD_DEVICE_ST7796S, &rect, ARR_DISP_partial_3x3);
+	} else if (os_strcmp(argv[1], "lcd_fill") == 0) {
+		lcd_disp_framebuf_t lcd_disp = {0};
+		uint16_t x, y, w, h;
+		uint32_t color;
+
+		x = os_strtoul(argv[3], NULL, 10) & 0xFFFF;
+		y = os_strtoul(argv[4], NULL, 10) & 0xFFFF;
+		w = os_strtoul(argv[5], NULL, 10) & 0xFFFF;
+		h= os_strtoul(argv[6], NULL, 10) & 0xFFFF;
+		os_printf("x,y,w,h = %d, %d ,%d ,%d \r\n", x,y,w,h);
+
+		uint32_t data_addr = os_strtoul(argv[8], NULL, 16) & 0xFFFFFFFF;
+
+		lcd_disp.rect.x = x;
+		lcd_disp.rect.y = y;
+		lcd_disp.rect.width = w;
+		lcd_disp.rect.height = h;
+		lcd_disp.buffer = (uint32_t *)data_addr;
+		if(os_strcmp(argv[2], "color") == 0)
+		{
+			color = os_strtoul(argv[7], NULL, 16) & 0xFFFFFFFF;
+			os_printf("fill_color = %x \r\n", color);
+			bk_lcd_fill_color(LCD_DEVICE_ST7796S, &lcd_disp, color);
+		} 
+		else
+		{
+		
+			os_printf("fill_data \r\n");
+			bk_lcd_fill_data(LCD_DEVICE_ST7796S, &lcd_disp);
+		}
+
 		bk_lcd_8080_start_transfer(1);
 		bk_lcd_8080_ram_write(RAM_WRITE);
 	} else if (os_strcmp(argv[1], "close") == 0) {
 		bk_lcd_8080_deinit();
 	}
 }
+
+
 
 void lcd_8080_display_yuv(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
 {
@@ -293,7 +339,7 @@ void lcd_8080_display_yuv(char *pcWriteBuffer, int xWriteBufferLen, int argc, ch
 	jpeg_config.mclk_div = 0;
 	jpeg_config.x_pixel = X_PIXEL_320;
 	jpeg_config.y_pixel = Y_PIXEL_480;
-	bk_lcd_8080_init(PIXEL_320, PIXEL_480, ORGINAL_YUYV_DATA);
+	bk_lcd_8080_init(PIXEL_320, PIXEL_480, LCD_FMT_ORGINAL_YUYV);
 	bk_lcd_8080_int_enable(0,1);
 	err = st7796s_init();
 	if (err != BK_OK) {
@@ -350,7 +396,7 @@ void lcd_8080_display_480p_yuv(char *pcWriteBuffer, int xWriteBufferLen, int arg
 	os_printf("no partical set jpeg yuv pixel adapt lcd size. \n");
 	jpeg_config.x_pixel = X_PIXEL_640;
 	jpeg_config.y_pixel = Y_PIXEL_480;
-	bk_lcd_8080_init(PIXEL_640, PIXEL_480, ORGINAL_YUYV_DATA);
+	bk_lcd_8080_init(PIXEL_640, PIXEL_480, LCD_FMT_ORGINAL_YUYV);
 	bk_lcd_8080_int_enable(0,1);
 	lcd_driver_set_display_base_addr((uint32_t)psram_lcd->display[0]);
 	bk_lcd_set_partical_display(1, I8080_PARTICAL_XS, I8080_PARTICAL_XE, I8080_PARTICAL_YS, I8080_PARTICAL_YE);

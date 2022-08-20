@@ -64,6 +64,7 @@ typedef struct
 } lcd_driver_t;
 
 
+extern bk_err_t bk_lcd_set_yuv_mode(lcd_data_format_t input_data_format);
 
 const lcd_device_t *lcd_devices[] =
 {
@@ -328,7 +329,7 @@ bk_err_t lcd_driver_rgb_init(const lcd_config_t *config)
 
 	bk_lcd_pixel_config(config->pixel_x, config->pixel_y); //image xpixel ypixel
 
-	lcd_hal_display_yuv_sel(config->fmt);
+	bk_lcd_set_yuv_mode(config->fmt);
 	lcd_hal_set_data_fifo_thrd(DATA_FIFO_WR_THRD, DATA_FIFO_RD_THRD);
 
 	if (x < config->pixel_x || y < config->pixel_y)
@@ -372,7 +373,7 @@ bk_err_t lcd_driver_mcu_init(const lcd_config_t *config)
 	lcd_hal_pixel_config(config->pixel_x, config->pixel_y);
 	lcd_hal_8080_display_enable(1);
 	lcd_hal_8080_int_enable(0, 1); //set eof int enable
-	lcd_hal_display_yuv_sel(config->fmt);
+	bk_lcd_set_yuv_mode(config->fmt);
 	lcd_hal_8080_sleep_in(1);
 
 	if (x < config->pixel_x || y < config->pixel_y)

@@ -34,6 +34,7 @@ typedef struct
 	uint8_t rotate : 1;
 	uint8_t step_mode : 1;
 	uint8_t step_trigger : 1;
+	camera_type_t camera;
 	lcd_state_t state;
 	uint32_t param;
 	uint16_t src_pixel_x;
