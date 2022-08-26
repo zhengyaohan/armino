@@ -153,7 +153,7 @@ INCLUDES += -I$(CHIP_DIR)/third_party/nlassert/repo/include
 INCLUDES += -I$(CHIP_DIR)/third_party/nlio/repo/include
 
 
-
+ifeq ($(CROSS_COMPILE_CHOICE),4)
 # -------------------------------------------------------------------
 # CHIP application layer source
 # -------------------------------------------------------------------
@@ -242,7 +242,7 @@ SRC_CPP += $(CHIP_DIR)/examples/lighting-app/beken/main/DsoHack.cpp
 # -------------------------------------------------------------------
 OBJS = $(SRC_CPP:.cpp=.o)
 OBJ_CPP_LIST = $(notdir $(OBJS))
-
+endif
 # -------------------------------------------------------------------
 # CHIP compile options
 # -------------------------------------------------------------------
@@ -310,7 +310,7 @@ export BUILD_ROOT_ENV=$(CHIP_DIR)/build
 #*****************************************************************************#
 
 # Define the Rules to build the core targets
-all: CHIP_CORE APP
+all: CHIP_CORE
 
 CHIP_CORE:
 	@echo "target=$(TARGET)"
@@ -332,9 +332,9 @@ CHIP_CORE:
 	@echo beken_ar = \"$(AR)\"    >> $(OUTPUT_DIR)/args.gn
 	@echo beken_cc = \"$(CC)\"   >> $(OUTPUT_DIR)/args.gn
 	@echo beken_cxx = \"$(CXX)\"  >> $(OUTPUT_DIR)/args.gn
-	cd $(CHIP_DIR)/config/beken && gn gen --check --fail-on-unused-args $(OUTPUT_DIR)/out/$(TARGET) && cp $(OUTPUT_DIR)/args.gn $(OUTPUT_DIR)/out/$(TARGET)/
-	cd $(CHIP_DIR)/config/beken ; ninja -C $(OUTPUT_DIR)/out/$(TARGET)
-
+	cd $(CHIP_DIR)/examples/lighting-app/beken && gn gen --check --fail-on-unused-args $(OUTPUT_DIR)/out/$(TARGET) && cp $(OUTPUT_DIR)/args.gn $(OUTPUT_DIR)/out/$(TARGET)/
+	cd $(CHIP_DIR)/examples/lighting-app/beken ; ninja -C $(OUTPUT_DIR)/out/$(TARGET)
+ifeq ($(CROSS_COMPILE_CHOICE),4)
 APP: $(OBJS)
 	@echo "Archive the libAPPLICATION.a"
 	@cd $(OUTPUT_DIR)/app_obj; $(AR) crs libAPPLICATION.a $(OBJ_CPP_LIST); mv ./libAPPLICATION.a ../out/$(TARGET)/lib/
@@ -343,7 +343,7 @@ APP: $(OBJS)
 	@$(CXX) $(CXXFLAGS) $(CFLAGS) -o $@ -c $< $(INCLUDES)
 	@echo "CXX $@"
 	@mv $@ $(OUTPUT_DIR)/app_obj/$(notdir $@)
-
+endif
 .PHONY: clean
 clean:
 	rm -rf $(OUTPUT_DIR)/

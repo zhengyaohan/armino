@@ -25,11 +25,11 @@ ExternalProject_Add(matter_project
 		BASEDIR=${base_dir}
 		OUTPUT_DIR=${output_dir}
 		-f ${chip_dir}/libCHIP.mk
-	BUILD_BYPRODUCTS ${lib_dir}/libCHIP.a ${lib_dir}/libAPPLICATION.a
+	BUILD_BYPRODUCTS ${lib_dir}/libMatterApp.a
 	BUILD_ALWAYS 1
 	INSTALL_COMMAND ""
 	)
-
+if(0)
 add_library(lib_app STATIC IMPORTED GLOBAL)
 add_dependencies(lib_app matter_project)
 set_target_properties(lib_app PROPERTIES IMPORTED_LOCATION ${lib_dir}/libAPPLICATION.a)
@@ -37,7 +37,12 @@ set_target_properties(lib_app PROPERTIES IMPORTED_LOCATION ${lib_dir}/libAPPLICA
 add_library(lib_chip STATIC IMPORTED GLOBAL)
 add_dependencies(lib_chip matter_project)
 set_target_properties(lib_chip PROPERTIES IMPORTED_LOCATION ${lib_dir}/libCHIP.a)
+endif()
 
-target_link_libraries(${COMPONENT_LIB} INTERFACE lib_app lib_chip)
+add_library(lib_matter STATIC IMPORTED GLOBAL)
+add_dependencies(lib_matter matter_project)
+set_target_properties(lib_matter PROPERTIES IMPORTED_LOCATION ${lib_dir}/libMatterApp.a)
+
+target_link_libraries(${COMPONENT_LIB} INTERFACE lib_matter)
 
 endif()
