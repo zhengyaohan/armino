@@ -182,6 +182,7 @@ to exclude the API function. */
 #if CONFIG_FREERTOS_V10
 #define INCLUDE_xTaskGetHandle                      1
 #define INCLUDE_eTaskGetState                       1
+#define INCLUDE_xSemaphoreGetMutexHolder                       1
 #endif
 
 #if CONFIG_FREERTOS_POSIX

@@ -22,7 +22,8 @@ endif
 
 CROSS_COMPILE = $(TOOLCHAIN_PATH)/$(TOOLCHAIN_PREFIX)
 
-CHIP_DIR = $(BASEDIR)/components/matter
+#CHIP_DIR = $(BASEDIR)/components/matter
+CHIP_DIR = $(BASEDIR)/components/matter/connectedhomeip
 
 # Compilation tools
 AR = $(CROSS_COMPILE)ar
@@ -55,13 +56,11 @@ INCLUDES += -I$(BASEDIR)/middleware/arch/bk7256/soc
 ifeq ($(CROSS_COMPILE_CHOICE),1)
 INCLUDES += -I$(BASEDIR)/components/os_source/freertos_v9/include
 INCLUDES += -I$(BASEDIR)/components/os_source/freertos_v9/portable/Keil/ARM968es
-INCLUDES += -I$(BASEDIR)/properties/modules/ble_5_x_rw/ble_pub/include
 else
 INCLUDES += -I$(BASEDIR)/components/os_source/freertos_v10/include
 INCLUDES += -I$(BASEDIR)/components/os_source/freertos_v10/portable/GCC/RISC-V
 INCLUDES += -I$(BASEDIR)/middleware/arch/riscv/include
 INCLUDES += -I$(BASEDIR)/middleware/arch/riscv/include/bk_private
-INCLUDES += -I$(BASEDIR)/properties/modules/btdm_5_2_rw/ble_pub/include
 endif
 
 INCLUDES += -I$(BASEDIR)/include
@@ -112,8 +111,6 @@ INCLUDES += -I$(BASEDIR)/middleware/driver/mailbox
 INCLUDES += -I$(BASEDIR)/middleware/driver/touch
 INCLUDES += -I$(BASEDIR)/middleware/driver/sbc
 INCLUDES += -I$(BASEDIR)/middleware/driver/rtc
-INCLUDES += -I$(BASEDIR)/middleware/arch/bk7231n/soc
-INCLUDES += -I$(BASEDIR)/middleware/arch/bk7231n/hal
 INCLUDES += -I$(BASEDIR)/middleware/arch/common/soc/include
 INCLUDES += -I$(BASEDIR)/middleware/arch/common/hal/include
 
@@ -127,8 +124,7 @@ INCLUDES += -I$(BASEDIR)/components/lwip_intf_v2_1/lwip-2.1.2/src/include
 #INCLUDES += -I$(BASEDIR)/components/lwip_intf_v2_0/lwip-2.0.2/src/include
 
 INCLUDES += -I$(BASEDIR)/components/mbedtls/mbedtls/include
-
-
+INCLUDES += -I$(BASEDIR)/components/mbedtls/mbedtls-port/inc
 
 
 #examples
@@ -176,7 +172,8 @@ SRC_CPP += $(CHIP_DIR)/src/app/util/attribute-table.cpp
 SRC_CPP += $(CHIP_DIR)/src/app/util/binding-table.cpp
 #SRC_CPP += $(CHIP_DIR)/src/app/util/CHIPDeviceCallbacksMgr.cpp
 #SRC_CPP += $(CHIP_DIR)/src/app/util/chip-message-send.cpp
-SRC_CPP += $(CHIP_DIR)/src/app/util/client-api.cpp
+#SRC_CPP += $(CHIP_DIR)/src/app/util/client-api.cpp
+SRC_CPP += $(CHIP_DIR)/src/app/util/privilege-storage.cpp
 SRC_CPP += $(CHIP_DIR)/src/app/util/DataModelHandler.cpp
 SRC_CPP += $(CHIP_DIR)/src/app/util/ember-compatibility-functions.cpp
 SRC_CPP += $(CHIP_DIR)/src/app/util/ember-print.cpp
@@ -271,6 +268,7 @@ CFLAGS += -DCHIP_SYSTEM_CONFIG_USE_LWIP=1
 CFLAGS += -DCHIP_SYSTEM_CONFIG_USE_SOCKETS=0
 CFLAGS += -DCHIP_SYSTEM_CONFIG_USE_NETWORK_FRAMEWORK=0
 CFLAGS += -DCHIP_ADDRESS_RESOLVE_IMPL_INCLUDE_HEADER="<lib/address_resolve/AddressResolve_DefaultImpl.h>"
+CFLAGS += -DMBEDTLS_CONFIG_FILE=\"tls_config.h\"
 
 CXXFLAGS =
 ifeq ($(CROSS_COMPILE_CHOICE),1)
