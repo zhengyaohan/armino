@@ -77,7 +77,7 @@ static const bk_logic_partition_t bk7231_partitions[BK_PARTITION_MAX] = {
 		#if CONFIG_FLASH_SIZE_4M
 		.partition_start_addr	   = 0x363000,
 		#else
-		partition_start_addr	   = 0x1CB000,
+		.partition_start_addr	   = 0x1CB000,
 		#endif
 		.partition_length		   = 0x15000, //84KB
 		.partition_options		   = PAR_OPT_READ_EN | PAR_OPT_WRITE_DIS,

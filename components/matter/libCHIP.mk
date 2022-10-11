@@ -22,6 +22,12 @@ endif
 
 CROSS_COMPILE = $(TOOLCHAIN_PATH)/$(TOOLCHAIN_PREFIX)
 
+ifeq ($(TOOLCHAIN_PREFIX),riscv32-elf-)
+CROSS_COMPILE_CHOICE=2
+else
+CROSS_COMPILE_CHOICE=1
+endif
+
 #CHIP_DIR = $(BASEDIR)/components/matter
 CHIP_DIR = $(BASEDIR)/components/matter/connectedhomeip
 
@@ -205,7 +211,7 @@ CXXFLAGS += -Wno-literal-suffix
 #CXXFLAGS += -std=c++14
 CXXFLAGS += -fno-rtti
 CXXFLAGS += -fno-exceptions
-
+CXXFLAGS += -Wno-write-strings
 
 CHIP_CFLAGS = $(CFLAGS)
 CHIP_CFLAGS += $(INCLUDES)
