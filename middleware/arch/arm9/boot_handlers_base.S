@@ -238,6 +238,9 @@ AFTER_FLAG:
 	MOV R11, #0
 	MOV R12, #0
 
+        /* call all initializers or C++ constructors */
+        bl __libc_init_array
+
 	/* start main entry*/
 	B entry_main
 	B .

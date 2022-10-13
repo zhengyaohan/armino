@@ -117,11 +117,12 @@ int __wrap_printf(const char *fmt, ...)
     return len;
 }
 
-
+#if 0
 void __assert_func(const char *file, int line, const char *func, const char *failedexpr)
 {
 	os_printf("%s %d func %s expr %s\n", file, line, func, failedexpr);
 	BK_ASSERT(0);
 }
+#endif
 // eof
 

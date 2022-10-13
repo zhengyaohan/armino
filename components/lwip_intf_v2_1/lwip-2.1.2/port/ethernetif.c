@@ -223,7 +223,9 @@ ethernetif_input(int iface, struct pbuf *p)
     case ETHTYPE_ARP:
 #ifdef CONFIG_IPV6
     case ETHTYPE_IPV6:
+#if CONFIG_SOC_BK7256XX
 	wlan_set_multicast_flag();
+#endif
 #endif
 #if PPPOE_SUPPORT
         /* PPPoE packet? */

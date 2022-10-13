@@ -119,8 +119,11 @@
    ---------- Memory options ----------
    ------------------------------------
 */
-
+#if CONFIG_SOC_BK7256XX
 #define MEM_TRX_DYNAMIC_EN          1
+#else
+#define MEM_TRX_DYNAMIC_EN          0
+#endif
 /**
  * MEM_ALIGNMENT: should be set to the alignment of the CPU
  *    4 byte alignment -> #define MEM_ALIGNMENT 4
@@ -159,7 +162,11 @@
 #define MEM_MAX_RX_SIZE (MEM_SIZE*3)/4
 #else
 #if (CONFIG_LWIP_MEM_REDUCE)
+#if CONFIG_SUPPORT_MATTER
+#define MEM_SIZE (10*1024)
+#else
 #define MEM_SIZE (32*1024)
+#endif
 #else
 #define MEM_SIZE (48*1024)
 #endif //CONFIG_LWIP_MEM_REDUCE
@@ -231,10 +238,14 @@
 /**
  * PBUF_POOL_SIZE: the number of buffers in the pbuf pool.
  */
+#if CONFIG_SUPPORT_MATTER
+#define PBUF_POOL_SIZE                  10
+#else
 #if (MEM_TRX_DYNAMIC_EN)
 #define PBUF_POOL_SIZE                  10
 #else
 #define PBUF_POOL_SIZE                  20
+#endif
 #endif
 
 /*
