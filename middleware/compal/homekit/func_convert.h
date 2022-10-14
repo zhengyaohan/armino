@@ -12,7 +12,7 @@
 
 #ifndef _FUNC_CONVERT_H_
 #define _FUNC_CONVERT_H_
-
+#include <common/bk_include.h>
 
 void uint16_to_array(UINT16 val, UINT8 * array);
 UINT16 array_to_uint16(UINT8 * array);
