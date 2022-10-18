@@ -1145,6 +1145,8 @@ uint32_t bk_erase_all( bk_partition_t type )
     bk_flash_set_protect_type(FLASH_PROTECT_NONE);
 #endif
 
+    if (BK_PARTITION_OTA == type)
+        flash_occu_length = 0x130000;
     for(dw_loop = 0;dw_loop < flash_occu_length / NAME_SPACE_FLASH_TOTAL_SIZE;dw_loop++)
     {
 #if CONFIG_FLASH_ORIGIN_API
