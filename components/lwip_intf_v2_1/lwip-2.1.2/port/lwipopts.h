@@ -176,7 +176,7 @@
  * If the application sends a lot of data out of ROM (or other static memory),
  * this should be set high.
  */
-#define MEMP_NUM_PBUF                   10
+#define MEMP_NUM_PBUF                   16
 
 /**
  * MEMP_NUM_TCP_PCB: the number of simulatenously active TCP connections.
@@ -232,7 +232,7 @@
  * PBUF_POOL_SIZE: the number of buffers in the pbuf pool.
  */
 #if (MEM_TRX_DYNAMIC_EN)
-#define PBUF_POOL_SIZE                  10
+#define PBUF_POOL_SIZE                  16
 #else
 #define PBUF_POOL_SIZE                  20
 #endif
