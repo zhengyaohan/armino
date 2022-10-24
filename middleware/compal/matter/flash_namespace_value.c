@@ -1558,11 +1558,32 @@ void  bk_erase_all_test(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 {
     uint32_t dwRtn = 0;
 
+    uint32_t software_version = 0;
+    char software_version_str[10];
+    uint32_t software_version_str_len = 0;
+    dwRtn = bk_read_data("chip-config", "software-version", (char *)&software_version, 4, &software_version_str_len);
+    if (kNoErr != dwRtn) {
+      software_version = 0;
+    }
+    dwRtn = bk_read_data("chip-config", "software-version-str", software_version_str, 10, &software_version_str_len);
+    if (kNoErr != dwRtn) {
+      strcpy(software_version_str, "0.0");
+    }
+
     dwRtn = bk_erase_all(BK_PARTITION_MATTER_FLASH);
 
     if (kNoErr ==dwRtn)
     {
         bk_printf("bk_erase_all_test succeed \r\n");
+
+        dwRtn = bk_write_data("chip-config", "software-version", (char *)&software_version, 4);
+        if (kNoErr != dwRtn){
+            bk_printf("bk_erase_all_test write software_version error: %d\r\n", kNoErr);
+        }
+        dwRtn = bk_write_data("chip-config", "software-version-str", software_version_str, software_version_str_len);
+        if (kNoErr != dwRtn){
+            bk_printf("bk_erase_all_test write software-version-str error: %d\r\n", kNoErr);
+        }
     }
     else
     {
