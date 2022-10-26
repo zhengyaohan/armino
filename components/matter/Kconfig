@@ -1,0 +1,6 @@
+menu "matter config"
+
+	config MATTER_APP
+		string "matter app"
+		default "lighting-app"
+endmenu

@@ -11,6 +11,7 @@ set(output_dir ${CMAKE_BINARY_DIR}/armino/matter_build)
 set(lib_dir ${output_dir}/out/${target}/lib)
 set(toolchain ${CONFIG_TOOLCHAIN_PATH})
 set(toolchain_prefix ${CONFIG_TOOLCHAIN_PREFIX})
+set(matter_app ${CONFIG_MATTER_APP})
 
 include(ExternalProject)
 ExternalProject_Add(matter_project
@@ -19,6 +20,7 @@ ExternalProject_Add(matter_project
 	BUILD_IN_SOURCE 1
 	BUILD_COMMAND
 		make TARGET=${target}
+		MATTER_APP=${matter_app}
 		TOOLCHAIN_PATH=${toolchain}
 		TOOLCHAIN_PREFIX=${toolchain_prefix}
 		CONFIG_DIR=${config_dir}

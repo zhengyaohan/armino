@@ -20,6 +20,11 @@ ifndef TARGET
 TARGET := bk7235
 endif
 
+ifndef MATTER_APP
+#lighting-app / thermostat
+MATTER_APP := lighting-app
+endif
+
 CROSS_COMPILE = $(TOOLCHAIN_PATH)/$(TOOLCHAIN_PREFIX)
 
 ifeq ($(TOOLCHAIN_PREFIX),riscv32-elf-)
@@ -134,9 +139,9 @@ INCLUDES += -I$(BASEDIR)/components/mbedtls/mbedtls-port/inc
 
 
 #examples
-INCLUDES += -I$(CHIP_DIR)/examples/lighting-app/beken
-INCLUDES += -I$(CHIP_DIR)/examples/lighting-app/beken/main
-INCLUDES += -I$(CHIP_DIR)/examples/lighting-app/beken/main/include
+INCLUDES += -I$(CHIP_DIR)/examples/$(MATTER_APP)/beken
+INCLUDES += -I$(CHIP_DIR)/examples/$(MATTER_APP)/beken/main
+INCLUDES += -I$(CHIP_DIR)/examples/$(MATTER_APP)/beken/main/include
 INCLUDES += -I$(CHIP_DIR)/examples/platform/beken
 
 #src
@@ -152,7 +157,7 @@ INCLUDES += -I$(CHIP_DIR)/src/include
 #zzz_generated
 INCLUDES += -I$(CHIP_DIR)/zzz_generated
 INCLUDES += -I$(CHIP_DIR)/zzz_generated/app-common
-INCLUDES += -I$(CHIP_DIR)/zzz_generated/lighting-app
+INCLUDES += -I$(CHIP_DIR)/zzz_generated/$(MATTER_APP)
 
 
 #third_party
@@ -251,8 +256,8 @@ CHIP_CORE:
 	@echo beken_ar = \"$(AR)\"    >> $(OUTPUT_DIR)/args.gn
 	@echo beken_cc = \"$(CC)\"   >> $(OUTPUT_DIR)/args.gn
 	@echo beken_cxx = \"$(CXX)\"  >> $(OUTPUT_DIR)/args.gn
-	cd $(CHIP_DIR)/examples/lighting-app/beken && gn gen --check --fail-on-unused-args $(OUTPUT_DIR)/out/$(TARGET) && cp $(OUTPUT_DIR)/args.gn $(OUTPUT_DIR)/out/$(TARGET)/
-	cd $(CHIP_DIR)/examples/lighting-app/beken ; ninja -C $(OUTPUT_DIR)/out/$(TARGET)
+	cd $(CHIP_DIR)/examples/$(MATTER_APP)/beken && gn gen --check --fail-on-unused-args $(OUTPUT_DIR)/out/$(TARGET) && cp $(OUTPUT_DIR)/args.gn $(OUTPUT_DIR)/out/$(TARGET)/
+	cd $(CHIP_DIR)/examples/$(MATTER_APP)/beken ; ninja -C $(OUTPUT_DIR)/out/$(TARGET)
 
 
 .PHONY: clean
