@@ -42,7 +42,7 @@ extern "C" {
 #ifdef CONFIG_KEYVALUE
 #define INBUF_SIZE                    1024
 #else
-#define INBUF_SIZE                    128
+#define INBUF_SIZE                    1500
 #endif
 #define OUTBUF_SIZE                   2048
 

@@ -34,9 +34,9 @@
 #define SHELL_LOG_BUSY_NUM      (20)         /* depending on lower driver's pending queue size. drv's queue size < BUSY_NUM <= PEND_NUM. */
 #endif
 
-#define SHELL_ASSERT_BUF_LEN	140
-#define SHELL_CMD_BUF_LEN		140
-#define SHELL_RSP_BUF_LEN		200
+#define SHELL_ASSERT_BUF_LEN	1500
+#define SHELL_CMD_BUF_LEN		1500
+#define SHELL_RSP_BUF_LEN		1500
 
 #define SHELL_RSP_QUEUE_ID	    (7)
 #define SHELL_FW_QUE_ID         (8)
@@ -78,7 +78,7 @@ typedef struct
 	
 	u8     cur_cmd_type;
 	u8     cmd_buff[SHELL_CMD_BUF_LEN];
-	u8     cmd_data_len;
+	u16     cmd_data_len;
 
 	/* patch for BK_REG tool. */
 	/* added one state machine for BK_REG tool cmd. */
@@ -87,7 +87,7 @@ typedef struct
 	/* patch end. */
 
 	u8     assert_buff[SHELL_ASSERT_BUF_LEN];
-	u8     assert_data_len;
+	u16     assert_data_len;
 
 	u8     log_level;
 	bool_t   echo_enable;
