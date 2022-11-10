@@ -126,34 +126,9 @@ INCLUDES += -I$(BASEDIR)/components/lwip_intf_v2_1/lwip-2.1.2/src/include
 INCLUDES += -I$(BASEDIR)/components/mbedtls/mbedtls/include
 INCLUDES += -I$(BASEDIR)/components/mbedtls/mbedtls-port/inc
 
-
-#examples
-INCLUDES += -I$(CHIP_DIR)/examples/lighting-app/beken
-INCLUDES += -I$(CHIP_DIR)/examples/lighting-app/beken/main
-INCLUDES += -I$(CHIP_DIR)/examples/lighting-app/beken/main/include
-INCLUDES += -I$(CHIP_DIR)/examples/platform/beken
-
-#src
-INCLUDES += -I$(CHIP_DIR)/src
-INCLUDES += -I$(CHIP_DIR)/src/app/server
-INCLUDES += -I$(CHIP_DIR)/src/lib
-
 INCLUDES += -I$(CONFIG_DIR)
 
-INCLUDES += -I$(OUTPUT_DIR)/out/$(TARGET)/gen/include
-INCLUDES += -I$(CHIP_DIR)/src/include
-
-#zzz_generated
-INCLUDES += -I$(CHIP_DIR)/zzz_generated
-INCLUDES += -I$(CHIP_DIR)/zzz_generated/app-common
-INCLUDES += -I$(CHIP_DIR)/zzz_generated/lighting-app
-
-
-#third_party
-INCLUDES += -I$(CHIP_DIR)/third_party/nlassert/repo/include
-INCLUDES += -I$(CHIP_DIR)/third_party/nlio/repo/include
-
-
+INCLUDES += -I$(CHIP_DIR)/src/platform/Beken/bk7235
 
 # -------------------------------------------------------------------
 # CHIP compile options
