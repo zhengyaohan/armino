@@ -1206,6 +1206,10 @@ int cli_get_all_chars_len(void)
 static const struct cli_command user_clis[] = {
 };
 
+#ifdef CONFIG_SUPPORT_MATTER
+uint32_t g_per_packet_info_output_bitmap = 0;
+#endif
+
 beken_thread_t cli_thread_handle = NULL;
 int bk_cli_init(void)
 {
@@ -1223,7 +1227,7 @@ int bk_cli_init(void)
 
 	if (cli_register_commands(user_clis, sizeof(user_clis) / sizeof(struct cli_command)))
 		goto init_general_err;
-
+#ifndef CONFIG_SUPPORT_MATTER
 #if (CLI_CFG_WIFI == 1)
 	cli_wifi_init();
 #endif
@@ -1239,11 +1243,13 @@ int bk_cli_init(void)
 #if (CLI_CFG_MISC == 1)
 	cli_misc_init();
 #endif
+#endif
 
 #if (CLI_CFG_MEM == 1)
 	cli_mem_init();
 #endif
 
+#ifndef CONFIG_SUPPORT_MATTER
 #if (CLI_CFG_AIRKISS == 1)
 	cli_airkiss_init();
 #endif
@@ -1279,11 +1285,17 @@ int bk_cli_init(void)
 #if (CLI_CFG_GPIO == 1)
 	cli_gpio_init();
 #endif
+#endif
 
 #if (CLI_CFG_OS == 1)
 	cli_os_init();
 #endif
 
+#if (CLI_CFG_MATTER == 1)
+    cli_matter_init();
+#endif
+
+#ifndef CONFIG_SUPPORT_MATTER
 #if (CLI_CFG_OTA == 1)
 	cli_ota_init();
 #endif
@@ -1302,10 +1314,6 @@ int bk_cli_init(void)
 
 #if (CLI_CFG_KEYVALUE == 1)
     cli_keyVaule_init();
-#endif
-
-#if (CLI_CFG_MATTER == 1)
-    cli_matter_init();
 #endif
 
 #if (CLI_CFG_UART == 1)
@@ -1492,7 +1500,7 @@ int bk_cli_init(void)
 #if (CLI_CFG_PSRAM)
 	cli_psram_init();
 #endif
-
+#endif
 
 	/* sort cmds after registered all cmds. */
 	cli_sort_command(NULL, 0, 0, NULL);

@@ -130,12 +130,12 @@ typedef struct
 } free_queue_t;
 
 #if CONFIG_ARCH_RISCV && !CONFIG_SLAVE_CORE
-static __attribute__((section(".dtcm_sec_data "))) u8    shell_log_buff1[SHELL_LOG_BUF1_NUM * SHELL_LOG_BUF1_LEN];
-static __attribute__((section(".dtcm_sec_data "))) u8    shell_log_buff2[SHELL_LOG_BUF2_NUM * SHELL_LOG_BUF2_LEN];
-static __attribute__((section(".dtcm_sec_data "))) u8    shell_log_buff3[SHELL_LOG_BUF3_NUM * SHELL_LOG_BUF3_LEN];
-static __attribute__((section(".dtcm_sec_data "))) u16   buff1_free_list[SHELL_LOG_BUF1_NUM];
-static __attribute__((section(".dtcm_sec_data "))) u16   buff2_free_list[SHELL_LOG_BUF2_NUM];
-static __attribute__((section(".dtcm_sec_data "))) u16   buff3_free_list[SHELL_LOG_BUF3_NUM];
+static __attribute__((section(".dtcm_sec_bss "))) u8    shell_log_buff1[SHELL_LOG_BUF1_NUM * SHELL_LOG_BUF1_LEN];
+static __attribute__((section(".dtcm_sec_bss "))) u8    shell_log_buff2[SHELL_LOG_BUF2_NUM * SHELL_LOG_BUF2_LEN];
+static __attribute__((section(".dtcm_sec_bss "))) u8    shell_log_buff3[SHELL_LOG_BUF3_NUM * SHELL_LOG_BUF3_LEN];
+static __attribute__((section(".dtcm_sec_bss "))) u16   buff1_free_list[SHELL_LOG_BUF1_NUM];
+static __attribute__((section(".dtcm_sec_bss "))) u16   buff2_free_list[SHELL_LOG_BUF2_NUM];
+static __attribute__((section(".dtcm_sec_bss "))) u16   buff3_free_list[SHELL_LOG_BUF3_NUM];
 #else
 static u8    shell_log_buff1[SHELL_LOG_BUF1_NUM * SHELL_LOG_BUF1_LEN];
 static u8    shell_log_buff2[SHELL_LOG_BUF2_NUM * SHELL_LOG_BUF2_LEN];

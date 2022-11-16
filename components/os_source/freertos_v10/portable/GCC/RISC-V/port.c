@@ -70,7 +70,7 @@ of the stack used by main.  Using the linker script method will repurpose the
 stack that was used by main before the scheduler was started for use as the
 interrupt stack after the scheduler has started. */
 #ifdef configISR_STACK_SIZE_WORDS
-	static __attribute__ ((aligned(16))) __attribute__((section(".dtcm_sec_data "))) StackType_t xISRStack[ configISR_STACK_SIZE_WORDS ] = { 0 };
+	static __attribute__ ((aligned(16))) __attribute__((section(".dtcm_sec_bss "))) StackType_t xISRStack[ configISR_STACK_SIZE_WORDS ] = { 0 };
 	const StackType_t xISRStackTop = ( StackType_t ) &( xISRStack[ configISR_STACK_SIZE_WORDS & ~portBYTE_ALIGNMENT_MASK ] );
 
 	/* Don't use 0xa5 as the stack fill bytes as that is used by the kernerl for

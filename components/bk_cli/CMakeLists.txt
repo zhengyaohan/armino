@@ -6,6 +6,40 @@ list(APPEND incs
 	)
 
 if (CONFIG_CLI)
+
+if(CONFIG_SUPPORT_MATTER)
+set(srcs
+	cli_main.c
+	cli_mem.c
+	cli_os.c
+    cli_rpc.c
+	)
+
+if (CONFIG_SUPPORT_MATTER)
+	list(APPEND srcs
+		cli_matter.c
+	)
+endif()
+
+if (CONFIG_SHELL_ASYNCLOG)
+	list(APPEND srcs
+			shell_task.c
+			shell_uart.c
+	)
+	if (CONFIG_MASTER_CORE)
+		list(APPEND srcs
+			shell_mailbox_ipc.c
+		)
+	endif()
+	if (CONFIG_SLAVE_CORE)
+		list(APPEND srcs
+			shell_mailbox_cp1.c
+		)
+	endif()
+endif()
+
+else()
+
 set(srcs
 	cli_adc.c
 	cli_ble.c
@@ -266,7 +300,10 @@ if (CONFIG_CALENDAR)
 	list(APPEND srcs "cli_calendar.c")
 endif()
 
+endif() #else(CONFIG_SUPPORT_MATTER)
 endif() #if(CONFIG_CLI)
+
+if(NOT CONFIG_SUPPORT_MATTER)
 
 if (CONFIG_JPEG_DECODE)
 	list(APPEND srcs cli_jpegdec.c)
@@ -293,6 +330,8 @@ endif()
 if (CONFIG_AUD_INTF_TEST)
 	list(APPEND srcs cli_aud_intf.c)
 endif()
+
+endif() #if(NOT CONFIG_SUPPORT_MATTER)
 
 armino_component_register(SRCS "${srcs}"
 	INCLUDE_DIRS "${incs}"

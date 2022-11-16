@@ -15,7 +15,7 @@
             "version": "2M.1220",
             "partition": "app",
             "start_addr": "0x00011000",
-            "size": "2312K"
+            "size": "1565K"
         }
     ]
 }

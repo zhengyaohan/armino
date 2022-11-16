@@ -991,8 +991,8 @@ void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, Stack
 /* If the buffers to be provided to the Timer task are declared inside this
 function then they must be declared static - otherwise they will be allocated on
 the stack and so not exists after this function exits. */
-static __attribute__((section(".dtcm_sec_data "))) StaticTask_t xTimerTaskTCB;
-static __attribute__((section(".dtcm_sec_data "))) StackType_t uxTimerTaskStack[ configTIMER_TASK_STACK_DEPTH ];
+static __attribute__((section(".dtcm_sec_bss "))) StaticTask_t xTimerTaskTCB;
+static __attribute__((section(".dtcm_sec_bss "))) StackType_t uxTimerTaskStack[ configTIMER_TASK_STACK_DEPTH ];
 
     /* Pass out a pointer to the StaticTask_t structure in which the Timer
     task's state will be stored. */
