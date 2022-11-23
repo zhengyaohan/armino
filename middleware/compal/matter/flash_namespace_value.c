@@ -855,7 +855,7 @@ uint32_t bK_clear_namespace ( const char * ucnamespace) //base_addr 要用上
         flash_protect_type_t protect_type;
         protect_type = bk_flash_get_protect_type();
         bk_flash_set_protect_type(FLASH_PROTECT_NONE);
-        bk_flash_write_bytes(np_base_addr, (uint8_t *) namespace_temp, NAME_SPACE_FLASH_ACTUAL_USE_SIZE);
+        bk_flash_read_bytes(np_base_addr, (uint8_t *) namespace_temp, NAME_SPACE_FLASH_ACTUAL_USE_SIZE);
 #endif
 
         dw_start_addr = np_base_addr + NAME_SPACE_FLASH_TOTAL_SIZE + dw_off_block * NAME_FLASH_TOTAL_SIZE;

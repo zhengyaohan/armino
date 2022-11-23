@@ -61,6 +61,15 @@ void matter_wr(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
         else
             bk_write_data(argv[3], argv[4], argv[5], strlen(argv[5]) );
         break;
+        case 'f':
+        bK_clear_namespace("chip-config");
+        bK_clear_namespace("chip-counters");
+        bK_clear_namespace("BEKEN0");
+        bK_clear_namespace("BEKEN1");
+        bK_clear_namespace("BEKEN2");
+        bK_clear_namespace("BEKEN3");
+        bK_clear_namespace("BEKEN4");
+        break;
         case 'r':
         val = os_malloc(600);
         ret = bk_read_data(argv[3], argv[4], (char *)val, 600, &len);
