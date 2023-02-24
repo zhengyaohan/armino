@@ -35,7 +35,7 @@
 #endif
 
 #define SHELL_ASSERT_BUF_LEN	140
-#define SHELL_CMD_BUF_LEN		140
+#define SHELL_CMD_BUF_LEN		1200
 #define SHELL_RSP_BUF_LEN		200
 
 #define SHELL_RSP_QUEUE_ID	    (7)
@@ -78,7 +78,7 @@ typedef struct
 	
 	u8     cur_cmd_type;
 	u8     cmd_buff[SHELL_CMD_BUF_LEN];
-	u8     cmd_data_len;
+	u16     cmd_data_len;
 
 	/* patch for BK_REG tool. */
 	/* added one state machine for BK_REG tool cmd. */
@@ -978,7 +978,6 @@ static void rx_ind_process(void)
 			#endif
 		}
 		#endif
-
 		if(cmd_line_buf.cur_cmd_type == CMD_TYPE_TEXT)
 		{
 			u16		rx_ovf = 0;

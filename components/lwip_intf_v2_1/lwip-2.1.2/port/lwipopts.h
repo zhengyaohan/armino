@@ -239,7 +239,7 @@
  * PBUF_POOL_SIZE: the number of buffers in the pbuf pool.
  */
 #if CONFIG_SUPPORT_MATTER
-#define PBUF_POOL_SIZE                  10
+#define PBUF_POOL_SIZE                  15
 #else
 #if (MEM_TRX_DYNAMIC_EN)
 #define PBUF_POOL_SIZE                  10

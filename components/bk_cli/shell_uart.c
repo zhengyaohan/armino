@@ -6,7 +6,7 @@
 #include "shell_drv.h"
 
 #define TX_QUEUE_LEN     8
-#define RX_BUFF_SIZE     160
+#define RX_BUFF_SIZE     1200
 #define ECHO_BUFF_SIZE   64
 
 
