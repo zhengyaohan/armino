@@ -12,7 +12,7 @@
         {
             "firmware": "app.bin",
             "partition": "app",
-            "size": "1700K",
+            "size": "2040K",
             "start_addr": "0x00011000",
             "version": "2M.1220"
         }

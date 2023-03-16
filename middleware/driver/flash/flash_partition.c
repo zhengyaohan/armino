@@ -47,7 +47,7 @@ static const bk_logic_partition_t bk7231_partitions[BK_PARTITION_MAX] = {
 		.partition_description     = "Application",
 		.partition_start_addr      = 0x11000,
 #if CONFIG_SUPPORT_MATTER	|| 	 CONFIG_FLASH_SIZE_4M
-		.partition_length          = 0x1A9000,
+		.partition_length          = 0x1FE000,
 #else
 		.partition_length          = 0x143000,
 #endif
@@ -58,7 +58,7 @@ static const bk_logic_partition_t bk7231_partitions[BK_PARTITION_MAX] = {
 		.partition_owner           = BK_FLASH_EMBEDDED,
 		.partition_description     = "ota",
 #if CONFIG_FLASH_SIZE_4M
-		.partition_start_addr      = 0x1BA000,
+		.partition_start_addr      = 0x20F000,
 		.partition_length          = 0x1A9000, //1700KB
 #elif CONFIG_SUPPORT_MATTER
 		.partition_start_addr      = 0x1BA000,
@@ -75,7 +75,7 @@ static const bk_logic_partition_t bk7231_partitions[BK_PARTITION_MAX] = {
 		.partition_owner		   = BK_FLASH_EMBEDDED,
 		.partition_description	   = "Matter",
 		#if CONFIG_FLASH_SIZE_4M
-		.partition_start_addr	   = 0x363000,
+		.partition_start_addr	   = 0x3E9000,
 		#else
 		.partition_start_addr	   = 0x1CB000,
 		#endif
