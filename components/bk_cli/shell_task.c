@@ -25,9 +25,9 @@
 #define SHELL_LOG_PEND_NUM      (SHELL_LOG_BUF_NUM + 3)  /* 1: for RSP, 1: reserved(queue empty), 1: cmd ovf. */
 #define SHELL_LOG_BUSY_NUM      (SHELL_LOG_PEND_NUM)     /* depending on lower driver's pending queue size. IPC drv no busy state. */
 #else
-#define SHELL_LOG_BUF1_NUM      16
-#define SHELL_LOG_BUF2_NUM      48
-#define SHELL_LOG_BUF3_NUM      64
+#define SHELL_LOG_BUF1_NUM      3
+#define SHELL_LOG_BUF2_NUM      6
+#define SHELL_LOG_BUF3_NUM      9
 
 #define SHELL_LOG_BUF_NUM       (SHELL_LOG_BUF1_NUM + SHELL_LOG_BUF2_NUM + SHELL_LOG_BUF3_NUM)
 #define SHELL_LOG_PEND_NUM      (SHELL_LOG_BUF_NUM * 2 + 3)  /* 1: for RSP, 1: reserved(queue empty, 1: cmd ovf). */ /* the worst case may be (one log + one hint) in pending queue.*/
