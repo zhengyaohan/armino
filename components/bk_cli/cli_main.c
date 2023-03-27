@@ -1518,7 +1518,7 @@ int bk_cli_init(void)
 							 SHELL_TASK_PRIORITY,
 							 "cli",
 							 (beken_thread_function_t)shell_task /*cli_main*/,
-							 4096,
+							 3072,
 							 0);
 #endif
 #else // #if CONFIG_SHELL_ASYNCLOG

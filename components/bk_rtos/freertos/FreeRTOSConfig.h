@@ -91,7 +91,7 @@
 #define configUSE_TIMERS                            ( 1 )
 #define configTIMER_TASK_PRIORITY                   ( 2 )
 #define configTIMER_QUEUE_LENGTH                    ( 16 )
-#define configTIMER_TASK_STACK_DEPTH                ( ( unsigned short ) (3072 / sizeof( portSTACK_TYPE )) )
+#define configTIMER_TASK_STACK_DEPTH                ( ( unsigned short ) (1024 / sizeof( portSTACK_TYPE )) )
 
 /* Task */
 #if CONFIG_FREERTOS_V10
@@ -105,7 +105,7 @@
 
 #define configMAX_PRIORITIES                        ( 10 )
 #define configUSE_PREEMPTION                        1
-#define configMINIMAL_STACK_SIZE                    ( ( unsigned short ) (512/2) )
+#define configMINIMAL_STACK_SIZE                    ( ( unsigned short ) (256/2) )
 #define configMAX_TASK_NAME_LEN                     ( 16 )
 #define configIDLE_SHOULD_YIELD                     1
 #define configUSE_CO_ROUTINES                       0
